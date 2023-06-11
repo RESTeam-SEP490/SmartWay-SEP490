@@ -21,6 +21,11 @@ import org.hibernate.annotations.GenericGenerator;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@NamedEntityGraph(
+    name = "user-with-authorities-entity-graph",
+    attributeNodes = { @NamedAttributeNode(value = "role", subgraph = "authority-subgraph") },
+    subgraphs = { @NamedSubgraph(name = "authority-subgraph", attributeNodes = { @NamedAttributeNode("authorities") }) }
+)
 @Table(name = "jhi_user")
 public class User extends AbstractAuditingEntity<UUID> implements Serializable {
 

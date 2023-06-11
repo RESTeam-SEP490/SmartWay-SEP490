@@ -35,6 +35,7 @@
     },
     "form": {
       "fullName.label": "Full name",
+      "fullName.placeholder": "Your full name",
       "username.label": "Username",
       "username.placeholder": "Your username",
       "currentpassword.label": "Current password",
@@ -44,7 +45,11 @@
       "confirmpassword.label": "New password confirmation",
       "confirmpassword.placeholder": "Confirm the new password",
       "email.label": "Email",
-      "email.placeholder": "Your email"
+      "email.placeholder": "Your email",
+      "phone.label": "Phone number",
+      "phone.placeholder": "Your phone number",
+      "restaurantName.label": "Restaurant name",
+      "restaurantName.placeholder": "Your restaurant name"
     },
     "messages": {
       "info": {
@@ -79,10 +84,19 @@
           "minlength": "Your email is required to be at least 5 characters.",
           "maxlength": "Your email cannot be longer than 50 characters."
         },
+        "phone": {
+          "required": "Your phone number is required.",
+          "invalid": "Your phone number is invalid."
+        },
         "fullName": {
           "required": "Full name is required.",
           "pattern": "Full name should be letters only.",
           "maxlength": "Full name cannot be longer than 50 characters."
+        },
+        "restaurantName": {
+          "required": "Restaurant name is required.",
+          "pattern": "Restaurant name should be letters only.",
+          "maxlength": "Restaurant name cannot be longer than 50 characters."
         }
       }
     },

@@ -24,7 +24,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findOneWithAuthoritiesByUsername(String username);
     Optional<User> findOneByEmailIgnoreCase(String username);
 
-    Optional<User> findOneByUsernameAndRestaurant(String username, Restaurant restaurant);
+    @EntityGraph("user-with-authorities-entity-graph")
+    Optional<User> findOneWithAuthoritiesByUsernameAndRestaurant(String username, Restaurant restaurant);
 
     @EntityGraph(attributePaths = "authorities")
     Optional<User> findOneWithAuthoritiesByEmailIgnoreCase(String email);

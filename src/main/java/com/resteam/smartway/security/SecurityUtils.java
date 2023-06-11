@@ -29,9 +29,9 @@ public final class SecurityUtils {
     private static String extractPrincipal(Authentication authentication) {
         if (authentication == null) {
             return null;
-        } else if (authentication.getPrincipal() instanceof UserDetails) {
-            UserDetails springSecurityUser = (UserDetails) authentication.getPrincipal();
-            return springSecurityUser.getUsername();
+        } else if (authentication.getPrincipal() instanceof CustomUserDetails) {
+            CustomUserDetails springSecurityUser = (CustomUserDetails) authentication.getPrincipal();
+            return springSecurityUser.getUsername() + " " + springSecurityUser.getRestaurantName();
         } else if (authentication.getPrincipal() instanceof String) {
             return (String) authentication.getPrincipal();
         }

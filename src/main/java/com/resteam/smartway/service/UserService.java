@@ -24,9 +24,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import tech.jhipster.security.RandomUtil;
 
 /**
@@ -262,7 +264,14 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Optional<User> getUserWithAuthorities() {
-        return SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneWithAuthoritiesByUsername);
+        String[] usernameAndRestaurantName = StringUtils.split(SecurityUtils.getCurrentUserLogin().get(), " ");
+        if (usernameAndRestaurantName == null || usernameAndRestaurantName.length != 2) {
+            throw new UsernameNotFoundException("Username and domain must be provided");
+        }
+        return userRepository.findOneWithAuthoritiesByUsernameAndRestaurant(
+            usernameAndRestaurantName[0],
+            new Restaurant(usernameAndRestaurantName[1])
+        );
     }
 
     /**

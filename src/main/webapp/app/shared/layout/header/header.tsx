@@ -47,9 +47,11 @@ const Header = (props: IHeaderProps) => {
   /* jhipster-needle-add-element-to-menu - JHipster will add new menu items here */
 
   return (
-    <div id="app-header" className={location.pathname.includes('login') || location.pathname.includes('register') ? 'hidden' : ''}>
+    <div id="app-header" className={['login', 'register'].some(path => location.pathname.includes(path)) ? 'hidden' : ''}>
       {renderDevRibbon()}
       <LoadingBar className="loading-bar" />
+      {/* <div className="mx-auto py-4 ">
+      </div> */}
       <Navbar data-cy="navbar" dark expand="md" fixed="top" className="jh-navbar">
         <NavbarToggler aria-label="Menu" onClick={toggleMenu} />
         <Brand />

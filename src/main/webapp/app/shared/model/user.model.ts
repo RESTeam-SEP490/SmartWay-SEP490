@@ -1,9 +1,11 @@
+import restaurant from 'app/entities/restaurant/restaurant.reducer';
 export interface IUser {
   id?: any;
   login?: string;
   firstName?: string;
   lastName?: string;
   email?: string;
+  restaurantName?: string;
   activated?: boolean;
   langKey?: string;
   authorities?: any[];

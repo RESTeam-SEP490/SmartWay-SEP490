@@ -42,7 +42,7 @@ public class DomainUserDetailsService implements UserDetailsService {
         }
 
         return userRepository
-            .findOneByUsernameAndRestaurant(usernameAndRestaurantName[0], new Restaurant(usernameAndRestaurantName[1]))
+            .findOneWithAuthoritiesByUsernameAndRestaurant(usernameAndRestaurantName[0], new Restaurant(usernameAndRestaurantName[1]))
             .map(CustomUserDetails::build)
             .orElseThrow(() ->
                 new UsernameNotFoundException(
