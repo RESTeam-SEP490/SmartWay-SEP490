@@ -2,7 +2,6 @@ package com.resteam.smartway.service.mapper;
 
 import com.resteam.smartway.domain.Authority;
 import com.resteam.smartway.domain.User;
-import com.resteam.smartway.service.dto.AdminUserDTO;
 import com.resteam.smartway.service.dto.UserDTO;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -28,37 +27,6 @@ public class UserMapper {
         return new UserDTO(user);
     }
 
-    public List<AdminUserDTO> usersToAdminUserDTOs(List<User> users) {
-        return users.stream().filter(Objects::nonNull).map(this::userToAdminUserDTO).collect(Collectors.toList());
-    }
-
-    public AdminUserDTO userToAdminUserDTO(User user) {
-        return new AdminUserDTO(user);
-    }
-
-    public List<User> userDTOsToUsers(List<AdminUserDTO> userDTOs) {
-        return userDTOs.stream().filter(Objects::nonNull).map(this::userDTOToUser).collect(Collectors.toList());
-    }
-
-    public User userDTOToUser(AdminUserDTO userDTO) {
-        if (userDTO == null) {
-            return null;
-        } else {
-            User user = new User();
-            user.setId(userDTO.getId());
-            user.setLogin(userDTO.getLogin());
-            user.setFirstName(userDTO.getFirstName());
-            user.setLastName(userDTO.getLastName());
-            user.setEmail(userDTO.getEmail());
-            user.setImageUrl(userDTO.getImageUrl());
-            user.setActivated(userDTO.isActivated());
-            user.setLangKey(userDTO.getLangKey());
-            Set<Authority> authorities = this.authoritiesFromStrings(userDTO.getAuthorities());
-            user.setAuthorities(authorities);
-            return user;
-        }
-    }
-
     private Set<Authority> authoritiesFromStrings(Set<String> authoritiesAsString) {
         Set<Authority> authorities = new HashSet<>();
 
@@ -77,7 +45,7 @@ public class UserMapper {
         return authorities;
     }
 
-    public User userFromId(Long id) {
+    public User userFromId(UUID id) {
         if (id == null) {
             return null;
         }
@@ -117,14 +85,14 @@ public class UserMapper {
     @Named("login")
     @BeanMapping(ignoreByDefault = true)
     @Mapping(target = "id", source = "id")
-    @Mapping(target = "login", source = "login")
+    @Mapping(target = "login", source = "username")
     public UserDTO toDtoLogin(User user) {
         if (user == null) {
             return null;
         }
         UserDTO userDto = new UserDTO();
         userDto.setId(user.getId());
-        userDto.setLogin(user.getLogin());
+        userDto.setLogin(user.getUsername());
         return userDto;
     }
 

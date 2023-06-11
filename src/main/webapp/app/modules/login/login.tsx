@@ -18,7 +18,8 @@ export const Login = () => {
     setShowModal(true);
   }, []);
 
-  const handleLogin = (username, password, rememberMe = false) => dispatch(login(username, password, rememberMe));
+  const handleLogin = (restaurantName, username, password, rememberMe = false) =>
+    dispatch(login(restaurantName, username, password, rememberMe));
 
   const handleClose = () => {
     setShowModal(false);

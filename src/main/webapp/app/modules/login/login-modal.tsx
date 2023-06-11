@@ -7,13 +7,13 @@ import { useForm } from 'react-hook-form';
 export interface ILoginModalProps {
   showModal: boolean;
   loginError: boolean;
-  handleLogin: (username: string, password: string, rememberMe: boolean) => void;
+  handleLogin: (restaurantName: string, username: string, password: string, rememberMe: boolean) => void;
   handleClose: () => void;
 }
 
 const LoginModal = (props: ILoginModalProps) => {
-  const login = ({ username, password, rememberMe }) => {
-    props.handleLogin(username, password, rememberMe);
+  const login = ({ restaurantName, username, password, rememberMe }) => {
+    props.handleLogin(restaurantName, username, password, rememberMe);
   };
 
   const {

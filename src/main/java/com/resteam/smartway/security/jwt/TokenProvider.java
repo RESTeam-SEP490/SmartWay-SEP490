@@ -1,6 +1,7 @@
 package com.resteam.smartway.security.jwt;
 
 import com.resteam.smartway.management.SecurityMetersService;
+import com.resteam.smartway.security.CustomUserDetails;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -15,7 +16,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 import tech.jhipster.config.JHipsterProperties;
@@ -64,6 +64,7 @@ public class TokenProvider {
 
     public String createToken(Authentication authentication, boolean rememberMe) {
         String authorities = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(","));
+        CustomUserDetails userPrincipal = (CustomUserDetails) authentication.getPrincipal();
 
         long now = (new Date()).getTime();
         Date validity;
@@ -75,7 +76,8 @@ public class TokenProvider {
 
         return Jwts
             .builder()
-            .setSubject(authentication.getName())
+            .setSubject(userPrincipal.getUsername())
+            .setAudience(userPrincipal.getRestaurantName())
             .claim(AUTHORITIES_KEY, authorities)
             .signWith(key, SignatureAlgorithm.HS512)
             .setExpiration(validity)
@@ -91,7 +93,7 @@ public class TokenProvider {
             .map(SimpleGrantedAuthority::new)
             .collect(Collectors.toList());
 
-        User principal = new User(claims.getSubject(), "", authorities);
+        CustomUserDetails principal = new CustomUserDetails(claims.getSubject(), null, claims.getAudience(), authorities);
 
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);
     }

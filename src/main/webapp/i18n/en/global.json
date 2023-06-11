@@ -34,6 +34,7 @@
       "language": "Language"
     },
     "form": {
+      "fullName.label": "Full name",
       "username.label": "Username",
       "username.placeholder": "Your username",
       "currentpassword.label": "Current password",
@@ -77,6 +78,11 @@
           "invalid": "Your email is invalid.",
           "minlength": "Your email is required to be at least 5 characters.",
           "maxlength": "Your email cannot be longer than 50 characters."
+        },
+        "fullName": {
+          "required": "Full name is required.",
+          "pattern": "Full name should be letters only.",
+          "maxlength": "Full name cannot be longer than 50 characters."
         }
       }
     },

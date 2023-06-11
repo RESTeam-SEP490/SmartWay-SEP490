@@ -7,6 +7,7 @@ import com.resteam.smartway.service.MailService;
 import com.resteam.smartway.service.UserService;
 import com.resteam.smartway.service.dto.AdminUserDTO;
 import com.resteam.smartway.service.dto.PasswordChangeDTO;
+import com.resteam.smartway.service.dto.TenantRegistrationDTO;
 import com.resteam.smartway.web.rest.errors.*;
 import com.resteam.smartway.web.rest.vm.KeyAndPasswordVM;
 import com.resteam.smartway.web.rest.vm.ManagedUserVM;
@@ -57,11 +58,11 @@ public class AccountResource {
      */
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public void registerAccount(@Valid @RequestBody ManagedUserVM managedUserVM) {
-        if (isPasswordLengthInvalid(managedUserVM.getPassword())) {
+    public void registerAccount(@Valid @RequestBody TenantRegistrationDTO tenantRegistrationDTO) {
+        if (isPasswordLengthInvalid(tenantRegistrationDTO.getPassword())) {
             throw new InvalidPasswordException();
         }
-        User user = userService.registerUser(managedUserVM, managedUserVM.getPassword());
+        User user = userService.registerUser(tenantRegistrationDTO);
         mailService.sendActivationEmail(user);
     }
 
@@ -117,21 +118,11 @@ public class AccountResource {
         String userLogin = SecurityUtils
             .getCurrentUserLogin()
             .orElseThrow(() -> new AccountResourceException("Current user login not found"));
-        Optional<User> existingUser = userRepository.findOneByEmailIgnoreCase(userDTO.getEmail());
-        if (existingUser.isPresent() && (!existingUser.get().getLogin().equalsIgnoreCase(userLogin))) {
-            throw new EmailAlreadyUsedException();
-        }
-        Optional<User> user = userRepository.findOneByLogin(userLogin);
-        if (!user.isPresent()) {
+        Optional<User> user = userRepository.findOneByUsername(userLogin);
+        if (user.isEmpty()) {
             throw new AccountResourceException("User could not be found");
         }
-        userService.updateUser(
-            userDTO.getFirstName(),
-            userDTO.getLastName(),
-            userDTO.getEmail(),
-            userDTO.getLangKey(),
-            userDTO.getImageUrl()
-        );
+        userService.updateUser(userDTO.getName(), userDTO.getEmail(), userDTO.getLangKey(), userDTO.getImageUrl());
     }
 
     /**

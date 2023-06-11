@@ -8,10 +8,12 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import tech.jhipster.web.util.HeaderUtil;
@@ -45,7 +47,7 @@ public class RestaurantResource {
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new restaurant, or with status {@code 400 (Bad Request)} if the restaurant has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @PostMapping("/restaurants")
+    @PostMapping(value = "/restaurants")
     public ResponseEntity<Restaurant> createRestaurant(@RequestBody Restaurant restaurant) throws URISyntaxException {
         log.debug("REST request to save Restaurant : {}", restaurant);
         if (restaurant.getId() != null) {
@@ -70,7 +72,7 @@ public class RestaurantResource {
      */
     @PutMapping("/restaurants/{id}")
     public ResponseEntity<Restaurant> updateRestaurant(
-        @PathVariable(value = "id", required = false) final Long id,
+        @PathVariable(value = "id", required = false) final UUID id,
         @RequestBody Restaurant restaurant
     ) throws URISyntaxException {
         log.debug("REST request to update Restaurant : {}, {}", id, restaurant);
@@ -105,7 +107,7 @@ public class RestaurantResource {
      */
     @PatchMapping(value = "/restaurants/{id}", consumes = { "application/json", "application/merge-patch+json" })
     public ResponseEntity<Restaurant> partialUpdateRestaurant(
-        @PathVariable(value = "id", required = false) final Long id,
+        @PathVariable(value = "id", required = false) final UUID id,
         @RequestBody Restaurant restaurant
     ) throws URISyntaxException {
         log.debug("REST request to partial update Restaurant partially : {}, {}", id, restaurant);
@@ -158,7 +160,7 @@ public class RestaurantResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the restaurant, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/restaurants/{id}")
-    public ResponseEntity<Restaurant> getRestaurant(@PathVariable Long id) {
+    public ResponseEntity<Restaurant> getRestaurant(@PathVariable UUID id) {
         log.debug("REST request to get Restaurant : {}", id);
         Optional<Restaurant> restaurant = restaurantRepository.findById(id);
         return ResponseUtil.wrapOrNotFound(restaurant);
@@ -171,7 +173,7 @@ public class RestaurantResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/restaurants/{id}")
-    public ResponseEntity<Void> deleteRestaurant(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteRestaurant(@PathVariable UUID id) {
         log.debug("REST request to delete Restaurant : {}", id);
         restaurantRepository.deleteById(id);
         return ResponseEntity

@@ -1,6 +1,7 @@
 package com.resteam.smartway.security;
 
 import com.resteam.smartway.domain.Authority;
+import com.resteam.smartway.domain.Restaurant;
 import com.resteam.smartway.domain.User;
 import com.resteam.smartway.repository.UserRepository;
 import java.util.*;
@@ -15,6 +16,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 /**
  * Authenticate a user from the database.
@@ -32,33 +34,24 @@ public class DomainUserDetailsService implements UserDetailsService {
 
     @Override
     @Transactional(readOnly = true)
-    public UserDetails loadUserByUsername(final String login) {
-        log.debug("Authenticating {}", login);
-
-        if (new EmailValidator().isValid(login, null)) {
-            return userRepository
-                .findOneWithAuthoritiesByEmailIgnoreCase(login)
-                .map(user -> createSpringSecurityUser(login, user))
-                .orElseThrow(() -> new UsernameNotFoundException("User with email " + login + " was not found in the database"));
+    public UserDetails loadUserByUsername(final String username) {
+        log.debug("Authenticating {}", username);
+        String[] usernameAndRestaurantName = StringUtils.split(username.toLowerCase(Locale.ENGLISH), " ");
+        if (usernameAndRestaurantName == null || usernameAndRestaurantName.length != 2) {
+            throw new UsernameNotFoundException("Username and domain must be provided");
         }
 
-        String lowercaseLogin = login.toLowerCase(Locale.ENGLISH);
         return userRepository
-            .findOneWithAuthoritiesByLogin(lowercaseLogin)
-            .map(user -> createSpringSecurityUser(lowercaseLogin, user))
-            .orElseThrow(() -> new UsernameNotFoundException("User " + lowercaseLogin + " was not found in the database"));
-    }
-
-    private org.springframework.security.core.userdetails.User createSpringSecurityUser(String lowercaseLogin, User user) {
-        if (!user.isActivated()) {
-            throw new UserNotActivatedException("User " + lowercaseLogin + " was not activated");
-        }
-        List<GrantedAuthority> grantedAuthorities = user
-            .getAuthorities()
-            .stream()
-            .map(Authority::getName)
-            .map(SimpleGrantedAuthority::new)
-            .collect(Collectors.toList());
-        return new org.springframework.security.core.userdetails.User(user.getLogin(), user.getPassword(), grantedAuthorities);
+            .findOneByUsernameAndRestaurant(usernameAndRestaurantName[0], new Restaurant(usernameAndRestaurantName[1]))
+            .map(CustomUserDetails::build)
+            .orElseThrow(() ->
+                new UsernameNotFoundException(
+                    String.format(
+                        "Username not found for domain, username=%s, domain=%s",
+                        usernameAndRestaurantName[0],
+                        usernameAndRestaurantName[1]
+                    )
+                )
+            );
     }
 }

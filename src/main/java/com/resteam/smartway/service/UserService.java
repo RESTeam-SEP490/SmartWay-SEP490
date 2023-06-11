@@ -2,13 +2,19 @@ package com.resteam.smartway.service;
 
 import com.resteam.smartway.config.Constants;
 import com.resteam.smartway.domain.Authority;
+import com.resteam.smartway.domain.Restaurant;
+import com.resteam.smartway.domain.Role;
 import com.resteam.smartway.domain.User;
 import com.resteam.smartway.repository.AuthorityRepository;
+import com.resteam.smartway.repository.RestaurantRepository;
+import com.resteam.smartway.repository.RoleRepository;
 import com.resteam.smartway.repository.UserRepository;
 import com.resteam.smartway.security.AuthoritiesConstants;
 import com.resteam.smartway.security.SecurityUtils;
 import com.resteam.smartway.service.dto.AdminUserDTO;
+import com.resteam.smartway.service.dto.TenantRegistrationDTO;
 import com.resteam.smartway.service.dto.UserDTO;
+import com.resteam.smartway.web.rest.errors.SubdomainAlreadyUsedException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -38,10 +44,22 @@ public class UserService {
 
     private final AuthorityRepository authorityRepository;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthorityRepository authorityRepository) {
+    private final RestaurantRepository restaurantRepository;
+
+    private final RoleRepository roleRepository;
+
+    public UserService(
+        UserRepository userRepository,
+        PasswordEncoder passwordEncoder,
+        AuthorityRepository authorityRepository,
+        RestaurantRepository restaurantRepository,
+        RoleRepository roleRepository
+    ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authorityRepository = authorityRepository;
+        this.restaurantRepository = restaurantRepository;
+        this.roleRepository = roleRepository;
     }
 
     public Optional<User> activateRegistration(String key) {
@@ -81,42 +99,32 @@ public class UserService {
             });
     }
 
-    public User registerUser(AdminUserDTO userDTO, String password) {
-        userRepository
-            .findOneByLogin(userDTO.getLogin().toLowerCase())
-            .ifPresent(existingUser -> {
-                boolean removed = removeNonActivatedUser(existingUser);
-                if (!removed) {
-                    throw new UsernameAlreadyUsedException();
-                }
-            });
-        userRepository
-            .findOneByEmailIgnoreCase(userDTO.getEmail())
-            .ifPresent(existingUser -> {
-                boolean removed = removeNonActivatedUser(existingUser);
-                if (!removed) {
-                    throw new EmailAlreadyUsedException();
-                }
-            });
+    public User registerUser(TenantRegistrationDTO tenantRegistrationDTO) {
+        Optional<Restaurant> optionalRestaurant = restaurantRepository.findOneByName(tenantRegistrationDTO.getRestaurantName());
+        if (optionalRestaurant.isPresent()) throw new SubdomainAlreadyUsedException();
+
+        Restaurant restaurant = new Restaurant(tenantRegistrationDTO.getRestaurantName());
+        restaurantRepository.save(restaurant);
+
         User newUser = new User();
-        String encryptedPassword = passwordEncoder.encode(password);
-        newUser.setLogin(userDTO.getLogin().toLowerCase());
+        String encryptedPassword = passwordEncoder.encode(tenantRegistrationDTO.getPassword());
+        newUser.setUsername(tenantRegistrationDTO.getUsername().toLowerCase());
         // new user gets initially a generated password
         newUser.setPassword(encryptedPassword);
-        newUser.setFirstName(userDTO.getFirstName());
-        newUser.setLastName(userDTO.getLastName());
-        if (userDTO.getEmail() != null) {
-            newUser.setEmail(userDTO.getEmail().toLowerCase());
-        }
-        newUser.setImageUrl(userDTO.getImageUrl());
-        newUser.setLangKey(userDTO.getLangKey());
-        // new user is not active
-        newUser.setActivated(false);
+        newUser.setFullName(tenantRegistrationDTO.getFullName());
+        newUser.setEmail(tenantRegistrationDTO.getEmail().toLowerCase());
+        newUser.setLangKey(tenantRegistrationDTO.getLangKey());
+
+        newUser.setActivated(true);
         // new user gets registration key
-        newUser.setActivationKey(RandomUtil.generateActivationKey());
+        newUser.setRestaurant(restaurant);
         Set<Authority> authorities = new HashSet<>();
         authorityRepository.findById(AuthoritiesConstants.USER).ifPresent(authorities::add);
-        newUser.setAuthorities(authorities);
+
+        Role role = new Role("Nhân viên", restaurant, authorities);
+        roleRepository.save(role);
+
+        newUser.setRole(role);
         userRepository.save(newUser);
         log.debug("Created Information for User: {}", newUser);
         return newUser;
@@ -133,9 +141,8 @@ public class UserService {
 
     public User createUser(AdminUserDTO userDTO) {
         User user = new User();
-        user.setLogin(userDTO.getLogin().toLowerCase());
-        user.setFirstName(userDTO.getFirstName());
-        user.setLastName(userDTO.getLastName());
+        user.setUsername(userDTO.getLogin().toLowerCase());
+        user.setFullName(userDTO.getName());
         if (userDTO.getEmail() != null) {
             user.setEmail(userDTO.getEmail().toLowerCase());
         }
@@ -158,7 +165,7 @@ public class UserService {
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toSet());
-            user.setAuthorities(authorities);
+            user.setRole(new Role("", null, authorities));
         }
         userRepository.save(user);
         log.debug("Created Information for User: {}", user);
@@ -177,16 +184,15 @@ public class UserService {
             .filter(Optional::isPresent)
             .map(Optional::get)
             .map(user -> {
-                user.setLogin(userDTO.getLogin().toLowerCase());
-                user.setFirstName(userDTO.getFirstName());
-                user.setLastName(userDTO.getLastName());
+                user.setUsername(userDTO.getLogin().toLowerCase());
+                user.setFullName(userDTO.getName());
                 if (userDTO.getEmail() != null) {
                     user.setEmail(userDTO.getEmail().toLowerCase());
                 }
                 user.setImageUrl(userDTO.getImageUrl());
                 user.setActivated(userDTO.isActivated());
                 user.setLangKey(userDTO.getLangKey());
-                Set<Authority> managedAuthorities = user.getAuthorities();
+                Collection<Authority> managedAuthorities = user.getRole().getAuthorities();
                 managedAuthorities.clear();
                 userDTO
                     .getAuthorities()
@@ -203,7 +209,7 @@ public class UserService {
 
     public void deleteUser(String login) {
         userRepository
-            .findOneByLogin(login)
+            .findOneByUsername(login)
             .ifPresent(user -> {
                 userRepository.delete(user);
                 log.debug("Deleted User: {}", user);
@@ -214,18 +220,16 @@ public class UserService {
      * Update basic information (first name, last name, email, language) for the current user.
      *
      * @param firstName first name of user.
-     * @param lastName  last name of user.
      * @param email     email id of user.
      * @param langKey   language key.
      * @param imageUrl  image URL of user.
      */
-    public void updateUser(String firstName, String lastName, String email, String langKey, String imageUrl) {
+    public void updateUser(String firstName, String email, String langKey, String imageUrl) {
         SecurityUtils
             .getCurrentUserLogin()
-            .flatMap(userRepository::findOneByLogin)
+            .flatMap(userRepository::findOneByUsername)
             .ifPresent(user -> {
-                user.setFirstName(firstName);
-                user.setLastName(lastName);
+                user.setFullName(firstName);
                 if (email != null) {
                     user.setEmail(email.toLowerCase());
                 }
@@ -239,7 +243,7 @@ public class UserService {
     public void changePassword(String currentClearTextPassword, String newPassword) {
         SecurityUtils
             .getCurrentUserLogin()
-            .flatMap(userRepository::findOneByLogin)
+            .flatMap(userRepository::findOneByUsername)
             .ifPresent(user -> {
                 String currentEncryptedPassword = user.getPassword();
                 if (!passwordEncoder.matches(currentClearTextPassword, currentEncryptedPassword)) {
@@ -252,23 +256,13 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Page<AdminUserDTO> getAllManagedUsers(Pageable pageable) {
-        return userRepository.findAll(pageable).map(AdminUserDTO::new);
-    }
-
-    @Transactional(readOnly = true)
     public Page<UserDTO> getAllPublicUsers(Pageable pageable) {
         return userRepository.findAllByIdNotNullAndActivatedIsTrue(pageable).map(UserDTO::new);
     }
 
     @Transactional(readOnly = true)
-    public Optional<User> getUserWithAuthoritiesByLogin(String login) {
-        return userRepository.findOneWithAuthoritiesByLogin(login);
-    }
-
-    @Transactional(readOnly = true)
     public Optional<User> getUserWithAuthorities() {
-        return SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneWithAuthoritiesByLogin);
+        return SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneWithAuthoritiesByUsername);
     }
 
     /**
@@ -281,13 +275,14 @@ public class UserService {
         userRepository
             .findAllByActivatedIsFalseAndActivationKeyIsNotNullAndCreatedDateBefore(Instant.now().minus(3, ChronoUnit.DAYS))
             .forEach(user -> {
-                log.debug("Deleting not activated user {}", user.getLogin());
+                log.debug("Deleting not activated user {}", user.getUsername());
                 userRepository.delete(user);
             });
     }
 
     /**
      * Gets a list of all the authorities.
+     *
      * @return a list of all the authorities.
      */
     @Transactional(readOnly = true)
