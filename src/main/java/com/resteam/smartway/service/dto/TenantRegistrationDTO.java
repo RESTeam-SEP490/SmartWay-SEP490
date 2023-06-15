@@ -30,7 +30,7 @@ public class TenantRegistrationDTO {
     private String password;
 
     @Size(max = 50)
-    @Pattern(regexp = "^[a-z | \\P{XDigit}]+$")
+    @Pattern(regexp = "^[p{L}\\D]+$")
     private String fullName;
 
     @Pattern(regexp = "^\\d+$")
