@@ -1,6 +1,7 @@
 {
   "login": {
-    "title": "Sign in",
+    "title": "Welcome back",
+    "subtitle": "Enter your credentials to access your Account",
     "form": {
       "password": "Password",
       "password.placeholder": "Your password",
@@ -9,11 +10,15 @@
     },
     "messages": {
       "error": {
-        "authentication": "<strong>Failed to sign in!</strong> Please check your credentials and try again."
+        "authentication": "<strong>Failed to sign in!</strong><br> Please check your credentials and try again."
       }
     },
     "password": {
-      "forgot": "Did you forget your password?"
+      "forgot": "Forgot your password?"
+    },
+    "link": {
+      "noAccount": "Don't have account yet?",
+      "getStarted": "Get started"
     }
   }
 }

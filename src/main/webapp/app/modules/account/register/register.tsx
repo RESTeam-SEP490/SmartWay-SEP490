@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Translate, isEmail, translate } from 'react-jhipster';
 import { toast } from 'react-toastify';
-import { Button } from 'reactstrap';
 
-import { Form, Select } from 'antd';
+import { Button, Form, Select, Typography } from 'antd';
 import { Col, Row } from 'antd/es/grid';
 import Input from 'antd/es/input/Input';
 import Password from 'antd/es/input/Password';
@@ -12,6 +11,8 @@ import PasswordStrengthBar from 'app/shared/layout/password/password-strength-ba
 import { handleRegister, reset } from './register.reducer';
 import restaurant from 'app/entities/restaurant/restaurant.reducer';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { Brand } from 'app/shared/layout/header/header-components';
+import { LocaleMenu } from 'app/shared/layout/menus';
 
 export const RegisterPage = () => {
   const [password, setPassword] = useState('');
@@ -57,15 +58,22 @@ export const RegisterPage = () => {
   return (
     <div>
       <div className="flex">
-        <div className="w-6/12 p-4 h-screen">
-          <div className="w-full h-full bg-blue-600 rounded-md"></div>
+        <div className="w-5/12 p-4 min-h-max">
+          <div className="w-full h-full bg-blue-500 rounded-md"></div>
         </div>
-        <div className="w-8/12 p-4">
-          <div className="mx-auto max-w-2xl">
-            <h1 className="h2" data-cy="registerTitle">
+        <div className="w-7/12 p-4 flex flex-col items-center">
+          <div className=" flex w-full justify-between py-6 px-8">
+            <Brand />
+            <LocaleMenu currentLocale={currentLocale} />
+          </div>
+          <div className="lg:max-w-lg">
+            <Typography.Title className="!mb-0" data-cy="registerTitle">
               <Translate contentKey="register.title">Create your account</Translate>
-            </h1>
-            <Form layout="vertical" size="large" name="register" onFinish={handleValidSubmit} scrollToFirstError>
+            </Typography.Title>
+            <Typography.Text className="text-gray-500">
+              <Translate contentKey="register.subtitle">Enter your credentials to access your Account</Translate>
+            </Typography.Text>
+            <Form layout="vertical" name="register" onFinish={handleValidSubmit} scrollToFirstError className="!mt-10">
               <Form.Item
                 name="fullName"
                 label={translate('global.form.fullName.label')}
@@ -149,7 +157,7 @@ export const RegisterPage = () => {
                 <Col span={12} className="pl-2">
                   <Form.Item
                     name="firstPassword"
-                    label={translate('global.form.newpassword.label')}
+                    label={translate('global.form.password.label')}
                     rules={[
                       { required: true, message: translate('global.messages.validate.newpassword.required') },
                       { min: 4, message: translate('global.messages.validate.newpassword.minlength') },
@@ -157,12 +165,12 @@ export const RegisterPage = () => {
                     ]}
                     data-cy="firstPassword"
                   >
-                    <Password onChange={updatePassword} placeholder={translate('global.form.newpassword.placeholder')} />
+                    <Password onChange={updatePassword} placeholder={translate('global.form.password.placeholder')} className="mb-2" />
                   </Form.Item>
+                  <PasswordStrengthBar password={password} />
                 </Col>
               </Row>
 
-              <PasswordStrengthBar password={password} />
               <Form.Item
                 name="secondPassword"
                 label={translate('global.form.confirmpassword.label')}
@@ -172,11 +180,10 @@ export const RegisterPage = () => {
                   { max: 50, message: translate('global.messages.validate.confirmpassword.maxlength') },
                   { validator: (_, value) => (value === password ? Promise.resolve() : Promise.reject()) },
                 ]}
-                data-cy="secondPassword"
               >
-                <Password placeholder={translate('global.form.newpassword.placeholder')} />
+                <Password placeholder={translate('global.form.confirmpassword.placeholder')} />
               </Form.Item>
-              <Button id="register-submit" color="primary" type="submit" data-cy="submit">
+              <Button htmlType="submit" block type="primary" size="large">
                 <Translate contentKey="register.form.button">Register</Translate>
               </Button>
             </Form>

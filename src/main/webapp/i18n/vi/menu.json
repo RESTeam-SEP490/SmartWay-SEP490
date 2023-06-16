@@ -1,0 +1,15 @@
+{
+  "menu": {
+    "usermanagement": {
+      "label": "Quản lý người dùng",
+      "submenu": {
+        "users": "Người dùng",
+        "roles": "Vai trò"
+      }
+    },
+    "menumanagement": {
+      "label": "Quản lý thực đơn",
+      "submenu": {}
+    }
+  }
+}

@@ -143,8 +143,8 @@ public class UserService {
 
     public User createUser(AdminUserDTO userDTO) {
         User user = new User();
-        user.setUsername(userDTO.getLogin().toLowerCase());
-        user.setFullName(userDTO.getName());
+        user.setUsername(userDTO.getUsername().toLowerCase());
+        user.setFullName(userDTO.getFullName());
         if (userDTO.getEmail() != null) {
             user.setEmail(userDTO.getEmail().toLowerCase());
         }
@@ -186,8 +186,8 @@ public class UserService {
             .filter(Optional::isPresent)
             .map(Optional::get)
             .map(user -> {
-                user.setUsername(userDTO.getLogin().toLowerCase());
-                user.setFullName(userDTO.getName());
+                user.setUsername(userDTO.getUsername().toLowerCase());
+                user.setFullName(userDTO.getFullName());
                 if (userDTO.getEmail() != null) {
                     user.setEmail(userDTO.getEmail().toLowerCase());
                 }

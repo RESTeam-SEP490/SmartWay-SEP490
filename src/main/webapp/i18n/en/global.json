@@ -12,12 +12,13 @@
       },
       "account": {
         "main": "Account",
+        "profile": "Your profile",
         "settings": "Settings",
         "password": "Password",
         "sessions": "Sessions",
         "login": "Sign in",
         "logout": "Sign out",
-        "register": "Register"
+        "register": "Get started"
       },
       "admin": {
         "main": "Administration",
@@ -38,18 +39,23 @@
       "fullName.placeholder": "Your full name",
       "username.label": "Username",
       "username.placeholder": "Your username",
+      "password.label": "Password",
+      "password.placeholder": "Your password",
+      "confirmpassword.label": "Password confirmation",
+      "confirmpassword.placeholder": "Confirm the password",
       "currentpassword.label": "Current password",
       "currentpassword.placeholder": "Current password",
-      "newpassword.label": "New password",
-      "newpassword.placeholder": "New password",
-      "confirmpassword.label": "New password confirmation",
-      "confirmpassword.placeholder": "Confirm the new password",
+      "confirmnewpassword.label": "New password confirmation",
+      "confirmnewpassword.placeholder": "Confirm the new password",
       "email.label": "Email",
       "email.placeholder": "Your email",
       "phone.label": "Phone number",
       "phone.placeholder": "Your phone number",
       "restaurantName.label": "Restaurant name",
       "restaurantName.placeholder": "Your restaurant name"
+    },
+    "table": {
+      "empty": "No data"
     },
     "messages": {
       "info": {

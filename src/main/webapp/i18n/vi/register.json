@@ -1,6 +1,7 @@
 {
   "register": {
     "title": "Đăng ký",
+    "subtitle": "Tạo tài khoản và bắt đầu quản lý nhà hàng của bạn",
     "form": {
       "button": "Đăng ký"
     },

@@ -1,107 +1,97 @@
-import React, { useState, useEffect } from 'react';
-import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { Link, Navigate, useLocation } from 'react-router-dom';
 
-import { useAppDispatch, useAppSelector } from 'app/config/store';
-import { login } from 'app/shared/reducers/authentication';
-import { Translate, ValidatedField, translate } from 'react-jhipster';
-import { Button, Checkbox, Form, Input } from 'antd';
-import { Alert, Col, Row } from 'reactstrap';
-import { useForm } from 'react-hook-form';
+import { LockOutlined, ShopOutlined, UserOutlined } from '@ant-design/icons';
+import { Alert, Button, Checkbox, Form, Input, Typography } from 'antd';
+import FormItem from 'antd/es/form/FormItem';
 import Password from 'antd/es/input/Password';
+import { useAppDispatch, useAppSelector } from 'app/config/store';
+import { Brand } from 'app/shared/layout/header/header-components';
+import { LocaleMenu } from 'app/shared/layout/menus';
+import { login } from 'app/shared/reducers/authentication';
+import { Translate, translate } from 'react-jhipster';
 
 export const Login = () => {
   const dispatch = useAppDispatch();
   const isAuthenticated = useAppSelector(state => state.authentication.isAuthenticated);
+  const currentLocale = useAppSelector(state => state.locale.currentLocale);
   const loginError = useAppSelector(state => state.authentication.loginError);
-  const showModalLogin = useAppSelector(state => state.authentication.showModalLogin);
-  const [showModal, setShowModal] = useState(showModalLogin);
-  const navigate = useNavigate();
   const location = useLocation();
+  const isSubmitting = useAppSelector(state => state.authentication.loading);
 
-  useEffect(() => {
-    setShowModal(true);
-  }, []);
-
-  const handleLogin = ({ restaurantName, username, password, rememberMe }) =>
+  const handleLogin = ({ restaurantName, username, password, rememberMe }) => {
     dispatch(login(restaurantName, username, password, rememberMe));
+  };
 
-  const { from } = (location.state as any) || { from: { pathname: '/', search: location.search } };
+  const { from } = (location.state as any) || { from: { pathname: '/manage/users', search: location.search } };
   if (isAuthenticated) {
     return <Navigate to={from} replace />;
   }
   return (
     <div>
       <div className="flex">
-        <div className="w-8/12 p-4">
-          <div className="mx-auto max-w-2xl">
-            <Form layout="vertical" size="large" name="login" onFinish={handleLogin}>
-              <h2 className="h2">
-                <Translate contentKey="login.title">Sign in</Translate>
-              </h2>
-              <Row>
-                <Col md="12">
-                  {loginError ? (
-                    <Alert color="danger" data-cy="loginError">
-                      <Translate contentKey="login.messages.error.authentication">
-                        <strong>Failed to sign in!</strong> Please check your credentials and try again.
-                      </Translate>
-                    </Alert>
-                  ) : null}
-                </Col>
-                <Col md="12">
-                  <Form.Item
-                    name="restaurantName"
-                    label={translate('global.form.restaurantName.label')}
-                    data-cy="restaurantName"
-                    rules={[{ required: true, message: 'Restaurant name cannot be empty!' }]}
-                  >
-                    <Input placeholder={translate('global.form.restaurantName.placeholder')} />
-                  </Form.Item>
-                  <Form.Item
-                    name="username"
-                    label={translate('global.form.username.label')}
-                    data-cy="username"
-                    rules={[{ required: true, message: 'Username cannot be empty!' }]}
-                  >
-                    <Input placeholder={translate('global.form.username.placeholder')} />
-                  </Form.Item>
-                  <Form.Item
-                    name="password"
-                    label={translate('login.form.password')}
-                    required
-                    data-cy="password"
-                    rules={[{ required: true, message: 'Password cannot be empty!' }]}
-                  >
-                    <Password placeholder={translate('login.form.password.placeholder')} />
-                  </Form.Item>
-                  <Form.Item>
-                    <Form.Item name="rememberMe" data-cy="rememberme" className="float-left">
-                      <Checkbox>Remember me</Checkbox>
-                    </Form.Item>
-                    <Form.Item>
-                      <Link to="/account/reset/request" className="float-right">
-                        <Translate contentKey="login.password.forgot">Forget your password?</Translate>
-                      </Link>
-                    </Form.Item>
-                  </Form.Item>
-                </Col>
-              </Row>
-              <Alert color="warning">
-                <span>
-                  <Translate contentKey="global.messages.info.register.noaccount">You don&apos;t have an account yet?</Translate>
-                </span>{' '}
-                <Link to="/account/register">
-                  <Translate contentKey="global.messages.info.register.link">Register a new account</Translate>
+        <div className="w-7/12 p-4 flex flex-col items-center ">
+          <div className=" flex w-full justify-between py-6 px-8">
+            <Brand />
+            <LocaleMenu currentLocale={currentLocale} />
+          </div>
+          <div className="lg:w-80 ">
+            <Typography.Title className="!mb-1">
+              <Translate contentKey="login.title">Welcome back</Translate>
+            </Typography.Title>
+            <Typography.Text className="text-gray-500 ">
+              <Translate contentKey="login.subtitle">Enter your credentials to access your Account</Translate>
+            </Typography.Text>
+            <Form layout="vertical" size="large" name="login" onFinish={handleLogin} scrollToFirstError className="!mt-12">
+              {loginError ? (
+                <Alert className="mb-4" showIcon type="error" message={translate('login.messages.error.authentication')} />
+              ) : null}
+              <Form.Item name="restaurantName" rules={[{ required: true, message: 'Restaurant name cannot be empty!' }]}>
+                <Input
+                  prefix={<ShopOutlined rev={ShopOutlined} className="text-gray-400" />}
+                  placeholder={translate('global.form.restaurantName.placeholder')}
+                />
+              </Form.Item>
+              <Form.Item name="username" rules={[{ required: true, message: 'Username cannot be empty!' }]}>
+                <Input
+                  prefix={<UserOutlined rev={UserOutlined} className="text-gray-400" />}
+                  placeholder={translate('global.form.username.placeholder')}
+                />
+              </Form.Item>
+              <Form.Item name="password" rules={[{ required: true, message: 'Password cannot be empty!' }, {}]}>
+                <Password
+                  prefix={<LockOutlined rev={LockOutlined} className="text-gray-400" />}
+                  placeholder={translate('login.form.password.placeholder')}
+                />
+              </Form.Item>
+              <Form.Item name="rememberMe" className="float-left">
+                <Checkbox className="!font-normal ">
+                  <Translate contentKey="login.form.rememberme" />
+                </Checkbox>
+              </Form.Item>
+              <Form.Item>
+                <Link to="/account/reset/request" className="float-right hover:underline">
+                  <Translate contentKey="login.password.forgot">Forget your password?</Translate>
                 </Link>
-              </Alert>
-              <Button htmlType="submit" type="primary" className="login-form-button">
-                <Translate contentKey="login.form.button">Sign in</Translate>
-              </Button>
+              </Form.Item>
+              <Form.Item>
+                <Button htmlType="submit" type="primary" block loading={isSubmitting}>
+                  <Translate contentKey="login.form.button">Sign in</Translate>
+                </Button>
+              </Form.Item>
+              <FormItem>
+                <span>
+                  <Translate contentKey="login.link.noAccount">You don&apos;t have an restaurant yet?</Translate>
+                </span>{' '}
+                <Link to="/account/register" className="font-semibold hover:underline">
+                  <Translate contentKey="login.link.getStarted">Get started now</Translate>
+                </Link>
+              </FormItem>
             </Form>
           </div>
         </div>
-        <div className="w-6/12 p-4 h-screen">
-          <div className="w-full h-full bg-blue-600 rounded-md"></div>
+        <div className="w-5/12 h-screen p-4">
+          <div className="w-full min-h-full bg-blue-500 rounded-md"></div>
         </div>
       </div>
     </div>

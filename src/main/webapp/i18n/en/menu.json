@@ -1,0 +1,15 @@
+{
+  "menu": {
+    "usermanagement": {
+      "label": "User Management",
+      "submenu": {
+        "users": "Users",
+        "roles": "Roles"
+      }
+    },
+    "menumanagement": {
+      "label": "Menu Management",
+      "submenu": {}
+    }
+  }
+}

@@ -1,6 +1,7 @@
 {
   "register": {
     "title": "Create your account",
+    "subtitle": "Get started to manage your restaurant",
     "form": {
       "button": "Register"
     },

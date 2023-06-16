@@ -1,0 +1,13 @@
+{
+  "users": {
+    "title": "Users",
+    "table": {
+      "columnLabels": {
+        "username": "Username",
+        "fullName": "Full name",
+        "staffCode": "Staff code",
+        "Status": "Status"
+      }
+    }
+  }
+}
