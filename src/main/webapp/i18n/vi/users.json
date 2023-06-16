@@ -1,0 +1,13 @@
+{
+  "users": {
+    "title": "Người dùng",
+    "table": {
+      "columnLabels": {
+        "username": "Tên đăng nhập",
+        "fullName": "Họ tên",
+        "staffCode": "Mã NV",
+        "Status": "Trạng thái"
+      }
+    }
+  }
+}

@@ -65,10 +65,7 @@ export const PasswordStrengthBar = ({ password }: IPasswordStrengthBarProps) => 
 
   return (
     <div id="strength">
-      <small>
-        <Translate contentKey="global.messages.validate.newpassword.strength">Password strength:</Translate>
-      </small>
-      <ul id="strengthBar">{points}</ul>
+      <ul className="!p-0 flex gap-2 list-none">{points}</ul>
     </div>
   );
 };

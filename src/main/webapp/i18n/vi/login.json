@@ -1,6 +1,7 @@
 {
   "login": {
     "title": "Đăng nhập",
+    "subtitle": "Nhập thông tin để truy cập tài khoản",
     "form": {
       "password": "Mật khẩu",
       "password.placeholder": "Nhập mật khẩu của bạn",
@@ -13,7 +14,11 @@
       }
     },
     "password": {
-      "forgot": "Bạn quên mật khẩu?"
+      "forgot": "Quên mật khẩu?"
+    },
+    "link": {
+      "noAccount": "Chưa có tài khoản?",
+      "getStarted": "Tạo nhà hàng của bạn"
     }
   }
 }

@@ -1,5 +1,6 @@
 import 'react-toastify/dist/ReactToastify.css';
-import './app.scss';
+import 'antd/dist/reset.css';
+import '../content/css/app.css';
 import '../output.css';
 import 'app/config/dayjs.ts';
 
@@ -18,6 +19,9 @@ import { hasAnyAuthority } from 'app/shared/auth/private-route';
 import ErrorBoundary from 'app/shared/error/error-boundary';
 import { AUTHORITIES } from 'app/config/constants';
 import AppRoutes from 'app/routes';
+import { ConfigProvider } from 'antd';
+import { theme } from './config/ant-design-theme';
+import { authenticate } from './shared/reducers/authentication';
 
 const baseHref = document.querySelector('base').getAttribute('href').replace(/\/$/, '');
 
@@ -35,28 +39,29 @@ export const App = () => {
   const ribbonEnv = useAppSelector(state => state.applicationProfile.ribbonEnv);
   const isInProduction = useAppSelector(state => state.applicationProfile.inProduction);
   const isOpenAPIEnabled = useAppSelector(state => state.applicationProfile.isOpenAPIEnabled);
-
   return (
     <BrowserRouter basename={baseHref}>
-      <div className="app-container">
+      <ConfigProvider theme={theme}>
         <ToastContainer position={toast.POSITION.TOP_LEFT} className="toastify-container" toastClassName="toastify-toast" />
-        <ErrorBoundary>
-          <Header
-            isAuthenticated={isAuthenticated}
-            isAdmin={isAdmin}
-            currentLocale={currentLocale}
-            ribbonEnv={ribbonEnv}
-            isInProduction={isInProduction}
-            isOpenAPIEnabled={isOpenAPIEnabled}
-          />
-        </ErrorBoundary>
-        <div className="view-container" id="app-view-container">
+        <div className="flex flex-col min-h-screen">
           <ErrorBoundary>
-            <AppRoutes />
+            <Header
+              isAuthenticated={isAuthenticated}
+              isAdmin={isAdmin}
+              currentLocale={currentLocale}
+              ribbonEnv={ribbonEnv}
+              isInProduction={isInProduction}
+              isOpenAPIEnabled={isOpenAPIEnabled}
+            />
           </ErrorBoundary>
-          <Footer />
+          <div className="grow bg-gray-50">
+            <ErrorBoundary>
+              <AppRoutes />
+            </ErrorBoundary>
+            {/* <Footer /> */}
+          </div>
         </div>
-      </div>
+      </ConfigProvider>
     </BrowserRouter>
   );
 };

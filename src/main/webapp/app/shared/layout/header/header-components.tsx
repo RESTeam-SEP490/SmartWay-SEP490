@@ -1,33 +1,33 @@
 import React from 'react';
 import { Translate } from 'react-jhipster';
 
-import { NavItem, NavLink, NavbarBrand } from 'reactstrap';
-import { NavLink as Link } from 'react-router-dom';
+import { NavItem } from 'reactstrap';
+import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export const BrandIcon = props => (
   <div {...props} className="brand-icon">
-    <img src="content/images/logo-jhipster.png" alt="Logo" />
+    <img src="content/images/SW_logo.svg" alt="Logo" width={55} />
   </div>
 );
 
 export const Brand = () => (
-  <NavbarBrand tag={Link} to="/" className="brand-logo">
+  <Link to="/" className="flex justify-center items-center gap-2 cursor-pointer no-underline">
     <BrandIcon />
-    <span className="brand-title">
-      <Translate contentKey="global.title">SmartWay</Translate>
+    <span>
+      <span className="text-slate-400 font-bold text-xl">Smart</span>
+      <span className="text-blue-500 font-bold text-xl">Way</span>
     </span>
-    <span className="navbar-version">{VERSION}</span>
-  </NavbarBrand>
+  </Link>
 );
 
 export const Home = () => (
   <NavItem>
-    <NavLink tag={Link} to="/" className="d-flex align-items-center">
+    <Link to="/" className="d-flex align-items-center">
       <FontAwesomeIcon icon="home" />
       <span>
         <Translate contentKey="global.menu.home">Home</Translate>
       </span>
-    </NavLink>
+    </Link>
   </NavItem>
 );

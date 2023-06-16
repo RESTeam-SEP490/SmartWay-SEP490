@@ -1,37 +1,58 @@
+import { DownOutlined, FileTextOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons';
+import { Avatar, Button, Dropdown, MenuProps, Space, Typography } from 'antd';
 import React from 'react';
-import MenuItem from 'app/shared/layout/menus/menu-item';
-import { Translate, translate } from 'react-jhipster';
-import { NavDropdown } from './menu-components';
+import { Translate } from 'react-jhipster';
+import { Link, useNavigate } from 'react-router-dom';
 
-const accountMenuItemsAuthenticated = () => (
-  <>
-    <MenuItem icon="wrench" to="/account/settings" data-cy="settings">
-      <Translate contentKey="global.menu.account.settings">Settings</Translate>
-    </MenuItem>
-    <MenuItem icon="lock" to="/account/password" data-cy="passwordItem">
-      <Translate contentKey="global.menu.account.password">Password</Translate>
-    </MenuItem>
-    <MenuItem icon="sign-out-alt" to="/logout" data-cy="logout">
-      <Translate contentKey="global.menu.account.logout">Sign out</Translate>
-    </MenuItem>
-  </>
-);
+const accountMenuItemsAuthenticated = name => {
+  const items: MenuProps['items'] = [
+    {
+      key: 'profile',
+      label: (
+        <Link to="account/profile">
+          <Translate contentKey="global.menu.account.profile" />
+        </Link>
+      ),
+      icon: <FileTextOutlined rev={FileTextOutlined} />,
+    },
+    {
+      key: 'logout',
+      label: (
+        <Link to="logout">
+          <Translate contentKey="global.menu.account.logout" />
+        </Link>
+      ),
+      icon: <LogoutOutlined rev={LogoutOutlined} />,
+    },
+  ];
+  return (
+    <div className="flex items-center">
+      <Typography.Text className="mr-4">{name}</Typography.Text>
+      <Dropdown menu={{ items }} placement="bottomRight">
+        <Space className="">
+          <Avatar shape="square" size="default" className="!bg-blue-500" icon={<UserOutlined rev={UserOutlined} />} />
+          <DownOutlined rev={DownOutlined} className="text-xs ml-0.5" />
+        </Space>
+      </Dropdown>
+    </div>
+  );
+};
 
-const accountMenuItems = () => (
-  <>
-    <MenuItem id="login-item" icon="sign-in-alt" to="/login" data-cy="login">
+const accountMenuItems = navigate => (
+  <div className="flex gap-2">
+    <Button size="large" type="primary" ghost onClick={() => navigate('/login')}>
       <Translate contentKey="global.menu.account.login">Sign in</Translate>
-    </MenuItem>
-    <MenuItem icon="user-plus" to="/account/register" data-cy="register">
+    </Button>{' '}
+    <Button size="large" type="primary" onClick={() => navigate('/account/register')}>
       <Translate contentKey="global.menu.account.register">Register</Translate>
-    </MenuItem>
-  </>
+    </Button>
+  </div>
 );
 
-export const AccountMenu = ({ isAuthenticated = false }) => (
-  <NavDropdown icon="user" name={translate('global.menu.account.main')} id="account-menu" data-cy="accountMenu">
-    {isAuthenticated ? accountMenuItemsAuthenticated() : accountMenuItems()}
-  </NavDropdown>
-);
+export const AccountMenu = ({ isAuthenticated = false, name }) => {
+  const navigate = useNavigate();
+
+  return <>{isAuthenticated ? accountMenuItemsAuthenticated(name) : accountMenuItems(navigate)}</>;
+};
 
 export default AccountMenu;

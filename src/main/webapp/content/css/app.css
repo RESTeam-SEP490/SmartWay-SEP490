@@ -1,0 +1,21 @@
+:root {
+  --50: #f0f5fe;
+  --100: #dce8fd;
+  --200: #c1d7fc;
+  --300: #96bffa;
+  --400: #659df5;
+  --500: #4d81f1;
+  --600: #2b59e5;
+  --700: #2346d2;
+  --800: #233aaa;
+  --900: #213687;
+  --950: #192252;
+}
+
+label {
+  font-weight: 500;
+}
+
+.ant-table-thead .ant-table-cell {
+  background-color: var(--100) !important;
+}

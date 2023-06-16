@@ -122,7 +122,7 @@ public class AccountResource {
         if (user.isEmpty()) {
             throw new AccountResourceException("User could not be found");
         }
-        userService.updateUser(userDTO.getName(), userDTO.getEmail(), userDTO.getLangKey(), userDTO.getImageUrl());
+        userService.updateUser(userDTO.getFullName(), userDTO.getEmail(), userDTO.getLangKey(), userDTO.getImageUrl());
     }
 
     /**

@@ -1,11 +1,10 @@
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios, { AxiosResponse } from 'axios';
 import { Storage } from 'react-jhipster';
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { serializeAxiosError } from './reducer.utils';
 
 import { AppThunk } from 'app/config/store';
 import { setLocale } from 'app/shared/reducers/locale';
-import restaurant from 'app/entities/restaurant/restaurant.reducer';
 
 const AUTH_TOKEN_KEY = 'jhi-authenticationToken';
 
@@ -14,12 +13,10 @@ export const initialState = {
   isAuthenticated: false,
   loginSuccess: false,
   loginError: false, // Errors returned from server side
-  showModalLogin: false,
   account: {} as any,
   errorMessage: null as unknown as string, // Errors returned from server side
   redirectMessage: null as unknown as string,
   sessionHasBeenFetched: false,
-  logoutUrl: null as unknown as string,
 };
 
 export type AuthenticationState = Readonly<typeof initialState>;
@@ -99,13 +96,11 @@ export const AuthenticationSlice = createSlice({
     logoutSession() {
       return {
         ...initialState,
-        showModalLogin: true,
       };
     },
     authError(state, action) {
       return {
         ...state,
-        showModalLogin: true,
         redirectMessage: action.payload,
       };
     },
@@ -113,7 +108,6 @@ export const AuthenticationSlice = createSlice({
       return {
         ...state,
         loading: false,
-        showModalLogin: true,
         isAuthenticated: false,
       };
     },
@@ -123,14 +117,12 @@ export const AuthenticationSlice = createSlice({
       .addCase(authenticate.rejected, (state, action) => ({
         ...initialState,
         errorMessage: action.error.message,
-        showModalLogin: true,
         loginError: true,
       }))
       .addCase(authenticate.fulfilled, state => ({
         ...state,
         loading: false,
         loginError: false,
-        showModalLogin: false,
         loginSuccess: true,
       }))
       .addCase(getAccount.rejected, (state, action) => ({
@@ -138,7 +130,6 @@ export const AuthenticationSlice = createSlice({
         loading: false,
         isAuthenticated: false,
         sessionHasBeenFetched: true,
-        showModalLogin: true,
         errorMessage: action.error.message,
       }))
       .addCase(getAccount.fulfilled, (state, action) => {

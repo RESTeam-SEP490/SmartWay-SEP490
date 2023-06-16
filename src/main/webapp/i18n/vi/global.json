@@ -11,6 +11,7 @@
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
       },
       "account": {
+        "profile": "Thông tin tài khoản",
         "main": "Tài khoản",
         "settings": "Cài đặt",
         "password": "Mật khẩu",
@@ -35,13 +36,24 @@
     },
     "form": {
       "username.label": "Tên tài khoản",
-      "username.placeholder": "Nhập tên tài khoản của bạn",
+      "username.placeholder": "Nhập tên tài khoản",
+      "password.label": "Mật khẩu",
+      "password.placeholder": "Nhập mật khẩu",
       "newpassword.label": "Mật khẩu mới",
       "newpassword.placeholder": "Nhập mật khẩu mới",
       "confirmpassword.label": "Xác nhận mật khẩu mới",
       "confirmpassword.placeholder": "Nhập lại mật khẩu mới",
       "email.label": "Email",
-      "email.placeholder": "Nhập email của bạn"
+      "email.placeholder": "Nhập email của bạn",
+      "restaurantName.label": "Tên nhà hàng",
+      "restaurantName.placeholder": "Nhập tên nhà hàng",
+      "fullName.label": "Họ tên",
+      "fullName.placeholder": "Nhập họ tên",
+      "phone.label": "Số điện thoại",
+      "phone.placeholder": "Nhập số điện thoại"
+    },
+    "table": {
+      "empty": "Chưa có dữ liệu"
     },
     "messages": {
       "info": {

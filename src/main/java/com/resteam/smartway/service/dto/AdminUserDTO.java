@@ -27,10 +27,10 @@ public class AdminUserDTO implements Serializable {
     @NotBlank
     @Pattern(regexp = Constants.LOGIN_REGEX)
     @Size(min = 1, max = 50)
-    private String login;
+    private String username;
 
     @Size(max = 50)
-    private String name;
+    private String fullName;
 
     private String restaurantName;
 
@@ -62,8 +62,8 @@ public class AdminUserDTO implements Serializable {
 
     public AdminUserDTO(User user) {
         this.id = user.getId();
-        this.login = user.getUsername();
-        this.name = user.getFullName();
+        this.username = user.getUsername();
+        this.fullName = user.getFullName();
         this.email = user.getEmail();
         this.activated = user.isActivated();
         this.imageUrl = user.getImageUrl();
@@ -79,8 +79,8 @@ public class AdminUserDTO implements Serializable {
     @Override
     public String toString() {
         return "AdminUserDTO{" +
-            "login='" + login + '\'' +
-            ", name='" + name + '\'' +
+            "username='" + username + '\'' +
+            ", fullName='" + fullName + '\'' +
             ", email='" + email + '\'' +
             ", imageUrl='" + imageUrl + '\'' +
             ", activated=" + activated +

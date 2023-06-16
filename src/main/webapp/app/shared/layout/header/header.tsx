@@ -1,17 +1,18 @@
 import './header.scss';
 
 import React, { useState } from 'react';
-import { Translate, Storage } from 'react-jhipster';
-import { Navbar, Nav, NavbarToggler, Collapse } from 'reactstrap';
+import { Storage, Translate } from 'react-jhipster';
 import LoadingBar from 'react-redux-loading-bar';
 
-import { Home, Brand } from './header-components';
-import { AdminMenu, EntitiesMenu, AccountMenu, LocaleMenu } from '../menus';
-import { useAppDispatch } from 'app/config/store';
+import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { setLocale } from 'app/shared/reducers/locale';
 import { useLocation } from 'react-router-dom';
+import { AccountMenu, LocaleMenu } from '../menus';
+import { UserMenu } from '../menus/main-menu';
+import { Brand } from './header-components';
 
 export interface IHeaderProps {
+  username?: string;
   isAuthenticated: boolean;
   isAdmin: boolean;
   ribbonEnv: string;
@@ -21,17 +22,9 @@ export interface IHeaderProps {
 }
 
 const Header = (props: IHeaderProps) => {
-  const [menuOpen, setMenuOpen] = useState(false);
+  const fullName = useAppSelector(state => state.authentication.account.fullName);
 
   const location = useLocation();
-
-  const dispatch = useAppDispatch();
-
-  const handleLocaleChange = event => {
-    const langKey = event.target.value;
-    Storage.session.set('locale', langKey);
-    dispatch(setLocale(langKey));
-  };
 
   const renderDevRibbon = () =>
     props.isInProduction === false ? (
@@ -42,29 +35,21 @@ const Header = (props: IHeaderProps) => {
       </div>
     ) : null;
 
-  const toggleMenu = () => setMenuOpen(!menuOpen);
-
   /* jhipster-needle-add-element-to-menu - JHipster will add new menu items here */
 
   return (
-    <div id="app-header" className={['login', 'register'].some(path => location.pathname.includes(path)) ? 'hidden' : ''}>
+    <div className={['login', 'register'].some(path => location.pathname.includes(path)) ? 'hidden' : ''}>
       {renderDevRibbon()}
       <LoadingBar className="loading-bar" />
-      {/* <div className="mx-auto py-4 ">
-      </div> */}
-      <Navbar data-cy="navbar" dark expand="md" fixed="top" className="jh-navbar">
-        <NavbarToggler aria-label="Menu" onClick={toggleMenu} />
+      <div className="py-2 mx-auto lg:max-w-7xl flex justify-between items-center">
         <Brand />
-        <Collapse isOpen={menuOpen} navbar>
-          <Nav id="header-tabs" className="ms-auto" navbar>
-            <Home />
-            {props.isAuthenticated && <EntitiesMenu />}
-            {props.isAuthenticated && props.isAdmin && <AdminMenu showOpenAPI={props.isOpenAPIEnabled} />}
-            <LocaleMenu currentLocale={props.currentLocale} onClick={handleLocaleChange} />
-            <AccountMenu isAuthenticated={props.isAuthenticated} />
-          </Nav>
-        </Collapse>
-      </Navbar>
+        <div className="flex gap-10 items-center">
+          <LocaleMenu currentLocale={props.currentLocale} />
+          <AccountMenu name={fullName} isAuthenticated={props.isAuthenticated} />
+        </div>
+      </div>
+      <div className="border-b border-blue-500 border-solid"></div>
+      {props.isAuthenticated && <UserMenu />}
     </div>
   );
 };
