@@ -48,22 +48,13 @@ public class AccountResource {
         this.mailService = mailService;
     }
 
-    /**
-     * {@code POST  /register} : register the user.
-     *
-     * @param managedUserVM the managed user View Model.
-     * @throws InvalidPasswordException {@code 400 (Bad Request)} if the password is incorrect.
-     * @throws EmailAlreadyUsedException {@code 400 (Bad Request)} if the email is already used.
-     * @throws LoginAlreadyUsedException {@code 400 (Bad Request)} if the login is already used.
-     */
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public void registerAccount(@Valid @RequestBody TenantRegistrationDTO tenantRegistrationDTO) {
         if (isPasswordLengthInvalid(tenantRegistrationDTO.getPassword())) {
             throw new InvalidPasswordException();
         }
-        User user = userService.registerUser(tenantRegistrationDTO);
-        mailService.sendActivationEmail(user);
+        userService.registerUser(tenantRegistrationDTO);
     }
 
     /**
@@ -74,10 +65,10 @@ public class AccountResource {
      */
     @GetMapping("/activate")
     public void activateAccount(@RequestParam(value = "key") String key) {
-        Optional<User> user = userService.activateRegistration(key);
-        if (!user.isPresent()) {
-            throw new AccountResourceException("No user was found for this activation key");
-        }
+        //        Optional<User> user = userService.activateRegistration(key);
+        //        if (!user.isPresent()) {
+        //            throw new AccountResourceException("No user was found for this activation key");
+        //        }
     }
 
     /**
@@ -122,7 +113,7 @@ public class AccountResource {
         if (user.isEmpty()) {
             throw new AccountResourceException("User could not be found");
         }
-        userService.updateUser(userDTO.getFullName(), userDTO.getEmail(), userDTO.getLangKey(), userDTO.getImageUrl());
+        userService.updateUser(userDTO.getFullName(), userDTO.getEmail(), userDTO.getLangKey());
     }
 
     /**

@@ -77,7 +77,7 @@ public class TokenProvider {
         return Jwts
             .builder()
             .setSubject(userPrincipal.getUsername())
-            .setAudience(userPrincipal.getRestaurantName())
+            .setAudience(userPrincipal.getRestaurantId())
             .claim(AUTHORITIES_KEY, authorities)
             .signWith(key, SignatureAlgorithm.HS512)
             .setExpiration(validity)

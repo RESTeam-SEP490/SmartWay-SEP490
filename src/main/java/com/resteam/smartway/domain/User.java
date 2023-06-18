@@ -26,7 +26,7 @@ import org.hibernate.annotations.GenericGenerator;
     attributeNodes = { @NamedAttributeNode(value = "role", subgraph = "authority-subgraph") },
     subgraphs = { @NamedSubgraph(name = "authority-subgraph", attributeNodes = { @NamedAttributeNode("authorities") }) }
 )
-@Table(name = "jhi_user")
+@Table(name = "user")
 public class User extends AbstractAuditingEntity<UUID> implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -38,46 +38,28 @@ public class User extends AbstractAuditingEntity<UUID> implements Serializable {
     private UUID id;
 
     @NotNull
-    @Pattern(regexp = Constants.LOGIN_REGEX)
-    @Size(min = 1, max = 50)
     @Column(length = 50, unique = true, nullable = false)
     private String username;
 
     @JsonIgnore
-    @NotNull
-    @Size(min = 60, max = 60)
     @Column(name = "password_hash", length = 60, nullable = false)
     private String password;
 
-    @Size(max = 50)
     @Column(name = "full_name", length = 100)
     private String fullName;
 
     @Email
-    @Size(min = 5, max = 254)
-    @Column(length = 254, unique = true)
+    @Column(length = 254)
     private String email;
 
-    @NotNull
-    @Column(nullable = false)
-    private boolean activated = false;
+    @Column(length = 20)
+    private String phone;
 
-    @Size(min = 2, max = 10)
     @Column(name = "lang_key", length = 10)
     private String langKey;
 
-    @Size(max = 256)
-    @Column(name = "image_url", length = 256)
-    private String imageUrl;
-
-    @Size(max = 20)
-    @Column(name = "activation_key", length = 20)
     @JsonIgnore
-    private String activationKey;
-
-    @Size(max = 20)
     @Column(name = "reset_key", length = 20)
-    @JsonIgnore
     private String resetKey;
 
     @Column(name = "reset_date")
@@ -88,23 +70,6 @@ public class User extends AbstractAuditingEntity<UUID> implements Serializable {
     private Role role;
 
     @ManyToOne
-    @JoinColumn(referencedColumnName = "name", name = "restaurant_name")
+    @JoinColumn(referencedColumnName = "id", name = "restaurant_id")
     private Restaurant restaurant;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof User)) {
-            return false;
-        }
-        return id != null && id.equals(((User) o).id);
-    }
-
-    @Override
-    public int hashCode() {
-        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
-        return getClass().hashCode();
-    }
 }

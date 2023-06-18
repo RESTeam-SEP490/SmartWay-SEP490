@@ -41,7 +41,7 @@ public class TenantRegistrationDTO {
 
     @NotBlank
     @Size(max = 50)
-    private String restaurantName;
+    private String restaurantId;
 
     @Size(min = 2, max = 10)
     private String langKey;

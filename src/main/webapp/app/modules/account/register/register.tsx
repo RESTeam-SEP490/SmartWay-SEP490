@@ -31,8 +31,8 @@ export const RegisterPage = () => {
 
   const currentLocale = useAppSelector(state => state.locale.currentLocale);
 
-  const handleValidSubmit = ({ fullName, phone, email, restaurantName, username, firstPassword }) => {
-    dispatch(handleRegister({ fullName, phone, email, restaurantName, username, password: firstPassword, langKey: currentLocale }));
+  const handleValidSubmit = ({ fullName, phone, email, restaurantId, username, firstPassword }) => {
+    dispatch(handleRegister({ fullName, phone, email, restaurantId, username, password: firstPassword, langKey: currentLocale }));
   };
 
   const updatePassword = event => setPassword(event.target.value);
@@ -67,7 +67,7 @@ export const RegisterPage = () => {
             <LocaleMenu currentLocale={currentLocale} />
           </div>
           <div className="lg:max-w-lg">
-            <Typography.Title className="!mb-0" data-cy="registerTitle">
+            <Typography.Title className="!mb-0">
               <Translate contentKey="register.title">Create your account</Translate>
             </Typography.Title>
             <Typography.Text className="text-gray-500">
@@ -83,7 +83,6 @@ export const RegisterPage = () => {
                   { min: 1, message: translate('global.messages.validate.fullName.min') },
                   { max: 50, message: translate('global.messages.validate.fullName.max') },
                 ]}
-                data-cy="fullName"
               >
                 <Input placeholder={translate('global.form.fullName.placeholder')} />
               </Form.Item>
@@ -97,7 +96,6 @@ export const RegisterPage = () => {
                       { min: 5, message: translate('global.messages.validate.phone.minlength') },
                       { max: 50, message: translate('global.messages.validate.phone.maxlength') },
                     ]}
-                    data-cy="phone"
                   >
                     <Input addonBefore={prefixSelector} placeholder={translate('global.form.phone.placeholder')} />
                   </Form.Item>
@@ -116,14 +114,13 @@ export const RegisterPage = () => {
                         message: translate('global.messages.validate.email.invalid'),
                       },
                     ]}
-                    data-cy="email"
                   >
                     <Input placeholder={translate('global.form.email.placeholder')} />
                   </Form.Item>
                 </Col>
               </Row>
               <Form.Item
-                name="restaurantName"
+                name="restaurantId"
                 label={translate('global.form.restaurantName.label')}
                 rules={[
                   { required: true, message: translate('global.messages.validate.restaurantName.required') },
@@ -131,7 +128,6 @@ export const RegisterPage = () => {
                   { min: 1, message: translate('global.messages.validate.restaurantName.min') },
                   { max: 50, message: translate('global.messages.validate.restaurantName.max') },
                 ]}
-                data-cy="restaurantName"
               >
                 <Input placeholder={translate('global.form.restaurantName.placeholder')} />
               </Form.Item>
@@ -149,7 +145,6 @@ export const RegisterPage = () => {
                       { min: 1, message: translate('register.messages.validate.login.minlength') },
                       { max: 50, message: translate('register.messages.validate.login.maxlength') },
                     ]}
-                    data-cy="username"
                   >
                     <Input placeholder={translate('global.form.username.placeholder')} />
                   </Form.Item>
@@ -163,7 +158,6 @@ export const RegisterPage = () => {
                       { min: 4, message: translate('global.messages.validate.newpassword.minlength') },
                       { max: 50, message: translate('global.messages.validate.newpassword.maxlength') },
                     ]}
-                    data-cy="firstPassword"
                   >
                     <Password onChange={updatePassword} placeholder={translate('global.form.password.placeholder')} className="mb-2" />
                   </Form.Item>

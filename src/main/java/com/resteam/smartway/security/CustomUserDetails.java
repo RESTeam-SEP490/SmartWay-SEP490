@@ -27,7 +27,7 @@ public class CustomUserDetails implements UserDetails {
     @JsonIgnore
     private String password;
 
-    private String restaurantName;
+    private String restaurantId;
 
     private Collection<? extends GrantedAuthority> authorities;
 
@@ -39,7 +39,7 @@ public class CustomUserDetails implements UserDetails {
             .map(authority -> new SimpleGrantedAuthority(authority.getName()))
             .collect(Collectors.toList());
 
-        return new CustomUserDetails(user.getUsername(), user.getPassword(), user.getRestaurant().getName(), authorities);
+        return new CustomUserDetails(user.getUsername(), user.getPassword(), user.getRestaurant().getId(), authorities);
     }
 
     @Override

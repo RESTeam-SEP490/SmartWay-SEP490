@@ -10,6 +10,7 @@ import { Brand } from 'app/shared/layout/header/header-components';
 import { LocaleMenu } from 'app/shared/layout/menus';
 import { login } from 'app/shared/reducers/authentication';
 import { Translate, translate } from 'react-jhipster';
+import restaurant from 'app/entities/restaurant/restaurant.reducer';
 
 export const Login = () => {
   const dispatch = useAppDispatch();
@@ -19,8 +20,8 @@ export const Login = () => {
   const location = useLocation();
   const isSubmitting = useAppSelector(state => state.authentication.loading);
 
-  const handleLogin = ({ restaurantName, username, password, rememberMe }) => {
-    dispatch(login(restaurantName, username, password, rememberMe));
+  const handleLogin = ({ restaurantId, username, password, rememberMe }) => {
+    dispatch(login(restaurantId, username, password, rememberMe));
   };
 
   const { from } = (location.state as any) || { from: { pathname: '/manage/users', search: location.search } };
@@ -46,7 +47,7 @@ export const Login = () => {
               {loginError ? (
                 <Alert className="mb-4" showIcon type="error" message={translate('login.messages.error.authentication')} />
               ) : null}
-              <Form.Item name="restaurantName" rules={[{ required: true, message: 'Restaurant name cannot be empty!' }]}>
+              <Form.Item name="restaurantId" rules={[{ required: true, message: 'Restaurant name cannot be empty!' }]}>
                 <Input
                   prefix={<ShopOutlined rev={ShopOutlined} className="text-gray-400" />}
                   placeholder={translate('global.form.restaurantName.placeholder')}

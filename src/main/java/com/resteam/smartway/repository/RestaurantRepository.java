@@ -11,6 +11,6 @@ import org.springframework.stereotype.Repository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface RestaurantRepository extends JpaRepository<Restaurant, UUID> {
-    Optional<Restaurant> findOneByName(String name);
+public interface RestaurantRepository extends JpaRepository<Restaurant, String> {
+    Optional<Restaurant> findOneById(String name);
 }

@@ -16,12 +16,10 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
-    Optional<User> findOneByActivationKey(String activationKey);
-    List<User> findAllByActivatedIsFalseAndActivationKeyIsNotNullAndCreatedDateBefore(Instant dateTime);
+    Optional<User> findOneByUsernameAndRestaurant(String username, Restaurant restaurant);
     Optional<User> findOneByResetKey(String resetKey);
     Optional<User> findOneByUsername(String username);
 
-    Optional<User> findOneWithAuthoritiesByUsername(String username);
     Optional<User> findOneByEmailIgnoreCase(String username);
 
     @EntityGraph("user-with-authorities-entity-graph")
@@ -29,6 +27,4 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     @EntityGraph(attributePaths = "authorities")
     Optional<User> findOneWithAuthoritiesByEmailIgnoreCase(String email);
-
-    Page<User> findAllByIdNotNullAndActivatedIsTrue(Pageable pageable);
 }

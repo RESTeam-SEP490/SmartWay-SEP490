@@ -64,19 +64,6 @@ public class UserService {
         this.roleRepository = roleRepository;
     }
 
-    public Optional<User> activateRegistration(String key) {
-        log.debug("Activating user for activation key {}", key);
-        return userRepository
-            .findOneByActivationKey(key)
-            .map(user -> {
-                // activate given user for the registration key.
-                user.setActivated(true);
-                user.setActivationKey(null);
-                log.debug("Activated user: {}", user);
-                return user;
-            });
-    }
-
     public Optional<User> completePasswordReset(String newPassword, String key) {
         log.debug("Reset user password for reset key {}", key);
         return userRepository
@@ -93,7 +80,6 @@ public class UserService {
     public Optional<User> requestPasswordReset(String mail) {
         return userRepository
             .findOneByEmailIgnoreCase(mail)
-            .filter(User::isActivated)
             .map(user -> {
                 user.setResetKey(RandomUtil.generateResetKey());
                 user.setResetDate(Instant.now());
@@ -101,41 +87,37 @@ public class UserService {
             });
     }
 
-    public User registerUser(TenantRegistrationDTO tenantRegistrationDTO) {
-        Optional<Restaurant> optionalRestaurant = restaurantRepository.findOneByName(tenantRegistrationDTO.getRestaurantName());
-        if (optionalRestaurant.isPresent()) throw new SubdomainAlreadyUsedException();
+    public void registerUser(TenantRegistrationDTO tenantRegistrationDTO) {
+        restaurantRepository
+            .findOneById(tenantRegistrationDTO.getRestaurantId())
+            .ifPresent(r -> {
+                throw new SubdomainAlreadyUsedException();
+            });
 
-        Restaurant restaurant = new Restaurant(tenantRegistrationDTO.getRestaurantName());
-        restaurantRepository.save(restaurant);
+        Restaurant restaurant = new Restaurant(tenantRegistrationDTO.getRestaurantId());
+        Restaurant savedRestaurant = restaurantRepository.save(restaurant);
+
+        Set<Authority> authorities = new HashSet<>();
+        authorityRepository.findById(AuthoritiesConstants.USER).ifPresent(authorities::add);
+        Role role = new Role("Nhân viên", savedRestaurant, authorities);
+        roleRepository.save(role);
 
         User newUser = new User();
         String encryptedPassword = passwordEncoder.encode(tenantRegistrationDTO.getPassword());
         newUser.setUsername(tenantRegistrationDTO.getUsername().toLowerCase());
-        // new user gets initially a generated password
         newUser.setPassword(encryptedPassword);
         newUser.setFullName(tenantRegistrationDTO.getFullName());
         newUser.setEmail(tenantRegistrationDTO.getEmail().toLowerCase());
+        newUser.setPhone(tenantRegistrationDTO.getPhone());
         newUser.setLangKey(tenantRegistrationDTO.getLangKey());
-
-        newUser.setActivated(true);
-        // new user gets registration key
-        newUser.setRestaurant(restaurant);
-        Set<Authority> authorities = new HashSet<>();
-        authorityRepository.findById(AuthoritiesConstants.USER).ifPresent(authorities::add);
-
-        Role role = new Role("Nhân viên", restaurant, authorities);
-        roleRepository.save(role);
-
+        newUser.setRestaurant(savedRestaurant);
         newUser.setRole(role);
         userRepository.save(newUser);
+
         log.debug("Created Information for User: {}", newUser);
-        return newUser;
     }
 
     private boolean removeNonActivatedUser(User existingUser) {
-        if (existingUser.isActivated()) {
-            return false;
-        }
         userRepository.delete(existingUser);
         userRepository.flush();
         return true;
@@ -148,7 +130,6 @@ public class UserService {
         if (userDTO.getEmail() != null) {
             user.setEmail(userDTO.getEmail().toLowerCase());
         }
-        user.setImageUrl(userDTO.getImageUrl());
         if (userDTO.getLangKey() == null) {
             user.setLangKey(Constants.DEFAULT_LANGUAGE); // default language
         } else {
@@ -158,7 +139,6 @@ public class UserService {
         user.setPassword(encryptedPassword);
         user.setResetKey(RandomUtil.generateResetKey());
         user.setResetDate(Instant.now());
-        user.setActivated(true);
         if (userDTO.getAuthorities() != null) {
             Set<Authority> authorities = userDTO
                 .getAuthorities()
@@ -191,8 +171,6 @@ public class UserService {
                 if (userDTO.getEmail() != null) {
                     user.setEmail(userDTO.getEmail().toLowerCase());
                 }
-                user.setImageUrl(userDTO.getImageUrl());
-                user.setActivated(userDTO.isActivated());
                 user.setLangKey(userDTO.getLangKey());
                 Collection<Authority> managedAuthorities = user.getRole().getAuthorities();
                 managedAuthorities.clear();
@@ -224,9 +202,8 @@ public class UserService {
      * @param firstName first name of user.
      * @param email     email id of user.
      * @param langKey   language key.
-     * @param imageUrl  image URL of user.
      */
-    public void updateUser(String firstName, String email, String langKey, String imageUrl) {
+    public void updateUser(String firstName, String email, String langKey) {
         SecurityUtils
             .getCurrentUserLogin()
             .flatMap(userRepository::findOneByUsername)
@@ -236,7 +213,6 @@ public class UserService {
                     user.setEmail(email.toLowerCase());
                 }
                 user.setLangKey(langKey);
-                user.setImageUrl(imageUrl);
                 log.debug("Changed Information for User: {}", user);
             });
     }
@@ -257,36 +233,21 @@ public class UserService {
             });
     }
 
-    @Transactional(readOnly = true)
-    public Page<UserDTO> getAllPublicUsers(Pageable pageable) {
-        return userRepository.findAllByIdNotNullAndActivatedIsTrue(pageable).map(UserDTO::new);
-    }
+    //    @Transactional(readOnly = true)
+    //    public Page<UserDTO> getAllPublicUsers(Pageable pageable) {
+    //        return userRepository.findAllByIdNotNullAndActivatedIsTrue(pageable).map(UserDTO::new);
+    //    }
 
     @Transactional(readOnly = true)
     public Optional<User> getUserWithAuthorities() {
-        String[] usernameAndRestaurantName = StringUtils.split(SecurityUtils.getCurrentUserLogin().get(), " ");
-        if (usernameAndRestaurantName == null || usernameAndRestaurantName.length != 2) {
+        String[] usernameAndRestaurantId = StringUtils.split(SecurityUtils.getCurrentUserLogin().get(), " ");
+        if (usernameAndRestaurantId == null || usernameAndRestaurantId.length != 2) {
             throw new UsernameNotFoundException("Username and domain must be provided");
         }
         return userRepository.findOneWithAuthoritiesByUsernameAndRestaurant(
-            usernameAndRestaurantName[0],
-            new Restaurant(usernameAndRestaurantName[1])
+            usernameAndRestaurantId[0],
+            new Restaurant(usernameAndRestaurantId[1])
         );
-    }
-
-    /**
-     * Not activated users should be automatically deleted after 3 days.
-     * <p>
-     * This is scheduled to get fired everyday, at 01:00 (am).
-     */
-    @Scheduled(cron = "0 0 1 * * ?")
-    public void removeNotActivatedUsers() {
-        userRepository
-            .findAllByActivatedIsFalseAndActivationKeyIsNotNullAndCreatedDateBefore(Instant.now().minus(3, ChronoUnit.DAYS))
-            .forEach(user -> {
-                log.debug("Deleting not activated user {}", user.getUsername());
-                userRepository.delete(user);
-            });
     }
 
     /**
