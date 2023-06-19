@@ -15,9 +15,8 @@ public class RestaurantService {
     public RestaurantService(RestaurantRepository restaurantRepository) {
         this.restaurantRepository = restaurantRepository;
     }
-
-    public String getRestaurantName(String restaurantName) {
-        Optional<Restaurant> currentRestaurant = restaurantRepository.findOneByName(restaurantName);
-        return currentRestaurant.get().getName();
-    }
+    //    public String getRestaurantName(String restaurantName) {
+    //        Optional<Restaurant> currentRestaurant = restaurantRepository.findOneByName(restaurantName);
+    //        return currentRestaurant.get().getName();
+    //    }
 }

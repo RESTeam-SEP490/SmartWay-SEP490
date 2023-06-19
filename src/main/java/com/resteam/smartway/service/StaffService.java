@@ -8,10 +8,13 @@ import com.resteam.smartway.repository.AuthorityRepository;
 import com.resteam.smartway.repository.RestaurantRepository;
 import com.resteam.smartway.repository.RoleRepository;
 import com.resteam.smartway.repository.StaffRepository;
+import com.resteam.smartway.security.AuthoritiesConstants;
 import com.resteam.smartway.service.dto.StaffDTO;
+import com.resteam.smartway.web.rest.errors.SubdomainAlreadyUsedException;
 import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,22 +34,26 @@ public class StaffService {
 
     private final RoleRepository roleRepository;
 
+    private final PasswordEncoder passwordEncoder;
+
     public StaffService(
         StaffRepository staffRepository,
         RestaurantRepository restaurantRepository,
         RestaurantService restaurantService,
         AuthorityRepository authorityRepository,
-        RoleRepository roleRepository
+        RoleRepository roleRepository,
+        PasswordEncoder passwordEncoder
     ) {
         this.staffRepository = staffRepository;
         this.restaurantRepository = restaurantRepository;
         this.restaurantService = restaurantService;
         this.authorityRepository = authorityRepository;
         this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<User> getAllStaff() {
-        return staffRepository.findAll();
+        return staffRepository.getAllStaff();
     }
 
     public Optional<User> getStaffById(UUID id) {
@@ -62,25 +69,27 @@ public class StaffService {
     }
 
     public void createStaff(StaffDTO staffDTO) {
-        Optional<Restaurant> optionalRestaurant = restaurantRepository.findOneByName(staffDTO.getRestaurantName());
-        User newUser = new User();
-        newUser.setUsername(staffDTO.getUsername());
-        newUser.setPassword(staffDTO.getPassword());
-        newUser.setFullName(staffDTO.getFullName());
-        newUser.setEmail(staffDTO.getEmail());
-        newUser.setActivated(true);
-
-        // doing error
-        newUser.setRestaurant(optionalRestaurant.get());
+        Restaurant restaurant = new Restaurant(staffDTO.getRestaurantId());
+        Restaurant savedRestaurant = restaurantRepository.save(restaurant);
 
         Set<Authority> authorities = new HashSet<>();
-        authorityRepository.findById("ROLE_STAFF").ifPresent(authorities::add);
-
-        Role role = new Role("Nhân viên", optionalRestaurant.get(), authorities);
+        authorityRepository.findById(AuthoritiesConstants.STAFF).ifPresent(authorities::add);
+        Role role = new Role("Staff", savedRestaurant, authorities);
         roleRepository.save(role);
 
-        newUser.setRole(role);
-        staffRepository.save(newUser);
-        log.debug("Created information for Staff: {}", newUser);
+        User newStaff = new User();
+        String encryptedPassword = passwordEncoder.encode(staffDTO.getPassword());
+
+        newStaff.setUsername(staffDTO.getUsername().toLowerCase());
+        newStaff.setPassword(encryptedPassword);
+        newStaff.setFullName(staffDTO.getFullName());
+        newStaff.setEmail(staffDTO.getEmail().toLowerCase());
+        newStaff.setPhone(staffDTO.getPhone());
+        newStaff.setLangKey(staffDTO.getLangKey());
+        newStaff.setRestaurant(savedRestaurant);
+        newStaff.setRole(role);
+        staffRepository.save(newStaff);
+
+        log.debug("Created Information for staff: {}", newStaff);
     }
 }

@@ -1,12 +1,16 @@
 package com.resteam.smartway.web.rest.staff;
 
 import com.resteam.smartway.domain.User;
+import com.resteam.smartway.service.InvalidPasswordException;
 import com.resteam.smartway.service.StaffService;
 import com.resteam.smartway.service.dto.StaffDTO;
 import com.resteam.smartway.web.rest.errors.SubdomainAlreadyUsedException;
+import com.resteam.smartway.web.rest.vm.ManagedUserVM;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import javax.validation.Valid;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.ModelMap;
@@ -39,11 +43,18 @@ public class StaffController {
     }
 
     @PostMapping("/create")
-    public void saveStaff(@RequestBody StaffDTO staffDTO) {
-        Optional<User> currentStaff = staffService.getStaffByUsername(staffDTO.getUsername());
-        if (currentStaff.isPresent()) {
-            throw new SubdomainAlreadyUsedException();
+    public void saveStaff(@Valid @RequestBody StaffDTO staffDTO) {
+        if (isPasswordLengthInvalid(staffDTO.getPassword())) {
+            throw new InvalidPasswordException();
         }
         staffService.createStaff(staffDTO);
+    }
+
+    private static boolean isPasswordLengthInvalid(String password) {
+        return (
+            StringUtils.isEmpty(password) ||
+            password.length() < ManagedUserVM.PASSWORD_MIN_LENGTH ||
+            password.length() > ManagedUserVM.PASSWORD_MAX_LENGTH
+        );
     }
 }
