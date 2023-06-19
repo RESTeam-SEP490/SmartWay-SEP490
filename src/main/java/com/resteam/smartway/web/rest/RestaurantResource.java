@@ -72,7 +72,7 @@ public class RestaurantResource {
      */
     @PutMapping("/restaurants/{id}")
     public ResponseEntity<Restaurant> updateRestaurant(
-        @PathVariable(value = "id", required = false) final UUID id,
+        @PathVariable(value = "id", required = false) final String id,
         @RequestBody Restaurant restaurant
     ) throws URISyntaxException {
         log.debug("REST request to update Restaurant : {}, {}", id, restaurant);
@@ -107,7 +107,7 @@ public class RestaurantResource {
      */
     @PatchMapping(value = "/restaurants/{id}", consumes = { "application/json", "application/merge-patch+json" })
     public ResponseEntity<Restaurant> partialUpdateRestaurant(
-        @PathVariable(value = "id", required = false) final UUID id,
+        @PathVariable(value = "id", required = false) final String id,
         @RequestBody Restaurant restaurant
     ) throws URISyntaxException {
         log.debug("REST request to partial update Restaurant partially : {}, {}", id, restaurant);
@@ -127,9 +127,6 @@ public class RestaurantResource {
             .map(existingRestaurant -> {
                 if (restaurant.getName() != null) {
                     existingRestaurant.setName(restaurant.getName());
-                }
-                if (restaurant.getEmail() != null) {
-                    existingRestaurant.setEmail(restaurant.getEmail());
                 }
 
                 return existingRestaurant;
@@ -160,7 +157,7 @@ public class RestaurantResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the restaurant, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/restaurants/{id}")
-    public ResponseEntity<Restaurant> getRestaurant(@PathVariable UUID id) {
+    public ResponseEntity<Restaurant> getRestaurant(@PathVariable String id) {
         log.debug("REST request to get Restaurant : {}", id);
         Optional<Restaurant> restaurant = restaurantRepository.findById(id);
         return ResponseUtil.wrapOrNotFound(restaurant);
@@ -173,7 +170,7 @@ public class RestaurantResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/restaurants/{id}")
-    public ResponseEntity<Void> deleteRestaurant(@PathVariable UUID id) {
+    public ResponseEntity<Void> deleteRestaurant(@PathVariable String id) {
         log.debug("REST request to delete Restaurant : {}", id);
         restaurantRepository.deleteById(id);
         return ResponseEntity

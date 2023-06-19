@@ -133,7 +133,7 @@ public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait
         com.resteam.smartway.service.UsernameAlreadyUsedException ex,
         NativeWebRequest request
     ) {
-        LoginAlreadyUsedException problem = new LoginAlreadyUsedException();
+        UsernameAlreadyUsedException problem = new UsernameAlreadyUsedException();
         return create(
             problem,
             request,

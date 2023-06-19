@@ -10,10 +10,9 @@
     <property name="uuidType" value="varchar(36)" dbms="mysql"/>
     <property name="datetimeType" value="datetime(6)" dbms="mysql"/>
 
-    <include file="config/liquibase/changelog/20230612053846_changelog.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230610170610_initial_changelog.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230618152850_modify_user_and_restaurant.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
     <!-- jhipster-needle-liquibase-add-incremental-changelog - JHipster will add incremental liquibase changelogs here -->
 </databaseChangeLog>
-
-

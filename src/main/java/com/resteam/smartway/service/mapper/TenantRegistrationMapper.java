@@ -8,9 +8,9 @@ import org.mapstruct.Mapping;
 
 @Mapper
 public interface TenantRegistrationMapper extends EntityMapper<TenantRegistrationDTO, User> {
-    @Mapping(target = "restaurant.name", source = "restaurantName")
+    @Mapping(target = "restaurant.id", source = "restaurantId")
     User toEntity(TenantRegistrationDTO dto);
 
-    @Mapping(target = "restaurantName", source = "restaurant.name")
+    @Mapping(target = "restaurantId", source = "restaurant.id")
     TenantRegistrationDTO toDto(User entity);
 }

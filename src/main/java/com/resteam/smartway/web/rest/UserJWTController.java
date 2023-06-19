@@ -45,10 +45,10 @@ public class UserJWTController {
     private UsernamePasswordAuthenticationToken getAuthRequest(LoginVM loginVM) {
         String username = loginVM.getUsername();
         String password = loginVM.getPassword();
-        String restaurantName = loginVM.getRestaurantName();
+        String restaurantId = loginVM.getRestaurantId();
 
-        String usernameAndResName = String.format("%s%s%s", username.trim(), " ", restaurantName);
-        return new UsernamePasswordAuthenticationToken(usernameAndResName, password);
+        String usernameAndRestaurantId = String.format("%s%s%s", username.trim(), " ", restaurantId);
+        return new UsernamePasswordAuthenticationToken(usernameAndRestaurantId, password);
     }
 
     static class JWTToken {

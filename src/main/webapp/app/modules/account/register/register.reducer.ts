@@ -21,7 +21,7 @@ export const handleRegister = createAsyncThunk(
     fullName: string;
     phone: string;
     email: string;
-    restaurantName: string;
+    restaurantId: string;
     username: string;
     password: string;
     langKey?: string;

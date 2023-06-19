@@ -1,0 +1,108 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1687102978487-2">
+        <createTable tableName="user">
+            <column name="id" type="BINARY(16)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="userPK"/>
+            </column>
+            <column name="created_by" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="datetime(6)"/>
+            <column name="last_modified_by" type="VARCHAR(50)"/>
+            <column name="last_modified_date" type="datetime(6)"/>
+            <column name="email" type="VARCHAR(254)"/>
+            <column name="full_name" type="VARCHAR(100)"/>
+            <column name="lang_key" type="VARCHAR(10)"/>
+            <column name="password_hash" type="VARCHAR(60)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="phone" type="VARCHAR(20)"/>
+            <column name="reset_date" type="datetime(6)"/>
+            <column name="reset_key" type="VARCHAR(20)"/>
+            <column name="username" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="restaurant_id" type="VARCHAR(30)"/>
+            <column name="role_id" type="BINARY(16)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1687102978487-3">
+        <dropForeignKeyConstraint baseTableName="jhi_user" constraintName="FK1dugl6waem14paccjc9280bsd"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1687102978487-4">
+        <dropForeignKeyConstraint baseTableName="jhi_user" constraintName="FKp7oi2x2hd3sqcl3of35m0983n"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1687102978487-5">
+        <dropUniqueConstraint constraintName="UC_JHI_USEREMAIL_COL" tableName="jhi_user"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1687102978487-6">
+        <dropUniqueConstraint constraintName="UC_JHI_USERUSERNAME_COL" tableName="jhi_user"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1687102978487-7">
+        <dropUniqueConstraint constraintName="UK_i6u3x7opncroyhd755ejknses" tableName="restaurant"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1687102978487-8">
+        <dropTable tableName="jhi_user"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1687102978487-18">
+        <dropForeignKeyConstraint baseTableName="role" constraintName="FKnliicm5y5wsg0pv5ujfal22mi"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1687102978487-9">
+        <dropColumn columnName="id" tableName="restaurant"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1687102978487-10">
+        <addColumn tableName="restaurant">
+            <column name="id" type="varchar(30)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1687102978487-11">
+        <addColumn tableName="restaurant">
+            <column name="created_by" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1687102978487-12">
+        <addColumn tableName="restaurant">
+            <column name="created_date" type="datetime(6)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1687102978487-13">
+        <addColumn tableName="restaurant">
+            <column name="last_modified_by" type="varchar(50)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1687102978487-14">
+        <addColumn tableName="restaurant">
+            <column name="last_modified_date" type="datetime(6)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1687102978487-19">
+        <addPrimaryKey tableName="restaurant" columnNames="id" constraintName="PK_Restaurant"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1687102978487-15">
+        <addForeignKeyConstraint baseColumnNames="restaurant_id" baseTableName="user" constraintName="FK62ym98by1jxbb27knhj3gse7v" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="restaurant" validate="true"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1687102978487-21">
+        <dropColumn columnName="restaurant_id" tableName="role"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1687102978487-22">
+        <addColumn tableName="role">
+            <column name="restaurant_id" type="varchar(30)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1687102978487-20">
+        <addForeignKeyConstraint baseColumnNames="restaurant_id" baseTableName="role" constraintName="FKnliicm5y5wsg0pv5ujfal22mi" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="restaurant" validate="true"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1687102978487-16">
+        <addForeignKeyConstraint baseColumnNames="role_id" baseTableName="user" constraintName="FKn82ha3ccdebhokx3a8fgdqeyy" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="role" validate="true"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1687102978487-17">
+        <dropColumn columnName="email" tableName="restaurant"/>
+    </changeSet>
+</databaseChangeLog>
