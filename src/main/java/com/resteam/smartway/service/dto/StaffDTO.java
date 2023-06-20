@@ -1,5 +1,6 @@
 package com.resteam.smartway.service.dto;
 
+import com.resteam.smartway.domain.User;
 import java.util.UUID;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -40,4 +41,14 @@ public class StaffDTO {
 
     @Size(min = 2, max = 10)
     private String langKey;
+
+    public StaffDTO(User user) {
+        this.username = user.getUsername();
+        this.password = user.getPassword();
+        this.fullName = user.getFullName();
+        this.phone = user.getPhone();
+        this.email = user.getEmail();
+        this.restaurantId = user.getRestaurant().getId();
+        this.langKey = user.getLangKey();
+    }
 }

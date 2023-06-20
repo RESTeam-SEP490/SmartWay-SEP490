@@ -97,31 +97,24 @@ public class StaffService {
     public void deleteById(UUID id) {
         staffRepository.deleteById(id);
     }
-    //    public Optional<StaffDTO> updateStaff(StaffDTO staffDTO) {
-    //        Optional<User> optional = staffRepository.findOneByUsername(staffDTO.getUsername());
-    //        if (optional.isEmpty()) {
-    //            return Optional.empty();
-    //        }
-    //
-    //        Optional<Restaurant> restaurant = restaurantRepository.findOneById(staffDTO.getRestaurantId());
-    //        Restaurant currentRestaurant = new Restaurant(restaurant);
-    //
-    //        Set<Authority> authorities = new HashSet<>();
-    //        authorityRepository.findById(AuthoritiesConstants.STAFF).ifPresent(authorities::add);
-    //        Role role = new Role("Staff", currentRestaurant, authorities);
-    //        roleRepository.save(role);
-    //
-    //        User entity = optional.get();
-    //        String encryptedPassword = passwordEncoder.encode(staffDTO.getPassword());
-    //
-    //        entity.setUsername(staffDTO.getUsername().toLowerCase());
-    //        entity.setPassword(encryptedPassword);
-    //        entity.setFullName(staffDTO.getFullName());
-    //        entity.setEmail(staffDTO.getEmail().toLowerCase());
-    //        entity.setPhone(staffDTO.getPhone());
-    //        entity.setLangKey(staffDTO.getLangKey());
-    //        entity.setRestaurant(currentRestaurant);
-    //        entity.setRole(role);
-    //        return Optional.of(staffRepository.save(entity)).map(staf)
-    //    }
+
+    public Optional<StaffDTO> updateStaff(StaffDTO staffDTO) {
+        return Optional
+            .of(staffRepository.findOneByUsername(staffDTO.getUsername()))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .map(staff -> {
+                staff.setUsername(staffDTO.getUsername());
+                staff.setFullName(staffDTO.getFullName());
+                if (staffDTO.getEmail() != null) {
+                    staff.setEmail(staffDTO.getEmail().toLowerCase());
+                }
+                staff.setLangKey(staffDTO.getLangKey());
+                //                    Collection<Authority> managedAuthorities = staff.getRole().getAuthorities();
+                //                    managedAuthorities.clear();
+                log.debug("Changed Information for Staff: {}", staff);
+                return staff;
+            })
+            .map(StaffDTO::new);
+    }
 }

@@ -55,17 +55,8 @@ public class StaffController {
         if (isPasswordLengthInvalid(staffDTO.getPassword())) {
             throw new InvalidPasswordException();
         }
-        staffService.createStaff(staffDTO);
+        staffService.updateStaff(staffDTO);
     }
-
-    //    @PutMapping("/update/{id}")
-    //    public ResponseEntity<User> updateStaff(@RequestBody StaffDTO staffDTO) {
-    //        Optional<User> currentStaff = staffService.getStaffByUsername(staffDTO.getUsername());
-    //        if (currentStaff.isEmpty()) {
-    //            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    //        }
-    //        return new ResponseEntity<>(staffService.createStaff(currentStaff);, HttpStatus.OK);
-    //    }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<User> deleteStaff(@PathVariable UUID id) {
