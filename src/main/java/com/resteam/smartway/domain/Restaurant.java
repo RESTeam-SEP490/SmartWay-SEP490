@@ -1,6 +1,7 @@
 package com.resteam.smartway.domain;
 
 import java.io.Serializable;
+import java.util.Optional;
 import java.util.UUID;
 import javax.persistence.*;
 import lombok.AllArgsConstructor;
@@ -27,5 +28,9 @@ public class Restaurant extends AbstractAuditingEntity<String> implements Serial
 
     public Restaurant(String id) {
         this.id = id;
+    }
+
+    public Restaurant(Optional<Restaurant> restaurant) {
+        super();
     }
 }

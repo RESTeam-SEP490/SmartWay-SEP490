@@ -12,6 +12,7 @@ import com.resteam.smartway.security.AuthoritiesConstants;
 import com.resteam.smartway.service.dto.StaffDTO;
 import com.resteam.smartway.web.rest.errors.SubdomainAlreadyUsedException;
 import java.util.*;
+import javax.swing.text.html.Option;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -92,4 +93,35 @@ public class StaffService {
 
         log.debug("Created Information for staff: {}", newStaff);
     }
+
+    public void deleteById(UUID id) {
+        staffRepository.deleteById(id);
+    }
+    //    public Optional<StaffDTO> updateStaff(StaffDTO staffDTO) {
+    //        Optional<User> optional = staffRepository.findOneByUsername(staffDTO.getUsername());
+    //        if (optional.isEmpty()) {
+    //            return Optional.empty();
+    //        }
+    //
+    //        Optional<Restaurant> restaurant = restaurantRepository.findOneById(staffDTO.getRestaurantId());
+    //        Restaurant currentRestaurant = new Restaurant(restaurant);
+    //
+    //        Set<Authority> authorities = new HashSet<>();
+    //        authorityRepository.findById(AuthoritiesConstants.STAFF).ifPresent(authorities::add);
+    //        Role role = new Role("Staff", currentRestaurant, authorities);
+    //        roleRepository.save(role);
+    //
+    //        User entity = optional.get();
+    //        String encryptedPassword = passwordEncoder.encode(staffDTO.getPassword());
+    //
+    //        entity.setUsername(staffDTO.getUsername().toLowerCase());
+    //        entity.setPassword(encryptedPassword);
+    //        entity.setFullName(staffDTO.getFullName());
+    //        entity.setEmail(staffDTO.getEmail().toLowerCase());
+    //        entity.setPhone(staffDTO.getPhone());
+    //        entity.setLangKey(staffDTO.getLangKey());
+    //        entity.setRestaurant(currentRestaurant);
+    //        entity.setRole(role);
+    //        return Optional.of(staffRepository.save(entity)).map(staf)
+    //    }
 }

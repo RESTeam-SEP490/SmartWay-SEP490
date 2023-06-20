@@ -43,11 +43,39 @@ public class StaffController {
     }
 
     @PostMapping("/create")
-    public void saveStaff(@Valid @RequestBody StaffDTO staffDTO) {
+    public void createStaff(@Valid @RequestBody StaffDTO staffDTO) {
         if (isPasswordLengthInvalid(staffDTO.getPassword())) {
             throw new InvalidPasswordException();
         }
         staffService.createStaff(staffDTO);
+    }
+
+    @PutMapping("/update")
+    public void updateStaff(@Valid @RequestBody StaffDTO staffDTO) {
+        if (isPasswordLengthInvalid(staffDTO.getPassword())) {
+            throw new InvalidPasswordException();
+        }
+        staffService.createStaff(staffDTO);
+    }
+
+    //    @PutMapping("/update/{id}")
+    //    public ResponseEntity<User> updateStaff(@RequestBody StaffDTO staffDTO) {
+    //        Optional<User> currentStaff = staffService.getStaffByUsername(staffDTO.getUsername());
+    //        if (currentStaff.isEmpty()) {
+    //            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    //        }
+    //        return new ResponseEntity<>(staffService.createStaff(currentStaff);, HttpStatus.OK);
+    //    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<User> deleteStaff(@PathVariable UUID id) {
+        Optional<User> staff = staffService.getStaffById(id);
+        if (staff.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } else {
+            staffService.deleteById(id);
+            return new ResponseEntity<>(staff.get(), HttpStatus.OK);
+        }
     }
 
     private static boolean isPasswordLengthInvalid(String password) {
