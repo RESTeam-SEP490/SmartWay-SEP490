@@ -26,4 +26,9 @@ export const theme: ThemeConfig = {
     paddingContentVerticalLG: 10,
     padding: 10,
   },
+  components: {
+    Table: {
+      colorFillAlter: '#fff',
+    },
+  },
 };

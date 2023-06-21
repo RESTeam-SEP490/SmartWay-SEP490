@@ -30,7 +30,7 @@ public final class SecurityUtils {
         return null;
     }
 
-    public static Optional<String> getCurrentRestaurantName() {
+    public static Optional<String> getCurrentRestaurantId() {
         SecurityContext securityContext = SecurityContextHolder.getContext();
         Authentication authentication = securityContext.getAuthentication();
 

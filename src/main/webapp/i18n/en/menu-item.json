@@ -1,0 +1,13 @@
+{
+  "menuItem": {
+    "name": "Name",
+    "basePrice": "Base price",
+    "sellPrice": "Sell price",
+    "category": "Category",
+    "infoTabs": {
+      "information": "Information",
+      "sold": "Sold bills",
+      "ingredients": "Ingredients"
+    }
+  }
+}

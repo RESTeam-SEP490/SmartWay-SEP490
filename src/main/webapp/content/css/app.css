@@ -17,5 +17,32 @@ label {
 }
 
 .ant-table-thead .ant-table-cell {
-  background-color: var(--100) !important;
+  background-color: var(--300) !important;
+}
+
+.ant-table {
+  border: 2px solid #f0f0f0;
+  border-radius: 8px !important;
+}
+
+.ant-table-cell-row-hover {
+  background: var(--100) !important;
+}
+
+.ant-table-row + .ant-table-expanded-row .ant-table-cell {
+  border: 2px solid var(--200);
+  border-top: none;
+}
+.ant-table-row + .ant-table-expanded-row[style='display: none;'] {
+  border: none;
+}
+
+.ant-table-row:has(+ .ant-table-expanded-row) {
+  box-shadow: 0px 2px 2px inset var(--300);
+  background: var(--100);
+}
+
+.ant-table-row:has(+ .ant-table-expanded-row[style='display: none;']) .ant-table-cell {
+  background: #fff;
+  border-top: none;
 }

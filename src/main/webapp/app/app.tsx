@@ -54,7 +54,7 @@ export const App = () => {
               isOpenAPIEnabled={isOpenAPIEnabled}
             />
           </ErrorBoundary>
-          <div className="grow bg-gray-50">
+          <div className="grow bg-gray-100">
             <ErrorBoundary>
               <AppRoutes />
             </ErrorBoundary>

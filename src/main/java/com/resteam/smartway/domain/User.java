@@ -1,15 +1,10 @@
 package com.resteam.smartway.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.resteam.smartway.config.Constants;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 import javax.persistence.*;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -37,8 +32,7 @@ public class User extends AbstractAuditingEntity<UUID> implements Serializable {
     @Column(name = "id", columnDefinition = "BINARY(16)")
     private UUID id;
 
-    @NotNull
-    @Column(length = 50, unique = true, nullable = false)
+    @Column(length = 50, nullable = false)
     private String username;
 
     @JsonIgnore
@@ -48,8 +42,6 @@ public class User extends AbstractAuditingEntity<UUID> implements Serializable {
     @Column(name = "full_name", length = 100)
     private String fullName;
 
-    @Email
-    @Column(length = 254)
     private String email;
 
     @Column(length = 20)

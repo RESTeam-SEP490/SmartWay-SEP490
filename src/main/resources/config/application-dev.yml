@@ -67,7 +67,23 @@ spring:
 
 server:
   port: 8080
+aws:
+  # custom minio endpoint for testing locally
+  #  endpoint: http://localhost:8085
+  region: ap-southeast-1
+  credentials:
+    #     aws s3 key
+    access-key: AKIA23JEJJD5ACDPAUGD
+    secret-key: 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
 
+  #     minio custom key
+  #    access-key: L3paU7XoUjNUOo8
+  #    secret-key: PmNSxywEqNbSJEQgTzlJTrTTzLwuRpuB
+  s3:
+    bucket-name: smart-way-dev
+    presigned-url:
+      get: 43200
+      post: 120
 # ===================================================================
 # JHipster specific properties
 #

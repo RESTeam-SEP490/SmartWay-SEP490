@@ -1,14 +1,14 @@
 package com.resteam.smartway.domain;
 
 import java.io.Serializable;
-import java.util.UUID;
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.checkerframework.common.aliasing.qual.Unique;
-import org.hibernate.annotations.GenericGenerator;
 
 @Getter
 @Setter
@@ -21,7 +21,7 @@ public class Restaurant extends AbstractAuditingEntity<String> implements Serial
     private static final long serialVersionUID = 1L;
 
     @Id
-    @Column(name = "id", length = 30)
+    @Column(name = "id", length = 30, nullable = false)
     private String id;
 
     @Column(name = "name")

@@ -1,0 +1,8 @@
+{
+  "menuItem": {
+    "name": "Tên món",
+    "basePrice": "Giá vốn",
+    "sellPrice": "Giá bán",
+    "category": "Loại thực đơn"
+  }
+}

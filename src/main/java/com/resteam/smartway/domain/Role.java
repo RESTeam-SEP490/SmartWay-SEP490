@@ -2,12 +2,13 @@ package com.resteam.smartway.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import javax.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.BatchSize;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 @Getter
@@ -28,7 +29,7 @@ public class Role {
     private String name;
 
     @ManyToOne
-    @JoinColumn(name = "restaurant_id", referencedColumnName = "id", columnDefinition = "BINARY(16)")
+    @JoinColumn(name = "restaurant_id", referencedColumnName = "id", columnDefinition = "BINARY(16)", nullable = false)
     private Restaurant restaurant;
 
     @JsonIgnore
