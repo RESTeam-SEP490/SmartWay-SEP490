@@ -8,11 +8,9 @@ import com.resteam.smartway.service.mapper.base.EntityMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring", uses = { MenuItemCategoryMapper.class })
+@Mapper(componentModel = "spring", uses = { MenuItemCategoryMapper.class, MenuItemMapper.class })
 public interface MenuItemMapper extends EntityMapper<MenuItemDTO, MenuItem> {
-    @Mapping(target = "menuItemCategory.id", source = "menuItemCategoryId")
     MenuItem toEntity(MenuItemDTO dto);
 
-    @Mapping(target = "menuItemCategoryId", source = "menuItemCategory.id")
     MenuItemDTO toDto(MenuItem entity);
 }

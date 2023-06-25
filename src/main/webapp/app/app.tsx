@@ -22,6 +22,7 @@ import AppRoutes from 'app/routes';
 import { ConfigProvider } from 'antd';
 import { theme } from './config/ant-design-theme';
 import { authenticate } from './shared/reducers/authentication';
+import Scrollbars from 'react-custom-scrollbars-2';
 
 const baseHref = document.querySelector('base').getAttribute('href').replace(/\/$/, '');
 
@@ -42,25 +43,27 @@ export const App = () => {
   return (
     <BrowserRouter basename={baseHref}>
       <ConfigProvider theme={theme}>
-        <ToastContainer position={toast.POSITION.TOP_LEFT} className="toastify-container" toastClassName="toastify-toast" />
-        <div className="flex flex-col min-h-screen">
-          <ErrorBoundary>
-            <Header
-              isAuthenticated={isAuthenticated}
-              isAdmin={isAdmin}
-              currentLocale={currentLocale}
-              ribbonEnv={ribbonEnv}
-              isInProduction={isInProduction}
-              isOpenAPIEnabled={isOpenAPIEnabled}
-            />
-          </ErrorBoundary>
-          <div className="grow bg-gray-100">
+        <Scrollbars className="!w-screen !h-screen">
+          <ToastContainer position={toast.POSITION.TOP_RIGHT} className="toastify-container" toastClassName="toastify-toast" />
+          <div className="flex flex-col min-h-screen">
             <ErrorBoundary>
-              <AppRoutes />
+              <Header
+                isAuthenticated={isAuthenticated}
+                isAdmin={isAdmin}
+                currentLocale={currentLocale}
+                ribbonEnv={ribbonEnv}
+                isInProduction={isInProduction}
+                isOpenAPIEnabled={isOpenAPIEnabled}
+              />
             </ErrorBoundary>
-            {/* <Footer /> */}
+            <div className="bg-gray-100 grow px-4">
+              <ErrorBoundary>
+                <AppRoutes />
+              </ErrorBoundary>
+              {/* <Footer /> */}
+            </div>
           </div>
-        </div>
+        </Scrollbars>
       </ConfigProvider>
     </BrowserRouter>
   );

@@ -5,19 +5,18 @@ import ErrorBoundaryRoutes from 'app/shared/error/error-boundary-routes';
 
 import MenuItem from './menu-item';
 // import RestaurantDetail from './menu-item-detail';
-import RestaurantUpdate from './restaurant-update';
+import RestaurantUpdate, { MenuItemUpdate } from './menu-item-form';
 import RestaurantDeleteDialog from './restaurant-delete-dialog';
+import Home from 'app/modules/home/home';
 
-const RestaurantRoutes = () => (
+const MenuItemRoutes = () => (
   <ErrorBoundaryRoutes>
     <Route index element={<MenuItem />} />
-    <Route path="new" element={<RestaurantUpdate />} />
+
     <Route path=":id">
-      {/* <Route index element={<RestaurantDetail />} /> */}
-      <Route path="edit" element={<RestaurantUpdate />} />
       <Route path="delete" element={<RestaurantDeleteDialog />} />
     </Route>
   </ErrorBoundaryRoutes>
 );
 
-export default RestaurantRoutes;
+export default MenuItemRoutes;

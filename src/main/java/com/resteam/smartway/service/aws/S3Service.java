@@ -8,7 +8,6 @@ import com.resteam.smartway.config.AwsProperties;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Set;
-import java.util.UUID;
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -51,20 +50,15 @@ public class S3Service {
         return url.toString();
     }
 
-    public String uploadImage(MultipartFile multipartFile, String path) throws IOException {
+    public void uploadImage(MultipartFile multipartFile, String path) throws IOException {
         var bucketName = awsProperties.getS3().getBucketName();
-
-        UUID id = UUID.randomUUID();
-        String key = path + id;
 
         ObjectMetadata data = new ObjectMetadata();
         data.setContentType(multipartFile.getContentType());
         data.setContentLength(multipartFile.getSize());
 
-        PutObjectRequest request = new PutObjectRequest(bucketName, key, multipartFile.getInputStream(), data);
+        PutObjectRequest request = new PutObjectRequest(bucketName, path, multipartFile.getInputStream(), data);
         s3Client.putObject(request);
-
-        return key;
     }
 
     //    public String uploadFileToS3(InputStream inputStream, String meetingId, String domain) {

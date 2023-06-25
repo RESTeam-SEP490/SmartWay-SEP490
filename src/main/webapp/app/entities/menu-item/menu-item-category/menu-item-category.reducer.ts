@@ -3,57 +3,39 @@ import { createAsyncThunk, isFulfilled, isPending, isRejected } from '@reduxjs/t
 
 import { cleanEntity } from 'app/shared/util/entity-utils';
 import { IQueryParams, createEntitySlice, EntityState, serializeAxiosError } from 'app/shared/reducers/reducer.utils';
-import { IMenuItem, defaultValue } from 'app/shared/model/menu-item.model';
-import Header from 'app/shared/layout/header/header';
+import { IMenuItemCategory, defaultValue } from 'app/shared/model/menu-item-category.model';
 
-const initialState: EntityState<IMenuItem> = {
+const initialState: EntityState<IMenuItemCategory> = {
   loading: false,
   errorMessage: null,
   entities: [],
-  totalItems: 0,
   entity: defaultValue,
   updating: false,
   updateSuccess: false,
 };
 
-const apiUrl = 'api/menu-items';
+const apiUrl = 'api/menu-item-categories';
 
 // Actions
 
-export const getEntities = createAsyncThunk('menuItem/fetch_entity_list', async ({ sort, page, size, query, category }: IQueryParams) => {
-  let categoryQuery = '';
-  if (category && category.length > 0) {
-    categoryQuery = category.reduce(
-      (prev, current, index) => (index === category.length - 1 ? prev + current : prev + current + ','),
-      '&categoryIds='
-    );
-  }
-  const requestUrl = `${apiUrl}?page=${page}&size=${size}&sort=${sort}&search=${query ? query : ''}${categoryQuery}`;
-  return axios.get<IMenuItem[]>(requestUrl);
+export const getEntities = createAsyncThunk('menu_item_category/fetch_entity_list', async ({ sort, page, size }: IQueryParams) => {
+  const requestUrl = `${apiUrl}?cacheBuster=${new Date().getTime()}`;
+  return axios.get<IMenuItemCategory[]>(requestUrl);
 });
 
 export const getEntity = createAsyncThunk(
-  'menuItem/fetch_entity',
-  async (id: string | number) => {
+  'menu_item_category/fetch_entity',
+  async (id: string) => {
     const requestUrl = `${apiUrl}/${id}`;
-    return axios.get<IMenuItem>(requestUrl);
+    return axios.get<IMenuItemCategory>(requestUrl);
   },
   { serializeError: serializeAxiosError }
 );
 
 export const createEntity = createAsyncThunk(
-  'menuItem/create_entity',
-  async (entity: IMenuItem, thunkAPI) => {
-    const data = new FormData();
-    data.append('imageSource', entity.imageSource);
-    entity['imageSource'] = null;
-    data.append(
-      'menuItemDTO',
-      new Blob([JSON.stringify(entity)], {
-        type: 'application/json',
-      })
-    );
-    const result = await axios.post<IMenuItem>(apiUrl, data, { headers: { 'Content-Type': 'multipart/form-data' } });
+  'menu_item_category/create_entity',
+  async (entity: IMenuItemCategory, thunkAPI) => {
+    const result = await axios.post<IMenuItemCategory>(apiUrl, cleanEntity(entity));
     thunkAPI.dispatch(getEntities({}));
     return result;
   },
@@ -61,9 +43,9 @@ export const createEntity = createAsyncThunk(
 );
 
 export const updateEntity = createAsyncThunk(
-  'menuItem/update_entity',
-  async (entity: IMenuItem, thunkAPI) => {
-    const result = await axios.put<IMenuItem>(`${apiUrl}/${entity.id}`, cleanEntity(entity));
+  'menu_item_category/update_entity',
+  async (entity: IMenuItemCategory, thunkAPI) => {
+    const result = await axios.put<IMenuItemCategory>(`${apiUrl}/${entity.id}`, cleanEntity(entity));
     thunkAPI.dispatch(getEntities({}));
     return result;
   },
@@ -71,9 +53,9 @@ export const updateEntity = createAsyncThunk(
 );
 
 export const partialUpdateEntity = createAsyncThunk(
-  'menuItem/partial_update_entity',
-  async (entity: IMenuItem, thunkAPI) => {
-    const result = await axios.patch<IMenuItem>(`${apiUrl}/${entity.id}`, cleanEntity(entity));
+  'menu_item_category/partial_update_entity',
+  async (entity: IMenuItemCategory, thunkAPI) => {
+    const result = await axios.patch<IMenuItemCategory>(`${apiUrl}/${entity.id}`, cleanEntity(entity));
     thunkAPI.dispatch(getEntities({}));
     return result;
   },
@@ -81,10 +63,10 @@ export const partialUpdateEntity = createAsyncThunk(
 );
 
 export const deleteEntity = createAsyncThunk(
-  'menuItem/delete_entity',
-  async (id: string | number, thunkAPI) => {
+  'menu_item_category/delete_entity',
+  async (id: string, thunkAPI) => {
     const requestUrl = `${apiUrl}/${id}`;
-    const result = await axios.delete<IMenuItem>(requestUrl);
+    const result = await axios.delete<IMenuItemCategory>(requestUrl);
     thunkAPI.dispatch(getEntities({}));
     return result;
   },
@@ -93,8 +75,8 @@ export const deleteEntity = createAsyncThunk(
 
 // slice
 
-export const MenuItemSlice = createEntitySlice({
-  name: 'menuItem',
+export const MenuItemCategorySlice = createEntitySlice({
+  name: 'menuItemCategory',
   initialState,
   extraReducers(builder) {
     builder
@@ -109,11 +91,9 @@ export const MenuItemSlice = createEntitySlice({
       })
       .addMatcher(isFulfilled(getEntities), (state, action) => {
         const { data } = action.payload;
-        const count = action.payload.headers['x-total-count'];
 
         return {
           ...state,
-          totalItems: Number(count),
           loading: false,
           entities: data,
         };
@@ -137,7 +117,7 @@ export const MenuItemSlice = createEntitySlice({
   },
 });
 
-export const { reset } = MenuItemSlice.actions;
+export const { reset } = MenuItemCategorySlice.actions;
 
 // Reducer
-export default MenuItemSlice.reducer;
+export default MenuItemCategorySlice.reducer;

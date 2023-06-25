@@ -16,6 +16,7 @@ label {
   font-weight: 500;
 }
 
+/* Table css */
 .ant-table-thead .ant-table-cell {
   background-color: var(--300) !important;
 }
@@ -30,19 +31,53 @@ label {
 }
 
 .ant-table-row + .ant-table-expanded-row .ant-table-cell {
-  border: 2px solid var(--200);
+  border: 2px solid var(--300);
   border-top: none;
-}
-.ant-table-row + .ant-table-expanded-row[style='display: none;'] {
-  border: none;
 }
 
 .ant-table-row:has(+ .ant-table-expanded-row) {
-  box-shadow: 0px 2px 2px inset var(--300);
+  box-shadow: 0px 2px 2px inset var(--300) !important;
+  border-bottom: 1px solid transparent;
   background: var(--100);
 }
 
-.ant-table-row:has(+ .ant-table-expanded-row[style='display: none;']) .ant-table-cell {
+.ant-table-row:has(+ .ant-table-expanded-row) td:first-child {
+  border-left: 2px solid var(--300);
+}
+
+.ant-table-row:has(+ .ant-table-expanded-row) td:last-child {
+  border-right: 2px solid var(--300);
+}
+
+.ant-table-row:has(+ .ant-table-expanded-row[style='display: none;']) td:first-child,
+.ant-table-row .ant-table-cell:first-child {
+  border-left: 2px solid transparent;
+}
+
+.ant-table-row:has(+ .ant-table-expanded-row[style='display: none;']) td:last-child,
+.ant-table-row .ant-table-cell:last-child {
+  border-right: 2px solid transparent;
+}
+
+.ant-table-row:has(+ .ant-table-expanded-row[style='display: none;']) td {
   background: #fff;
-  border-top: none;
+}
+
+/* Image css */
+.ant-image-img {
+  object-position: center;
+  object-fit: cover;
+}
+
+.ant-form-item {
+  border-left: none !important;
+  border-right: none !important;
+}
+
+th.ant-table-cell::before {
+  content: none !important;
+}
+
+.details .ant-form-item {
+  border-bottom: 1px solid #f0f0f0;
 }

@@ -50,10 +50,13 @@
       "fullName.label": "Họ tên",
       "fullName.placeholder": "Nhập họ tên",
       "phone.label": "Số điện thoại",
-      "phone.placeholder": "Nhập số điện thoại"
+      "phone.placeholder": "Nhập số điện thoại",
+      "search.nodata": "Không tìm thấy kết quả phù hợp"
     },
     "table": {
-      "empty": "Chưa có dữ liệu"
+      "empty": "Chưa có dữ liệu",
+      "description": "Mô tả:",
+      "operation": "Thao tác"
     },
     "messages": {
       "info": {
@@ -105,7 +108,8 @@
       "back": "Quay lại",
       "cancel": "Hủy",
       "delete": "Xóa",
-      "edit": "Sửa",
+      "edit": "Cập nhật",
+      "stopSale": "Ngưng kinh doanh",
       "open": "Mở",
       "save": "Lưu",
       "view": "Xem",

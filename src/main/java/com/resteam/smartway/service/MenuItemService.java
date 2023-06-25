@@ -1,13 +1,17 @@
 package com.resteam.smartway.service;
 
-import com.resteam.smartway.domain.MenuItem;
 import com.resteam.smartway.service.dto.MenuItemDTO;
-import java.util.UUID;
+import java.util.List;
+import javax.validation.Valid;
+import lombok.SneakyThrows;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface MenuItemService {
-    Page<MenuItem> loadMenuItemsWithSearch(Pageable pageable, String searchText, String categoryId);
+    Page<MenuItemDTO> loadMenuItemsWithSearch(Pageable pageable, String searchText, List<String> categoryIds);
 
-    void createMenuItem(MenuItemDTO menuItemDTO);
+    @SneakyThrows
+    void createMenuItem(@Valid MenuItemDTO menuItemDTO, MultipartFile imageSource);
 }

@@ -24,6 +24,8 @@ public class MenuItem extends AbstractAuditingEntity<UUID> implements Serializab
     @Column(columnDefinition = "BINARY(16)")
     private UUID id;
 
+    private String code;
+
     @Column(length = 50, nullable = false)
     private String name;
 
@@ -37,7 +39,15 @@ public class MenuItem extends AbstractAuditingEntity<UUID> implements Serializab
     private Double sellPrice;
 
     @Column(name = "is_extra_item")
-    private Boolean isExtraItem = false;
+    private Boolean isExtraItem;
+
+    @Column(name = "is_active")
+    private Boolean isActive;
+
+    @Column(name = "is_allow_sale")
+    private Boolean isAllowSale;
+
+    private String description;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id", referencedColumnName = "id", columnDefinition = "BINARY(16)")
@@ -50,8 +60,4 @@ public class MenuItem extends AbstractAuditingEntity<UUID> implements Serializab
         inverseJoinColumns = { @JoinColumn(name = "extra_item_id", referencedColumnName = "id") }
     )
     private Set<MenuItem> extraItemSet;
-
-    @ManyToOne
-    @JoinColumn(name = "restaurant_id", referencedColumnName = "id", nullable = false)
-    private Restaurant restaurant;
 }

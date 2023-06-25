@@ -1,8 +1,10 @@
 package com.resteam.smartway.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.resteam.smartway.domain.MenuItem;
 import java.util.Set;
 import java.util.UUID;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,21 +20,31 @@ public class MenuItemDTO {
 
     private UUID id;
 
-    @NotNull
+    private String code;
+
+    @NotBlank
     private String name;
 
+    @JsonIgnore
     private MultipartFile imageSource;
 
     private String imageUrl;
 
-    private Double basePrice;
+    private Double basePrice = 0.0;
 
     @NotNull
     private Double sellPrice;
 
     private Boolean isExtraItem = false;
 
-    private UUID menuItemCategoryId;
+    private Boolean isActive = true;
 
-    private Set<MenuItem> extraItemSet;
+    private Boolean isAllowSale = true;
+
+    private String description;
+
+    @NotNull
+    private MenuItemCategoryDTO menuItemCategory;
+
+    private Set<MenuItemDTO> extraItemSet;
 }

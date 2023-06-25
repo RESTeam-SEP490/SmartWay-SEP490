@@ -1,7 +1,8 @@
 package com.resteam.smartway.service.dto;
 
 import java.util.UUID;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,7 +16,8 @@ public class MenuItemCategoryDTO {
 
     private UUID id;
 
-    @NotNull
+    @NotBlank
+    @Max(50)
     private String name;
 
     private String description;

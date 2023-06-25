@@ -9,14 +9,17 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.ParamDef;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@FilterDef(name = "restaurantIdFilter", parameters = { @ParamDef(name = "id", type = "string") })
 @Table(name = "restaurant")
-public class Restaurant extends AbstractAuditingEntity<String> implements Serializable {
+public class Restaurant implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

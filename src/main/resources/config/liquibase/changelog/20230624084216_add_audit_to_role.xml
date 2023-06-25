@@ -1,0 +1,40 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1687596149979-2">
+        <addColumn tableName="role">
+            <column name="created_by" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1687596149979-3">
+        <addColumn tableName="role">
+            <column name="created_date" type="datetime(6)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1687596149979-4">
+        <addColumn tableName="role">
+            <column name="last_modified_by" type="varchar(50)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1687596149979-5">
+        <addColumn tableName="role">
+            <column name="last_modified_date" type="datetime(6)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1687596149979-7">
+        <dropColumn columnName="created_by" tableName="restaurant"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1687596149979-8">
+        <dropColumn columnName="created_date" tableName="restaurant"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1687596149979-9">
+        <dropColumn columnName="last_modified_by" tableName="restaurant"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1687596149979-10">
+        <dropColumn columnName="last_modified_date" tableName="restaurant"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1687596149979-1">
+        <addNotNullConstraint columnDataType="varchar(30)" columnName="restaurant_id" tableName="user" validate="true"/>
+    </changeSet>
+</databaseChangeLog>

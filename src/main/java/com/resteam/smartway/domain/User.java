@@ -60,8 +60,4 @@ public class User extends AbstractAuditingEntity<UUID> implements Serializable {
     @ManyToOne
     @JoinColumn(name = "role_id", referencedColumnName = "id", columnDefinition = "BINARY(16)")
     private Role role;
-
-    @ManyToOne
-    @JoinColumn(referencedColumnName = "id", name = "restaurant_id")
-    private Restaurant restaurant;
 }

@@ -1,58 +1,105 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useEffect, useState } from 'react';
 import { Translate, translate } from 'react-jhipster';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 
-import { Button, Card, Empty, Row, Table, Typography } from 'antd';
-import { DEFAULT_PAGEABLE } from '../../app.constant';
-import { getEntities } from './menu-item.reducer';
+import { DeleteFilled, DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { Button, Card, Empty, Input, Table, Typography } from 'antd';
+import { CheckboxValueType } from 'antd/es/checkbox/Group';
+import { IQueryParams } from 'app/shared/reducers/reducer.utils';
+import { DEFAULT_PAGEABLE, currencyFormatter } from '../../app.constant';
+import { DEFAULT_PAGIANTION_CONFIG } from '../../shared/util/pagination.constants';
+import { MenuItemCategoryCheckBoxes } from './menu-item-category/menu-item-category';
 import MenuItemDetail from './menu-item-detail';
-import menuItem from 'app/entities/menu-item/menu-item.reducer';
+import MenuItemUpdate from './menu-item-form';
+import { getEntities } from './menu-item.reducer';
+import { render } from '@testing-library/react';
 
 export const MenuItem = () => {
   const dispatch = useAppDispatch();
 
   const columns = [
-    { title: <Translate contentKey="menuItem.name" />, dataIndex: 'name', key: 'name' },
-    { title: <Translate contentKey="menuItem.category" />, dataIndex: ['menuItemCategory', 'name'], key: 'menuItemCategory' },
-    { title: <Translate contentKey="menuItem.basePrice" />, dataIndex: 'basePrice', key: 'basePrice' },
-    { title: <Translate contentKey="menuItem.sellPrice" />, dataIndex: 'sellPrice', key: 'sellPrice' },
+    { title: <Translate contentKey="menuItem.code.label" />, dataIndex: 'code', key: 'code' },
+    { title: <Translate contentKey="menuItem.name.label" />, dataIndex: 'name', key: 'name' },
+    { title: <Translate contentKey="menuItem.category.label" />, dataIndex: ['menuItemCategory', 'name'], key: 'menuItemCategory' },
+    {
+      title: <Translate contentKey="menuItem.basePrice.label" />,
+      dataIndex: 'basePrice',
+      key: 'basePrice',
+      align: 'right' as const,
+      render: p => currencyFormatter(p),
+    },
+    {
+      title: <Translate contentKey="menuItem.sellPrice.label" />,
+      dataIndex: 'sellPrice',
+      key: 'sellPrice',
+      align: 'right' as const,
+      render: p => currencyFormatter(p),
+    },
   ];
 
   const [expendedRow, setExpendedRow] = useState();
-
-  const location = useLocation();
-  const navigate = useNavigate();
+  const [isShowForm, setIsShowForm] = useState(false);
+  const [pageable, setPageable] = useState<IQueryParams>(DEFAULT_PAGEABLE);
 
   const menuItemList = useAppSelector(state => state.menuItem.entities);
+  const count = useAppSelector(state => state.menuItem.totalItems);
   const loading = useAppSelector(state => state.menuItem.loading);
 
   useEffect(() => {
-    dispatch(getEntities(DEFAULT_PAGEABLE));
-  }, []);
+    dispatch(getEntities(pageable));
+  }, [pageable]);
 
-  const handleSyncList = () => {
-    dispatch(getEntities(DEFAULT_PAGEABLE));
+  const handleOnchangePage = (page, pageSize) => {
+    setPageable(prev => ({ ...prev, page: page - 1, size: pageSize }));
   };
 
+  const handleOnchangeSearch = e => {
+    const search = e.target.value;
+    if (search !== pageable.query) setPageable(prev => ({ ...prev, page: 0, query: search }));
+  };
+
+  const handleOnchangeCategoryFilter = (checkedValues: CheckboxValueType[]) => {
+    const selectedCategories = checkedValues.map(v => v.toString());
+    setPageable(prev => ({ ...prev, page: 0, category: selectedCategories }));
+  };
   return (
     <>
+      <MenuItemUpdate handleClose={() => setIsShowForm(false)} isOpen={isShowForm} />
+
       <div className="flex h-full p-2">
-        <div className="w-1/5 p-4">
-          <Card title="Search" bordered={false}></Card>
+        <div className="w-1/5 p-4 flex flex-col gap-4">
+          <Card bordered={false}>
+            <Typography.Title level={5}>Tìm kiếm</Typography.Title>
+            <Input placeholder="Nhập tên, mã món để tìm kiếm" onPressEnter={handleOnchangeSearch} onBlur={handleOnchangeSearch} />
+          </Card>
+          <MenuItemCategoryCheckBoxes handleOnChange={handleOnchangeCategoryFilter} />
         </div>
         <div className="w-4/5 p-4">
-          <Row>
-            <Typography.Title level={3}>
-              <Translate contentKey="users.title" />
+          <div className="flex justify-between items-center mb-4">
+            <Typography.Title level={3} className="!mb-0">
+              <Translate contentKey="menuItem.title" />
             </Typography.Title>
-          </Row>
+            <div className="flex gap-2">
+              <Button type="primary" onClick={() => setIsShowForm(true)}>
+                <PlusOutlined rev={''} />
+                <Translate contentKey="menuItem.addNewLabel" />
+              </Button>
+              <Button danger>
+                <DeleteFilled rev={''} />
+                <Translate contentKey="entity.action.delete" />
+              </Button>
+            </div>
+          </div>
           <Table
-            size="small"
             columns={columns}
             dataSource={menuItemList}
+            pagination={{
+              ...DEFAULT_PAGIANTION_CONFIG,
+              onChange: handleOnchangePage,
+              total: count,
+              current: pageable.page + 1,
+            }}
             rowSelection={{ type: 'checkbox' }}
             rowKey={'id'}
             rowClassName={'cursor-pointer'}
@@ -70,84 +117,6 @@ export const MenuItem = () => {
             }}
             locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={translate('global.table.empty')} /> }}
           ></Table>
-        </div>
-      </div>
-
-      <div className="hidden">
-        <h2 id="restaurant-heading" data-cy="RestaurantHeading">
-          <Translate contentKey="smartWayApp.restaurant.home.title">Restaurants</Translate>
-          <div className="d-flex justify-content-end">
-            <Button className="me-2" color="info" onClick={handleSyncList} disabled={loading}>
-              <FontAwesomeIcon icon="sync" spin={loading} />{' '}
-              <Translate contentKey="smartWayApp.restaurant.home.refreshListLabel">Refresh List</Translate>
-            </Button>
-            <Link to="/restaurant/new" className="btn btn-primary jh-create-entity" id="jh-create-entity" data-cy="entityCreateButton">
-              <FontAwesomeIcon icon="plus" />
-              &nbsp;
-              <Translate contentKey="smartWayApp.restaurant.home.createLabel">Create new Restaurant</Translate>
-            </Link>
-          </div>
-        </h2>
-        <div className="table-responsive">
-          {menuItemList && menuItemList.length > 0 ? (
-            <Table>
-              <thead>
-                <tr>
-                  <th>
-                    <Translate contentKey="smartWayApp.restaurant.id">ID</Translate>
-                  </th>
-                  <th>
-                    <Translate contentKey="smartWayApp.restaurant.name">Name</Translate>
-                  </th>
-                  <th>
-                    <Translate contentKey="smartWayApp.restaurant.email">Email</Translate>
-                  </th>
-                  <th />
-                </tr>
-              </thead>
-              <tbody>
-                {menuItemList.map((restaurant, i) => (
-                  <tr key={`entity-${i}`} data-cy="entityTable">
-                    <td>
-                      {/* <Button tag={Link} to={`/restaurant/${restaurant.id}`} color="link" size="sm">
-                        {restaurant.id}
-                      </Button> */}
-                    </td>
-                    <td>{restaurant.name}</td>
-                    <td>{restaurant.email}</td>
-                    <td className="text-end">
-                      <div className="btn-group flex-btn-group-container">
-                        {/* <Button tag={Link} to={`/restaurant/${restaurant.id}`} color="info" size="sm" data-cy="entityDetailsButton">
-                          <FontAwesomeIcon icon="eye" />{' '}
-                          <span className="d-none d-md-inline">
-                            <Translate contentKey="entity.action.view">View</Translate>
-                          </span>
-                        </Button>
-                        <Button tag={Link} to={`/restaurant/${restaurant.id}/edit`} color="primary" size="sm" data-cy="entityEditButton">
-                          <FontAwesomeIcon icon="pencil-alt" />{' '}
-                          <span className="d-none d-md-inline">
-                            <Translate contentKey="entity.action.edit">Edit</Translate>
-                          </span>
-                        </Button>
-                        <Button tag={Link} to={`/restaurant/${restaurant.id}/delete`} color="danger" size="sm" data-cy="entityDeleteButton">
-                          <FontAwesomeIcon icon="trash" />{' '}
-                          <span className="d-none d-md-inline">
-                            <Translate contentKey="entity.action.delete">Delete</Translate>
-                          </span>
-                        </Button> */}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          ) : (
-            !loading && (
-              <div className="alert alert-warning">
-                <Translate contentKey="smartWayApp.restaurant.home.notFound">No Restaurants found</Translate>
-              </div>
-            )
-          )}
         </div>
       </div>
     </>

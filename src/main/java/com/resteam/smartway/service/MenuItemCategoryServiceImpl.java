@@ -27,9 +27,7 @@ public class MenuItemCategoryServiceImpl implements MenuItemCategoryService {
 
     @Override
     public List<MenuItemCategory> loadAllMenuItemCategories() {
-        String restaurantId = SecurityUtils.getCurrentRestaurantId().orElseThrow(RestaurantInfoNotFoundException::new);
-
-        return menuItemCategoryRepository.findAllByRestaurant(new Restaurant(restaurantId));
+        return menuItemCategoryRepository.findAll();
     }
 
     @Override

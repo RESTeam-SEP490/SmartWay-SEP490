@@ -34,12 +34,4 @@ public class MenuItemCategory extends AbstractAuditingEntity<UUID> implements Se
 
     @OneToMany(mappedBy = "menuItemCategory")
     private Set<MenuItem> menuItemSet = new HashSet<>();
-
-    @ManyToOne
-    @JoinColumn(name = "restaurant_id", referencedColumnName = "id", nullable = false)
-    private Restaurant restaurant;
-
-    public MenuItemCategory(UUID id) {
-        this.id = id;
-    }
 }
