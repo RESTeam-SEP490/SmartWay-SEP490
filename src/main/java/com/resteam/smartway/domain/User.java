@@ -22,7 +22,7 @@ import org.hibernate.annotations.GenericGenerator;
     subgraphs = { @NamedSubgraph(name = "authority-subgraph", attributeNodes = { @NamedAttributeNode("authorities") }) }
 )
 @Table(name = "user")
-public class User extends AbstractAuditingEntity<UUID> implements Serializable {
+public class User extends AbstractBaseAuditingEntity<UUID> implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

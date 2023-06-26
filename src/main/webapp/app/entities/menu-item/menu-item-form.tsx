@@ -12,7 +12,7 @@ import { Button, Checkbox, Form, Input, InputNumber, Modal, Tabs, Upload, messag
 import type { RcFile } from 'antd/es/upload/interface';
 import { DEFAULT_FORM_ITEM_LAYOUT, currencyFormatter } from 'app/app.constant';
 import { IMenuItem, defaultValue } from 'app/shared/model/menu-item.model';
-import MenuItemCategorySelect from './menu-item-category/menu-item-category';
+import MenuItemCategorySelect from '../menu-item-category/menu-item-category';
 import { createEntity, getEntity, updateEntity } from './menu-item.reducer';
 
 export const MenuItemUpdate = ({ id, isOpen, handleClose }: { id?: string; isOpen: boolean; handleClose: any }) => {
@@ -61,26 +61,30 @@ export const MenuItemUpdate = ({ id, isOpen, handleClose }: { id?: string; isOpe
   };
 
   const handleOnChangeFileList = info => {
-    let nextFileList = [info.file];
-    nextFileList = nextFileList.slice(-1);
-    setFileList(nextFileList);
-    setImageSource(info.file.originFileObj);
+    const nextFileList = [info.file];
+    if (info.file.status !== 'removed') {
+      setFileList(nextFileList);
+      setImageSource(info.file.originFileObj);
+    }
   };
+
   const handleRemoveFileList = info => {
     setFileList([]);
     setImageSource(undefined);
   };
 
   const beforeUpload = (file: RcFile) => {
-    const isJpgOrPng = file.type.includes('image/');
-    if (!isJpgOrPng) {
-      message.error('You can only upload JPG/PNG file!');
+    const isImageFile = file.type.includes('image');
+    if (!isImageFile) {
+      message.error('You can only upload image file!');
+      return false;
     }
-    const isLt2M = file.size / 1024 / 1024 < 2;
-    if (!isLt2M) {
+    const isSmallerThan25MB = file.size / 1024 / 1024 < 25;
+    if (!isSmallerThan25MB) {
       message.error('Image must smaller than 2MB!');
+      return false;
     }
-    return isJpgOrPng && isLt2M;
+    return true;
   };
 
   return (
@@ -108,10 +112,11 @@ export const MenuItemUpdate = ({ id, isOpen, handleClose }: { id?: string; isOpe
                 </Form.Item>
               </div>
               <div className="h-max w-80">
-                <Form.Item label={translate('menuItem.basePrice.label')} name={'basePrice'} initialValue={0}>
+                <Form.Item labelCol={{ span: 10 }} label={translate('menuItem.basePrice.label')} name={'basePrice'} initialValue={0}>
                   <InputNumber min={0} className="w-40" keyboard formatter={currencyFormatter} />
                 </Form.Item>
                 <Form.Item
+                  labelCol={{ span: 10 }}
                   label={translate('menuItem.sellPrice.label')}
                   name={'sellPrice'}
                   initialValue={0}
@@ -119,17 +124,13 @@ export const MenuItemUpdate = ({ id, isOpen, handleClose }: { id?: string; isOpe
                 >
                   <InputNumber min={0} className="w-40" keyboard formatter={currencyFormatter} />
                 </Form.Item>
-                <Form.Item colon={false} name={'isAllowSale'} label={' '} className="!mb-0" initialValue={true} valuePropName="checked">
-                  <Checkbox className="mr-2">
-                    <Translate contentKey="menuItem.isAllowSale.label" />
-                  </Checkbox>
-                </Form.Item>
-                <Form.Item colon={false} name={'isExtraItem'} label={' '} initialValue={false} valuePropName="checked">
-                  <Checkbox className="mr-2">
-                    <Translate contentKey="menuItem.isExtraItem.label" />
-                  </Checkbox>
-                </Form.Item>
-                <Form.Item colon={false} name={'imageSource'} label={' '} valuePropName={'file'}>
+                <Form.Item
+                  labelCol={{ span: 10 }}
+                  colon={false}
+                  name={'imageSource'}
+                  label={translate('menuItem.image.placeholder')}
+                  valuePropName={'file'}
+                >
                   <ImgCrop beforeCrop={beforeUpload}>
                     <Upload
                       maxCount={1}
@@ -141,23 +142,20 @@ export const MenuItemUpdate = ({ id, isOpen, handleClose }: { id?: string; isOpe
                       onChange={handleOnChangeFileList}
                       onRemove={handleRemoveFileList}
                     >
-                      <div>
-                        <PlusOutlined rev={''} />
-                        <div style={{ marginTop: 8 }}>
-                          {fileList.length === 0 ? (
-                            <Translate contentKey="menuItem.image" />
-                          ) : (
-                            <Translate contentKey="menuItem.replaceImage" />
-                          )}
+                      {fileList.length < 1 && (
+                        <div>
+                          <PlusOutlined rev={''} />
+                          <div>
+                            <Translate contentKey="menuItem.image.placeholder" />
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </Upload>
                   </ImgCrop>
                 </Form.Item>
               </div>
             </Tabs.TabPane>
-            <Tabs.TabPane tab={translate('menuItem.infoTabs.extra')} key={2}></Tabs.TabPane>
-            <Tabs.TabPane tab={translate('menuItem.infoTabs.ingredients')} key={3}></Tabs.TabPane>
+            <Tabs.TabPane tab={translate('menuItem.infoTabs.ingredients')} key={2}></Tabs.TabPane>
           </Tabs>
           <div className="flex justify-end gap-2">
             <Button type="primary" htmlType="submit" loading={loading}>

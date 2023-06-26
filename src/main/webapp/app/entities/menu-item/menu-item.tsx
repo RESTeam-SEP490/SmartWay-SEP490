@@ -9,7 +9,7 @@ import { CheckboxValueType } from 'antd/es/checkbox/Group';
 import { IQueryParams } from 'app/shared/reducers/reducer.utils';
 import { DEFAULT_PAGEABLE, currencyFormatter } from '../../app.constant';
 import { DEFAULT_PAGIANTION_CONFIG } from '../../shared/util/pagination.constants';
-import { MenuItemCategoryCheckBoxes } from './menu-item-category/menu-item-category';
+import { MenuItemCategoryCheckBoxes } from '../menu-item-category/menu-item-category';
 import MenuItemDetail from './menu-item-detail';
 import MenuItemUpdate from './menu-item-form';
 import { getEntities } from './menu-item.reducer';
@@ -68,15 +68,21 @@ export const MenuItem = () => {
       <MenuItemUpdate handleClose={() => setIsShowForm(false)} isOpen={isShowForm} />
 
       <div className="flex h-full p-2">
-        <div className="w-1/5 p-4 flex flex-col gap-4">
+        <div className="flex flex-col w-1/5 gap-4 p-4">
           <Card bordered={false}>
-            <Typography.Title level={5}>Tìm kiếm</Typography.Title>
-            <Input placeholder="Nhập tên, mã món để tìm kiếm" onPressEnter={handleOnchangeSearch} onBlur={handleOnchangeSearch} />
+            <Typography.Title level={5}>
+              <Translate contentKey="entity.action.find" />
+            </Typography.Title>
+            <Input
+              placeholder={translate('menuItem.search.placeholder')}
+              onPressEnter={handleOnchangeSearch}
+              onBlur={handleOnchangeSearch}
+            />
           </Card>
           <MenuItemCategoryCheckBoxes handleOnChange={handleOnchangeCategoryFilter} />
         </div>
         <div className="w-4/5 p-4">
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex items-center justify-between mb-4">
             <Typography.Title level={3} className="!mb-0">
               <Translate contentKey="menuItem.title" />
             </Typography.Title>

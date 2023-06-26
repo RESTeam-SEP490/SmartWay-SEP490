@@ -15,6 +15,6 @@ public abstract class AbstractBaseEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @ManyToOne
-    @JoinColumn(referencedColumnName = "id", name = "restaurant_id")
+    @JoinColumn(referencedColumnName = "id", name = "restaurant_id", nullable = false)
     private Restaurant restaurant;
 }

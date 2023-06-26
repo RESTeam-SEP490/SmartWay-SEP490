@@ -9,11 +9,9 @@ export interface IMenuItem {
   description?: string | null;
   basePrice?: number | 0;
   sellPrice?: number | 0;
-  isExtraItem?: boolean | null;
   isActive?: boolean | null;
-  isAllowSale?: boolean | null;
+  isInStock?: boolean | null;
   menuItemCategory?: IMenuItemCategory | null;
-  extraItemSet?: [] | null;
 }
 
 export const defaultValue: Readonly<IMenuItem> = {};

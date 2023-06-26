@@ -16,7 +16,7 @@ import org.hibernate.annotations.GenericGenerator;
 @AllArgsConstructor
 @Entity
 @Table(name = "role")
-public class Role extends AbstractAuditingEntity<UUID> {
+public class Role extends AbstractBaseAuditingEntity<UUID> {
 
     @Id
     @GeneratedValue(generator = "uuid-hibernate-generator")

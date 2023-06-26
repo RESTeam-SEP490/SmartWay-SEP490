@@ -96,6 +96,7 @@ public class UserService {
         Set<Authority> authorities = new HashSet<>();
         authorityRepository.findById(AuthoritiesConstants.USER).ifPresent(authorities::add);
         Role role = new Role(null, "Nhân viên", authorities);
+        role.setRestaurant(savedRestaurant);
         roleRepository.save(role);
 
         User newUser = new User();

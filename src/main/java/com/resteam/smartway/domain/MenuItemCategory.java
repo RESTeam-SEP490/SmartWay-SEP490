@@ -18,7 +18,7 @@ import org.hibernate.annotations.GenericGenerator;
 @AllArgsConstructor
 @Entity
 @Table(name = "menu_item_category")
-public class MenuItemCategory extends AbstractAuditingEntity<UUID> implements Serializable {
+public class MenuItemCategory extends AbstractBaseAuditingEntity<UUID> implements Serializable {
 
     @Id
     @GeneratedValue(generator = "uuid-hibernate-generator")

@@ -55,8 +55,7 @@
     },
     "table": {
       "empty": "Chưa có dữ liệu",
-      "description": "Mô tả:",
-      "operation": "Thao tác"
+      "description": "Mô tả:"
     },
     "messages": {
       "info": {
@@ -113,6 +112,7 @@
       "open": "Mở",
       "save": "Lưu",
       "view": "Xem",
+      "find": "Tìm kiếm",
       "show": "Show {{otherEntity}}"
     },
     "detail": {
@@ -138,6 +138,9 @@
       "set": "Following filters are set",
       "clear": "Clear filter",
       "clearAll": "Clear all filters"
+    },
+    "messages": {
+      "success": "Thêm mới thành công"
     }
   },
   "error": {

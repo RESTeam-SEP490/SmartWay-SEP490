@@ -197,6 +197,9 @@
 .hidden {
   display: none;
 }
+.\!h-screen {
+  height: 100vh !important;
+}
 .h-full {
   height: 100%;
 }
@@ -206,9 +209,6 @@
 }
 .h-screen {
   height: 100vh;
-}
-.\!h-screen {
-  height: 100vh !important;
 }
 .min-h-full {
   min-height: 100%;
@@ -222,6 +222,12 @@
 }
 .\!w-32 {
   width: 8rem !important;
+}
+.\!w-96 {
+  width: 24rem !important;
+}
+.\!w-screen {
+  width: 100vw !important;
 }
 .w-1\/5 {
   width: 20%;
@@ -241,9 +247,6 @@
 .w-7\/12 {
   width: 58.333333%;
 }
-.w-80 {
-  width: 20rem;
-}
 .w-fit {
   width: -moz-fit-content;
   width: fit-content;
@@ -251,8 +254,8 @@
 .w-full {
   width: 100%;
 }
-.\!w-screen {
-  width: 100vw !important;
+.w-80 {
+  width: 20rem;
 }
 .flex-grow,
 .grow {

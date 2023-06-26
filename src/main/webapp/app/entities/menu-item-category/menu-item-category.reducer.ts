@@ -19,7 +19,7 @@ const apiUrl = 'api/menu-item-categories';
 // Actions
 
 export const getEntities = createAsyncThunk('menu_item_category/fetch_entity_list', async ({ sort, page, size }: IQueryParams) => {
-  const requestUrl = `${apiUrl}?cacheBuster=${new Date().getTime()}`;
+  const requestUrl = `${apiUrl}?sort=createDate,DESC&cacheBuster=${new Date().getTime()}`;
   return axios.get<IMenuItemCategory[]>(requestUrl);
 });
 

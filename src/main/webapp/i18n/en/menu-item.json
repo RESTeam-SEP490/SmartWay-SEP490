@@ -1,13 +1,27 @@
 {
   "menuItem": {
-    "name": "Name",
-    "basePrice": "Base price",
-    "sellPrice": "Sell price",
-    "category": "Category",
+    "title": "Menu items",
+    "addNewLabel": "Add new item",
     "infoTabs": {
       "information": "Information",
-      "sold": "Sold bills",
+      "sold": "Sold",
       "ingredients": "Ingredients"
+    },
+    "code.label": "Code",
+    "code.placeholder": "Auto-generated code",
+    "name.label": "Item name",
+    "name.placeholder": "Tên món",
+    "basePrice.label": "Cost price",
+    "sellPrice.label": "Selling price",
+    "search.placeholder": "Search by name, code",
+    "category.label": "Category",
+    "category.placeholder": "--- Choose category ---",
+    "image.placeholder": "Add image",
+    "image.label": "Image",
+    "validate": {
+      "name.required": "Item name is required",
+      "sellPrice.required": "Selling price is required",
+      "category.required": "Category is required"
     }
   }
 }

@@ -35,16 +35,12 @@ public class MenuItemDTO {
     @NotNull
     private Double sellPrice;
 
-    private Boolean isExtraItem = false;
-
     private Boolean isActive = true;
 
-    private Boolean isAllowSale = true;
+    private Boolean isInStock = true;
 
     private String description;
 
     @NotNull
     private MenuItemCategoryDTO menuItemCategory;
-
-    private Set<MenuItemDTO> extraItemSet;
 }

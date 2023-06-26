@@ -55,7 +55,8 @@
       "restaurantName.placeholder": "Your restaurant name"
     },
     "table": {
-      "empty": "No data"
+      "empty": "No data",
+      "description": "Description:"
     },
     "messages": {
       "info": {
@@ -125,6 +126,7 @@
       "open": "Open",
       "save": "Save",
       "view": "View",
+      "find": "Search",
       "show": "Show {{otherEntity}}"
     },
     "detail": {
@@ -151,6 +153,9 @@
       "set": "Following filters are set",
       "clear": "Clear filter",
       "clearAll": "Clear all filters"
+    },
+    "messages": {
+      "success": "Create successfully!"
     }
   },
   "error": {

@@ -4,33 +4,28 @@ import { Translate, translate } from 'react-jhipster';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 
 import { SaveFilled, StopOutlined } from '@ant-design/icons';
-import { Button, Form, Input, Modal, Tabs, Typography } from 'antd';
+import { Button, Form, Input, Modal, Tabs, Typography, message } from 'antd';
 import { DEFAULT_FORM_ITEM_LAYOUT } from 'app/app.constant';
 import MenuItemCategorySelect from './menu-item-category';
 import { createEntity, getEntity, updateEntity } from './menu-item-category.reducer';
 import { IMenuItemCategory, defaultValue } from 'app/shared/model/menu-item-category.model';
 
-export const MenuItemCategoryForm = ({ id, isOpen, handleClose }: { id?: string; isOpen: boolean; handleClose: any }) => {
+export const MenuItemCategoryForm = ({
+  category,
+  isOpen,
+  handleClose,
+}: {
+  category?: IMenuItemCategory;
+  isOpen: boolean;
+  handleClose: any;
+}) => {
   const dispatch = useAppDispatch();
 
-  const isNew = id === undefined;
+  const isNew = category?.id === undefined;
+  console.log(isNew);
 
   const menuItemCategory = useAppSelector(state => state.menuItemCategory.entity);
-  const loading = useAppSelector(state => state.menuItemCategory.loading);
   const updating = useAppSelector(state => state.menuItemCategory.updating);
-  const updateSuccess = useAppSelector(state => state.menuItemCategory.updateSuccess);
-
-  useEffect(() => {
-    if (!isNew) {
-      dispatch(getEntity(id));
-    }
-  }, []);
-
-  useEffect(() => {
-    if (updateSuccess) {
-      handleClose();
-    }
-  }, [updateSuccess]);
 
   const saveEntity = values => {
     const entity = {
@@ -47,20 +42,21 @@ export const MenuItemCategoryForm = ({ id, isOpen, handleClose }: { id?: string;
 
   const defaultValues = () => {
     const m: IMenuItemCategory = defaultValue;
-    return isNew ? m : { m, ...menuItemCategory };
+    return isNew ? m : category;
   };
 
   return (
     <>
       <Modal
+        destroyOnClose
+        onCancel={handleClose}
         centered
         open={isOpen}
-        width={500}
+        width={550}
         title={<Translate contentKey="menuItemCategory.addNewLabel" />}
         footer={[]}
-        onCancel={() => handleClose()}
       >
-        <Form {...DEFAULT_FORM_ITEM_LAYOUT} colon initialValues={() => defaultValues()} onFinish={saveEntity} className="!mt-8">
+        <Form {...DEFAULT_FORM_ITEM_LAYOUT} colon onFinish={saveEntity} initialValues={isNew ? {} : category} className="!mt-8">
           <Form.Item
             label={translate('menuItemCategory.name')}
             rules={[
@@ -75,7 +71,7 @@ export const MenuItemCategoryForm = ({ id, isOpen, handleClose }: { id?: string;
             <Input />
           </Form.Item>
           <div className="flex justify-end gap-2">
-            <Button type="primary" htmlType="submit">
+            <Button type="primary" htmlType="submit" loading={updating}>
               <SaveFilled rev={''} />
               <Translate contentKey="entity.action.save">Save</Translate>
             </Button>
