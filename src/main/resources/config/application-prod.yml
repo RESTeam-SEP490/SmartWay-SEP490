@@ -124,3 +124,13 @@ jhipster:
 # ===================================================================
 
 # application:
+aws:
+  region: ap-southeast-1
+  credentials:
+    access-key: E4malSLJ1riSfs5Y
+    secret-key: 0rtERGng3EGHMe05fLAmE9XHfL7BNuLO
+  s3:
+    bucket-name: smart-way
+    presigned-url:
+      get: 43200
+      post: 120

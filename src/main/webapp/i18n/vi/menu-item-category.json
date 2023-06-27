@@ -1,0 +1,21 @@
+{
+  "menuItemCategory": {
+    "label": "Danh mục món",
+    "addNewLabel": "Thêm mới danh mục",
+    "name": "Tên danh mục",
+    "description": "Mô tả"
+  },
+  "smartWayApp": {
+    "menuItemCategory": {
+      "created": "Thêm mới danh mục thành công",
+      "updated": "Cập nhật danh mục thành công",
+      "deleted": "Xoá danh mục thành công",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Danh mục {{ name }}?"
+      },
+      "detail": {
+        "title": "Restaurant"
+      }
+    }
+  }
+}

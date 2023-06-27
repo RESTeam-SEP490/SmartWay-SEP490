@@ -13,7 +13,6 @@ import com.resteam.smartway.security.AuthoritiesConstants;
 import com.resteam.smartway.security.SecurityUtils;
 import com.resteam.smartway.service.dto.AdminUserDTO;
 import com.resteam.smartway.service.dto.TenantRegistrationDTO;
-import com.resteam.smartway.service.dto.UserDTO;
 import com.resteam.smartway.web.rest.errors.SubdomainAlreadyUsedException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -21,9 +20,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -99,7 +95,8 @@ public class UserService {
 
         Set<Authority> authorities = new HashSet<>();
         authorityRepository.findById(AuthoritiesConstants.USER).ifPresent(authorities::add);
-        Role role = new Role("Nhân viên", savedRestaurant, authorities);
+        Role role = new Role(null, "Nhân viên", authorities);
+        role.setRestaurant(savedRestaurant);
         roleRepository.save(role);
 
         User newUser = new User();
@@ -147,7 +144,7 @@ public class UserService {
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toSet());
-            user.setRole(new Role("", null, authorities));
+            user.setRole(new Role(null, "", authorities));
         }
         userRepository.save(user);
         log.debug("Created Information for User: {}", user);

@@ -1,0 +1,32 @@
+{
+  "menuItem": {
+    "title": "Thực đơn",
+    "addNewLabel": "Thêm mới món",
+    "infoTabs": {
+      "information": "Thông tin chính",
+      "sold": "Đã bán",
+      "ingredients": "Nguyên liệu",
+      "extra": "Món thêm"
+    },
+    "code.label": "Mã món",
+    "code.placeholder": "Mã tạo tự dộng",
+    "name.label": "Tên món",
+    "name.placeholder": "Tên món",
+    "basePrice.label": "Giá vốn",
+    "basePrice.placeholder": "Giá vốn",
+    "sellPrice.label": "Giá bán",
+    "sellPrice.placeholder": "Giá bán",
+    "search.placeholder": "Nhập tên, mã món để tìm kiếm",
+    "category.label": "Loại thực đơn",
+    "category.placeholder": "--- Chọn loại thực đơn ---",
+    "isAllowSale.label": "Bán trực tiếp",
+    "isExtraItem.label": "Là món thêm",
+    "image.placeholder": "Thêm ảnh",
+    "image.label": "Hình ảnh",
+    "validate": {
+      "name.required": "Vui lòng nhập tên món",
+      "sellPrice.required": "Vui lòng nhập giá bán",
+      "category.required": "Vui lòng chọn loại thực đơn"
+    }
+  }
+}

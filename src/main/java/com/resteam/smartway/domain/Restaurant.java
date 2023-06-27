@@ -1,26 +1,30 @@
 package com.resteam.smartway.domain;
 
 import java.io.Serializable;
-import java.util.Optional;
-import java.util.UUID;
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.ParamDef;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@FilterDef(name = "restaurantIdFilter", parameters = { @ParamDef(name = "id", type = "string") })
 @Table(name = "restaurant")
-public class Restaurant extends AbstractAuditingEntity<String> implements Serializable {
+public class Restaurant implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @Id
-    @Column(name = "id", length = 30)
+    @Column(name = "id", length = 30, nullable = false)
     private String id;
 
     @Column(name = "name")
@@ -28,9 +32,5 @@ public class Restaurant extends AbstractAuditingEntity<String> implements Serial
 
     public Restaurant(String id) {
         this.id = id;
-    }
-
-    public Restaurant(Optional<Restaurant> restaurant) {
-        super();
     }
 }

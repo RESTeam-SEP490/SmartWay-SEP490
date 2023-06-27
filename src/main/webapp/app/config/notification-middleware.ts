@@ -1,6 +1,7 @@
 import { translate } from 'react-jhipster';
 import { toast } from 'react-toastify';
 import { isFulfilledAction, isRejectedAction } from 'app/shared/reducers/reducer.utils';
+import { message as antdMess } from 'antd';
 
 const addErrorAlert = (message, key?, data?) => {
   key = key ? key : message;
@@ -28,7 +29,7 @@ export default () => next => action => {
       });
     if (alert) {
       const alertParam = alertParams;
-      toast.success(translate(alert, { param: alertParam }));
+      antdMess.success(translate(alert, { param: alertParam }));
     }
   }
 

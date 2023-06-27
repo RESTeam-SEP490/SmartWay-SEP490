@@ -1,6 +1,7 @@
 package com.resteam.smartway;
 
 import com.resteam.smartway.config.ApplicationProperties;
+import com.resteam.smartway.config.AwsProperties;
 import com.resteam.smartway.config.CRLFLogConverter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -21,7 +22,7 @@ import tech.jhipster.config.DefaultProfileUtil;
 import tech.jhipster.config.JHipsterConstants;
 
 @SpringBootApplication
-@EnableConfigurationProperties({ LiquibaseProperties.class, ApplicationProperties.class })
+@EnableConfigurationProperties({ LiquibaseProperties.class, ApplicationProperties.class, AwsProperties.class })
 public class SmartWayApp {
 
     private static final Logger log = LoggerFactory.getLogger(SmartWayApp.class);
