@@ -1,0 +1,101 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1686416786014-1">
+        <createTable tableName="authority">
+            <column name="name" type="VARCHAR(50)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="authorityPK"/>
+            </column>
+        </createTable>
+        <loadData
+            file="config/liquibase/data/authority.csv"
+            separator=";"
+            tableName="authority"
+            usePreparedStatements="true">
+            <column name="name" type="string"/>
+        </loadData>    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1686416786014-2">
+        <createTable tableName="jhi_user">
+            <column name="id" type="BINARY(16)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="jhi_userPK"/>
+            </column>
+            <column name="created_by" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="datetime(6)"/>
+            <column name="last_modified_by" type="VARCHAR(50)"/>
+            <column name="last_modified_date" type="datetime(6)"/>
+            <column name="activated" type="BIT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="activation_key" type="VARCHAR(20)"/>
+            <column name="email" type="VARCHAR(254)"/>
+            <column name="full_name" type="VARCHAR(50)"/>
+            <column name="image_url" type="VARCHAR(256)"/>
+            <column name="lang_key" type="VARCHAR(10)"/>
+            <column name="password_hash" type="VARCHAR(60)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="reset_date" type="datetime(6)"/>
+            <column name="reset_key" type="VARCHAR(20)"/>
+            <column name="username" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="restaurant_name" type="VARCHAR(255)"/>
+            <column name="role_id" type="BINARY(16)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1686416786014-3">
+        <createTable tableName="restaurant">
+            <column name="id" type="BINARY(16)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="restaurantPK"/>
+            </column>
+            <column name="email" type="VARCHAR(255)"/>
+            <column name="name" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1686416786014-4">
+        <createTable tableName="role">
+            <column name="id" type="BINARY(16)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="rolePK"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="restaurant_id" type="BINARY(16)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1686416786014-5">
+        <createTable tableName="role_authority">
+            <column name="role_id" type="BINARY(16)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="role_authorityPK"/>
+            </column>
+            <column name="authority_name" type="VARCHAR(50)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="role_authorityPK"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1686416786014-6">
+        <addUniqueConstraint columnNames="email" constraintName="UC_JHI_USEREMAIL_COL" tableName="jhi_user"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1686416786014-7">
+        <addUniqueConstraint columnNames="username" constraintName="UC_JHI_USERUSERNAME_COL" tableName="jhi_user"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1686416786014-8">
+        <addUniqueConstraint columnNames="name" constraintName="UK_i6u3x7opncroyhd755ejknses" tableName="restaurant"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1686416786014-9">
+        <addForeignKeyConstraint baseColumnNames="role_id" baseTableName="jhi_user" constraintName="FK1dugl6waem14paccjc9280bsd" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="role" validate="true"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1686416786014-10">
+        <addForeignKeyConstraint baseColumnNames="role_id" baseTableName="role_authority" constraintName="FK2052966dco7y9f97s1a824bj1" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="role" validate="true"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1686416786014-11">
+        <addForeignKeyConstraint baseColumnNames="authority_name" baseTableName="role_authority" constraintName="FKjpwsgtp87fn8ker9jnn52emv0" deferrable="false" initiallyDeferred="false" referencedColumnNames="name" referencedTableName="authority" validate="true"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1686416786014-12">
+        <addForeignKeyConstraint baseColumnNames="restaurant_id" baseTableName="role" constraintName="FKnliicm5y5wsg0pv5ujfal22mi" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="restaurant" validate="true"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1686416786014-13">
+        <addForeignKeyConstraint baseColumnNames="restaurant_name" baseTableName="jhi_user" constraintName="FKp7oi2x2hd3sqcl3of35m0983n" deferrable="false" initiallyDeferred="false" referencedColumnNames="name" referencedTableName="restaurant" validate="true"/>
+    </changeSet>
+</databaseChangeLog>

@@ -9,7 +9,9 @@ import com.resteam.smartway.repository.RestaurantRepository;
 import com.resteam.smartway.repository.RoleRepository;
 import com.resteam.smartway.repository.StaffRepository;
 import com.resteam.smartway.security.AuthoritiesConstants;
+import com.resteam.smartway.security.SecurityUtils;
 import com.resteam.smartway.service.dto.StaffDTO;
+import com.resteam.smartway.web.rest.errors.RestaurantInfoNotFoundException;
 import com.resteam.smartway.web.rest.errors.SubdomainAlreadyUsedException;
 import java.util.*;
 import javax.swing.text.html.Option;
@@ -54,7 +56,8 @@ public class StaffService {
     }
 
     public List<User> getAllStaff() {
-        return staffRepository.getAllStaff();
+        String restaurantId = SecurityUtils.getCurrentRestaurantId().orElseThrow(RestaurantInfoNotFoundException::new);
+        return staffRepository.getAllStaff(restaurantId);
     }
 
     public Optional<User> getStaffById(UUID id) {
@@ -65,7 +68,7 @@ public class StaffService {
         return staffRepository.findOneByUsername(username);
     }
 
-    public User save(User user) {
+    public User saveStaff(User user) {
         return staffRepository.save(user);
     }
 
@@ -75,7 +78,8 @@ public class StaffService {
 
         Set<Authority> authorities = new HashSet<>();
         authorityRepository.findById(AuthoritiesConstants.STAFF).ifPresent(authorities::add);
-        Role role = new Role("Staff", savedRestaurant, authorities);
+        Role role = new Role(null, "Staff", authorities);
+        role.setRestaurant(savedRestaurant);
         roleRepository.save(role);
 
         User newStaff = new User();
@@ -110,8 +114,6 @@ public class StaffService {
                     staff.setEmail(staffDTO.getEmail().toLowerCase());
                 }
                 staff.setLangKey(staffDTO.getLangKey());
-                //                    Collection<Authority> managedAuthorities = staff.getRole().getAuthorities();
-                //                    managedAuthorities.clear();
                 log.debug("Changed Information for Staff: {}", staff);
                 return staff;
             })

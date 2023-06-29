@@ -22,8 +22,6 @@ public class StaffController {
 
     private final StaffService staffService;
 
-    public ModelMap modelMap;
-
     public StaffController(StaffService staffService) {
         this.staffService = staffService;
     }
