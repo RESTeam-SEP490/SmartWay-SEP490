@@ -54,7 +54,7 @@ public class Helper {
                 sheet.setColumnWidth(i, 4000);
             }
 
-            for (int i = 5; i < 15; i++) {
+            for (int i = 4; i < 15; i++) {
                 row = sheet.createRow(i);
                 Cell cellContent;
                 for (int j = 0; j < 5; j++) {
