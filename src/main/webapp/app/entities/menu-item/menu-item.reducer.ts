@@ -5,6 +5,7 @@ import { cleanEntity } from 'app/shared/util/entity-utils';
 import { IQueryParams, createEntitySlice, EntityState, serializeAxiosError } from 'app/shared/reducers/reducer.utils';
 import { IMenuItem, defaultValue } from 'app/shared/model/menu-item.model';
 import Header from 'app/shared/layout/header/header';
+import { DEFAULT_PAGEABLE } from 'app/app.constant';
 
 const initialState: EntityState<IMenuItem> = {
   loading: false,
@@ -54,7 +55,7 @@ export const createEntity = createAsyncThunk(
       })
     );
     const result = await axios.post<IMenuItem>(apiUrl, data, { headers: { 'Content-Type': 'multipart/form-data' } });
-    thunkAPI.dispatch(getEntities({}));
+    thunkAPI.dispatch(getEntities(DEFAULT_PAGEABLE));
     return result;
   },
   { serializeError: serializeAxiosError }
