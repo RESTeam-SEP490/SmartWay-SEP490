@@ -3,17 +3,17 @@ import { Translate, translate } from 'react-jhipster';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 
-import { DeleteFilled, DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { DeleteFilled, PlusOutlined } from '@ant-design/icons';
 import { Button, Card, Empty, Input, Table, Typography } from 'antd';
 import { CheckboxValueType } from 'antd/es/checkbox/Group';
+import { IMenuItem } from 'app/shared/model/menu-item.model';
 import { IQueryParams } from 'app/shared/reducers/reducer.utils';
-import { DEFAULT_PAGEABLE, currencyFormatter } from '../../app.constant';
-import { DEFAULT_PAGIANTION_CONFIG } from '../../shared/util/pagination.constants';
+import { DEFAULT_PAGEABLE, FormType, currencyFormatter } from '../../app.constant';
+import { DEFAULT_PAGINATION_CONFIG } from '../../shared/util/pagination.constants';
 import { MenuItemCategoryCheckBoxes } from '../menu-item-category/menu-item-category';
 import MenuItemDetail from './menu-item-detail';
-import MenuItemUpdate from './menu-item-form';
+import MenuItemForm from './menu-item-form';
 import { getEntities } from './menu-item.reducer';
-import { render } from '@testing-library/react';
 
 export const MenuItem = () => {
   const dispatch = useAppDispatch();
@@ -40,9 +40,12 @@ export const MenuItem = () => {
 
   const [expendedRow, setExpendedRow] = useState();
   const [isShowForm, setIsShowForm] = useState(false);
+  const [isShowDeleteConfirm, setIsShowDeleteConfirm] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<IMenuItem>();
   const [pageable, setPageable] = useState<IQueryParams>(DEFAULT_PAGEABLE);
 
   const menuItemList = useAppSelector(state => state.menuItem.entities);
+  const categoryList = useAppSelector(state => state.menuItemCategory.entities);
   const count = useAppSelector(state => state.menuItem.totalItems);
   const loading = useAppSelector(state => state.menuItem.loading);
 
@@ -56,16 +59,28 @@ export const MenuItem = () => {
 
   const handleOnchangeSearch = e => {
     const search = e.target.value;
-    if (search !== pageable.query) setPageable(prev => ({ ...prev, page: 0, query: search }));
+    if (search !== pageable.search) setPageable(prev => ({ ...prev, page: 0, query: search }));
   };
 
   const handleOnchangeCategoryFilter = (checkedValues: CheckboxValueType[]) => {
-    const selectedCategories = checkedValues.map(v => v.toString());
+    const isCheckAll = checkedValues.length === categoryList?.length;
+    const selectedCategories = isCheckAll ? undefined : checkedValues.map(v => v.toString());
     setPageable(prev => ({ ...prev, page: 0, category: selectedCategories }));
+  };
+
+  const handleOpen = (formType: FormType, item: IMenuItem) => {
+    setSelectedItem(item);
+    if (formType === 'delete') setIsShowDeleteConfirm(true);
+    else setIsShowForm(true);
+  };
+  const handleClose = (formType: FormType) => {
+    setSelectedItem(undefined);
+    if (formType === 'delete') setIsShowDeleteConfirm(false);
+    else setIsShowForm(false);
   };
   return (
     <>
-      <MenuItemUpdate handleClose={() => setIsShowForm(false)} isOpen={isShowForm} />
+      <MenuItemForm menuItem={selectedItem} handleClose={() => handleClose('edit')} isOpen={isShowForm} />
 
       <div className="flex h-full p-2">
         <div className="flex flex-col w-1/5 gap-4 p-4">
@@ -79,7 +94,7 @@ export const MenuItem = () => {
               onBlur={handleOnchangeSearch}
             />
           </Card>
-          <MenuItemCategoryCheckBoxes handleOnChange={handleOnchangeCategoryFilter} />
+          <MenuItemCategoryCheckBoxes onFilter={handleOnchangeCategoryFilter} />
         </div>
         <div className="w-4/5 p-4">
           <div className="flex items-center justify-between mb-4">
@@ -101,17 +116,18 @@ export const MenuItem = () => {
             columns={columns}
             dataSource={menuItemList}
             pagination={{
-              ...DEFAULT_PAGIANTION_CONFIG,
+              ...DEFAULT_PAGINATION_CONFIG,
               onChange: handleOnchangePage,
               total: count,
               current: pageable.page + 1,
+              locale: { items_per_page: '/ ' + translate('global.table.pageText') },
             }}
             rowSelection={{ type: 'checkbox' }}
             rowKey={'id'}
             rowClassName={'cursor-pointer'}
             loading={loading}
             expandable={{
-              expandedRowRender: record => <MenuItemDetail menuItem={record} />,
+              expandedRowRender: record => <MenuItemDetail menuItem={record} onUpdate={() => handleOpen('edit', record)} />,
               expandedRowClassName: () => '!bg-white',
               expandRowByClick: true,
               expandIcon: () => <></>,
@@ -121,7 +137,9 @@ export const MenuItem = () => {
                 else setExpendedRow(undefined);
               },
             }}
-            locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={translate('global.table.empty')} /> }}
+            locale={{
+              emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={translate('global.table.empty')} />,
+            }}
           ></Table>
         </div>
       </div>

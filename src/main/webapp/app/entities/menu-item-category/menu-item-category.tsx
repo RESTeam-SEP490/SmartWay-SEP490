@@ -7,10 +7,12 @@ import { getEntities } from './menu-item-category.reducer';
 import { DeleteOutlined, EditFilled, EditOutlined, PlusOutlined, PlusSquareFilled } from '@ant-design/icons';
 import locale from 'app/shared/reducers/locale';
 import { Translate, translate } from 'react-jhipster';
-import { DEFAULT_FORM_ITEM_LAYOUT } from 'app/app.constant';
+import { DEFAULT_FORM_ITEM_LAYOUT, FormType } from 'app/app.constant';
 import MenuItemCategoryForm from './menu-item-category-form';
 import { IMenuItemCategory } from 'app/shared/model/menu-item-category.model';
 import MenuItemCategoryDelete from './menu-item-category-delete';
+import { CheckboxValueType } from 'antd/es/checkbox/Group';
+import Scrollbars from 'react-custom-scrollbars-2';
 
 export const MenuItemCategorySelect = () => {
   const dispatch = useAppDispatch();
@@ -35,7 +37,7 @@ export const MenuItemCategorySelect = () => {
       <Form.Item
         name={['menuItemCategory', 'id']}
         className="flex-grow"
-        rules={[{ required: true, message: translate('menuItem.validate.category.required') }]}
+        rules={[{ required: true, message: translate('entity.validation.required') }]}
       >
         <Select
           showSearch
@@ -59,13 +61,15 @@ export const MenuItemCategorySelect = () => {
   );
 };
 
-export const MenuItemCategoryCheckBoxes = ({ handleOnChange }) => {
+export const MenuItemCategoryCheckBoxes = ({ onFilter }: { onFilter: any }) => {
   const dispatch = useAppDispatch();
   const [isShowForm, setIsShowForm] = useState(false);
   const [isShowDeleteConfirm, setIsShowDeleteConfirm] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<IMenuItemCategory>();
 
   const categoryList = useAppSelector(state => state.menuItemCategory.entities);
+  const [selectedCategoryList, setSelectedCategoryList] = useState<CheckboxValueType[]>(categoryList.map(c => c.id));
+
   const loading = useAppSelector(state => state.menuItemCategory.loading);
   const updateSuccess = useAppSelector(state => state.menuItemCategory.updateSuccess);
 
@@ -79,14 +83,24 @@ export const MenuItemCategoryCheckBoxes = ({ handleOnChange }) => {
     }
   }, [updateSuccess]);
 
-  const handleOpenDelete = category => {
+  useEffect(() => {
+    onFilter(selectedCategoryList);
+  }, [selectedCategoryList]);
+
+  const handleOpen = (formType: FormType, category: IMenuItemCategory) => {
     setSelectedCategory(category);
-    setIsShowDeleteConfirm(true);
+    if (formType === 'delete') setIsShowDeleteConfirm(true);
+    else setIsShowForm(true);
   };
 
-  const handleOpenEdit = category => {
-    setSelectedCategory(category);
-    setIsShowForm(true);
+  const handleClose = (formType: FormType) => {
+    setSelectedCategory(undefined);
+    if (formType === 'delete') setIsShowDeleteConfirm(false);
+    else setIsShowForm(false);
+  };
+
+  const handleOnchange = (values: CheckboxValueType[]) => {
+    setSelectedCategoryList(values);
   };
 
   return (
@@ -100,30 +114,39 @@ export const MenuItemCategoryCheckBoxes = ({ handleOnChange }) => {
             <PlusOutlined rev={''} />
           </Button>
         </div>
-        <Checkbox.Group className="flex-col w-full" onChange={handleOnChange}>
-          {categoryList.length > 0 ? (
-            categoryList.map(category => (
-              <div className="flex justify-between py-2" key={'checkbox'}>
-                <Checkbox key={category.id} value={category.id} className="!font-normal">
-                  {category.name}
-                </Checkbox>
-                <div className="">
-                  <Button type="link" size="small" shape="circle" onClick={() => handleOpenEdit(category)}>
-                    <EditFilled className="text-slate-300 hover:text-yellow-400" rev={''} />
-                  </Button>
-                  <Button type="link" size="small" shape="circle" onClick={() => handleOpenDelete(category)}>
-                    <DeleteOutlined className="text-slate-300 hover:text-red-400" rev={''} />
-                  </Button>
+        {categoryList.length > 0 ? (
+          <Scrollbars className="!h-52 !w-[calc(100%+8px)]">
+            <Checkbox.Group className="flex-col w-full h-fit pr-2" value={selectedCategoryList} onChange={handleOnchange}>
+              {categoryList.map(category => (
+                <div className="flex justify-between py-2 w-full " key={'checkbox'}>
+                  <Checkbox
+                    key={category.id}
+                    value={category.id}
+                    className={
+                      '!font-normal hover:text-black w-[calc(100%-48px)] checkbox-filters' +
+                      (selectedCategoryList.some(c => c.toString() === category.id) ? '' : ' !text-gray-500')
+                    }
+                  >
+                    {category.name}
+                  </Checkbox>
+                  <div className="flex">
+                    <Button type="link" size="small" shape="circle" onClick={() => handleOpen('edit', category)}>
+                      <EditFilled className="text-slate-300 hover:text-blue-500" rev={''} />
+                    </Button>
+                    <Button type="link" size="small" shape="circle" onClick={() => handleOpen('delete', category)}>
+                      <DeleteOutlined className="text-slate-300 hover:text-red-400" rev={''} />
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            ))
-          ) : (
-            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={translate('global.table.empty')} />
-          )}
-        </Checkbox.Group>
+              ))}
+            </Checkbox.Group>
+          </Scrollbars>
+        ) : (
+          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={translate('global.table.empty')} />
+        )}
       </Card>
-      <MenuItemCategoryForm category={selectedCategory} isOpen={isShowForm} handleClose={() => setIsShowForm(false)} />
-      <MenuItemCategoryDelete category={selectedCategory} isOpen={isShowDeleteConfirm} handleClose={() => setIsShowDeleteConfirm(false)} />
+      <MenuItemCategoryForm category={selectedCategory} isOpen={isShowForm} handleClose={() => handleClose('edit')} />
+      <MenuItemCategoryDelete category={selectedCategory} isOpen={isShowDeleteConfirm} handleClose={() => handleClose('delete')} />
     </>
   );
 };

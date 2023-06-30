@@ -1,11 +1,12 @@
+import { notification } from 'antd';
+import { isFulfilledAction, isRejectedAction } from 'app/shared/reducers/reducer.utils';
 import { translate } from 'react-jhipster';
 import { toast } from 'react-toastify';
-import { isFulfilledAction, isRejectedAction } from 'app/shared/reducers/reducer.utils';
-import { message as antdMess } from 'antd';
+import { messages } from './constants';
 
 const addErrorAlert = (message, key?, data?) => {
   key = key ? key : message;
-  toast.error(translate(key, data));
+  notification.error({ message: translate(key, data) });
 };
 
 export default () => next => action => {
@@ -29,7 +30,7 @@ export default () => next => action => {
       });
     if (alert) {
       const alertParam = alertParams;
-      antdMess.success(translate(alert, { param: alertParam }));
+      notification.success({ message: translate(alert, { param: alertParam }) });
     }
   }
 
@@ -61,7 +62,7 @@ export default () => next => action => {
                 }
               });
             if (errorHeader) {
-              const entityName = translate('global.menu.entities.' + entityKey);
+              const entityName = translate('global.menu.entities.' + entityKey).toLowerCase();
               addErrorAlert(errorHeader, errorHeader, { entityName });
             } else if (data?.fieldErrors) {
               const fieldErrors = data.fieldErrors;

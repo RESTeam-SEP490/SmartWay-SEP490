@@ -29,4 +29,6 @@ public interface MenuItemRepository extends JpaRepository<MenuItem, UUID> {
     );
 
     Optional<MenuItem> findTopByRestaurantOrderByCodeDesc(Restaurant restaurant);
+
+    Optional<MenuItem> findByIdAndRestaurant(UUID uuid, Restaurant restaurant);
 }

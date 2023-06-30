@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.GenericGenerator;
 
 @Getter
 @Setter
@@ -18,8 +17,7 @@ import org.hibernate.annotations.GenericGenerator;
 public class MenuItem extends AbstractBaseAuditingEntity<UUID> implements Serializable {
 
     @Id
-    @GeneratedValue(generator = "uuid-hibernate-generator")
-    @GenericGenerator(name = "uuid-hibernate-generator", strategy = "org.hibernate.id.UUIDGenerator")
+    @GeneratedValue
     @Column(columnDefinition = "BINARY(16)")
     private UUID id;
 

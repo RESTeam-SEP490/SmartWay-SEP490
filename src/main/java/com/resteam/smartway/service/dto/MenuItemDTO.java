@@ -1,11 +1,10 @@
 package com.resteam.smartway.service.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.resteam.smartway.domain.MenuItem;
-import java.util.Set;
 import java.util.UUID;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,6 +22,7 @@ public class MenuItemDTO {
     private String code;
 
     @NotBlank
+    @Size(max = 50)
     private String name;
 
     @JsonIgnore
@@ -39,6 +39,7 @@ public class MenuItemDTO {
 
     private Boolean isInStock = true;
 
+    @Size(max = 255)
     private String description;
 
     @NotNull

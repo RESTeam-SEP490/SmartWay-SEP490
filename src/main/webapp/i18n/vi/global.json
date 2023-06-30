@@ -8,6 +8,7 @@
       "entities": {
         "main": "Thực thể",
         "restaurant": "Restaurant",
+        "menuItemCategory": "Danh mục",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
       },
       "account": {
@@ -55,7 +56,8 @@
     },
     "table": {
       "empty": "Chưa có dữ liệu",
-      "description": "Mô tả:"
+      "description": "Mô tả:",
+      "pageText": "Trang"
     },
     "messages": {
       "info": {

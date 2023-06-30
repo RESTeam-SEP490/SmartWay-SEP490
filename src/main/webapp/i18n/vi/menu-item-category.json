@@ -1,7 +1,7 @@
 {
   "menuItemCategory": {
     "label": "Danh mục món",
-    "addNewLabel": "Thêm mới danh mục",
+    "addNewTitle": "Thêm mới danh mục",
     "name": "Tên danh mục",
     "description": "Mô tả"
   },

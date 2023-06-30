@@ -7,8 +7,8 @@ import com.resteam.smartway.security.SecurityUtils;
 import com.resteam.smartway.service.aws.S3Service;
 import com.resteam.smartway.service.dto.MenuItemDTO;
 import com.resteam.smartway.service.mapper.MenuItemMapper;
+import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
 import com.resteam.smartway.web.rest.errors.RestaurantInfoNotFoundException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -29,6 +29,8 @@ import org.springframework.web.multipart.MultipartFile;
 @Transactional
 public class MenuItemServiceImpl implements MenuItemService {
 
+    private static final String ENTITY_NAME = "menu_item";
+
     private final MenuItemRepository menuItemRepository;
 
     private final S3Service s3Service;
@@ -45,20 +47,21 @@ public class MenuItemServiceImpl implements MenuItemService {
         Page<MenuItem> menuItemPage = menuItemRepository.findWithFilterParams(restaurantId, searchText, categoryUuidList, pageable);
 
         return menuItemPage.map(item -> {
-            String imageUrl = s3Service.getUploadUrl(item.getImageKey());
             MenuItemDTO menuItem = menuItemMapper.toDto(item);
-            menuItem.setImageUrl(imageUrl);
+            if (item.getImageKey() != null) {
+                String imageUrl = s3Service.getUploadUrl(item.getImageKey());
+                menuItem.setImageUrl(imageUrl);
+            } else menuItem.setImageUrl("");
             return menuItem;
         });
     }
 
     @Override
     @SneakyThrows
-    public void createMenuItem(@Valid MenuItemDTO menuItemDTO, MultipartFile imageSource) {
+    public MenuItemDTO createMenuItem(@Valid MenuItemDTO menuItemDTO, MultipartFile imageSource) {
         String restaurantId = SecurityUtils.getCurrentRestaurantId().orElseThrow(RestaurantInfoNotFoundException::new);
 
         MenuItem menuItem = menuItemMapper.toEntity(menuItemDTO);
-
         String menuItemCode = generateCode(restaurantId);
 
         if (imageSource != null) {
@@ -69,7 +72,7 @@ public class MenuItemServiceImpl implements MenuItemService {
         menuItem.setCode(menuItemCode);
         menuItem.setRestaurant(new Restaurant(restaurantId));
 
-        menuItemRepository.save(menuItem);
+        return menuItemMapper.toDto(menuItemRepository.save(menuItem));
     }
 
     private String generateCode(String restaurantId) {
@@ -81,5 +84,35 @@ public class MenuItemServiceImpl implements MenuItemService {
             if (nextCodeInt > 999999) throw new IllegalStateException("Maximum Code reached");
             return String.format("MI%06d", nextCodeInt);
         }
+    }
+
+    @Override
+    @SneakyThrows
+    public MenuItemDTO updateMenuItem(MenuItemDTO menuItemDTO, MultipartFile imageSource) {
+        String restaurantId = SecurityUtils.getCurrentRestaurantId().orElseThrow(RestaurantInfoNotFoundException::new);
+
+        MenuItem menuItem = menuItemRepository
+            .findByIdAndRestaurant(menuItemDTO.getId(), new Restaurant(restaurantId))
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
+
+        if (imageSource != null) {
+            if (menuItem.getImageKey() != null) {
+                s3Service.deleteFile(menuItem.getImageKey());
+                s3Service.uploadImage(imageSource, menuItem.getImageKey());
+            } else {
+                String path = String.format("%s/menu-items/%s", restaurantId, menuItem.getCode());
+                s3Service.uploadImage(imageSource, path);
+                menuItem.setImageKey(path);
+            }
+        }
+
+        menuItemMapper.partialUpdate(menuItem, menuItemDTO);
+        if (menuItemDTO.getImageUrl() == null || menuItemDTO.getImageUrl().isEmpty()) {
+            s3Service.deleteFile(menuItem.getImageKey());
+            menuItem.setImageKey(null);
+        }
+
+        MenuItem result = menuItemRepository.save(menuItem);
+        return menuItemMapper.toDto(result);
     }
 }

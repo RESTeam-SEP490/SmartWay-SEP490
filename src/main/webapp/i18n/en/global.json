@@ -8,6 +8,8 @@
       "entities": {
         "main": "Entities",
         "restaurant": "Restaurant",
+        "menuItem": "Menu item",
+        "menuItemCategory": "Category",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
       },
       "account": {
@@ -56,7 +58,8 @@
     },
     "table": {
       "empty": "No data",
-      "description": "Description:"
+      "description": "Description:",
+      "pageText": "Page"
     },
     "messages": {
       "info": {
@@ -116,6 +119,10 @@
     "item-count": "Showing {{first}} - {{second}} of {{total}} items."
   },
   "entity": {
+    "label": {
+      "addNew": "Add new {{ entity }}",
+      "edit": "Edit {{ entity }}"
+    },
     "action": {
       "addblob": "Add blob",
       "addimage": "Add image",
@@ -150,6 +157,7 @@
       "patternLogin": "This field can only contain letters, digits and e-mail addresses."
     },
     "filters": {
+      "all": "Select all",
       "set": "Following filters are set",
       "clear": "Clear filter",
       "clearAll": "Clear all filters"

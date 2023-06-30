@@ -14,6 +14,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,22 +30,48 @@ public class MenuItemCategoryServiceImpl implements MenuItemCategoryService {
 
     private static final String ENTITY_NAME = "menuItemCategory";
 
+    @Value("${jhipster.clientApp.name}")
+    private String applicationName;
+
     @Override
-    public List<MenuItemCategory> loadAllMenuItemCategories() {
+    public List<MenuItemCategoryDTO> loadAllMenuItemCategories() {
         String restaurantId = SecurityUtils.getCurrentRestaurantId().orElseThrow(RestaurantInfoNotFoundException::new);
 
-        return menuItemCategoryRepository.findAllByRestaurantOrderByCreatedDate(new Restaurant(restaurantId));
+        List<MenuItemCategory> menuItemCategoryList = menuItemCategoryRepository.findAllByRestaurantOrderByCreatedDateDesc(
+            new Restaurant(restaurantId)
+        );
+        return menuItemCategoryMapper.toDto(menuItemCategoryList);
     }
 
     @Override
     @SneakyThrows
-    public MenuItemCategory createMenuItemCategory(MenuItemCategoryDTO menuItemCategoryDTO) {
+    public MenuItemCategoryDTO createMenuItemCategory(MenuItemCategoryDTO menuItemCategoryDTO) {
         String restaurantId = SecurityUtils.getCurrentRestaurantId().orElseThrow(RestaurantInfoNotFoundException::new);
+
+        menuItemCategoryRepository
+            .findOneByRestaurantAndName(new Restaurant(restaurantId), menuItemCategoryDTO.getName())
+            .ifPresent(m -> {
+                throw new BadRequestAlertException(applicationName, ENTITY_NAME, "existed");
+            });
 
         MenuItemCategory menuItemCategory = menuItemCategoryMapper.toEntity(menuItemCategoryDTO);
         menuItemCategory.setRestaurant(new Restaurant(restaurantId));
 
-        return menuItemCategoryRepository.save(menuItemCategory);
+        return menuItemCategoryMapper.toDto(menuItemCategoryRepository.save(menuItemCategory));
+    }
+
+    @Override
+    public MenuItemCategoryDTO updateMenuItemCategory(MenuItemCategoryDTO menuItemCategoryDTO) {
+        String restaurantId = SecurityUtils.getCurrentRestaurantId().orElseThrow(RestaurantInfoNotFoundException::new);
+
+        MenuItemCategory menuItemCategory = menuItemCategoryRepository
+            .findByRestaurantAndId(new Restaurant(restaurantId), menuItemCategoryDTO.getId())
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
+
+        menuItemCategory.setName(menuItemCategoryDTO.getName());
+        MenuItemCategory result = menuItemCategoryRepository.save(menuItemCategory);
+
+        return menuItemCategoryMapper.toDto(result);
     }
 
     @Override
