@@ -37,7 +37,7 @@ public class DiningTableResource {
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
-    private static final String ENTITY_NAME = "menuItem";
+    private static final String ENTITY_NAME = "diningTable";
 
     private final DiningTableService diningTableService;
 
@@ -56,7 +56,7 @@ public class DiningTableResource {
     }
 
     @PostMapping
-    public ResponseEntity<DiningTableDTO> createDiningTable(@Valid @RequestPart DiningTableDTO diningTableDTO) {
+    public ResponseEntity<DiningTableDTO> createDiningTable(@Valid @RequestBody DiningTableDTO diningTableDTO) {
         if (diningTableDTO.getId() != null) {
             throw new BadRequestAlertException("A new entity cannot already have an ID", ENTITY_NAME, "id_exist");
         }
