@@ -101,6 +101,39 @@
 .container {
   width: 100%;
 }
+
+.green-button {
+  background-color: #4bac4d;
+  border-color: #4bac4d;
+  color: #ffffff;
+}
+
+.green-button:hover {
+  background-color: #419641;
+  border-color: #419641 !important;
+  color: #ffffff !important;
+}
+
+.green-button:hover span {
+  color: #ffffff;
+}
+
+.popup-import-excel {
+  width: 500px;
+}
+
+.file-upload-container {
+  position: relative;
+}
+
+.file-name {
+  white-space: nowrap;
+}
+
+.upload-button {
+  float: right;
+}
+
 @media (min-width: 640px) {
   .container {
     max-width: 640px;
