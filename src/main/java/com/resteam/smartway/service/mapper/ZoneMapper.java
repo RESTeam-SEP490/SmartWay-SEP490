@@ -5,5 +5,5 @@ import com.resteam.smartway.service.dto.ZoneDTO;
 import com.resteam.smartway.service.mapper.base.EntityMapper;
 import org.mapstruct.Mapper;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface ZoneMapper extends EntityMapper<ZoneDTO, Zone> {}

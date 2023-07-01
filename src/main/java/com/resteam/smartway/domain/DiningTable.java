@@ -33,8 +33,7 @@ public class DiningTable extends AbstractBaseAuditingEntity<UUID> implements Ser
     @ManyToOne
     @JoinColumn(name = "zone_id", referencedColumnName = "id")
     private Zone zone;
-
-    @ManyToOne
-    @JoinColumn(name = "restaurant_id", referencedColumnName = "id")
-    private Restaurant restaurant;
+    //    @ManyToOne
+    //    @JoinColumn(name = "restaurant_id", referencedColumnName = "id")
+    //    private Restaurant restaurant;
 }
