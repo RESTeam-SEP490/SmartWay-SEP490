@@ -1,11 +1,13 @@
 package com.resteam.smartway.helper;
 
+import com.resteam.smartway.repository.MenuItemRepository;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFColor;
+import org.springframework.web.multipart.MultipartFile;
 
 public class Helper {
 
@@ -14,6 +16,8 @@ public class Helper {
     public static String[] MENU_ITEMS = { "Category Name", "Item Name", "Description", "Cost Price", "Selling Price" };
 
     public static final String SHEET_NAME = "list-menu-items";
+
+    public static final MenuItemRepository menuItemRepository = null;
 
     public static ByteArrayInputStream downloadExcelMenuItemsTemplate() throws IOException {
         Workbook workbook = new SXSSFWorkbook();
@@ -35,18 +39,8 @@ public class Helper {
         cellStyle.setBorderBottom(BorderStyle.THIN);
         cellStyle.setBorderLeft(BorderStyle.THIN);
         cellStyle.setBorderRight(BorderStyle.THIN);
-        CellStyle titleStyle = workbook.createCellStyle();
-        Font titleFont = workbook.createFont();
-        titleFont.setBold(true);
-        titleFont.setFontHeightInPoints((short) 20);
-        titleStyle.setFont(titleFont);
         try {
-            Row rowTitle = sheet.createRow(1);
-            Cell cellTitle = rowTitle.createCell(1);
-            cellTitle.setCellValue("LIST MENU ITEMS");
-            cellTitle.setCellStyle(titleStyle);
-
-            Row row = sheet.createRow(3);
+            Row row = sheet.createRow(0);
             for (int i = 0; i < MENU_ITEMS.length; i++) {
                 Cell cell = row.createCell(i);
                 cell.setCellValue(MENU_ITEMS[i]);
@@ -54,7 +48,7 @@ public class Helper {
                 sheet.setColumnWidth(i, 4000);
             }
 
-            for (int i = 4; i < 15; i++) {
+            for (int i = 1; i < 12; i++) {
                 row = sheet.createRow(i);
                 Cell cellContent;
                 for (int j = 0; j < 5; j++) {
@@ -73,6 +67,16 @@ public class Helper {
         } finally {
             out.close();
             workbook.close();
+        }
+    }
+
+    // check type file
+    public static boolean checkExcelFormat(MultipartFile file) {
+        String contentType = file.getContentType();
+        if (contentType.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) {
+            return true;
+        } else {
+            return false;
         }
     }
 

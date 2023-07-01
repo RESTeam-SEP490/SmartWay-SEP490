@@ -57,4 +57,9 @@ public class MenuItemCategoryServiceImpl implements MenuItemCategoryService {
         }
         menuItemCategoryRepository.delete(menuItemCategory.get());
     }
+
+    @Override
+    public MenuItemCategory loadMenuItemCategoryByName(String name) {
+        return menuItemCategoryRepository.findByName(name);
+    }
 }

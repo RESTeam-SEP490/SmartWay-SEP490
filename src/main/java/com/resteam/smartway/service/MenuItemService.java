@@ -1,12 +1,13 @@
 package com.resteam.smartway.service;
 
 import com.resteam.smartway.service.dto.MenuItemDTO;
+import java.io.InputStream;
 import java.util.List;
 import javax.validation.Valid;
 import lombok.SneakyThrows;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.validation.annotation.Validated;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface MenuItemService {
@@ -14,4 +15,6 @@ public interface MenuItemService {
 
     @SneakyThrows
     void createMenuItem(@Valid MenuItemDTO menuItemDTO, MultipartFile imageSource);
+
+    ResponseEntity<?> convertExcelToListOfMenuItem(InputStream is);
 }

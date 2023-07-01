@@ -13,4 +13,6 @@ public interface MenuItemCategoryRepository extends JpaRepository<MenuItemCatego
     List<MenuItemCategory> findAllByRestaurantOrderByCreatedDate(Restaurant restaurant);
 
     Optional<MenuItemCategory> findByRestaurantAndId(Restaurant restaurant, UUID uuid);
+
+    MenuItemCategory findByName(String name);
 }

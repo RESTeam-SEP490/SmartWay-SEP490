@@ -14,4 +14,6 @@ public interface MenuItemCategoryService {
     MenuItemCategory createMenuItemCategory(@RequestBody MenuItemCategoryDTO menuItemCategoryDTO);
 
     void deleteMenuItemCategory(UUID id);
+
+    MenuItemCategory loadMenuItemCategoryByName(String name);
 }
