@@ -177,6 +177,12 @@ export const MenuItem = () => {
                 </span>
                 Import
               </Button>
+              <Button className="green-button">
+                <span>
+                  <ExportOutlined style={{ marginRight: '0.5rem' }} rev={''} />
+                </span>
+                Export
+              </Button>
               <Button type="primary" onClick={() => setIsShowForm(true)}>
                 <PlusOutlined rev={''} />
                 <Translate contentKey="menuItem.addNewLabel" />
