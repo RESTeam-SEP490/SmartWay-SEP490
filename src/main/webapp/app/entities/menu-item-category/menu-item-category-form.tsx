@@ -22,14 +22,12 @@ export const MenuItemCategoryForm = ({
   const dispatch = useAppDispatch();
 
   const isNew = category?.id === undefined;
-  console.log(isNew);
 
-  const menuItemCategory = useAppSelector(state => state.menuItemCategory.entity);
   const updating = useAppSelector(state => state.menuItemCategory.updating);
 
   const saveEntity = values => {
     const entity = {
-      ...menuItemCategory,
+      ...category,
       ...values,
     };
 
@@ -40,11 +38,6 @@ export const MenuItemCategoryForm = ({
     }
   };
 
-  const defaultValues = () => {
-    const m: IMenuItemCategory = defaultValue;
-    return isNew ? m : category;
-  };
-
   return (
     <>
       <Modal
@@ -53,27 +46,29 @@ export const MenuItemCategoryForm = ({
         centered
         open={isOpen}
         width={550}
-        title={<Translate contentKey="menuItemCategory.addNewLabel" />}
+        title={
+          <Translate
+            contentKey={isNew ? 'entity.label.addNew' : 'entity.label.edit'}
+            interpolate={{ entity: translate('global.menu.entities.menuItemCategory').toLowerCase() }}
+          />
+        }
         footer={[]}
       >
         <Form {...DEFAULT_FORM_ITEM_LAYOUT} colon onFinish={saveEntity} initialValues={isNew ? {} : category} className="!mt-8">
           <Form.Item
             label={translate('menuItemCategory.name')}
             rules={[
-              { required: true, message: '' },
-              { max: 50, message: '' },
+              { required: true, message: translate('entity.validation.required') },
+              { max: 30, message: translate('entity.validation.max', { max: 30 }) },
             ]}
             name={'name'}
           >
             <Input />
           </Form.Item>
-          <Form.Item label={translate('menuItemCategory.description')} name={'description'}>
-            <Input />
-          </Form.Item>
           <div className="flex justify-end gap-2">
             <Button type="primary" htmlType="submit" loading={updating}>
               <SaveFilled rev={''} />
-              <Translate contentKey="entity.action.save">Save</Translate>
+              <Translate contentKey={isNew ? 'entity.action.save' : 'entity.action.edit'}>Save</Translate>
             </Button>
             <Button type="default" onClick={() => handleClose()}>
               <StopOutlined rev={''} />

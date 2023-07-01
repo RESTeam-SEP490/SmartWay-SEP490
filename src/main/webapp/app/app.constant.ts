@@ -1,11 +1,13 @@
 import { IQueryParams } from './shared/reducers/reducer.utils';
 
 export const DEFAULT_PAGEABLE: IQueryParams = {
-  query: null,
+  search: null,
   page: 0,
   size: 10,
   sort: 'createdDate,DESC',
 };
+
+export type FormType = 'edit' | 'delete';
 
 export const DEFAULT_FORM_ITEM_LAYOUT = {
   labelCol: { span: 6 },

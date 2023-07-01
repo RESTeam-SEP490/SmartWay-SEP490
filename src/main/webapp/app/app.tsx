@@ -19,7 +19,7 @@ import { hasAnyAuthority } from 'app/shared/auth/private-route';
 import ErrorBoundary from 'app/shared/error/error-boundary';
 import { AUTHORITIES } from 'app/config/constants';
 import AppRoutes from 'app/routes';
-import { ConfigProvider, message } from 'antd';
+import { ConfigProvider, message, notification } from 'antd';
 import { theme } from './config/ant-design-theme';
 import { authenticate } from './shared/reducers/authentication';
 import Scrollbars from 'react-custom-scrollbars-2';
@@ -40,7 +40,7 @@ export const App = () => {
   const ribbonEnv = useAppSelector(state => state.applicationProfile.ribbonEnv);
   const isInProduction = useAppSelector(state => state.applicationProfile.inProduction);
   const isOpenAPIEnabled = useAppSelector(state => state.applicationProfile.isOpenAPIEnabled);
-  message.config({ top: window.innerHeight - 100 });
+  notification.config({ placement: 'bottomRight' });
   return (
     <BrowserRouter basename={baseHref}>
       <ConfigProvider theme={theme}>

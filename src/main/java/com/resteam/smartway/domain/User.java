@@ -27,8 +27,7 @@ public class User extends AbstractBaseAuditingEntity<UUID> implements Serializab
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(generator = "uuid-hibernate-generator")
-    @GenericGenerator(name = "uuid-hibernate-generator", strategy = "org.hibernate.id.UUIDGenerator")
+    @GeneratedValue
     @Column(name = "id", columnDefinition = "BINARY(16)")
     private UUID id;
 

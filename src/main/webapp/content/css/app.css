@@ -81,3 +81,9 @@ th.ant-table-cell::before {
 .details .ant-form-item {
   border-bottom: 1px solid #f0f0f0;
 }
+
+.checkbox-filters > span:last-child {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

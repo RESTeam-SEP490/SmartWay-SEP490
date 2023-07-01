@@ -16,6 +16,7 @@ import PageNotFound from 'app/shared/error/page-not-found';
 import { AUTHORITIES } from 'app/config/constants';
 import { sendActivity } from 'app/config/websocket-middleware';
 import { Users } from './pages/user/management/users/users';
+import { useAppSelector } from './config/store';
 
 const loading = <div>loading ...</div>;
 
@@ -30,13 +31,14 @@ const Admin = Loadable({
 });
 
 const AppRoutes = () => {
+  const isAuthenticated = useAppSelector(state => state.authentication.isAuthenticated);
   const location = useLocation();
   // React.useEffect(() => {
   //   sendActivity(location.pathname);
   // }, [location]);
   return (
     <ErrorBoundaryRoutes>
-      <Route index element={<Home />} />
+      {!isAuthenticated && <Route index element={<Home />} />}
       <Route path="login" element={<Login />} />
       <Route path="logout" element={<Logout />} />
       <Route path="manage">

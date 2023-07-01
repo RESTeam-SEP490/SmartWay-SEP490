@@ -10,7 +10,10 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface MenuItemCategoryRepository extends JpaRepository<MenuItemCategory, UUID> {
-    List<MenuItemCategory> findAllByRestaurantOrderByCreatedDate(Restaurant restaurant);
+    List<MenuItemCategory> findAllByRestaurantOrderByCreatedDateDesc(Restaurant restaurant);
+    Optional<MenuItemCategory> findOneByRestaurantAndName(Restaurant restaurant, String name);
 
     Optional<MenuItemCategory> findByRestaurantAndId(Restaurant restaurant, UUID uuid);
+
+    Boolean existsByIdAndRestaurant(UUID id, Restaurant restaurant);
 }

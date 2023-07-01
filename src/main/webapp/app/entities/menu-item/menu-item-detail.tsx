@@ -7,7 +7,7 @@ import TextArea from 'antd/es/input/TextArea';
 import { DEFAULT_FORM_ITEM_LAYOUT, currencyFormatter } from 'app/app.constant';
 import { IMenuItem } from '../../shared/model/menu-item.model';
 
-export const MenuItemDetail = ({ menuItem }: { menuItem: IMenuItem }) => {
+export const MenuItemDetail = ({ menuItem, onUpdate }: { menuItem: IMenuItem; onUpdate: any }) => {
   return (
     <>
       <Tabs className="p-2" defaultValue={1}>
@@ -62,7 +62,7 @@ export const MenuItemDetail = ({ menuItem }: { menuItem: IMenuItem }) => {
             </Form>
           </div>
           <div className="flex justify-end gap-2 mt-4">
-            <Button type="primary">
+            <Button type="primary" onClick={onUpdate}>
               <EditFilled rev={''} />
               <Translate contentKey="entity.action.edit" />
             </Button>
