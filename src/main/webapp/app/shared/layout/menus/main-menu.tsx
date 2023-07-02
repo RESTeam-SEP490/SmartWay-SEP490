@@ -21,9 +21,9 @@ export const UserMenu = () => {
           <Link to="/manage/roles" />
         </Menu.Item>
       </Menu.SubMenu>
-      <Menu.Item key="menu" icon={<BarsOutlined rev={ApartmentOutlined} />}>
+      <Menu.Item key="menu-items" icon={<BarsOutlined rev={ApartmentOutlined} />}>
         <Translate contentKey="menu.menumanagement.label" />
-        <Link to="/management/menu" />
+        <Link to="/menu-items" />
       </Menu.Item>
     </Menu>
   );

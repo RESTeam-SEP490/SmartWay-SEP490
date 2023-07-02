@@ -1,15 +1,10 @@
 package com.resteam.smartway.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.resteam.smartway.config.Constants;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 import javax.persistence.*;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,18 +22,16 @@ import org.hibernate.annotations.GenericGenerator;
     subgraphs = { @NamedSubgraph(name = "authority-subgraph", attributeNodes = { @NamedAttributeNode("authorities") }) }
 )
 @Table(name = "user")
-public class User extends AbstractAuditingEntity<UUID> implements Serializable {
+public class User extends AbstractBaseAuditingEntity<UUID> implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(generator = "uuid-hibernate-generator")
-    @GenericGenerator(name = "uuid-hibernate-generator", strategy = "org.hibernate.id.UUIDGenerator")
+    @GeneratedValue
     @Column(name = "id", columnDefinition = "BINARY(16)")
     private UUID id;
 
-    @NotNull
-    @Column(length = 50, unique = true, nullable = false)
+    @Column(length = 50, nullable = false)
     private String username;
 
     @JsonIgnore
@@ -48,8 +41,6 @@ public class User extends AbstractAuditingEntity<UUID> implements Serializable {
     @Column(name = "full_name", length = 100)
     private String fullName;
 
-    @Email
-    @Column(length = 254)
     private String email;
 
     @Column(length = 20)
@@ -68,8 +59,4 @@ public class User extends AbstractAuditingEntity<UUID> implements Serializable {
     @ManyToOne
     @JoinColumn(name = "role_id", referencedColumnName = "id", columnDefinition = "BINARY(16)")
     private Role role;
-
-    @ManyToOne
-    @JoinColumn(referencedColumnName = "id", name = "restaurant_id")
-    private Restaurant restaurant;
 }

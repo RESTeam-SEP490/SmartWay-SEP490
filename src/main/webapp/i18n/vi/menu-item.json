@@ -1,0 +1,44 @@
+{
+  "menuItem": {
+    "title": "Thực đơn",
+    "addNewLabel": "Thêm mới món",
+    "infoTabs": {
+      "information": "Thông tin chính",
+      "sold": "Đã bán",
+      "ingredients": "Nguyên liệu"
+    },
+    "code.label": "Mã món",
+    "code.placeholder": "Mã tạo tự dộng",
+    "name.label": "Tên món",
+    "name.placeholder": "Tên món",
+    "basePrice.label": "Giá vốn",
+    "basePrice.placeholder": "Giá vốn",
+    "sellPrice.label": "Giá bán",
+    "sellPrice.placeholder": "Giá bán",
+    "status.label": "Trạng thái",
+    "status.trueValue": "Đang kinh doanh",
+    "status.falseValue": "Ngưng kinh doanh",
+    "search.placeholder": "Nhập tên, mã món để tìm kiếm",
+    "category.label": "Loại thực đơn",
+    "category.placeholder": "--- Chọn loại thực đơn ---",
+    "image.placeholder": "Thêm ảnh",
+    "image.label": "Hình ảnh",
+    "isActive.false": "Ngưng kinh doanh",
+    "action": {
+      "delete.question": "Xoá dữ liệu của món <b>{{ code }}</b>?",
+      "allowSell": "Cho phép kinh doanh",
+      "allowSell.question": "Cho phép kinh doanh danh sách <b>{{ number }}</b> món đã chọn?",
+      "allowSellOne.question": "Cho phép kinh doanh món <b>{{ code }}</b>?",
+      "stopSell": "Ngưng kinh doanh",
+      "stopSell.question": "Ngưng kinh doanh danh sách <b>{{ number }}</b> món đã chọn?",
+      "stopSellOne.question": "Ngưng kinh doanh món <b>{{ code }}</b>?"
+    }
+  },
+  "smartWayApp": {
+    "menuItem": {
+      "created": "Thêm mới món thành công",
+      "updated": "Cập nhật món thành công",
+      "deleted": "Xoá món thành công"
+    }
+  }
+}

@@ -1,0 +1,64 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1688090757297-1">
+        <createTable tableName="menu_item">
+            <column name="id" type="BINARY(16)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="menu_itemPK"/>
+            </column>
+            <column name="created_by" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="datetime(6)" />
+            <column name="last_modified_by" type="VARCHAR(50)"/>
+            <column name="last_modified_date" type="datetime(6)"/>
+            <column name="base_price" type="DOUBLE PRECISION"/>
+            <column name="code" type="VARCHAR(8)"/>
+            <column name="description" type="${nvarcharType}(255)"/>
+            <column name="image_key" type="VARCHAR(255)"/>
+            <column name="is_active" type="BIT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_in_stock" type="BIT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="${nvarcharType}(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sell_price" type="DOUBLE PRECISION">
+                <constraints nullable="false"/>
+            </column>
+            <column name="restaurant_id" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="category_id" type="BINARY(16)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1688090757297-2">
+        <createTable tableName="menu_item_category">
+            <column name="id" type="BINARY(16)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="menu_item_categoryPK"/>
+            </column>
+            <column name="created_by" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="datetime(6)"/>
+            <column name="last_modified_by" type="VARCHAR(50)"/>
+            <column name="last_modified_date" type="datetime(6)"/>
+            <column name="name" type="${nvarcharType}(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="restaurant_id" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1688090757297-3">
+        <addForeignKeyConstraint baseColumnNames="restaurant_id" baseTableName="menu_item_category" constraintName="FK7g3noq2eyspaxh82hxdx8n01" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="restaurant" validate="true"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1688090757297-4">
+        <addForeignKeyConstraint baseColumnNames="restaurant_id" baseTableName="menu_item" constraintName="FKewir7fwbqeuvrnk6c0aa2d2wu" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="restaurant" validate="true"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1688090757297-5">
+        <addForeignKeyConstraint baseColumnNames="category_id" baseTableName="menu_item" constraintName="FKrg1jd0yrke3v4ca1gfhksblxx" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="menu_item_category" validate="true"/>
+    </changeSet>
+</databaseChangeLog>

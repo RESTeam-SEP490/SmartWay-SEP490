@@ -24,5 +24,5 @@ public interface EntityMapper<D, E> {
 
     @Named("partialUpdate")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void BrancpartialUpdate(@MappingTarget E entity, D dto);
+    void partialUpdate(@MappingTarget E entity, D dto);
 }

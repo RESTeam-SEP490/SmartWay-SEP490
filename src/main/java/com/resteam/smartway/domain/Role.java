@@ -2,12 +2,12 @@ package com.resteam.smartway.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 import javax.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.BatchSize;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 @Getter
@@ -16,7 +16,7 @@ import org.hibernate.annotations.GenericGenerator;
 @AllArgsConstructor
 @Entity
 @Table(name = "role")
-public class Role {
+public class Role extends AbstractBaseAuditingEntity<UUID> {
 
     @Id
     @GeneratedValue(generator = "uuid-hibernate-generator")
@@ -27,10 +27,6 @@ public class Role {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @ManyToOne
-    @JoinColumn(name = "restaurant_id", referencedColumnName = "id", columnDefinition = "BINARY(16)")
-    private Restaurant restaurant;
-
     @JsonIgnore
     @ManyToMany
     @JoinTable(
@@ -39,10 +35,4 @@ public class Role {
         inverseJoinColumns = { @JoinColumn(name = "authority_name", referencedColumnName = "name") }
     )
     private Collection<Authority> authorities;
-
-    public Role(String name, Restaurant restaurant, Set<Authority> authorities) {
-        this.name = name;
-        this.restaurant = restaurant;
-        this.authorities = authorities;
-    }
 }

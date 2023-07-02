@@ -1,8 +1,7 @@
 package com.resteam.smartway.security;
 
-import com.resteam.smartway.domain.Restaurant;
 import com.resteam.smartway.repository.UserRepository;
-import java.util.*;
+import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -36,7 +35,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
 
         return userRepository
-            .findOneWithAuthoritiesByUsernameAndRestaurant(usernameAndRestaurantId[0], new Restaurant(usernameAndRestaurantId[1]))
+            .findOneWithAuthoritiesByUsername(usernameAndRestaurantId[0])
             .map(CustomUserDetails::build)
             .orElseThrow(() ->
                 new UsernameNotFoundException(

@@ -8,6 +8,8 @@
       "entities": {
         "main": "Thực thể",
         "restaurant": "Restaurant",
+        "menuItem": "Món",
+        "menuItemCategory": "Danh mục",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
       },
       "account": {
@@ -50,10 +52,13 @@
       "fullName.label": "Họ tên",
       "fullName.placeholder": "Nhập họ tên",
       "phone.label": "Số điện thoại",
-      "phone.placeholder": "Nhập số điện thoại"
+      "phone.placeholder": "Nhập số điện thoại",
+      "search.nodata": "Không tìm thấy kết quả phù hợp"
     },
     "table": {
-      "empty": "Chưa có dữ liệu"
+      "empty": "Chưa có dữ liệu",
+      "description": "Mô tả:",
+      "pageText": "Trang"
     },
     "messages": {
       "info": {
@@ -99,16 +104,27 @@
     "item-count": "Showing {{first}} - {{second}} of {{total}} items."
   },
   "entity": {
+    "label": {
+      "addNew": "Thêm mới {{ entity }}",
+      "edit": "Cập nhật {{ entity }}",
+      "operations": "Thao tác",
+      "confirm": "Xác nhận",
+      "status": "Lựa chọn trạng thái",
+      "all": "Tất cả"
+    },
     "action": {
       "addblob": "Thêm nội dung",
       "addimage": "Thêm ảnh",
+      "import": "Tải lên dữ liệu",
       "back": "Quay lại",
       "cancel": "Hủy",
       "delete": "Xóa",
-      "edit": "Sửa",
+      "edit": "Cập nhật",
+      "stopSale": "Ngưng kinh doanh",
       "open": "Mở",
       "save": "Lưu",
       "view": "Xem",
+      "find": "Tìm kiếm",
       "show": "Show {{otherEntity}}"
     },
     "detail": {
@@ -134,6 +150,9 @@
       "set": "Following filters are set",
       "clear": "Clear filter",
       "clearAll": "Clear all filters"
+    },
+    "messages": {
+      "success": "Thêm mới thành công"
     }
   },
   "error": {

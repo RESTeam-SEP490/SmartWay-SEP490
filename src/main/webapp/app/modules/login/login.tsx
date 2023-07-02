@@ -18,7 +18,7 @@ export const Login = () => {
   const currentLocale = useAppSelector(state => state.locale.currentLocale);
   const loginError = useAppSelector(state => state.authentication.loginError);
   const location = useLocation();
-  const isSubmitting = useAppSelector(state => state.authentication.loading);
+  const loading = useAppSelector(state => state.authentication.loading);
 
   const handleLogin = ({ restaurantId, username, password, rememberMe }) => {
     dispatch(login(restaurantId, username, password, rememberMe));
@@ -31,8 +31,8 @@ export const Login = () => {
   return (
     <div>
       <div className="flex">
-        <div className="w-7/12 p-4 flex flex-col items-center ">
-          <div className=" flex w-full justify-between py-6 px-8">
+        <div className="flex flex-col items-center w-7/12 p-4 ">
+          <div className="flex justify-between w-full px-8 py-6 ">
             <Brand />
             <LocaleMenu currentLocale={currentLocale} />
           </div>
@@ -76,7 +76,7 @@ export const Login = () => {
                 </Link>
               </Form.Item>
               <Form.Item>
-                <Button htmlType="submit" type="primary" block loading={isSubmitting}>
+                <Button htmlType="submit" type="primary" block loading={loading}>
                   <Translate contentKey="login.form.button">Sign in</Translate>
                 </Button>
               </Form.Item>

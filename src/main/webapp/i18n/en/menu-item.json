@@ -1,0 +1,42 @@
+{
+  "menuItem": {
+    "title": "Menu items",
+    "addNewLabel": "Add new item",
+    "infoTabs": {
+      "information": "Information",
+      "sold": "Sold",
+      "ingredients": "Ingredients"
+    },
+    "code.label": "Code",
+    "code.placeholder": "Auto-generated code",
+    "name.label": "Item name",
+    "name.placeholder": "Tên món",
+    "basePrice.label": "Cost price",
+    "sellPrice.label": "Selling price",
+    "status.label": "Status",
+    "status.trueValue": "Selling",
+    "status.falseValue": "Discontinued",
+    "search.placeholder": "Search by name, code",
+    "category.label": "Category",
+    "category.placeholder": "--- Choose category ---",
+    "image.placeholder": "Add image",
+    "image.label": "Image",
+    "isActive.false": "Discontinued item",
+    "action": {
+      "delete.question": "Are you sure to delete menu item <b>{{ code }}</b>?",
+      "allowSell": "Mark as selling item",
+      "allowSell.question": "Are you sure to mark <b>{{ number }}</b> selected item(s) as selling item?",
+      "allowSellOne.question": "Are you sure to mark item <b>{{ code }}</b> as selling item?",
+      "stopSell": "Mark as discontinued item",
+      "stopSell.question": "Are you sure to mark <b>{{ number }}</b> selected item(s) as discontinued item?",
+      "stopSellOne.question": "Are you sure to mark item <b>{{ code }}</b> as discontinued item?"
+    }
+  },
+  "smartWayApp": {
+    "menuItem": {
+      "created": "Add new menu item successfully",
+      "updated": "Update menu item successfully",
+      "deleted": "Delete menu item successfully"
+    }
+  }
+}

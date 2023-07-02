@@ -1,0 +1,17 @@
+{
+  "menuItemCategory": {
+    "label": "Item category",
+    "name": "Category name",
+    "description": "Description"
+  },
+  "smartWayApp": {
+    "menuItemCategory": {
+      "created": "Add new category successfully",
+      "updated": "Update category successfully",
+      "deleted": "Delete category successfully",
+      "delete": {
+        "question": "Are you sure to delete category <b>{{ name }}</b>?"
+      }
+    }
+  }
+}

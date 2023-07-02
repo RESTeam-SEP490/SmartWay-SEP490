@@ -8,6 +8,8 @@
       "entities": {
         "main": "Entities",
         "restaurant": "Restaurant",
+        "menuItem": "Menu item",
+        "menuItemCategory": "Category",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
       },
       "account": {
@@ -55,7 +57,9 @@
       "restaurantName.placeholder": "Your restaurant name"
     },
     "table": {
-      "empty": "No data"
+      "empty": "No data",
+      "description": "Description:",
+      "pageText": "Page"
     },
     "messages": {
       "info": {
@@ -115,9 +119,18 @@
     "item-count": "Showing {{first}} - {{second}} of {{total}} items."
   },
   "entity": {
+    "label": {
+      "addNew": "Add new {{ entity }}",
+      "edit": "Edit {{ entity }}",
+      "operations": "Operate",
+      "confirm": "Confirm",
+      "status": "Select status",
+      "all": "All"
+    },
     "action": {
       "addblob": "Add blob",
       "addimage": "Add image",
+      "import": "Import",
       "back": "Back",
       "cancel": "Cancel",
       "delete": "Delete",
@@ -125,7 +138,10 @@
       "open": "Open",
       "save": "Save",
       "view": "View",
-      "show": "Show {{otherEntity}}"
+      "find": "Search",
+      "show": "Show {{otherEntity}}",
+      "select": "{{ number }} record(s) selected",
+      "delete.question": "Are you sure to delete <b>{{ number }}</b> selected record(s)?"
     },
     "detail": {
       "field": "Field",
@@ -148,9 +164,13 @@
       "patternLogin": "This field can only contain letters, digits and e-mail addresses."
     },
     "filters": {
+      "all": "Select all",
       "set": "Following filters are set",
       "clear": "Clear filter",
       "clearAll": "Clear all filters"
+    },
+    "messages": {
+      "success": "Create successfully!"
     }
   },
   "error": {

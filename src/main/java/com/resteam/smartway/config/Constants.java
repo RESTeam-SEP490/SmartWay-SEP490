@@ -10,6 +10,7 @@ public final class Constants {
 
     public static final String SYSTEM = "system";
     public static final String DEFAULT_LANGUAGE = "en";
+    public static final String RESTAURANT_FILTER_NAME = "restaurantFilter";
 
     private Constants() {}
 }
