@@ -8,6 +8,7 @@
       "entities": {
         "main": "Thực thể",
         "restaurant": "Restaurant",
+        "menuItem": "Món",
         "menuItemCategory": "Danh mục",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
       },
@@ -103,9 +104,18 @@
     "item-count": "Showing {{first}} - {{second}} of {{total}} items."
   },
   "entity": {
+    "label": {
+      "addNew": "Thêm mới {{ entity }}",
+      "edit": "Cập nhật {{ entity }}",
+      "operations": "Thao tác",
+      "confirm": "Xác nhận",
+      "status": "Lựa chọn trạng thái",
+      "all": "Tất cả"
+    },
     "action": {
       "addblob": "Thêm nội dung",
       "addimage": "Thêm ảnh",
+      "import": "Tải lên dữ liệu",
       "back": "Quay lại",
       "cancel": "Hủy",
       "delete": "Xóa",

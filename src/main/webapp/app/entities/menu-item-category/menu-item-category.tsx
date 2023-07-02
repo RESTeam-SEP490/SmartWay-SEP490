@@ -2,12 +2,11 @@ import React, { useEffect, useState } from 'react';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 
-import { Button, Card, Checkbox, Empty, Form, Modal, Select, Typography } from 'antd';
+import { Button, Card, Checkbox, Empty, Form, Select, Typography } from 'antd';
 import { getEntities } from './menu-item-category.reducer';
-import { DeleteOutlined, EditFilled, EditOutlined, PlusOutlined, PlusSquareFilled } from '@ant-design/icons';
-import locale from 'app/shared/reducers/locale';
+import { DeleteOutlined, EditFilled, PlusOutlined } from '@ant-design/icons';
 import { Translate, translate } from 'react-jhipster';
-import { DEFAULT_FORM_ITEM_LAYOUT, FormType } from 'app/app.constant';
+import { FormType } from 'app/app.constant';
 import MenuItemCategoryForm from './menu-item-category-form';
 import { IMenuItemCategory } from 'app/shared/model/menu-item-category.model';
 import MenuItemCategoryDelete from './menu-item-category-delete';
@@ -15,16 +14,11 @@ import { CheckboxValueType } from 'antd/es/checkbox/Group';
 import Scrollbars from 'react-custom-scrollbars-2';
 
 export const MenuItemCategorySelect = () => {
-  const dispatch = useAppDispatch();
   const [isShowForm, setIsShowForm] = useState(false);
 
   const categoryList = useAppSelector(state => state.menuItemCategory.entities).map(c => ({ value: c.id, label: c.name }));
   const loading = useAppSelector(state => state.menuItemCategory.loading);
   const updateSuccess = useAppSelector(state => state.menuItemCategory.updateSuccess);
-
-  useEffect(() => {
-    dispatch(getEntities({}));
-  }, []);
 
   useEffect(() => {
     if (updateSuccess) {
@@ -78,12 +72,6 @@ export const MenuItemCategoryCheckBoxes = ({ onFilter }: { onFilter: any }) => {
   }, []);
 
   useEffect(() => {
-    if (updateSuccess) {
-      setIsShowForm(false);
-    }
-  }, [updateSuccess]);
-
-  useEffect(() => {
     onFilter(selectedCategoryList);
   }, [selectedCategoryList]);
 
@@ -115,10 +103,10 @@ export const MenuItemCategoryCheckBoxes = ({ onFilter }: { onFilter: any }) => {
           </Button>
         </div>
         {categoryList.length > 0 ? (
-          <Scrollbars className="!h-52 !w-[calc(100%+8px)]">
-            <Checkbox.Group className="flex-col w-full h-fit pr-2" value={selectedCategoryList} onChange={handleOnchange}>
+          <Scrollbars className="!w-[calc(100%+8px)]" autoHeight autoHeightMax={300}>
+            <Checkbox.Group className="flex-col w-full pr-2 h-fit" value={selectedCategoryList} onChange={handleOnchange}>
               {categoryList.map(category => (
-                <div className="flex justify-between py-2 w-full " key={'checkbox'}>
+                <div className="flex justify-between w-full py-2 " key={'checkbox'}>
                   <Checkbox
                     key={category.id}
                     value={category.id}

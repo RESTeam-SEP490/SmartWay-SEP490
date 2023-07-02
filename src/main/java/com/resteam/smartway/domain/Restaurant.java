@@ -9,15 +9,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.FilterDef;
-import org.hibernate.annotations.ParamDef;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@FilterDef(name = "restaurantIdFilter", parameters = { @ParamDef(name = "id", type = "string") })
 @Table(name = "restaurant")
 public class Restaurant implements Serializable {
 

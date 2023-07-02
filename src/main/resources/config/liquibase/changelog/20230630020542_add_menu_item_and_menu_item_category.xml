@@ -8,12 +8,12 @@
             <column name="created_by" type="VARCHAR(50)">
                 <constraints nullable="false"/>
             </column>
-            <column name="created_date" type="datetime(6)"/>
+            <column name="created_date" type="datetime(6)" />
             <column name="last_modified_by" type="VARCHAR(50)"/>
             <column name="last_modified_date" type="datetime(6)"/>
             <column name="base_price" type="DOUBLE PRECISION"/>
             <column name="code" type="VARCHAR(8)"/>
-            <column name="description" type="NVARCHAR(255)"/>
+            <column name="description" type="${nvarcharType}(255)"/>
             <column name="image_key" type="VARCHAR(255)"/>
             <column name="is_active" type="BIT">
                 <constraints nullable="false"/>
@@ -21,7 +21,7 @@
             <column name="is_in_stock" type="BIT">
                 <constraints nullable="false"/>
             </column>
-            <column name="name" type="NVARCHAR(50)">
+            <column name="name" type="${nvarcharType}(100)">
                 <constraints nullable="false"/>
             </column>
             <column name="sell_price" type="DOUBLE PRECISION">
@@ -44,7 +44,7 @@
             <column name="created_date" type="datetime(6)"/>
             <column name="last_modified_by" type="VARCHAR(50)"/>
             <column name="last_modified_date" type="datetime(6)"/>
-            <column name="name" type="NVARCHAR(30)">
+            <column name="name" type="${nvarcharType}(30)">
                 <constraints nullable="false"/>
             </column>
             <column name="restaurant_id" type="VARCHAR(30)">

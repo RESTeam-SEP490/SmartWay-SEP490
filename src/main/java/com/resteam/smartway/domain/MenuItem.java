@@ -24,7 +24,7 @@ public class MenuItem extends AbstractBaseAuditingEntity<UUID> implements Serial
     @Column(length = 8)
     private String code;
 
-    @Column(nullable = false, columnDefinition = "nvarchar(50)")
+    @Column(nullable = false, columnDefinition = "nvarchar(100)")
     private String name;
 
     @Column(name = "image_key")

@@ -11,9 +11,6 @@
       "deleted": "Delete category successfully",
       "delete": {
         "question": "Are you sure to delete category <b>{{ name }}</b>?"
-      },
-      "detail": {
-        "title": "Restaurant"
       }
     }
   }

@@ -95,7 +95,7 @@ public class AccountResource {
     @PostMapping("/account")
     public void saveAccount(@Valid @RequestBody AdminUserDTO userDTO) {
         String userLogin = SecurityUtils
-            .getCurrentUserLogin()
+            .getCurrentUsername()
             .orElseThrow(() -> new AccountResourceException("Current user login not found"));
         Optional<User> user = userRepository.findOneByUsername(userLogin);
         if (user.isEmpty()) {

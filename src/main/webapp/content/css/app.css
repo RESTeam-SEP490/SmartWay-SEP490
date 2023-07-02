@@ -1,15 +1,15 @@
 :root {
-  --50: #f0f5fe;
-  --100: #dce8fd;
-  --200: #c1d7fc;
-  --300: #96bffa;
-  --400: #659df5;
-  --500: #4d81f1;
-  --600: #2b59e5;
-  --700: #2346d2;
-  --800: #233aaa;
-  --900: #213687;
-  --950: #192252;
+  --50: #f1f5fe;
+  --100: #e3ebfd;
+  --200: #c2d3fa;
+  --300: #a5bff8;
+  --400: #89abf6;
+  --500: #6c97f3;
+  --600: #4d81f1;
+  --700: #1152de;
+  --800: #0c3693;
+  --900: #061c4c;
+  --950: #030e26;
 }
 
 label {
@@ -18,16 +18,18 @@ label {
 
 /* Table css */
 .ant-table-thead .ant-table-cell {
-  background-color: var(--300) !important;
+  background-color: var(--600) !important;
+  color: var(--50) !important;
 }
 
 .ant-table {
   border: 2px solid #f0f0f0;
   border-radius: 8px !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02);
 }
 
 .ant-table-cell-row-hover {
-  background: var(--100) !important;
+  background: var(--50) !important;
 }
 
 .ant-table-row + .ant-table-expanded-row .ant-table-cell {
@@ -38,7 +40,7 @@ label {
 .ant-table-row:has(+ .ant-table-expanded-row) {
   box-shadow: 0px 2px 2px inset var(--300) !important;
   border-bottom: 1px solid transparent;
-  background: var(--100);
+  background: var(--50);
 }
 
 .ant-table-row:has(+ .ant-table-expanded-row) td:first-child {
@@ -86,4 +88,24 @@ th.ant-table-cell::before {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+.ant-table-content::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+
+  /* width of the entire scrollbar */
+}
+
+.ant-table-content::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border: none;
+  /* color of the tracking area */
+}
+
+.ant-table-content::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  /* color of the scroll thumb */
+  border-radius: 3px;
+  /* roundness of the scroll thumb */
 }

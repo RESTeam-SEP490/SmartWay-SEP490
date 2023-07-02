@@ -1,14 +1,13 @@
 package com.resteam.smartway.service;
 
 import com.resteam.smartway.domain.MenuItem;
-import com.resteam.smartway.domain.Restaurant;
 import com.resteam.smartway.repository.MenuItemRepository;
-import com.resteam.smartway.security.SecurityUtils;
+import com.resteam.smartway.security.multitenancy.context.RestaurantContext;
 import com.resteam.smartway.service.aws.S3Service;
+import com.resteam.smartway.service.dto.IsActiveUpdateDTO;
 import com.resteam.smartway.service.dto.MenuItemDTO;
 import com.resteam.smartway.service.mapper.MenuItemMapper;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
-import com.resteam.smartway.web.rest.errors.RestaurantInfoNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -38,13 +37,12 @@ public class MenuItemServiceImpl implements MenuItemService {
     private final MenuItemMapper menuItemMapper;
 
     @Override
-    public Page<MenuItemDTO> loadMenuItemsWithSearch(Pageable pageable, String searchText, List<String> categoryIds) {
-        String restaurantId = SecurityUtils.getCurrentRestaurantId().orElseThrow(RestaurantInfoNotFoundException::new);
+    public Page<MenuItemDTO> loadMenuItemsWithSearch(Pageable pageable, String searchText, List<String> categoryIds, Boolean isActive) {
         if (searchText != null) searchText = searchText.toLowerCase();
         List<UUID> categoryUuidList = null;
         if (categoryIds != null && categoryIds.size() > 0) categoryUuidList =
-            categoryIds.stream().map(c -> UUID.fromString(c)).collect(Collectors.toList());
-        Page<MenuItem> menuItemPage = menuItemRepository.findWithFilterParams(restaurantId, searchText, categoryUuidList, pageable);
+            categoryIds.stream().map(UUID::fromString).collect(Collectors.toList());
+        Page<MenuItem> menuItemPage = menuItemRepository.findWithFilterParams(searchText, categoryUuidList, isActive, pageable);
 
         return menuItemPage.map(item -> {
             MenuItemDTO menuItem = menuItemMapper.toDto(item);
@@ -59,24 +57,21 @@ public class MenuItemServiceImpl implements MenuItemService {
     @Override
     @SneakyThrows
     public MenuItemDTO createMenuItem(@Valid MenuItemDTO menuItemDTO, MultipartFile imageSource) {
-        String restaurantId = SecurityUtils.getCurrentRestaurantId().orElseThrow(RestaurantInfoNotFoundException::new);
-
         MenuItem menuItem = menuItemMapper.toEntity(menuItemDTO);
-        String menuItemCode = generateCode(restaurantId);
+        String menuItemCode = generateCode();
 
         if (imageSource != null) {
-            String path = String.format("%s/menu-items/%s", restaurantId, menuItemCode);
+            String path = String.format("%s/menu-items/%s", RestaurantContext.getCurrentRestaurant().getId(), menuItemCode);
             s3Service.uploadImage(imageSource, path);
             menuItem.setImageKey(path);
         }
         menuItem.setCode(menuItemCode);
-        menuItem.setRestaurant(new Restaurant(restaurantId));
 
         return menuItemMapper.toDto(menuItemRepository.save(menuItem));
     }
 
-    private String generateCode(String restaurantId) {
-        Optional<MenuItem> lastMenuItem = menuItemRepository.findTopByRestaurantOrderByCodeDesc(new Restaurant(restaurantId));
+    private String generateCode() {
+        Optional<MenuItem> lastMenuItem = menuItemRepository.findTopByOrderByCodeDesc();
 
         if (lastMenuItem.isEmpty()) return "MI000001"; else {
             String lastCode = lastMenuItem.get().getCode();
@@ -89,10 +84,8 @@ public class MenuItemServiceImpl implements MenuItemService {
     @Override
     @SneakyThrows
     public MenuItemDTO updateMenuItem(MenuItemDTO menuItemDTO, MultipartFile imageSource) {
-        String restaurantId = SecurityUtils.getCurrentRestaurantId().orElseThrow(RestaurantInfoNotFoundException::new);
-
         MenuItem menuItem = menuItemRepository
-            .findByIdAndRestaurant(menuItemDTO.getId(), new Restaurant(restaurantId))
+            .findById(menuItemDTO.getId())
             .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
 
         if (imageSource != null) {
@@ -100,7 +93,7 @@ public class MenuItemServiceImpl implements MenuItemService {
                 s3Service.deleteFile(menuItem.getImageKey());
                 s3Service.uploadImage(imageSource, menuItem.getImageKey());
             } else {
-                String path = String.format("%s/menu-items/%s", restaurantId, menuItem.getCode());
+                String path = String.format("%s/menu-items/%s", RestaurantContext.getCurrentRestaurant().getId(), menuItem.getCode());
                 s3Service.uploadImage(imageSource, path);
                 menuItem.setImageKey(path);
             }
@@ -114,5 +107,36 @@ public class MenuItemServiceImpl implements MenuItemService {
 
         MenuItem result = menuItemRepository.save(menuItem);
         return menuItemMapper.toDto(result);
+    }
+
+    @Override
+    public void deleteMenuItem(List<String> ids) {
+        List<MenuItem> menuItemIdList = ids
+            .stream()
+            .map(id -> {
+                if (id == null) throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+                return menuItemRepository
+                    .findById(UUID.fromString(id))
+                    .orElseThrow(() -> new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idnotfound"));
+            })
+            .collect(Collectors.toList());
+        menuItemRepository.deleteAll(menuItemIdList);
+    }
+
+    @Override
+    public void updateIsActiveMenuItems(IsActiveUpdateDTO isActiveUpdateDTO) {
+        List<MenuItem> menuItemList = isActiveUpdateDTO
+            .getIds()
+            .stream()
+            .map(id -> {
+                if (id == null) throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+                MenuItem menuItem = menuItemRepository
+                    .findById(UUID.fromString(id))
+                    .orElseThrow(() -> new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idnotfound"));
+                menuItem.setIsActive(isActiveUpdateDTO.getIsActive());
+                return menuItem;
+            })
+            .collect(Collectors.toList());
+        menuItemRepository.saveAll(menuItemList);
     }
 }

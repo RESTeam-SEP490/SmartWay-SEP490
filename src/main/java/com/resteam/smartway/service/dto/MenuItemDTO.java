@@ -22,7 +22,7 @@ public class MenuItemDTO {
     private String code;
 
     @NotBlank
-    @Size(max = 50)
+    @Size(max = 100)
     private String name;
 
     @JsonIgnore

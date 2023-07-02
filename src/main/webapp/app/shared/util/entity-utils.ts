@@ -34,3 +34,10 @@ export const overridePaginationStateWithQueryParams = (paginationBaseState: IPag
   }
   return paginationBaseState;
 };
+
+export const getListValuesInParam = (list: any) => {
+  if (list) {
+    return list.reduce((prev, current, index) => (index === list.length - 1 ? prev + current : prev + current + ','), '');
+  }
+  return '';
+};

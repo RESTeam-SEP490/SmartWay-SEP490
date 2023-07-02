@@ -9,6 +9,7 @@
     <property name="blobType" value="longblob" dbms="mysql"/>
     <property name="uuidType" value="varchar(36)" dbms="mysql"/>
     <property name="datetimeType" value="datetime(6)" dbms="mysql"/>
+    <property name="nvarcharType" value="nvarchar" dbms="mysql"/>
 
     <include file="config/liquibase/changelog/20230610170610_initial_changelog.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20230618152850_modify_user_and_restaurant.xml" relativeToChangelogFile="false"/>
