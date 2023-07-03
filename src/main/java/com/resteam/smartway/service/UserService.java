@@ -11,6 +11,7 @@ import com.resteam.smartway.repository.RoleRepository;
 import com.resteam.smartway.repository.UserRepository;
 import com.resteam.smartway.security.AuthoritiesConstants;
 import com.resteam.smartway.security.SecurityUtils;
+import com.resteam.smartway.security.multitenancy.context.RestaurantContext;
 import com.resteam.smartway.service.dto.AdminUserDTO;
 import com.resteam.smartway.service.dto.TenantRegistrationDTO;
 import com.resteam.smartway.web.rest.errors.SubdomainAlreadyUsedException;
@@ -24,7 +25,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 import tech.jhipster.security.RandomUtil;
 
 /**
@@ -92,11 +92,11 @@ public class UserService {
 
         Restaurant restaurant = new Restaurant(tenantRegistrationDTO.getRestaurantId());
         Restaurant savedRestaurant = restaurantRepository.save(restaurant);
+        RestaurantContext.setCurrentRestaurant(savedRestaurant);
 
         Set<Authority> authorities = new HashSet<>();
         authorityRepository.findById(AuthoritiesConstants.USER).ifPresent(authorities::add);
         Role role = new Role(null, "Nhân viên", authorities);
-        role.setRestaurant(savedRestaurant);
         roleRepository.save(role);
 
         User newUser = new User();
@@ -107,7 +107,6 @@ public class UserService {
         newUser.setEmail(tenantRegistrationDTO.getEmail().toLowerCase());
         newUser.setPhone(tenantRegistrationDTO.getPhone());
         newUser.setLangKey(tenantRegistrationDTO.getLangKey());
-        newUser.setRestaurant(savedRestaurant);
         newUser.setRole(role);
         userRepository.save(newUser);
 
@@ -202,7 +201,7 @@ public class UserService {
      */
     public void updateUser(String firstName, String email, String langKey) {
         SecurityUtils
-            .getCurrentUserLogin()
+            .getCurrentUsername()
             .flatMap(userRepository::findOneByUsername)
             .ifPresent(user -> {
                 user.setFullName(firstName);
@@ -217,7 +216,7 @@ public class UserService {
     @Transactional
     public void changePassword(String currentClearTextPassword, String newPassword) {
         SecurityUtils
-            .getCurrentUserLogin()
+            .getCurrentUsername()
             .flatMap(userRepository::findOneByUsername)
             .ifPresent(user -> {
                 String currentEncryptedPassword = user.getPassword();
@@ -237,14 +236,11 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Optional<User> getUserWithAuthorities() {
-        String[] usernameAndRestaurantId = StringUtils.split(SecurityUtils.getCurrentUserLogin().get(), " ");
-        if (usernameAndRestaurantId == null || usernameAndRestaurantId.length != 2) {
-            throw new UsernameNotFoundException("Username and domain must be provided");
-        }
-        return userRepository.findOneWithAuthoritiesByUsernameAndRestaurant(
-            usernameAndRestaurantId[0],
-            new Restaurant(usernameAndRestaurantId[1])
-        );
+        String username = SecurityUtils.getCurrentUsername().orElseThrow(() -> new UsernameNotFoundException(("Username must be provide")));
+        String restaurantId = SecurityUtils
+            .getCurrentRestaurantId()
+            .orElseThrow(() -> new UsernameNotFoundException(("RestaurantId must be provide")));
+        return userRepository.findOneWithAuthoritiesByUsername(username);
     }
 
     /**

@@ -1,7 +1,6 @@
 {
   "menuItemCategory": {
     "label": "Danh mục món",
-    "addNewTitle": "Thêm mới danh mục",
     "name": "Tên danh mục",
     "description": "Mô tả"
   },
@@ -12,9 +11,6 @@
       "deleted": "Xoá danh mục thành công",
       "delete": {
         "question": "Bạn có chắc là muốn xóa Danh mục {{ name }}?"
-      },
-      "detail": {
-        "title": "Restaurant"
       }
     }
   }

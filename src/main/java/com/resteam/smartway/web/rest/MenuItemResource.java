@@ -1,6 +1,7 @@
 package com.resteam.smartway.web.rest;
 
 import com.resteam.smartway.service.MenuItemService;
+import com.resteam.smartway.service.dto.IsActiveUpdateDTO;
 import com.resteam.smartway.service.dto.MenuItemDTO;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
@@ -40,9 +41,10 @@ public class MenuItemResource {
     public ResponseEntity<List<MenuItemDTO>> loadMenuItemWithSearch(
         Pageable pageable,
         @RequestParam(value = "search", required = false) String searchText,
-        @RequestParam(value = "categoryIds", required = false) List<String> categoryIds
+        @RequestParam(value = "categoryIds", required = false) List<String> categoryIds,
+        @RequestParam(value = "isActive", required = false) Boolean isActive
     ) {
-        Page<MenuItemDTO> menuItemPage = menuItemService.loadMenuItemsWithSearch(pageable, searchText, categoryIds);
+        Page<MenuItemDTO> menuItemPage = menuItemService.loadMenuItemsWithSearch(pageable, searchText, categoryIds, isActive);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), menuItemPage);
         return new ResponseEntity<>(menuItemPage.getContent(), headers, HttpStatus.OK);
     }
@@ -64,7 +66,7 @@ public class MenuItemResource {
 
     @PutMapping("/{id}")
     public ResponseEntity<MenuItemDTO> updateRestaurant(
-        @PathVariable(value = "id", required = false) final String id,
+        @PathVariable(value = "id") final String id,
         @Valid @RequestPart MenuItemDTO menuItemDTO,
         @RequestPart(required = false) MultipartFile imageSource
     ) {
@@ -72,7 +74,7 @@ public class MenuItemResource {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
         if (!Objects.equals(id, menuItemDTO.getId().toString())) {
-            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
+            throw new BadRequestAlertException("Invalid Id", ENTITY_NAME, "idinvalid");
         }
 
         MenuItemDTO result = menuItemService.updateMenuItem(menuItemDTO, imageSource);
@@ -80,5 +82,23 @@ public class MenuItemResource {
             .ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
+    }
+
+    @PutMapping
+    public ResponseEntity<MenuItemDTO> updateRestaurant(@Valid @RequestBody IsActiveUpdateDTO isActiveUpdateDTO) {
+        menuItemService.updateIsActiveMenuItems(isActiveUpdateDTO);
+        return ResponseEntity
+            .ok()
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, isActiveUpdateDTO.getIds().toString()))
+            .build();
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Void> deleteRestaurants(@RequestParam(value = "ids") final List<String> ids) {
+        menuItemService.deleteMenuItem(ids);
+        return ResponseEntity
+            .noContent()
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, String.valueOf(ids)))
+            .build();
     }
 }

@@ -121,11 +121,16 @@
   "entity": {
     "label": {
       "addNew": "Add new {{ entity }}",
-      "edit": "Edit {{ entity }}"
+      "edit": "Edit {{ entity }}",
+      "operations": "Operate",
+      "confirm": "Confirm",
+      "status": "Select status",
+      "all": "All"
     },
     "action": {
       "addblob": "Add blob",
       "addimage": "Add image",
+      "import": "Import",
       "back": "Back",
       "cancel": "Cancel",
       "delete": "Delete",
@@ -134,7 +139,9 @@
       "save": "Save",
       "view": "View",
       "find": "Search",
-      "show": "Show {{otherEntity}}"
+      "show": "Show {{otherEntity}}",
+      "select": "{{ number }} record(s) selected",
+      "delete.question": "Are you sure to delete <b>{{ number }}</b> selected record(s)?"
     },
     "detail": {
       "field": "Field",

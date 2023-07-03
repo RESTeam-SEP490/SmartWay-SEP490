@@ -1,9 +1,7 @@
-import { FormOutlined, SaveFilled, SaveOutlined } from '@ant-design/icons';
+import { FormOutlined, SaveOutlined } from '@ant-design/icons';
 import { Button, Form, FormInstance } from 'antd';
-import { FormType } from 'app/app.constant';
-import React, { useRef } from 'react';
+import React from 'react';
 import { Translate } from 'react-jhipster';
-import { initialState } from '../reducers/authentication';
 
 export const SubmitButton = ({ form, isNew, updating }: { form: FormInstance; isNew: boolean; updating: boolean }) => {
   const [isValid, setIsValid] = React.useState(false);
@@ -26,7 +24,7 @@ export const SubmitButton = ({ form, isNew, updating }: { form: FormInstance; is
       type="primary"
       loading={updating}
       htmlType="submit"
-      disabled={(isNew && !isValid) || (!isNew && (!form.isFieldsTouched() || !isValid))}
+      disabled={!isNew && (!form.isFieldsTouched() || !isValid)}
     >
       <Translate contentKey={isNew ? 'entity.action.save' : 'entity.action.edit'}></Translate>
     </Button>
