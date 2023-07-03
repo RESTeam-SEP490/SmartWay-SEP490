@@ -56,6 +56,9 @@ public class User extends AbstractBaseAuditingEntity<UUID> implements Serializab
     @Column(name = "reset_date")
     private Instant resetDate = null;
 
+    @Column(name = "is_system_admin", columnDefinition = "BIT(1) DEFAULT FALSE")
+    private Boolean isSystemAdmin = false;
+
     @ManyToOne
     @JoinColumn(name = "role_id", referencedColumnName = "id", columnDefinition = "BINARY(16)")
     private Role role;

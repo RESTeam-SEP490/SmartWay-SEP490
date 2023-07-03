@@ -17,6 +17,7 @@ import ErrorBoundaryRoutes from 'app/shared/error/error-boundary-routes';
 import PageNotFound from 'app/shared/error/page-not-found';
 import { useAppSelector } from './config/store';
 import Header from './shared/layout/header/header';
+import AdminLogin from './modules/login/admin-login';
 
 const loading = <div>loading ...</div>;
 
@@ -30,7 +31,7 @@ const Admin = Loadable({
   loading: () => loading,
 });
 
-const AppRoutes = () => {
+export const MainAppRoutes = () => {
   const isAuthenticated = useAppSelector(state => state.authentication.isAuthenticated);
   const location = useLocation();
   React.useEffect(() => {
@@ -58,14 +59,7 @@ const AppRoutes = () => {
           <Route path="finish" element={<PasswordResetFinish />} />
         </Route>
       </Route>
-      <Route
-        path="admin/*"
-        element={
-          <PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN]}>
-            <Admin />
-          </PrivateRoute>
-        }
-      />
+
       <Route
         path="*"
         element={
@@ -79,4 +73,27 @@ const AppRoutes = () => {
   );
 };
 
-export default AppRoutes;
+export const AdminAppRoutes = () => {
+  return (
+    <ErrorBoundaryRoutes>
+      <Route path="login" element={<AdminLogin />} />
+      <Route path="logout" element={<Logout />} />
+      <Route
+        path="account"
+        element={
+          <PrivateRoute hasAnyAuthorities={[AUTHORITIES.SYSTEM_ADMIN]}>
+            <Account />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="*"
+        element={
+          <PrivateRoute hasAnyAuthorities={[AUTHORITIES.SYSTEM_ADMIN]}>
+            <Admin />
+          </PrivateRoute>
+        }
+      />
+    </ErrorBoundaryRoutes>
+  );
+};

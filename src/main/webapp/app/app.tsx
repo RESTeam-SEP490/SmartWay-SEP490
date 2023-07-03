@@ -11,7 +11,6 @@ import { ToastContainer, toast } from 'react-toastify';
 import { App as AntApp, ConfigProvider, notification } from 'antd';
 import { AUTHORITIES } from 'app/config/constants';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
-import AppRoutes from 'app/routes';
 import { hasAnyAuthority } from 'app/shared/auth/private-route';
 import ErrorBoundary from 'app/shared/error/error-boundary';
 import Header from 'app/shared/layout/header/header';
@@ -19,11 +18,13 @@ import { getProfile } from 'app/shared/reducers/application-profile';
 import { getSession } from 'app/shared/reducers/authentication';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { theme } from './config/ant-design-theme';
+import { getApp } from './shared/util/subdomain/helpers';
 
 const baseHref = document.querySelector('base').getAttribute('href').replace(/\/$/, '');
 
 export const App = () => {
   const dispatch = useAppDispatch();
+  const CurrentApp = getApp();
 
   useEffect(() => {
     dispatch(getSession());
@@ -58,7 +59,7 @@ export const App = () => {
               </ErrorBoundary>
               <div className="px-4 bg-gray-100 grow">
                 <ErrorBoundary>
-                  <AppRoutes />
+                  <CurrentApp />
                 </ErrorBoundary>
                 {/* <Footer /> */}
               </div>
