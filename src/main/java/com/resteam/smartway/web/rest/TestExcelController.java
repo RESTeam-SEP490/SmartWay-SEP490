@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/downloadTemplate")
+@CrossOrigin(origins = "http://localhost:9000")
 public class TestExcelController {
 
     private final MenuItemService menuItemService;
@@ -48,5 +49,20 @@ public class TestExcelController {
             }
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Please upload only Excel file");
+    }
+
+    @GetMapping("/export")
+    public ResponseEntity<Resource> exportListMenuItem() throws IOException {
+        String filename = "menu-items.xlsx";
+        ByteArrayInputStream actualData = menuItemService.getListMenuItemsForExcel();
+        InputStreamResource file = new InputStreamResource(actualData);
+
+        ResponseEntity<Resource> body = ResponseEntity
+            .ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+            .contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
+            .body(file);
+
+        return body;
     }
 }

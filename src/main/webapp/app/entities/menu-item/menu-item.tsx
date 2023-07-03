@@ -14,7 +14,7 @@ import { MenuItemCategoryCheckBoxes } from '../menu-item-category/menu-item-cate
 import MenuItemDetail from './menu-item-detail';
 import MenuItemUpdate from './menu-item-form';
 import { getEntities } from './menu-item.reducer';
-import { render } from '@testing-library/react';
+import axios from 'axios';
 
 export const MenuItem = () => {
   const dispatch = useAppDispatch();
@@ -50,7 +50,7 @@ export const MenuItem = () => {
   const menuItemList = useAppSelector(state => state.menuItem.entities);
   const count = useAppSelector(state => state.menuItem.totalItems);
   const loading = useAppSelector(state => state.menuItem.loading);
-
+  const [menuItems, setMenuItems] = useState([]);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
 
   const handleOpenPopup = () => {
@@ -78,10 +78,31 @@ export const MenuItem = () => {
   const handleUpload = () => {
     if (selectedFile) {
       console.log('Đã chọn tệp:', selectedFile);
-      // Gửi tệp lên máy chủ hoặc thực hiện xử lý khác tùy thuộc vào yêu cầu của bạn
+
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+
+      fetch('http://localhost:8080/downloadTemplate/upload', {
+        method: 'POST',
+        body: formData,
+      })
+        .then(response => {
+          console.log('Đã tải lên thành công');
+          // Thực hiện các thao tác cần thiết sau khi tải lên thành công
+          // Ví dụ: refresh lại bảng menu-items
+          setIsPopupVisible(false); // Đóng popup
+          refreshMenuItems(); // Làm mới danh sách menu items
+        })
+        .catch(error => {
+          console.error('Lỗi khi tải lên tệp:', error);
+        });
     } else {
       console.log('Chưa chọn tệp');
     }
+  };
+
+  const refreshMenuItems = () => {
+    dispatch(getEntities(pageable));
   };
 
   useEffect(() => {
@@ -101,6 +122,7 @@ export const MenuItem = () => {
     const selectedCategories = checkedValues.map(v => v.toString());
     setPageable(prev => ({ ...prev, page: 0, category: selectedCategories }));
   };
+
   return (
     <>
       <MenuItemUpdate handleClose={() => setIsShowForm(false)} isOpen={isShowForm} />
@@ -177,12 +199,14 @@ export const MenuItem = () => {
                 </span>
                 Import
               </Button>
-              <Button className="green-button">
-                <span>
-                  <ExportOutlined style={{ marginRight: '0.5rem' }} rev={''} />
-                </span>
-                Export
-              </Button>
+              <a href="http://localhost:8080/downloadTemplate/export" download>
+                <Button className="green-button">
+                  <span>
+                    <ExportOutlined style={{ marginRight: '0.5rem' }} rev={''} />
+                  </span>
+                  Export
+                </Button>
+              </a>
               <Button type="primary" onClick={() => setIsShowForm(true)}>
                 <PlusOutlined rev={''} />
                 <Translate contentKey="menuItem.addNewLabel" />

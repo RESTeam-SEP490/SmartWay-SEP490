@@ -3,6 +3,7 @@ package com.resteam.smartway.service;
 import com.resteam.smartway.domain.MenuItem;
 import com.resteam.smartway.domain.MenuItemCategory;
 import com.resteam.smartway.domain.Restaurant;
+import com.resteam.smartway.helper.Helper;
 import com.resteam.smartway.repository.MenuItemCategoryRepository;
 import com.resteam.smartway.repository.MenuItemRepository;
 import com.resteam.smartway.security.SecurityUtils;
@@ -10,6 +11,8 @@ import com.resteam.smartway.service.aws.S3Service;
 import com.resteam.smartway.service.dto.MenuItemDTO;
 import com.resteam.smartway.service.mapper.MenuItemMapper;
 import com.resteam.smartway.web.rest.errors.RestaurantInfoNotFoundException;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.List;
@@ -108,8 +111,8 @@ public class MenuItemServiceImpl implements MenuItemService {
                     switch (cell.getColumnIndex()) {
                         case 0:
                             if (!isEmptyRow) {
-                                String menuItemCode = generateCode("huy1");
-                                menuItem.setRestaurant(new Restaurant("huy1"));
+                                String menuItemCode = generateCode("huy2");
+                                menuItem.setRestaurant(new Restaurant("huy2"));
                                 menuItem.setIsActive(Boolean.TRUE);
                                 menuItem.setIsInStock(Boolean.TRUE);
                                 menuItem.setCode(menuItemCode);
@@ -178,6 +181,12 @@ public class MenuItemServiceImpl implements MenuItemService {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred");
         }
+    }
+
+    @Override
+    public ByteArrayInputStream getListMenuItemsForExcel() throws IOException {
+        List<MenuItem> menuItemList = menuItemRepository.findAll();
+        return Helper.dataToExcel(menuItemList);
     }
 
     private boolean hasEmptyCells(Row row) {

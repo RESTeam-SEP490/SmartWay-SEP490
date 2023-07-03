@@ -1,6 +1,8 @@
 package com.resteam.smartway.service;
 
 import com.resteam.smartway.service.dto.MenuItemDTO;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import javax.validation.Valid;
@@ -17,4 +19,6 @@ public interface MenuItemService {
     void createMenuItem(@Valid MenuItemDTO menuItemDTO, MultipartFile imageSource);
 
     ResponseEntity<?> convertExcelToListOfMenuItem(InputStream is);
+
+    ByteArrayInputStream getListMenuItemsForExcel() throws IOException;
 }
