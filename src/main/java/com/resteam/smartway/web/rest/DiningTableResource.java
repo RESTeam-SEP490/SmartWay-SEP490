@@ -64,7 +64,7 @@ public class DiningTableResource {
         return ResponseEntity
             .created(URI.create(result.getId().toString()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-            .body(diningTableDTO);
+            .body(result);
     }
 
     @PutMapping("/{id}")
