@@ -10,7 +10,6 @@ import { Brand } from 'app/shared/layout/header/header-components';
 import { LocaleMenu } from 'app/shared/layout/menus';
 import { login } from 'app/shared/reducers/authentication';
 import { Translate, translate } from 'react-jhipster';
-import restaurant from 'app/entities/restaurant/restaurant.reducer';
 
 export const Login = () => {
   const dispatch = useAppDispatch();
@@ -24,7 +23,7 @@ export const Login = () => {
     dispatch(login(restaurantId, username, password, rememberMe));
   };
 
-  const { from } = (location.state as any) || { from: { pathname: '/manage/users', search: location.search } };
+  const { from } = (location.state as any) || { from: { pathname: '/menu-items', search: location.search } };
   if (isAuthenticated) {
     return <Navigate to={from} replace />;
   }
@@ -47,7 +46,14 @@ export const Login = () => {
               {loginError ? (
                 <Alert className="mb-4" showIcon type="error" message={translate('login.messages.error.authentication')} />
               ) : null}
-              <Form.Item name="restaurantId" rules={[{ required: true, message: 'Restaurant name cannot be empty!' }]}>
+              <Form.Item
+                name="restaurantId"
+                rules={[
+                  { required: true, message: translate('global.messages.validate.restaurantName.required') },
+                  { pattern: /^[a-z0-9]+$/, message: translate('global.messages.validate.restaurantName.pattern') },
+                  { max: 30, message: translate('global.messages.validate.restaurantName.max') },
+                ]}
+              >
                 <Input
                   prefix={<ShopOutlined rev={ShopOutlined} className="text-gray-400" />}
                   placeholder={translate('global.form.restaurantName.placeholder')}
@@ -65,7 +71,7 @@ export const Login = () => {
                   placeholder={translate('login.form.password.placeholder')}
                 />
               </Form.Item>
-              <Form.Item name="rememberMe" className="float-left">
+              <Form.Item name="rememberMe" className="float-left" valuePropName="checked">
                 <Checkbox className="!font-normal ">
                   <Translate contentKey="login.form.rememberme" />
                 </Checkbox>
@@ -92,7 +98,7 @@ export const Login = () => {
           </div>
         </div>
         <div className="w-5/12 h-screen p-4">
-          <div className="w-full min-h-full bg-blue-500 rounded-md"></div>
+          <div className="w-full min-h-full bg-blue-600 rounded-md"></div>
         </div>
       </div>
     </div>

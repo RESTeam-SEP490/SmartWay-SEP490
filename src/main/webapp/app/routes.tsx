@@ -1,22 +1,22 @@
 import React from 'react';
-import { Route, useLocation } from 'react-router-dom';
 import Loadable from 'react-loadable';
+import { Route, useLocation } from 'react-router-dom';
 
-import Login from 'app/modules/login/login';
-import Register from 'app/modules/account/register/register';
+import { AUTHORITIES } from 'app/config/constants';
+import { sendActivity } from 'app/config/websocket-middleware';
 import Activate from 'app/modules/account/activate/activate';
-import PasswordResetInit from 'app/modules/account/password-reset/init/password-reset-init';
 import PasswordResetFinish from 'app/modules/account/password-reset/finish/password-reset-finish';
-import Logout from 'app/modules/login/logout';
+import PasswordResetInit from 'app/modules/account/password-reset/init/password-reset-init';
+import Register from 'app/modules/account/register/register';
 import Home from 'app/modules/home/home';
-import EntitiesRoutes from 'app/entities/routes';
+import Login from 'app/modules/login/login';
+import Logout from 'app/modules/login/logout';
+import ManagementRoutes from 'app/pages/user/management/routes';
 import PrivateRoute from 'app/shared/auth/private-route';
 import ErrorBoundaryRoutes from 'app/shared/error/error-boundary-routes';
 import PageNotFound from 'app/shared/error/page-not-found';
-import { AUTHORITIES } from 'app/config/constants';
-import { sendActivity } from 'app/config/websocket-middleware';
-import { Users } from './pages/user/management/users/users';
 import { useAppSelector } from './config/store';
+import Header from './shared/layout/header/header';
 
 const loading = <div>loading ...</div>;
 
@@ -33,18 +33,15 @@ const Admin = Loadable({
 const AppRoutes = () => {
   const isAuthenticated = useAppSelector(state => state.authentication.isAuthenticated);
   const location = useLocation();
-  // React.useEffect(() => {
-  //   sendActivity(location.pathname);
-  // }, [location]);
+  React.useEffect(() => {
+    sendActivity(location.pathname);
+  }, [location]);
   return (
     <ErrorBoundaryRoutes>
       {!isAuthenticated && <Route index element={<Home />} />}
       <Route path="login" element={<Login />} />
       <Route path="logout" element={<Logout />} />
-      <Route path="manage">
-        <Route path="users" element={<Users />} />
-      </Route>
-      <Route path="users" element={<Users />} />
+      <Route path="register" element={<Register />} />
 
       <Route path="account">
         <Route
@@ -55,7 +52,6 @@ const AppRoutes = () => {
             </PrivateRoute>
           }
         />
-        <Route path="register" element={<Register />} />
         <Route path="activate" element={<Activate />} />
         <Route path="reset">
           <Route path="request" element={<PasswordResetInit />} />
@@ -74,7 +70,7 @@ const AppRoutes = () => {
         path="*"
         element={
           <PrivateRoute hasAnyAuthorities={[AUTHORITIES.USER]}>
-            <EntitiesRoutes />
+            <ManagementRoutes />
           </PrivateRoute>
         }
       />

@@ -7,7 +7,6 @@ import { defaultValue, IMenuItem } from 'app/shared/model/menu-item.model';
 import { DEFAULT_PAGEABLE } from 'app/app.constant';
 import { IListUpdateBoolean } from 'app/shared/model/list-update-boolean';
 import getStore from 'app/config/store';
-import menuItem from 'app/entities/menu-item/menu-item.reducer';
 
 const initialState: EntityState<IMenuItem> = {
   loading: false,

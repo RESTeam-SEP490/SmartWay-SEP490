@@ -1,5 +1,5 @@
-import restaurant from 'app/entities/restaurant/restaurant.reducer';
-import menuItem from 'app/entities/menu-item/menu-item.reducer';
+import restaurant from './restaurant/restaurant.reducer';
+import menuItem from './menu-item/menu-item.reducer';
 import menuItemCategory from './menu-item-category/menu-item-category.reducer';
 /* jhipster-needle-add-reducer-import - JHipster will add reducer here */
 

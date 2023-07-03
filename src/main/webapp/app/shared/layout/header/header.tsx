@@ -10,6 +10,7 @@ import { useLocation } from 'react-router-dom';
 import { AccountMenu, LocaleMenu } from '../menus';
 import { UserMenu } from '../menus/main-menu';
 import { Brand } from './header-components';
+import { Collapse } from 'reactstrap';
 
 export interface IHeaderProps {
   username?: string;
@@ -22,9 +23,8 @@ export interface IHeaderProps {
 }
 
 const Header = (props: IHeaderProps) => {
-  const fullName = useAppSelector(state => state.authentication.account.fullName);
-
   const location = useLocation();
+  const [isCollapsed, setIsCollapsed] = useState(Storage.session.get('isCollapsed', false));
 
   const renderDevRibbon = () =>
     props.isInProduction === false ? (
@@ -35,21 +35,33 @@ const Header = (props: IHeaderProps) => {
       </div>
     ) : null;
 
-  /* jhipster-needle-add-element-to-menu - JHipster will add new menu items here */
+  const toggleCollapse = () => {
+    Storage.session.set('isCollapsed', !isCollapsed);
+    setIsCollapsed(prev => !prev);
+  };
 
   return (
-    <div className={['login', 'register'].some(path => location.pathname.includes(path)) ? 'hidden' : ''}>
-      {renderDevRibbon()}
+    <div
+      className={
+        ['login', 'register'].some(path => location.pathname.includes(path)) ? 'hidden' : props.isAuthenticated ? 'bg-white' : 'bg-gray-100'
+      }
+    >
+      {/* {renderDevRibbon()} */}
       <LoadingBar className="loading-bar" />
-      <div className="py-2 mx-auto lg:max-w-7xl flex justify-between items-center">
+      <div
+        className={
+          (isCollapsed ? 'h-0 overflow-hidden pt-0 pb-0' : 'pt-4 pb-2') +
+          ' mx-auto lg:max-w-7xl flex justify-between items-center transition-all duration-300 ease-linear'
+        }
+      >
         <Brand />
         <div className="flex gap-10 items-center">
           <LocaleMenu currentLocale={props.currentLocale} />
-          <AccountMenu name={fullName} isAuthenticated={props.isAuthenticated} />
+          <AccountMenu name={props.username} isAuthenticated={props.isAuthenticated} />
         </div>
       </div>
-      <div className="border-b border-blue-500 border-solid"></div>
-      {props.isAuthenticated && <UserMenu />}
+
+      {props.isAuthenticated && <UserMenu onCollapse={toggleCollapse} isCollapsed={isCollapsed} />}
     </div>
   );
 };
