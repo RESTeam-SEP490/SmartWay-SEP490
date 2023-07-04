@@ -35,4 +35,9 @@ public class Role extends AbstractBaseAuditingEntity<UUID> {
         inverseJoinColumns = { @JoinColumn(name = "authority_name", referencedColumnName = "name") }
     )
     private Collection<Authority> authorities;
+
+    public Role(String name, Collection<Authority> authorities) {
+        this.name = name;
+        this.authorities = authorities;
+    }
 }

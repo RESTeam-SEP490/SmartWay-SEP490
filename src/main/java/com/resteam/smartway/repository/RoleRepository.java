@@ -1,9 +1,13 @@
 package com.resteam.smartway.repository;
 
+import com.resteam.smartway.domain.Restaurant;
 import com.resteam.smartway.domain.Role;
-import java.util.UUID;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.resteam.smartway.security.multitenancy.annotation.DisableRestaurantFilter;
+import com.resteam.smartway.security.multitenancy.repository.BaseRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface RoleRepository extends JpaRepository<Role, UUID> {}
+public interface RoleRepository extends BaseRepository<Role> {
+    @DisableRestaurantFilter
+    Role findByNameAndRestaurant(String name, Restaurant restaurant);
+}

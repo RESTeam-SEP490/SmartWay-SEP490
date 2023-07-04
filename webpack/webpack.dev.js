@@ -43,6 +43,7 @@ module.exports = async options =>
       ],
     },
     devServer: {
+      allowedHosts: 'all',
       hot: true,
       static: {
         directory: './target/classes/static/',

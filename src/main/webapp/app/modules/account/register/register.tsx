@@ -9,7 +9,6 @@ import Password from 'antd/es/input/Password';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import PasswordStrengthBar from 'app/shared/layout/password/password-strength-bar';
 import { handleRegister, reset } from './register.reducer';
-import restaurant from 'app/entities/restaurant/restaurant.reducer';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Brand } from 'app/shared/layout/header/header-components';
 import { LocaleMenu } from 'app/shared/layout/menus';
@@ -59,21 +58,21 @@ export const RegisterPage = () => {
     <div>
       <div className="flex">
         <div className="w-5/12 p-4 min-h-max">
-          <div className="w-full h-full bg-blue-500 rounded-md"></div>
+          <div className="w-full h-full bg-blue-600 rounded-md"></div>
         </div>
-        <div className="w-7/12 p-4 flex flex-col items-center">
-          <div className=" flex w-full justify-between py-6 px-8">
+        <div className="flex flex-col items-center w-7/12 p-4">
+          <div className="flex justify-between w-full px-8 py-6 ">
             <Brand />
             <LocaleMenu currentLocale={currentLocale} />
           </div>
-          <div className="lg:max-w-lg">
+          <div className="w-2/3">
             <Typography.Title className="!mb-0">
               <Translate contentKey="register.title">Create your account</Translate>
             </Typography.Title>
             <Typography.Text className="text-gray-500">
               <Translate contentKey="register.subtitle">Enter your credentials to access your Account</Translate>
             </Typography.Text>
-            <Form layout="vertical" name="register" onFinish={handleValidSubmit} scrollToFirstError className="!mt-10">
+            <Form layout="vertical" name="register" onFinish={handleValidSubmit} scrollToFirstError className="!mt-10 w-full">
               <Form.Item
                 name="fullName"
                 label={translate('global.form.fullName.label')}
@@ -125,8 +124,7 @@ export const RegisterPage = () => {
                 rules={[
                   { required: true, message: translate('global.messages.validate.restaurantName.required') },
                   { pattern: /^[a-z0-9]+$/, message: translate('global.messages.validate.restaurantName.pattern') },
-                  { min: 1, message: translate('global.messages.validate.restaurantName.min') },
-                  { max: 50, message: translate('global.messages.validate.restaurantName.max') },
+                  { max: 30, message: translate('global.messages.validate.restaurantName.max') },
                 ]}
               >
                 <Input placeholder={translate('global.form.restaurantName.placeholder')} />

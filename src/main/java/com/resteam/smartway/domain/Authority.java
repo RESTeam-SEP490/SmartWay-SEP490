@@ -8,9 +8,17 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "authority")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Authority implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -20,14 +28,6 @@ public class Authority implements Serializable {
     @Id
     @Column(length = 50)
     private String name;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 
     @Override
     public boolean equals(Object o) {

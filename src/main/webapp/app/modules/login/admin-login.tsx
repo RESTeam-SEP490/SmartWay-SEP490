@@ -1,17 +1,17 @@
 import React from 'react';
 import { Link, Navigate, useLocation } from 'react-router-dom';
 
-import { LockOutlined, ShopOutlined, UserOutlined } from '@ant-design/icons';
+import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Alert, Button, Checkbox, Form, Input, Typography } from 'antd';
 import FormItem from 'antd/es/form/FormItem';
 import Password from 'antd/es/input/Password';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { Brand } from 'app/shared/layout/header/header-components';
 import { LocaleMenu } from 'app/shared/layout/menus';
-import { login } from 'app/shared/reducers/authentication';
+import { loginSystemAdmin } from 'app/shared/reducers/authentication';
 import { Translate, translate } from 'react-jhipster';
 
-export const Login = () => {
+export const AdminLogin = () => {
   const dispatch = useAppDispatch();
   const isAuthenticated = useAppSelector(state => state.authentication.isAuthenticated);
   const currentLocale = useAppSelector(state => state.locale.currentLocale);
@@ -19,11 +19,11 @@ export const Login = () => {
   const location = useLocation();
   const loading = useAppSelector(state => state.authentication.loading);
 
-  const handleLogin = ({ restaurantId, username, password, rememberMe }) => {
-    dispatch(login(restaurantId, username, password, rememberMe));
+  const handleLogin = ({ username, password, rememberMe }) => {
+    dispatch(loginSystemAdmin(username, password, rememberMe));
   };
 
-  const { from } = (location.state as any) || { from: { pathname: '/menu-items', search: location.search } };
+  const { from } = (location.state as any) || { from: { pathname: '/configuration', search: location.search } };
   if (isAuthenticated) {
     return <Navigate to={from} replace />;
   }
@@ -37,7 +37,7 @@ export const Login = () => {
           </div>
           <div className="lg:w-80 ">
             <Typography.Title className="!mb-1">
-              <Translate contentKey="login.title">Welcome back</Translate>
+              <Translate contentKey="login.admin.title">Admin Portal</Translate>
             </Typography.Title>
             <Typography.Text className="text-gray-500 ">
               <Translate contentKey="login.subtitle">Enter your credentials to access your Account</Translate>
@@ -46,19 +46,6 @@ export const Login = () => {
               {loginError ? (
                 <Alert className="mb-4" showIcon type="error" message={translate('login.messages.error.authentication')} />
               ) : null}
-              <Form.Item
-                name="restaurantId"
-                rules={[
-                  { required: true, message: translate('global.messages.validate.restaurantName.required') },
-                  { pattern: /^[a-z0-9]+$/, message: translate('global.messages.validate.restaurantName.pattern') },
-                  { max: 30, message: translate('global.messages.validate.restaurantName.max') },
-                ]}
-              >
-                <Input
-                  prefix={<ShopOutlined rev={ShopOutlined} className="text-gray-400" />}
-                  placeholder={translate('global.form.restaurantName.placeholder')}
-                />
-              </Form.Item>
               <Form.Item name="username" rules={[{ required: true, message: 'Username cannot be empty!' }]}>
                 <Input
                   prefix={<UserOutlined rev={UserOutlined} className="text-gray-400" />}
@@ -105,4 +92,4 @@ export const Login = () => {
   );
 };
 
-export default Login;
+export default AdminLogin;
