@@ -1,5 +1,7 @@
 package com.resteam.smartway.security.jwt;
 
+import com.resteam.smartway.security.CustomUserDetails;
+import com.resteam.smartway.security.multitenancy.context.RestaurantContext;
 import java.io.IOException;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -31,6 +33,7 @@ public class JWTFilter extends GenericFilterBean {
         if (StringUtils.hasText(jwt) && this.tokenProvider.validateToken(jwt)) {
             Authentication authentication = this.tokenProvider.getAuthentication(jwt);
             SecurityContextHolder.getContext().setAuthentication(authentication);
+            RestaurantContext.setCurrentRestaurantById(((CustomUserDetails) authentication.getPrincipal()).getRestaurantId());
         }
         filterChain.doFilter(servletRequest, servletResponse);
     }

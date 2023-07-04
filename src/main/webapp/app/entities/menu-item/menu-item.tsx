@@ -3,30 +3,54 @@ import { Translate, translate } from 'react-jhipster';
 import { ImportOutlined, WarningOutlined } from '@ant-design/icons';
 import { ExportOutlined } from '@ant-design/icons';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
+
+import { BarsOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
+import { Button, Card, Dropdown, Empty, Input, MenuProps, message, Radio, Table, Tag, Typography } from 'antd';
 import { Modal } from 'antd';
-import { DeleteFilled, DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Card, Empty, Input, Table, Typography } from 'antd';
 import { CheckboxValueType } from 'antd/es/checkbox/Group';
-import { IQueryParams } from 'app/shared/reducers/reducer.utils';
-import { DEFAULT_PAGEABLE, currencyFormatter } from '../../app.constant';
-import { DEFAULT_PAGIANTION_CONFIG } from '../../shared/util/pagination.constants';
+import { IMenuItem } from 'app/shared/model/menu-item.model';
+import { currencyFormatter } from '../../app.constant';
+import { DEFAULT_PAGINATION_CONFIG } from '../../shared/util/pagination.constants';
 import { MenuItemCategoryCheckBoxes } from '../menu-item-category/menu-item-category';
 import MenuItemDetail from './menu-item-detail';
-import MenuItemUpdate from './menu-item-form';
-import { getEntities } from './menu-item.reducer';
-import axios from 'axios';
+import { MenuItemDialog } from './menu-item-dialog';
+import MenuItemForm from './menu-item-form';
+import { getEntities, setPageable } from './menu-item.reducer';
 
 export const MenuItem = () => {
   const dispatch = useAppDispatch();
 
+  const items: MenuProps['items'] = [
+    {
+      key: '1',
+      label: (
+        <div onClick={() => handleDelete()}>
+          <Translate contentKey="entity.action.delete" />
+        </div>
+      ),
+    },
+    {
+      key: '2',
+      label: (
+        <div onClick={() => handleUpdateIsActive(true)}>
+          <Translate contentKey="menuItem.action.allowSell" />
+        </div>
+      ),
+    },
+    {
+      key: '3',
+      label: (
+        <div onClick={() => handleUpdateIsActive(false)}>
+          <Translate contentKey="menuItem.action.stopSell" />
+        </div>
+      ),
+    },
+  ];
+
   const columns = [
     { title: <Translate contentKey="menuItem.code.label" />, dataIndex: 'code', key: 'code' },
     { title: <Translate contentKey="menuItem.name.label" />, dataIndex: 'name', key: 'name' },
-    {
-      title: <Translate contentKey="menuItem.category.label" />,
-      dataIndex: ['menuItemCategory', 'name'],
-      key: 'menuItemCategory',
-    },
+    { title: <Translate contentKey="menuItem.category.label" />, dataIndex: ['menuItemCategory', 'name'], key: 'menuItemCategory' },
     {
       title: <Translate contentKey="menuItem.basePrice.label" />,
       dataIndex: 'basePrice',
@@ -41,17 +65,37 @@ export const MenuItem = () => {
       align: 'right' as const,
       render: p => currencyFormatter(p),
     },
+    {
+      title: <Translate contentKey="menuItem.status.label" />,
+      dataIndex: 'isActive',
+      key: 'isActive',
+      render: (i: boolean) => <Translate contentKey={i ? 'menuItem.status.trueValue' : 'menuItem.status.falseValue'} />,
+    },
   ];
 
   const [expendedRow, setExpendedRow] = useState();
+
+  const [isShowDialog, setIsShowDialog] = useState(false);
+  const [selectedItems, setSelectedItems] = useState<IMenuItem[]>([]);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [allowSale, setAllowSale] = useState<boolean>();
+
   const [isShowForm, setIsShowForm] = useState(false);
-  const [pageable, setPageable] = useState<IQueryParams>(DEFAULT_PAGEABLE);
+  const [updatingItem, setUpdatingItem] = useState<IMenuItem>();
 
   const menuItemList = useAppSelector(state => state.menuItem.entities);
+  const pageable = useAppSelector(state => state.menuItem.pageable);
+  const updateSuccess = useAppSelector(state => state.menuItem.updateSuccess);
+
+  const categoryList = useAppSelector(state => state.menuItemCategory.entities);
+  const categoryUpdateSuccess = useAppSelector(state => state.menuItemCategory.updateSuccess);
   const count = useAppSelector(state => state.menuItem.totalItems);
   const loading = useAppSelector(state => state.menuItem.loading);
   const [menuItems, setMenuItems] = useState([]);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const fileInputRef = useRef(null);
+  const [error, setError] = useState(null);
 
   const handleOpenPopup = () => {
     setIsPopupVisible(true);
@@ -60,20 +104,22 @@ export const MenuItem = () => {
   const handleCancelPopup = () => {
     setIsPopupVisible(false);
     resetUpload();
+    setError(null);
   };
 
   const resetUpload = () => {
     setSelectedFile(null);
     fileInputRef.current.value = null;
+    setError(null);
   };
-
-  const [selectedFile, setSelectedFile] = useState(null);
-  const fileInputRef = useRef(null);
 
   const handleFileSelect = event => {
     const file = event.target.files[0];
     setSelectedFile(file);
+    setError(null);
   };
+
+  const [uploadMessage, setUploadMessage] = useState('');
 
   const handleUpload = () => {
     if (selectedFile) {
@@ -85,47 +131,126 @@ export const MenuItem = () => {
       fetch('http://localhost:8080/downloadTemplate/upload', {
         method: 'POST',
         body: formData,
-      })
-        .then(response => {
-          console.log('Đã tải lên thành công');
-          // Thực hiện các thao tác cần thiết sau khi tải lên thành công
-          // Ví dụ: refresh lại bảng menu-items
-          setIsPopupVisible(false); // Đóng popup
-          refreshMenuItems(); // Làm mới danh sách menu items
-        })
-        .catch(error => {
-          console.error('Lỗi khi tải lên tệp:', error);
-        });
-    } else {
-      console.log('Chưa chọn tệp');
+      }).then(response => {
+        if (response.ok) {
+          setIsPopupVisible(false);
+          setTimeout(() => {
+            message.success('Upload successful');
+          }, 2000);
+          refreshMenuItems();
+          resetUpload();
+          setError(null);
+        } else {
+          return response.text().then(errorMessage => {
+            const formattedErrorMessage = errorMessage.replace('. ', '.\n');
+            setError(<span style={{ whiteSpace: 'pre-line' }}>{formattedErrorMessage}</span>);
+          });
+        }
+      });
     }
   };
 
   const refreshMenuItems = () => {
-    dispatch(getEntities(pageable));
+    dispatch(getEntities());
   };
 
+  if (pageable.isActive !== undefined) {
+    if (pageable.isActive) items.splice(1, 1);
+    else items.splice(2, 1);
+  }
+
   useEffect(() => {
-    dispatch(getEntities(pageable));
+    dispatch(getEntities());
   }, [pageable]);
 
+  useEffect(() => {
+    dispatch(getEntities());
+  }, [categoryUpdateSuccess]);
+
+  useEffect(() => {
+    if (selectedItems.length > 0 && updateSuccess) {
+      setSelectedRowKeys([]);
+      setSelectedItems([]);
+    }
+  }, [updateSuccess]);
+
   const handleOnchangePage = (page, pageSize) => {
-    setPageable(prev => ({ ...prev, page: page - 1, size: pageSize }));
+    dispatch(setPageable({ ...pageable, page: page - 1, size: pageSize }));
   };
 
   const handleOnchangeSearch = e => {
     const search = e.target.value;
-    if (search !== pageable.query) setPageable(prev => ({ ...prev, page: 0, query: search }));
+    if (search !== pageable.search) dispatch(setPageable({ ...pageable, page: 0, search }));
   };
 
   const handleOnchangeCategoryFilter = (checkedValues: CheckboxValueType[]) => {
-    const selectedCategories = checkedValues.map(v => v.toString());
-    setPageable(prev => ({ ...prev, page: 0, category: selectedCategories }));
+    const isCheckAll = checkedValues.length === categoryList?.length;
+    const selectedCategories = isCheckAll ? undefined : checkedValues.map(v => v.toString());
+    dispatch(setPageable({ ...pageable, page: 0, category: selectedCategories }));
+  };
+
+  const handleOnchageStatusFilter = e => {
+    dispatch(setPageable({ ...pageable, page: 0, isActive: e.target.value }));
+  };
+
+  const handleOpen = (item: IMenuItem) => {
+    setUpdatingItem(item);
+    setIsShowForm(true);
+  };
+
+  const handleClose = () => {
+    setUpdatingItem(undefined);
+    setIsShowForm(false);
+  };
+
+  const onSelectRow = ({ id }, selected) => {
+    if (selected) setSelectedRowKeys(prev => [...prev, id]);
+    else {
+      const nextSelectedRowKeys = [...selectedRowKeys];
+      const removeIndex = nextSelectedRowKeys.findIndex(k => k === id);
+      nextSelectedRowKeys.splice(removeIndex, 1);
+      setSelectedRowKeys(nextSelectedRowKeys);
+    }
+  };
+
+  const onSelectAllRows = (selected: boolean, selectedRows: { id: any }[], changeRows: { id: any }[]) => {
+    if (selected) {
+      const changeRowKeys = selectedRows.filter(r => r).map(r => r.id);
+      setSelectedRowKeys(prev => [...new Set([...prev, ...changeRowKeys])]);
+    } else {
+      const changeRowKeys = changeRows.map(r => r.id);
+      setSelectedRowKeys(prev => prev.filter(k => !changeRowKeys.includes(k)));
+    }
+  };
+
+  const handleDelete = () => {
+    const nextSelectedItems = selectedRowKeys.map(key => {
+      const m: IMenuItem = { id: key + '' };
+      return m;
+    });
+    setSelectedItems(nextSelectedItems);
+    setIsShowDialog(true);
+  };
+
+  const handleUpdateIsActive = (isActive: boolean) => {
+    const nextSelectedItems = selectedRowKeys.map(key => {
+      const m: IMenuItem = { id: key + '' };
+      return m;
+    });
+    setSelectedItems(nextSelectedItems);
+    setAllowSale(isActive);
+    setIsShowDialog(true);
+  };
+
+  const handleResetSelectedRowKey = e => {
+    e.preventDefault();
+    setSelectedRowKeys([]);
   };
 
   return (
     <>
-      <MenuItemUpdate handleClose={() => setIsShowForm(false)} isOpen={isShowForm} />
+      <MenuItemForm menuItem={updatingItem} handleClose={handleClose} isOpen={isShowForm} />
+      <MenuItemDialog menuItems={selectedItems} handleClose={() => setIsShowDialog(false)} isOpen={isShowDialog} isActive={allowSale} />
 
       <Modal visible={isPopupVisible} onCancel={handleCancelPopup} footer={null}>
         <p>
@@ -171,6 +296,8 @@ export const MenuItem = () => {
             )}
           </div>
         </div>
+        {error && <div style={{ color: 'red', marginTop: '1rem' }}>{error}</div>}
+        {uploadMessage && <div style={{ marginTop: '1rem' }}>{uploadMessage}</div>}
       </Modal>
 
       <div className="flex h-full p-2">
@@ -179,19 +306,38 @@ export const MenuItem = () => {
             <Typography.Title level={5}>
               <Translate contentKey="entity.action.find" />
             </Typography.Title>
-            <Input
-              placeholder={translate('menuItem.search.placeholder')}
-              onPressEnter={handleOnchangeSearch}
-              onBlur={handleOnchangeSearch}
-            />
+            <Input placeholder={translate('menuItem.search.placeholder')} onPressEnter={handleOnchangeSearch} />
           </Card>
-          <MenuItemCategoryCheckBoxes handleOnChange={handleOnchangeCategoryFilter} />
+          <Card bordered={false}>
+            <Typography.Title level={5}>
+              <Translate contentKey="entity.label.status" />
+            </Typography.Title>
+            <Radio.Group className="flex flex-col gap-2" defaultValue={true} onChange={handleOnchageStatusFilter}>
+              <Radio className="!font-normal" value={true}>
+                <Translate contentKey="menuItem.status.trueValue" />
+              </Radio>
+              <Radio className="!font-normal" value={false}>
+                <Translate contentKey="menuItem.status.falseValue" />
+              </Radio>
+              <Radio className="!font-normal" value={undefined}>
+                <Translate contentKey="entity.label.all" />
+              </Radio>
+            </Radio.Group>
+          </Card>
+          <MenuItemCategoryCheckBoxes onFilter={handleOnchangeCategoryFilter} />
         </div>
         <div className="w-4/5 p-4">
           <div className="flex items-center justify-between mb-4">
-            <Typography.Title level={3} className="!mb-0">
-              <Translate contentKey="menuItem.title" />
-            </Typography.Title>
+            <div className="flex items-center gap-4">
+              <Typography.Title level={3} className="!mb-0">
+                <Translate contentKey="menuItem.title" />
+              </Typography.Title>
+              {selectedRowKeys.length > 0 && (
+                <Tag className="px-4 py-1" closable color="blue" onClose={handleResetSelectedRowKey}>
+                  <Translate contentKey="entity.action.select" interpolate={{ number: selectedRowKeys.length }} />
+                </Tag>
+              )}
+            </div>
             <div className="flex gap-2">
               <Button onClick={handleOpenPopup} className="green-button">
                 <span>
@@ -207,31 +353,42 @@ export const MenuItem = () => {
                   Export
                 </Button>
               </a>
-              <Button type="primary" onClick={() => setIsShowForm(true)}>
-                <PlusOutlined rev={''} />
+              <Dropdown menu={{ items }} disabled={selectedRowKeys.length === 0} className="!w-32">
+                <Button type="primary" icon={<BarsOutlined rev={''} />}>
+                  <Translate contentKey="entity.label.operations" />
+                </Button>
+              </Dropdown>
+              <Button type="primary" icon={<PlusOutlined rev={''} />} onClick={() => setIsShowForm(true)}>
                 <Translate contentKey="menuItem.addNewLabel" />
               </Button>
-              <Button danger>
-                <DeleteFilled rev={''} />
-                <Translate contentKey="entity.action.delete" />
+              <Button type="primary" icon={<UploadOutlined rev={''} />}>
+                <Translate contentKey="entity.action.import" />
               </Button>
             </div>
           </div>
+
           <Table
-            columns={columns}
+            columns={columns.map(c => ({ ...c, ellipsis: true }))}
             dataSource={menuItemList}
             pagination={{
-              ...DEFAULT_PAGIANTION_CONFIG,
+              ...DEFAULT_PAGINATION_CONFIG,
               onChange: handleOnchangePage,
               total: count,
               current: pageable.page + 1,
+              locale: { items_per_page: '/ ' + translate('global.table.pageText') },
             }}
-            rowSelection={{ type: 'checkbox' }}
+            scroll={{ x: true }}
+            rowSelection={{
+              type: 'checkbox',
+              selectedRowKeys,
+              onSelect: onSelectRow,
+              onSelectAll: onSelectAllRows,
+            }}
             rowKey={'id'}
             rowClassName={'cursor-pointer'}
             loading={loading}
             expandable={{
-              expandedRowRender: record => <MenuItemDetail menuItem={record} />,
+              expandedRowRender: record => <MenuItemDetail menuItem={record} onUpdate={() => handleOpen(record)} />,
               expandedRowClassName: () => '!bg-white',
               expandRowByClick: true,
               expandIcon: () => <></>,

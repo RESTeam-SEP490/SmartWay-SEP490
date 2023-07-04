@@ -1,10 +1,13 @@
 import axios from 'axios';
-import { createAsyncThunk, isFulfilled, isPending, isRejected } from '@reduxjs/toolkit';
+import { createAsyncThunk, isFulfilled, isPending } from '@reduxjs/toolkit';
 
-import { cleanEntity } from 'app/shared/util/entity-utils';
-import { IQueryParams, createEntitySlice, EntityState, serializeAxiosError } from 'app/shared/reducers/reducer.utils';
-import { IMenuItem, defaultValue } from 'app/shared/model/menu-item.model';
-import Header from 'app/shared/layout/header/header';
+import { cleanEntity, getListValuesInParam } from 'app/shared/util/entity-utils';
+import { createEntitySlice, EntityState, IQueryParams, serializeAxiosError } from 'app/shared/reducers/reducer.utils';
+import { defaultValue, IMenuItem } from 'app/shared/model/menu-item.model';
+import { DEFAULT_PAGEABLE } from 'app/app.constant';
+import { IListUpdateBoolean } from 'app/shared/model/list-update-boolean';
+import getStore from 'app/config/store';
+import menuItem from 'app/entities/menu-item/menu-item.reducer';
 
 const initialState: EntityState<IMenuItem> = {
   loading: false,
@@ -14,21 +17,21 @@ const initialState: EntityState<IMenuItem> = {
   entity: defaultValue,
   updating: false,
   updateSuccess: false,
+  pageable: { ...DEFAULT_PAGEABLE, isActive: true },
 };
 
 const apiUrl = 'api/menu-items';
 
 // Actions
+export const setPageable = createAsyncThunk('menuItem/set_pageable', (pageable: IQueryParams) => {
+  return pageable;
+});
 
-export const getEntities = createAsyncThunk('menuItem/fetch_entity_list', async ({ sort, page, size, query, category }: IQueryParams) => {
-  let categoryQuery = '';
-  if (category && category.length > 0) {
-    categoryQuery = category.reduce(
-      (prev, current, index) => (index === category.length - 1 ? prev + current : prev + current + ','),
-      '&categoryIds='
-    );
-  }
-  const requestUrl = `${apiUrl}?page=${page}&size=${size}&sort=${sort}&search=${query ? query : ''}${categoryQuery}`;
+export const getEntities = createAsyncThunk('menuItem/fetch_entity_list', async () => {
+  const { sort, page, size, search, category, isActive } = getStore().getState().menuItem.pageable;
+  const requestUrl = `${apiUrl}?page=${page}&size=${size}&sort=${sort}&isActive=${isActive !== undefined ? isActive : ''}&search=${
+    search ? search : ''
+  }&categoryIds=${getListValuesInParam(category)}`;
   return axios.get<IMenuItem[]>(requestUrl);
 });
 
@@ -53,8 +56,8 @@ export const createEntity = createAsyncThunk(
         type: 'application/json',
       })
     );
-    const result = await axios.post<IMenuItem>(apiUrl, data, { headers: { 'Content-Type': 'multipart/form-data' } });
-    thunkAPI.dispatch(getEntities({}));
+    const result = await axios.post<IMenuItem>(apiUrl, data);
+    thunkAPI.dispatch(getEntities());
     return result;
   },
   { serializeError: serializeAxiosError }
@@ -63,18 +66,27 @@ export const createEntity = createAsyncThunk(
 export const updateEntity = createAsyncThunk(
   'menuItem/update_entity',
   async (entity: IMenuItem, thunkAPI) => {
-    const result = await axios.put<IMenuItem>(`${apiUrl}/${entity.id}`, cleanEntity(entity));
-    thunkAPI.dispatch(getEntities({}));
+    const data = new FormData();
+    data.append('imageSource', entity.imageSource);
+    entity['imageSource'] = null;
+    data.append(
+      'menuItemDTO',
+      new Blob([JSON.stringify(cleanEntity(entity))], {
+        type: 'application/json',
+      })
+    );
+    const result = await axios.put<IMenuItem>(`${apiUrl}/${entity.id}`, data);
+    thunkAPI.dispatch(getEntities());
     return result;
   },
   { serializeError: serializeAxiosError }
 );
 
-export const partialUpdateEntity = createAsyncThunk(
+export const updateIsActiveEntity = createAsyncThunk(
   'menuItem/partial_update_entity',
-  async (entity: IMenuItem, thunkAPI) => {
-    const result = await axios.patch<IMenuItem>(`${apiUrl}/${entity.id}`, cleanEntity(entity));
-    thunkAPI.dispatch(getEntities({}));
+  async (data: IListUpdateBoolean, thunkAPI) => {
+    const result = await axios.put<IMenuItem>(`${apiUrl}`, data);
+    thunkAPI.dispatch(getEntities());
     return result;
   },
   { serializeError: serializeAxiosError }
@@ -82,10 +94,10 @@ export const partialUpdateEntity = createAsyncThunk(
 
 export const deleteEntity = createAsyncThunk(
   'menuItem/delete_entity',
-  async (id: string | number, thunkAPI) => {
-    const requestUrl = `${apiUrl}/${id}`;
+  async (ids: React.Key[], thunkAPI) => {
+    const requestUrl = `${apiUrl}?ids=${getListValuesInParam(ids)}`;
     const result = await axios.delete<IMenuItem>(requestUrl);
-    thunkAPI.dispatch(getEntities({}));
+    thunkAPI.dispatch(getEntities());
     return result;
   },
   { serializeError: serializeAxiosError }
@@ -98,6 +110,9 @@ export const MenuItemSlice = createEntitySlice({
   initialState,
   extraReducers(builder) {
     builder
+      .addCase(setPageable.fulfilled, (state, action) => {
+        state.pageable = action.payload;
+      })
       .addCase(getEntity.fulfilled, (state, action) => {
         state.loading = false;
         state.entity = action.payload.data;
@@ -118,7 +133,7 @@ export const MenuItemSlice = createEntitySlice({
           entities: data,
         };
       })
-      .addMatcher(isFulfilled(createEntity, updateEntity, partialUpdateEntity), (state, action) => {
+      .addMatcher(isFulfilled(createEntity, updateEntity, updateIsActiveEntity), (state, action) => {
         state.updating = false;
         state.loading = false;
         state.updateSuccess = true;
@@ -129,7 +144,7 @@ export const MenuItemSlice = createEntitySlice({
         state.updateSuccess = false;
         state.loading = true;
       })
-      .addMatcher(isPending(createEntity, updateEntity, partialUpdateEntity, deleteEntity), state => {
+      .addMatcher(isPending(createEntity, updateEntity, updateIsActiveEntity, deleteEntity), state => {
         state.errorMessage = null;
         state.updateSuccess = false;
         state.updating = true;

@@ -16,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/downloadTemplate")
-@CrossOrigin(origins = "http://localhost:9000")
+@CrossOrigin("http://localhost:9000")
 public class TestExcelController {
 
     private final MenuItemService menuItemService;
@@ -43,7 +43,7 @@ public class TestExcelController {
         if (Helper.checkExcelFormat(multipartFile)) {
             ResponseEntity<?> response = this.menuItemService.convertExcelToListOfMenuItem(multipartFile.getInputStream());
             if (response.getStatusCode().is2xxSuccessful()) {
-                return ResponseEntity.ok(Map.of("message", "File is uploaded and " + response.getBody()));
+                return ResponseEntity.ok(Map.of("message", "File is Uploaded and " + response.getBody()));
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response.getBody());
             }

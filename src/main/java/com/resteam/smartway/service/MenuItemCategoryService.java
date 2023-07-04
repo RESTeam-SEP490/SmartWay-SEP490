@@ -8,10 +8,12 @@ import lombok.SneakyThrows;
 import org.springframework.web.bind.annotation.RequestBody;
 
 public interface MenuItemCategoryService {
-    List<MenuItemCategory> loadAllMenuItemCategories();
+    List<MenuItemCategoryDTO> loadAllMenuItemCategories();
 
     @SneakyThrows
-    MenuItemCategory createMenuItemCategory(@RequestBody MenuItemCategoryDTO menuItemCategoryDTO);
+    MenuItemCategoryDTO createMenuItemCategory(@RequestBody MenuItemCategoryDTO menuItemCategoryDTO);
+
+    MenuItemCategoryDTO updateMenuItemCategory(MenuItemCategoryDTO menuItemCategoryDTO);
 
     void deleteMenuItemCategory(UUID id);
 
