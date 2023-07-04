@@ -1,6 +1,5 @@
 package com.resteam.smartway.web.rest.vm;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import lombok.Data;
@@ -11,8 +10,6 @@ import lombok.Data;
 @Data
 public class LoginVM {
 
-    @NotNull
-    @Size(min = 1, max = 30)
     private String restaurantId;
 
     @NotNull

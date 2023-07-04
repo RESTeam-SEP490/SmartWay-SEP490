@@ -7,22 +7,22 @@ import { Translate, translate } from 'react-jhipster';
 
 const adminMenuItems = () => (
   <>
-    <MenuItem icon="users" to="/admin/user-management">
+    {/* <MenuItem icon="users" to="/user-management">
       <Translate contentKey="global.menu.admin.userManagement">User management</Translate>
-    </MenuItem>
-    <MenuItem icon="eye" to="/admin/tracker">
+    </MenuItem> */}
+    <MenuItem icon="eye" to="/tracker">
       <Translate contentKey="global.menu.admin.tracker">User tracker</Translate>
     </MenuItem>
-    <MenuItem icon="tachometer-alt" to="/admin/metrics">
+    <MenuItem icon="tachometer-alt" to="/metrics">
       <Translate contentKey="global.menu.admin.metrics">Metrics</Translate>
     </MenuItem>
-    <MenuItem icon="heart" to="/admin/health">
+    <MenuItem icon="heart" to="/health">
       <Translate contentKey="global.menu.admin.health">Health</Translate>
     </MenuItem>
-    <MenuItem icon="cogs" to="/admin/configuration">
+    <MenuItem icon="cogs" to="/configuration">
       <Translate contentKey="global.menu.admin.configuration">Configuration</Translate>
     </MenuItem>
-    <MenuItem icon="tasks" to="/admin/logs">
+    <MenuItem icon="tasks" to="/logs">
       <Translate contentKey="global.menu.admin.logs">Logs</Translate>
     </MenuItem>
     {/* jhipster-needle-add-element-to-admin-menu - JHipster will add entities to the admin menu here */}
@@ -30,7 +30,7 @@ const adminMenuItems = () => (
 );
 
 const openAPIItem = () => (
-  <MenuItem icon="book" to="/admin/docs">
+  <MenuItem icon="book" to="/docs">
     <Translate contentKey="global.menu.admin.apidocs">API</Translate>
   </MenuItem>
 );

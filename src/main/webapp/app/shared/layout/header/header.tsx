@@ -3,14 +3,10 @@ import './header.scss';
 import React, { useState } from 'react';
 import { Storage, Translate } from 'react-jhipster';
 import LoadingBar from 'react-redux-loading-bar';
-
-import { useAppDispatch, useAppSelector } from 'app/config/store';
-import { setLocale } from 'app/shared/reducers/locale';
 import { useLocation } from 'react-router-dom';
-import { AccountMenu, LocaleMenu } from '../menus';
+import { AccountMenu, AdminMenu, LocaleMenu } from '../menus';
 import { UserMenu } from '../menus/main-menu';
 import { Brand } from './header-components';
-import { Collapse } from 'reactstrap';
 
 export interface IHeaderProps {
   username?: string;
@@ -56,12 +52,17 @@ const Header = (props: IHeaderProps) => {
       >
         <Brand />
         <div className="flex gap-10 items-center">
+          {props.isAdmin && (
+            <ul className="list-none">
+              <AdminMenu showOpenAPI={true} />
+            </ul>
+          )}
           <LocaleMenu currentLocale={props.currentLocale} />
           <AccountMenu name={props.username} isAuthenticated={props.isAuthenticated} />
         </div>
       </div>
 
-      {props.isAuthenticated && <UserMenu onCollapse={toggleCollapse} isCollapsed={isCollapsed} />}
+      {props.isAuthenticated && !props.isAdmin && <UserMenu onCollapse={toggleCollapse} isCollapsed={isCollapsed} />}
     </div>
   );
 };

@@ -1,0 +1,17 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1688385606043-1">
+        <addColumn tableName="user">
+            <column defaultValueBoolean="false" name="is_system_admin" type="BIT(1)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong" id="2::dataForTable" labels="data">
+        <loadData file="config/liquibase/data/additional_authority_1.csv"
+                  separator=";"
+                  tableName="authority"
+                  usePreparedStatements="true"
+        />
+    </changeSet>
+</databaseChangeLog>

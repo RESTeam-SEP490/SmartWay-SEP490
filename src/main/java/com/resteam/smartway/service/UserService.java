@@ -9,7 +9,6 @@ import com.resteam.smartway.repository.AuthorityRepository;
 import com.resteam.smartway.repository.RestaurantRepository;
 import com.resteam.smartway.repository.RoleRepository;
 import com.resteam.smartway.repository.UserRepository;
-import com.resteam.smartway.security.AuthoritiesConstants;
 import com.resteam.smartway.security.SecurityUtils;
 import com.resteam.smartway.security.multitenancy.context.RestaurantContext;
 import com.resteam.smartway.service.dto.AdminUserDTO;
@@ -17,7 +16,10 @@ import com.resteam.smartway.service.dto.TenantRegistrationDTO;
 import com.resteam.smartway.web.rest.errors.SubdomainAlreadyUsedException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,10 +96,7 @@ public class UserService {
         Restaurant savedRestaurant = restaurantRepository.save(restaurant);
         RestaurantContext.setCurrentRestaurant(savedRestaurant);
 
-        Set<Authority> authorities = new HashSet<>();
-        authorityRepository.findById(AuthoritiesConstants.USER).ifPresent(authorities::add);
-        Role role = new Role(null, "Nhân viên", authorities);
-        roleRepository.save(role);
+        Role role = roleRepository.findByNameAndRestaurant("ADMIN", new Restaurant("system@"));
 
         User newUser = new User();
         String encryptedPassword = passwordEncoder.encode(tenantRegistrationDTO.getPassword());
@@ -229,17 +228,15 @@ public class UserService {
             });
     }
 
-    //    @Transactional(readOnly = true)
-    //    public Page<UserDTO> getAllPublicUsers(Pageable pageable) {
-    //        return userRepository.findAllByIdNotNullAndActivatedIsTrue(pageable).map(UserDTO::new);
-    //    }
+    //        @Transactional(readOnly = true)
+    //        public Page<UserDTO> getAllPublicUsers(Pageable pageable) {
+    //            return restaurantRepository.findAllByIdNotNullAndActivatedIsTrue(pageable).map(UserDTO::new);
+    //        }
 
     @Transactional(readOnly = true)
     public Optional<User> getUserWithAuthorities() {
         String username = SecurityUtils.getCurrentUsername().orElseThrow(() -> new UsernameNotFoundException(("Username must be provide")));
-        String restaurantId = SecurityUtils
-            .getCurrentRestaurantId()
-            .orElseThrow(() -> new UsernameNotFoundException(("RestaurantId must be provide")));
+
         return userRepository.findOneWithAuthoritiesByUsername(username);
     }
 

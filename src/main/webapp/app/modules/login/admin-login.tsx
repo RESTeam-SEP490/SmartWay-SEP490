@@ -23,7 +23,7 @@ export const AdminLogin = () => {
     dispatch(loginSystemAdmin(username, password, rememberMe));
   };
 
-  const { from } = (location.state as any) || { from: { pathname: '/menu-items', search: location.search } };
+  const { from } = (location.state as any) || { from: { pathname: '/configuration', search: location.search } };
   if (isAuthenticated) {
     return <Navigate to={from} replace />;
   }
