@@ -135,7 +135,9 @@ public class MenuItemServiceImpl implements MenuItemService {
                                     MenuItemCategory menuItemCategory = menuItemCategoryCurrent.get();
                                     menuItem.setMenuItemCategory(menuItemCategory);
                                 } else {
-                                    errorMessages.add("Category not found: " + cell.getStringCellValue() + " in Row " + rowNumber);
+                                    MenuItemCategory newMenuItemCategory = new MenuItemCategory(null, cell.getStringCellValue());
+                                    menuItemCategoryRepository.save(newMenuItemCategory);
+                                    menuItem.setMenuItemCategory(newMenuItemCategory);
                                 }
                             }
                             break;

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Translate, translate } from 'react-jhipster';
-import { ImportOutlined, WarningOutlined } from '@ant-design/icons';
+import { DownloadOutlined, ImportOutlined, WarningOutlined } from '@ant-design/icons';
 import { ExportOutlined } from '@ant-design/icons';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 
@@ -126,6 +126,7 @@ export const MenuItem = () => {
       console.log('Đã chọn tệp:', selectedFile);
 
       const formData = new FormData();
+      fileInputRef.current.value = null;
       formData.append('file', selectedFile);
 
       fetch('http://localhost:8080/downloadTemplate/upload', {
@@ -278,7 +279,7 @@ export const MenuItem = () => {
           <div style={{ position: 'relative', marginRight: '10px' }}>
             <input type="file" onChange={handleFileSelect} style={{ display: 'none' }} ref={fileInputRef} />
             <div>
-              <Button style={{ float: 'right' }} className="green-button" onClick={() => fileInputRef.current.click()}>
+              <Button type="primary" onClick={() => fileInputRef.current.click()}>
                 Select Data File
               </Button>
             </div>
@@ -288,7 +289,7 @@ export const MenuItem = () => {
                   <p>{selectedFile.name}</p>
                 </div>
                 <div>
-                  <Button style={{ float: 'right' }} className="green-button" onClick={handleUpload}>
+                  <Button type="primary" style={{ float: 'right' }} onClick={handleUpload}>
                     Upload
                   </Button>
                 </div>
@@ -339,20 +340,6 @@ export const MenuItem = () => {
               )}
             </div>
             <div className="flex gap-2">
-              <Button onClick={handleOpenPopup} className="green-button">
-                <span>
-                  <ImportOutlined style={{ marginRight: '0.5rem' }} rev={''} />
-                </span>
-                Import
-              </Button>
-              <a href="http://localhost:8080/downloadTemplate/export" download>
-                <Button className="green-button">
-                  <span>
-                    <ExportOutlined style={{ marginRight: '0.5rem' }} rev={''} />
-                  </span>
-                  Export
-                </Button>
-              </a>
               <Dropdown menu={{ items }} disabled={selectedRowKeys.length === 0} className="!w-32">
                 <Button type="primary" icon={<BarsOutlined rev={''} />}>
                   <Translate contentKey="entity.label.operations" />
@@ -361,9 +348,15 @@ export const MenuItem = () => {
               <Button type="primary" icon={<PlusOutlined rev={''} />} onClick={() => setIsShowForm(true)}>
                 <Translate contentKey="menuItem.addNewLabel" />
               </Button>
-              <Button type="primary" icon={<UploadOutlined rev={''} />}>
+              <Button type="primary" icon={<UploadOutlined rev={''} />} onClick={handleOpenPopup}>
                 <Translate contentKey="entity.action.import" />
               </Button>
+              <a href="http://localhost:8080/downloadTemplate/export" download>
+                <Button type="primary" icon={<DownloadOutlined rev={''} />}>
+                  {/*<Translate contentKey="entity.action.export" />*/}
+                  Export
+                </Button>
+              </a>
             </div>
           </div>
 
