@@ -14,20 +14,9 @@ export const BrandIcon = props => (
 export const Brand = () => (
   <Link to="/" className="flex justify-center items-center gap-2 cursor-pointer no-underline">
     <BrandIcon />
-    <span>
-      <span className="text-slate-400 font-bold text-xl">Smart</span>
-      <span className="text-blue-500 font-bold text-xl">Way</span>
+    <span className="-translate-y-1">
+      <span className="text-slate-400 font-semibold text-2xl">Smart</span>
+      <span className="text-blue-600 font-semibold text-2xl">Way</span>
     </span>
   </Link>
-);
-
-export const Home = () => (
-  <NavItem>
-    <Link to="/" className="d-flex align-items-center">
-      <FontAwesomeIcon icon="home" />
-      <span>
-        <Translate contentKey="global.menu.home">Home</Translate>
-      </span>
-    </Link>
-  </NavItem>
 );
