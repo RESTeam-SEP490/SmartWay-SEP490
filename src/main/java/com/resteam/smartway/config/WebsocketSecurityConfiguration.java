@@ -15,7 +15,7 @@ public class WebsocketSecurityConfiguration extends AbstractSecurityWebSocketMes
             .nullDestMatcher()
             .authenticated()
             .simpDestMatchers("/topic/tracker")
-            .hasAuthority(AuthoritiesConstants.ADMIN)
+            .hasAuthority(AuthoritiesConstants.ROLE_SYSTEM_ADMIN)
             // matches any destination that starts with /topic/
             // (i.e. cannot send messages directly to /topic/)
             // (i.e. cannot subscribe to /topic/messages/* to get messages sent to

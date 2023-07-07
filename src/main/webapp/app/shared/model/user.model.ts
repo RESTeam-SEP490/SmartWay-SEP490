@@ -1,11 +1,9 @@
-import restaurant from 'app/entities/restaurant/restaurant.reducer';
 export interface IUser {
   id?: any;
   username?: string;
-  firstName?: string;
-  lastName?: string;
+  fullName?: string;
   email?: string;
-  restaurantName?: string;
+  restaurantId?: string;
   activated?: boolean;
   langKey?: string;
   authorities?: any[];
@@ -19,8 +17,7 @@ export interface IUser {
 export const defaultValue: Readonly<IUser> = {
   id: '',
   username: '',
-  firstName: '',
-  lastName: '',
+  fullName: '',
   email: '',
   activated: true,
   langKey: '',

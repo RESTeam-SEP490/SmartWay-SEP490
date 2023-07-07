@@ -1,6 +1,10 @@
 {
   "global": {
     "title": "SmartWay",
+    "landing": {
+      "title": "Thực hiện các công việc quản lý nhà hàng <br/> dễ dàng và hiệu quả hơn",
+      "para": "Tạo tài khoản để sử dụng SmartWay quản lý nhà hàng của bạn!"
+    },
     "browsehappy": "Bạn đang sử dụng một trình duyệt <strong>quá cũ</strong>. Vui lòng <a href=\"http://browsehappy.com/?locale=en\">nâng cấp trình duyệt</a> của bạn để có trải nghiệm tốt nhất.",
     "menu": {
       "home": "Trang chủ",
@@ -20,7 +24,8 @@
         "sessions": "Phiên đăng nhập",
         "login": "Đăng nhập",
         "logout": "Đăng xuất",
-        "register": "Đăng ký"
+        "register": "Đăng ký",
+        "start": "Bắt đầu ngay"
       },
       "admin": {
         "main": "Quản trị",

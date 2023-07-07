@@ -5,9 +5,9 @@ import { CheckSquareFilled, DeleteFilled, EditFilled, LockFilled } from '@ant-de
 import { Badge, Button, Form, Image, Input, InputNumber, Tabs, Typography } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import { currencyFormatter, DEFAULT_FORM_ITEM_LAYOUT } from 'app/app.constant';
-import { IMenuItem } from '../../shared/model/menu-item.model';
 import { useAppDispatch } from 'app/config/store';
 import MenuItemDelete from './menu-item-dialog';
+import { IMenuItem } from 'app/shared/model/menu-item.model';
 
 export const MenuItemDetail = ({ menuItem, onUpdate }: { menuItem: IMenuItem; onUpdate: any }) => {
   const dispatch = useAppDispatch();

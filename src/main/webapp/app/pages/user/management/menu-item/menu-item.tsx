@@ -7,13 +7,14 @@ import { BarsOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
 import { Button, Card, Dropdown, Empty, Input, MenuProps, Radio, Table, Tag, Typography } from 'antd';
 import { CheckboxValueType } from 'antd/es/checkbox/Group';
 import { IMenuItem } from 'app/shared/model/menu-item.model';
-import { currencyFormatter } from '../../app.constant';
-import { DEFAULT_PAGINATION_CONFIG } from '../../shared/util/pagination.constants';
+
 import { MenuItemCategoryCheckBoxes } from '../menu-item-category/menu-item-category';
 import MenuItemDetail from './menu-item-detail';
 import { MenuItemDialog } from './menu-item-dialog';
 import MenuItemForm from './menu-item-form';
 import { getEntities, setPageable } from './menu-item.reducer';
+import { currencyFormatter } from 'app/app.constant';
+import { DEFAULT_PAGINATION_CONFIG } from '../../../../shared/util/pagination.constants';
 
 export const MenuItem = () => {
   const dispatch = useAppDispatch();

@@ -1,6 +1,7 @@
 {
   "login": {
     "title": "Welcome back",
+    "admin.title": "Admin portal",
     "subtitle": "Enter your credentials to access your Account",
     "form": {
       "password": "Password",

@@ -29,19 +29,6 @@ public final class SecurityUtils {
         return null;
     }
 
-    public static Optional<String> getCurrentRestaurantId() {
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        Authentication authentication = securityContext.getAuthentication();
-
-        if (authentication == null) {
-            return Optional.empty();
-        } else if (authentication.getPrincipal() instanceof CustomUserDetails) {
-            return Optional.ofNullable(((CustomUserDetails) authentication.getPrincipal()).getRestaurantId());
-        }
-
-        return Optional.empty();
-    }
-
     public static Optional<String> getCurrentUserJWT() {
         SecurityContext securityContext = SecurityContextHolder.getContext();
         return Optional
@@ -52,7 +39,7 @@ public final class SecurityUtils {
 
     public static boolean isAuthenticated() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return authentication != null && getAuthorities(authentication).noneMatch(AuthoritiesConstants.ANONYMOUS::equals);
+        return authentication != null && getAuthorities(authentication).noneMatch(AuthoritiesConstants.ROLE_ANONYMOUS::equals);
     }
 
     public static boolean hasCurrentUserAnyOfAuthorities(String... authorities) {

@@ -30,7 +30,7 @@ const accountMenuItemsAuthenticated = name => {
       <Typography.Text className="mr-4">{name}</Typography.Text>
       <Dropdown menu={{ items }} placement="bottomRight">
         <Space className="">
-          <Avatar shape="square" size="default" className="!bg-blue-500" icon={<UserOutlined rev={UserOutlined} />} />
+          <Avatar shape="square" size="default" className="!bg-blue-600" icon={<UserOutlined rev={UserOutlined} />} />
           <DownOutlined rev={DownOutlined} className="text-xs ml-0.5" />
         </Space>
       </Dropdown>
@@ -40,10 +40,10 @@ const accountMenuItemsAuthenticated = name => {
 
 const accountMenuItems = navigate => (
   <div className="flex gap-2">
-    <Button size="large" type="primary" ghost onClick={() => navigate('/login')}>
+    <Button size="large" type="primary" ghost onClick={() => navigate('/login')} className="!w-32 !font-semibold">
       <Translate contentKey="global.menu.account.login">Sign in</Translate>
     </Button>{' '}
-    <Button size="large" type="primary" onClick={() => navigate('/account/register')}>
+    <Button size="large" type="primary" onClick={() => navigate('/register')} className="!w-32 !font-semibold">
       <Translate contentKey="global.menu.account.register">Register</Translate>
     </Button>
   </div>

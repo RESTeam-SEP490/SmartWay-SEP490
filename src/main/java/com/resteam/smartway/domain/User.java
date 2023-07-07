@@ -5,15 +5,12 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 import javax.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.hibernate.annotations.GenericGenerator;
+import lombok.*;
 
 @Entity
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @NamedEntityGraph(
@@ -55,6 +52,9 @@ public class User extends AbstractBaseAuditingEntity<UUID> implements Serializab
 
     @Column(name = "reset_date")
     private Instant resetDate = null;
+
+    @Column(name = "is_system_admin", columnDefinition = "BIT(1) DEFAULT FALSE")
+    private Boolean isSystemAdmin = false;
 
     @ManyToOne
     @JoinColumn(name = "role_id", referencedColumnName = "id", columnDefinition = "BINARY(16)")
