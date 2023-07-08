@@ -1,0 +1,21 @@
+{
+  "staff": {
+    "title": "Staffs",
+    "addNewLabel": "Add new staff",
+    "username.label": "username",
+    "password.label": "password",
+    "fullName.label": "full name",
+    "phone.label": "phone",
+    "email.label": "email",
+    "restaurantId.label": "restaurant",
+    "langkey.label": "en"
+  },
+
+  "smartWayApp": {
+    "staff": {
+      "created": "Add new staff successfully",
+      "updated": "Update staff successfully",
+      "deleted": "Delete staff successfully"
+    }
+  }
+}

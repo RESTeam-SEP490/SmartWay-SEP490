@@ -10,4 +10,6 @@ import org.springframework.stereotype.Repository;
 public interface RoleRepository extends BaseRepository<Role> {
     @DisableRestaurantFilter
     Role findByNameAndRestaurant(String name, Restaurant restaurant);
+
+    Role findByName(String name);
 }
