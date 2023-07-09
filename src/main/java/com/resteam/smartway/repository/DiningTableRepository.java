@@ -17,17 +17,11 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface DiningTableRepository extends BaseRepository<DiningTable> {
     @Query(
-        "SELECT m from DiningTable m where (:restaurantId is null or m.restaurant.id = :restaurantId)" +
-        "and (:search is null " +
+        "SELECT m from DiningTable m where (:search is null " +
         "or lower(m.name) like concat('%',:search, '%' ))" +
         "and (coalesce(:zoneIdList) is null or m.zone.id in :zoneIdList)"
     )
-    Page<DiningTable> findWithFilterParams(
-        @Param("restaurantId") String restaurantId,
-        @Param("search") String search,
-        @Param("zoneIdList") List<UUID> zoneIdList,
-        Pageable pageable
-    );
+    Page<DiningTable> findWithFilterParams(@Param("search") String search, @Param("zoneIdList") List<UUID> zoneIdList, Pageable pageable);
 
     Optional<DiningTable> findByIdAndRestaurant(UUID uuid, Restaurant restaurant);
 }

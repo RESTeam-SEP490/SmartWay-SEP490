@@ -33,12 +33,11 @@ public class DiningTableServiceImpl implements DiningTableService {
 
     @Override
     public Page<DiningTableDTO> loadDiningTablesWithSearch(Pageable pageable, String searchText, List<String> zoneIds) {
-        String restaurantId = SecurityUtils.getCurrentRestaurantId().orElseThrow(RestaurantInfoNotFoundException::new);
         if (searchText != null) searchText = searchText.toLowerCase();
         List<UUID> zoneUuidList = null;
         if (zoneIds != null && zoneIds.size() > 0) zoneUuidList =
             zoneIds.stream().map(c -> UUID.fromString(c)).collect(Collectors.toList());
-        Page<DiningTable> diningTablePage = diningTableRepository.findWithFilterParams(restaurantId, searchText, zoneUuidList, pageable);
+        Page<DiningTable> diningTablePage = diningTableRepository.findWithFilterParams(searchText, zoneUuidList, pageable);
 
         return diningTablePage.map(item -> {
             DiningTableDTO diningTable = diningTableMapper.toDto(item);
@@ -49,11 +48,9 @@ public class DiningTableServiceImpl implements DiningTableService {
     @Override
     @SneakyThrows
     public DiningTableDTO createDiningTable(DiningTableDTO diningTableDTO) {
-        String restaurantId = SecurityUtils.getCurrentRestaurantId().orElseThrow(RestaurantInfoNotFoundException::new);
-
         DiningTable diningTable = diningTableMapper.toEntity(diningTableDTO);
-
-        diningTable.setRestaurant(new Restaurant(restaurantId));
+        diningTable.setIsFree(true);
+        diningTable.setIsActive(true);
 
         return diningTableMapper.toDto(diningTableRepository.save(diningTable));
     }
@@ -61,10 +58,8 @@ public class DiningTableServiceImpl implements DiningTableService {
     @Override
     @SneakyThrows
     public DiningTableDTO updateDiningTable(DiningTableDTO diningTableDTO) {
-        String restaurantId = SecurityUtils.getCurrentRestaurantId().orElseThrow(RestaurantInfoNotFoundException::new);
-
         DiningTable diningTable = diningTableRepository
-            .findByIdAndRestaurant(diningTableDTO.getId(), new Restaurant(restaurantId))
+            .findById(diningTableDTO.getId())
             .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
 
         diningTableMapper.partialUpdate(diningTable, diningTableDTO);

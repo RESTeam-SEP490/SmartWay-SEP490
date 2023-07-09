@@ -1,6 +1,5 @@
 package com.resteam.smartway.service.dto;
 
-import com.resteam.smartway.domain.enumeration.TableStatus;
 import java.util.UUID;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -18,8 +17,9 @@ public class DiningTableDTO {
     @Size(min = 1, max = 50)
     private String name;
 
-    private TableStatus status;
+    private Boolean isActive = true;
 
-    @NotNull
+    private Boolean isFree = true;
+
     private ZoneDTO zone;
 }

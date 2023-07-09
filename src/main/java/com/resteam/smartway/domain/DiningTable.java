@@ -1,6 +1,5 @@
 package com.resteam.smartway.domain;
 
-import com.resteam.smartway.domain.enumeration.TableStatus;
 import java.io.Serializable;
 import java.util.UUID;
 import javax.persistence.*;
@@ -27,13 +26,13 @@ public class DiningTable extends AbstractBaseAuditingEntity<UUID> implements Ser
     @Column(name = "name")
     private String name;
 
-    @Enumerated(EnumType.STRING)
-    private TableStatus status;
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive;
+
+    @Column(name = "is_free", nullable = false)
+    private Boolean isFree;
 
     @ManyToOne
     @JoinColumn(name = "zone_id", referencedColumnName = "id")
     private Zone zone;
-    //    @ManyToOne
-    //    @JoinColumn(name = "restaurant_id", referencedColumnName = "id")
-    //    private Restaurant restaurant;
 }

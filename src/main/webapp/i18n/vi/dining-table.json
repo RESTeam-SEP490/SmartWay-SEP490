@@ -1,0 +1,32 @@
+{
+  "diningTable": {
+    "title": " Bàn",
+    "addNewLabel": "Thêm bàn mới",
+    "name.label": "Tên bàn",
+    "name.placeholder": "Tên bàn",
+    "sellPrice.placeholder": "Giá bán",
+    "status.label": "Trạng thái",
+    "status.trueValue": "Đang kinh doanh",
+    "status.falseValue": "Ngưng kinh doanh",
+    "search.placeholder": "Nhập tên, mã món để tìm kiếm",
+    "category.label": "Loại khu vực",
+    "category.placeholder": "--- Chọn loại khu vực ---",
+    "isActive.false": "Ngưng kinh doanh",
+    "action": {
+      "delete.question": "Xoá dữ liệu của bàn <b>{{ code }}</b>?",
+      "allowSell": "Cho phép kinh doanh",
+      "allowSell.question": "Cho phép kinh doanh danh sách <b>{{ number }}</b> bàn đã chọn?",
+      "allowSellOne.question": "Cho phép kinh doanh bàn <b>{{ code }}</b>?",
+      "stopSell": "Ngưng kinh doanh",
+      "stopSell.question": "Ngưng kinh doanh danh sách <b>{{ number }}</b> bàn đã chọn?",
+      "stopSellOne.question": "Ngưng kinh doanh baàn <b>{{ code }}</b>?"
+    }
+  },
+  "smartWayApp": {
+    "menuItem": {
+      "created": "Thêm mới bàn thành công",
+      "updated": "Cập nhật bàn thành công",
+      "deleted": "Xoá bàn thành công"
+    }
+  }
+}

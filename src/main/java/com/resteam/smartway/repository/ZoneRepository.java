@@ -1,6 +1,7 @@
 package com.resteam.smartway.repository;
 
 import com.resteam.smartway.domain.DiningTable;
+import com.resteam.smartway.domain.MenuItemCategory;
 import com.resteam.smartway.domain.Restaurant;
 import com.resteam.smartway.domain.Zone;
 import com.resteam.smartway.security.multitenancy.repository.BaseRepository;
@@ -12,10 +13,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ZoneRepository extends BaseRepository<Zone> {
-    List<Zone> findAllByRestaurantOrderByCreatedDateDesc(Restaurant restaurant);
-    Optional<Zone> findOneByRestaurantAndName(Restaurant restaurant, String name);
+    List<Zone> findAllByOrderByCreatedDateDesc();
 
-    Optional<Zone> findByRestaurantAndId(Restaurant restaurant, UUID uuid);
-
-    Boolean existsByIdAndRestaurant(UUID id, Restaurant restaurant);
+    Optional<Zone> findOneByName(String name);
 }
