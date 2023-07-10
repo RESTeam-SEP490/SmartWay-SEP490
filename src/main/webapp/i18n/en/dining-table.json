@@ -15,17 +15,18 @@
     "status.trueValue": "Selling",
     "status.falseValue": "Discontinued",
     "search.placeholder": "Search by name",
+    "zone.name": "Name",
     "zone.label": "Zone",
     "zone.placeholder": "--- Choose zone ---",
     "isActive.false": "Discontinued table",
     "action": {
-      "delete.question": "Are you sure to delete table <b>{{ code }}</b>?",
+      "delete.question": "Are you sure to delete table <b>{{ name }}</b>?",
       "allowSell": "Mark as selling table",
       "allowSell.question": "Are you sure to mark <b>{{ number }}</b> selected item(s) as selling item?",
-      "allowSellOne.question": "Are you sure to mark item <b>{{ code }}</b> as selling item?",
+      "allowSellOne.question": "Are you sure to mark item <b>{{ name }}</b> as selling item?",
       "stopSell": "Mark as discontinued item",
       "stopSell.question": "Are you sure to mark <b>{{ number }}</b> selected item(s) as discontinued item?",
-      "stopSellOne.question": "Are you sure to mark table <b>{{ code }}</b> as discontinued item?"
+      "stopSellOne.question": "Are you sure to mark table <b>{{ name }}</b> as discontinued item?"
     }
   },
   "smartWayApp": {

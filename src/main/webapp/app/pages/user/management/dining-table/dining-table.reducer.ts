@@ -27,10 +27,10 @@ export const setPageable = createAsyncThunk('diningTable/set_pageable', (pageabl
 });
 
 export const getEntities = createAsyncThunk('diningTable/fetch_entity_list', async () => {
-  const { sort, page, size, search, zone } = getStore().getState().diningTable.pageable;
-  const requestUrl = `${apiUrl}?page=${page}&size=${size}&sort=${sort}&search=${search ? search : ''}&categoryIds=${getListValuesInParam(
-    zone
-  )}`;
+  const { sort, page, size, search, zone, isActive } = getStore().getState().diningTable.pageable;
+  const requestUrl = `${apiUrl}?page=${page}&size=${size}&sort=${sort}&isActive=${isActive !== undefined ? isActive : ''}&search=${
+    search ? search : ''
+  }&zoneIds=${getListValuesInParam(zone)}`;
   return axios.get<IDiningTable[]>(requestUrl);
 });
 
@@ -57,8 +57,6 @@ export const updateEntity = createAsyncThunk(
   'diningTable/update_entity',
   async (entity: IDiningTable, thunkAPI) => {
     const data = new FormData();
-    // data.append('imageSource', entity.imageSource);
-    // entity['imageSource'] = null;
     data.append(
       'diningTableDTO',
       new Blob([JSON.stringify(cleanEntity(entity))], {

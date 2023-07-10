@@ -100,7 +100,7 @@ export const ZoneCheckBoxes = ({ onFilter }: { onFilter: any }) => {
           <Scrollbars className="!w-[calc(100%+8px)]" autoHeight autoHeightMax={300}>
             <Checkbox.Group className="flex-col w-full pr-2 h-fit" value={selectedZoneList} onChange={handleOnchange}>
               {zoneList.map(zone => (
-                <div className="flex justify-between w-full py-2 " key={'checkbox'}>
+                <div className="flex justify-between w-full py-2 " key={'checkboxes'}>
                   <Checkbox
                     key={zone.id}
                     value={zone.id}

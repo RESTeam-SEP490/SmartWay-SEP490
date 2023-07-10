@@ -27,7 +27,4 @@ public class Zone extends AbstractBaseAuditingEntity<UUID> implements Serializab
 
     @Column(name = "name")
     private String name;
-    //    @ManyToOne(fetch = FetchType.LAZY)
-    //    @JoinColumn(name = "restaurant_id")
-    //    private Restaurant restaurant;
 }

@@ -1,14 +1,10 @@
 package com.resteam.smartway.service;
 
-import com.resteam.smartway.domain.MenuItemCategory;
-import com.resteam.smartway.domain.Restaurant;
 import com.resteam.smartway.domain.Zone;
 import com.resteam.smartway.repository.ZoneRepository;
-import com.resteam.smartway.security.SecurityUtils;
 import com.resteam.smartway.service.dto.ZoneDTO;
 import com.resteam.smartway.service.mapper.ZoneMapper;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
-import com.resteam.smartway.web.rest.errors.RestaurantInfoNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

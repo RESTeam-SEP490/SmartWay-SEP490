@@ -91,6 +91,7 @@ export const MenuItem = () => {
   const count = useAppSelector(state => state.menuItem.totalItems);
   const loading = useAppSelector(state => state.menuItem.loading);
 
+  //filter operation can do with tables
   if (pageable.isActive !== undefined) {
     if (pageable.isActive) items.splice(1, 1);
     else items.splice(2, 1);

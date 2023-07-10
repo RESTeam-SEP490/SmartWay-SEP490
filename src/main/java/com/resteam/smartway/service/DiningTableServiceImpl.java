@@ -1,13 +1,11 @@
 package com.resteam.smartway.service;
 
 import com.resteam.smartway.domain.DiningTable;
-import com.resteam.smartway.domain.Restaurant;
 import com.resteam.smartway.repository.DiningTableRepository;
-import com.resteam.smartway.security.SecurityUtils;
 import com.resteam.smartway.service.dto.DiningTableDTO;
+import com.resteam.smartway.service.dto.IsActiveUpdateDTO;
 import com.resteam.smartway.service.mapper.DiningTableMapper;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
-import com.resteam.smartway.web.rest.errors.RestaurantInfoNotFoundException;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -32,12 +30,12 @@ public class DiningTableServiceImpl implements DiningTableService {
     private final DiningTableMapper diningTableMapper;
 
     @Override
-    public Page<DiningTableDTO> loadDiningTablesWithSearch(Pageable pageable, String searchText, List<String> zoneIds) {
+    public Page<DiningTableDTO> loadDiningTablesWithSearch(Pageable pageable, String searchText, List<String> zoneIds, Boolean isActive) {
         if (searchText != null) searchText = searchText.toLowerCase();
         List<UUID> zoneUuidList = null;
         if (zoneIds != null && zoneIds.size() > 0) zoneUuidList =
             zoneIds.stream().map(c -> UUID.fromString(c)).collect(Collectors.toList());
-        Page<DiningTable> diningTablePage = diningTableRepository.findWithFilterParams(searchText, zoneUuidList, pageable);
+        Page<DiningTable> diningTablePage = diningTableRepository.findWithFilterParams(searchText, zoneUuidList, isActive, pageable);
 
         return diningTablePage.map(item -> {
             DiningTableDTO diningTable = diningTableMapper.toDto(item);
@@ -66,5 +64,36 @@ public class DiningTableServiceImpl implements DiningTableService {
 
         DiningTable result = diningTableRepository.save(diningTable);
         return diningTableMapper.toDto(result);
+    }
+
+    @Override
+    public void deleteDiningTable(List<String> ids) {
+        List<DiningTable> diningTableIdList = ids
+            .stream()
+            .map(id -> {
+                if (id == null) throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+                return diningTableRepository
+                    .findById(UUID.fromString(id))
+                    .orElseThrow(() -> new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idnotfound"));
+            })
+            .collect(Collectors.toList());
+        diningTableRepository.deleteAll(diningTableIdList);
+    }
+
+    @Override
+    public void updateIsActiveDiningTables(IsActiveUpdateDTO isActiveUpdateDTO) {
+        List<DiningTable> diningTableList = isActiveUpdateDTO
+            .getIds()
+            .stream()
+            .map(id -> {
+                if (id == null) throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+                DiningTable diningTable = diningTableRepository
+                    .findById(UUID.fromString(id))
+                    .orElseThrow(() -> new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idnotfound"));
+                diningTable.setIsActive(isActiveUpdateDTO.getIsActive());
+                return diningTable;
+            })
+            .collect(Collectors.toList());
+        diningTableRepository.saveAll(diningTableList);
     }
 }
