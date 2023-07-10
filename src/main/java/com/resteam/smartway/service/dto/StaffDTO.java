@@ -1,6 +1,9 @@
 package com.resteam.smartway.service.dto;
 
-import com.resteam.smartway.domain.User;
+import com.resteam.smartway.config.Constants;
+import com.resteam.smartway.domain.Role;
+import java.time.Instant;
+import java.util.Set;
 import java.util.UUID;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -14,11 +17,16 @@ import lombok.*;
 @NoArgsConstructor
 public class StaffDTO {
 
+    private static final long serialVersionUID = 1L;
+
     public static final int PASSWORD_MIN_LENGTH = 4;
 
     public static final int PASSWORD_MAX_LENGTH = 100;
 
+    private UUID id;
+
     @NotBlank
+    @Pattern(regexp = Constants.LOGIN_REGEX)
     @Size(min = 1, max = 50)
     private String username;
 
@@ -35,20 +43,11 @@ public class StaffDTO {
     @Email
     private String email;
 
-    @NotBlank
     @Size(max = 50)
     private String restaurantId;
 
     @Size(min = 2, max = 10)
     private String langKey;
 
-    public StaffDTO(User user) {
-        this.username = user.getUsername();
-        this.password = user.getPassword();
-        this.fullName = user.getFullName();
-        this.phone = user.getPhone();
-        this.email = user.getEmail();
-        this.restaurantId = user.getRestaurant().getId();
-        this.langKey = user.getLangKey();
-    }
+    private RoleDTO role;
 }
