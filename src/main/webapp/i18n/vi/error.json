@@ -11,6 +11,7 @@
     "concurrencyFailure": "Một người dùng khác đã thực hiện thay đổi cùng lúc. Không thể thực hiện thay đổi của bạn!",
     "validation": "Dữ liệU không hợp lệ.",
     "existed": "{{ entityName }} này đã tồn tại",
-    "constraintViolation": "Dữ liệu này đang được sử dụng. Không thể xoá!"
+    "constraintViolation": "Dữ liệu này đang được sử dụng. Không thể xoá!",
+    "notdeletable": "Dữ liệu này đang được sử dụng. Không thể xoá!"
   }
 }

@@ -46,7 +46,7 @@ const Header = (props: IHeaderProps) => {
       <LoadingBar className="loading-bar" />
       <div
         className={
-          (isCollapsed ? 'h-0 overflow-hidden pt-0 pb-0' : 'pt-4 pb-2') +
+          (props.isAuthenticated && isCollapsed ? 'h-0 overflow-hidden pt-0 pb-0' : 'pt-4 pb-2') +
           ' mx-auto lg:max-w-7xl flex justify-between items-center transition-all duration-300 ease-linear'
         }
       >

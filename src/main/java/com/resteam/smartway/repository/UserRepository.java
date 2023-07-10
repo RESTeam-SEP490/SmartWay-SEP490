@@ -1,6 +1,7 @@
 package com.resteam.smartway.repository;
 
 import com.resteam.smartway.domain.Restaurant;
+import com.resteam.smartway.domain.Role;
 import com.resteam.smartway.domain.User;
 import com.resteam.smartway.security.multitenancy.repository.BaseRepository;
 import java.util.Optional;
@@ -16,6 +17,8 @@ public interface UserRepository extends BaseRepository<User> {
     Optional<User> findOneByUsername(String username);
 
     Optional<User> findOneByEmailIgnoreCase(String username);
+
+    Boolean existsByRole(Role role);
 
     @EntityGraph("user-with-authorities-entity-graph")
     Optional<User> findOneWithAuthoritiesByUsername(String username);
