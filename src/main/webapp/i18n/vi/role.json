@@ -1,0 +1,34 @@
+{
+  "role": {
+    "title": "Vai trò",
+    "addNewLabel": "Thêm mới vai trò",
+    "labels": {
+      "name": "Tên vai trò",
+      "role": "Quản lý vai trò",
+      "staff": "Quản lý nhân viên",
+      "menuitem": "Quản lý thực đơn",
+      "order": "Quản lý gọi món",
+      "bill": "Quản lý hoá đơn",
+      "table": "Quản lý bàn"
+    },
+    "subLabels": {
+      "view": "Xem danh sách",
+      "create": "Thêm mới",
+      "edit": "Chỉnh sửa",
+      "delete": "Xoá",
+      "waiter": "Quyền bồi bàn",
+      "payment": "Thanh toán",
+      "discount": "Thêm giảm giá"
+    }
+  },
+  "smartWayApp": {
+    "role": {
+      "created": "Thêm mới vai trò thành công",
+      "updated": "Cập nhật vai trò thành công",
+      "deleted": "Xoá vai trò thành công",
+      "delete": {
+        "question": "Bạn có chắc chắn muốn xoá vai trò <b>{{ name }}</b>?"
+      }
+    }
+  }
+}

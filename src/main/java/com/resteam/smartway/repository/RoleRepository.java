@@ -4,8 +4,8 @@ import com.resteam.smartway.domain.Restaurant;
 import com.resteam.smartway.domain.Role;
 import com.resteam.smartway.security.multitenancy.annotation.DisableRestaurantFilter;
 import com.resteam.smartway.security.multitenancy.repository.BaseRepository;
+import java.util.List;
 import java.util.Optional;
-import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Repository;
 
 @Repository
