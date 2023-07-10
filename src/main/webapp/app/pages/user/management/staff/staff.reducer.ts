@@ -45,14 +45,7 @@ export const getEntity = createAsyncThunk(
 export const createEntity = createAsyncThunk(
   'staff/create_entity',
   async (entity: IStaff, thunkAPI) => {
-    const data = new FormData();
-    data.append(
-      'staffDTO',
-      new Blob([JSON.stringify(entity)], {
-        type: 'application/json',
-      })
-    );
-    const result = await axios.put<IStaff>(`${apiUrl}/${entity.id}`, data);
+    const result = await axios.post<IStaff>(apiUrl, cleanEntity(entity));
     thunkAPI.dispatch(getEntities());
     return result;
   },

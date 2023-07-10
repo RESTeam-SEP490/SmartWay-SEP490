@@ -5,6 +5,10 @@ import { IStaff } from 'app/shared/model/staff.model';
 import { Button, Card, Dropdown, Empty, Input, Radio, Table, Tag, Typography } from 'antd';
 import { DEFAULT_PAGINATION_CONFIG } from 'app/shared/util/pagination.constants';
 import { getEntities, setPageable } from 'app/pages/user/management/staff/staff.reducer';
+import { BarsOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
+import StaffForm from 'app/pages/user/management/staff/staff-form';
+import { IMenuItem } from 'app/shared/model/menu-item.model';
+import { CheckboxValueType } from 'antd/es/checkbox/Group';
 
 export const Staff = () => {
   const dispatch = useAppDispatch();
@@ -14,6 +18,7 @@ export const Staff = () => {
     { title: <Translate contentKey="staff.fullName.label" />, dataIndex: 'fullName', key: 'fullName' },
     { title: <Translate contentKey="staff.phone.label" />, dataIndex: 'phone', key: 'phone' },
     { title: <Translate contentKey="staff.email.label" />, dataIndex: 'email', key: 'email' },
+    { title: <Translate contentKey="staff.role.label" />, dataIndex: ['role', 'name'], key: 'role' },
     { title: <Translate contentKey="staff.restaurantId.label" />, dataIndex: ['restaurant', 'id'], key: 'restaurant' },
   ];
 
@@ -25,7 +30,7 @@ export const Staff = () => {
   const [allowSale, setAllowSale] = useState<boolean>();
 
   const [isShowForm, setIsShowForm] = useState(false);
-  const [updatingItem, setUpdatingItem] = useState<IStaff>();
+  const [updateStaff, setUpdateStaff] = useState<IStaff>();
 
   const staffList = useAppSelector(state => state.staff.entities);
   const pageable = useAppSelector(state => state.staff.pageable);
@@ -39,12 +44,12 @@ export const Staff = () => {
     dispatch(getEntities());
   }, [pageable]);
 
-  useEffect(() => {
-    if (selectedItems.length > 0 && updateSuccess) {
-      setSelectedRowKeys([]);
-      setSelectedItems([]);
-    }
-  }, [updateSuccess]);
+  // useEffect(() => {
+  //   if (selectedItems.length > 0 && updateSuccess) {
+  //     setSelectedRowKeys([]);
+  //     setSelectedItems([]);
+  //   }
+  // }, [updateSuccess]);
 
   const handleOnchangePage = (page, pageSize) => {
     dispatch(setPageable({ ...pageable, page: page - 1, size: pageSize }));
@@ -55,17 +60,23 @@ export const Staff = () => {
     if (search !== pageable.search) dispatch(setPageable({ ...pageable, page: 0, search }));
   };
 
-  const handleOnchageStatusFilter = e => {
+  const handleOnchangeRoleFilter = (checkedValues: CheckboxValueType[]) => {
+    const isCheckAll = checkedValues.length === staffList?.length;
+    const selectedRoles = isCheckAll ? undefined : checkedValues.map(v => v.toString());
+    dispatch(setPageable({ ...pageable, page: 0, role: selectedRoles }));
+  };
+
+  const handleOnchangeStatusFilter = e => {
     dispatch(setPageable({ ...pageable, page: 0, isActive: e.target.value }));
   };
 
   const handleOpen = (staff: IStaff) => {
-    setUpdatingItem(staff);
+    setUpdateStaff(staff);
     setIsShowForm(true);
   };
 
   const handleClose = () => {
-    setUpdatingItem(undefined);
+    setUpdateStaff(undefined);
     setIsShowForm(false);
   };
 
@@ -105,29 +116,15 @@ export const Staff = () => {
 
   return (
     <>
+      <StaffForm staff={updateStaff} isOpen={isShowForm} handleClose={handleClose} />
+
       <div className="flex h-full p-2">
         <div className="flex flex-col w-1/5 gap-4 p-4">
           <Card bordered={false}>
             <Typography.Title level={5}>
               <Translate contentKey="entity.action.find" />
             </Typography.Title>
-            <Input placeholder={translate('menuItem.search.placeholder')} onPressEnter={handleOnchangeSearch} />
-          </Card>
-          <Card bordered={false}>
-            <Typography.Title level={5}>
-              <Translate contentKey="entity.label.status" />
-            </Typography.Title>
-            <Radio.Group className="flex flex-col gap-2" defaultValue={true} onChange={handleOnchageStatusFilter}>
-              <Radio className="!font-normal" value={true}>
-                <Translate contentKey="menuItem.status.trueValue" />
-              </Radio>
-              <Radio className="!font-normal" value={false}>
-                <Translate contentKey="menuItem.status.falseValue" />
-              </Radio>
-              <Radio className="!font-normal" value={undefined}>
-                <Translate contentKey="entity.label.all" />
-              </Radio>
-            </Radio.Group>
+            <Input placeholder={translate('staff.search.placeholder')} onPressEnter={handleOnchangeSearch} />
           </Card>
         </div>
         <div className="w-4/5 p-4">
@@ -141,6 +138,20 @@ export const Staff = () => {
                   <Translate contentKey="entity.action.select" interpolate={{ number: selectedRowKeys.length }} />
                 </Tag>
               )}
+            </div>
+
+            <div className="flex gap-2">
+              {/*<Dropdown menu={{ items }} disabled={selectedRowKeys.length === 0} className="!w-32">*/}
+              {/*  <Button type="primary" icon={<BarsOutlined rev={''} />}>*/}
+              {/*    <Translate contentKey="entity.label.operations" />*/}
+              {/*  </Button>*/}
+              {/*</Dropdown>*/}
+              <Button type="primary" icon={<PlusOutlined rev={''} />} onClick={() => setIsShowForm(true)}>
+                <Translate contentKey="staff.addNewLabel" />
+              </Button>
+              <Button type="primary" icon={<UploadOutlined rev={''} />}>
+                <Translate contentKey="entity.action.import" />
+              </Button>
             </div>
           </div>
 

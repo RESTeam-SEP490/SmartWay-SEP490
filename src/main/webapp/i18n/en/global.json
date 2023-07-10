@@ -13,6 +13,8 @@
         "main": "Entities",
         "restaurant": "Restaurant",
         "menuItem": "Menu item",
+        "staff": "Staff",
+        "role": "Role",
         "menuItemCategory": "Category",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
       },

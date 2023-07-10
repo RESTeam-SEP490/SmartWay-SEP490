@@ -14,7 +14,7 @@ export default () => {
         {/* prettier-ignore */}
         <Route path="restaurant/*" element={<Restaurant />} />
         <Route path="menu-items/*" element={<MenuItemRoutes />} />
-        <Route path="staff" element={<Staff />} />
+        <Route path="staffs/*" element={<Staff />} />
       </ErrorBoundaryRoutes>
     </div>
   );

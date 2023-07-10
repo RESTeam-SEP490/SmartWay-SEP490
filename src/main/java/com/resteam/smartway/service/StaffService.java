@@ -1,18 +1,19 @@
 package com.resteam.smartway.service;
 
 import com.resteam.smartway.config.Constants;
-import com.resteam.smartway.domain.Authority;
-import com.resteam.smartway.domain.Role;
 import com.resteam.smartway.domain.User;
 import com.resteam.smartway.repository.*;
 import com.resteam.smartway.service.dto.StaffDTO;
-import java.time.Instant;
+import com.resteam.smartway.service.mapper.StaffMapper;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
+import javax.validation.Valid;
+import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,35 +35,36 @@ public class StaffService {
 
     private final RoleRepository roleRepository;
 
+    private final StaffMapper staffMapper;
+
     public StaffService(
         StaffRepository staffRepository,
         PasswordEncoder passwordEncoder,
         AuthorityRepository authorityRepository,
         RestaurantRepository restaurantRepository,
-        RoleRepository roleRepository
+        RoleRepository roleRepository,
+        StaffMapper staffMapper
     ) {
         this.staffRepository = staffRepository;
         this.passwordEncoder = passwordEncoder;
         this.authorityRepository = authorityRepository;
         this.restaurantRepository = restaurantRepository;
         this.roleRepository = roleRepository;
+        this.staffMapper = staffMapper;
     }
 
-    public List<User> listStaff() {
-        return staffRepository.findAllBy();
+    public Page<StaffDTO> loadStaffsWithSearch(Pageable pageable, String searchText, List<String> roleIds) {
+        if (searchText != null) searchText = searchText.toLowerCase();
+        List<UUID> roleUUIDList = null;
+        if (roleIds != null && roleIds.size() > 0) roleUUIDList = roleIds.stream().map(UUID::fromString).collect(Collectors.toList());
+        Page<User> userPage = staffRepository.findWithFilterParams(searchText, roleUUIDList, pageable);
+
+        return userPage.map(staffMapper::toDto);
     }
 
-    public User createStaff(StaffDTO staffDTO) {
-        User staff = new User();
-        staff.setUsername(staffDTO.getUsername().toLowerCase());
-        staff.setFullName(staffDTO.getFullName());
-        staff.setEmail(staffDTO.getEmail().toLowerCase());
-        staff.setLangKey(Constants.DEFAULT_LANGUAGE);
-        String encryptPassword = passwordEncoder.encode(RandomUtil.generatePassword());
-        staff.setPassword(encryptPassword);
-        staff.setPhone(staffDTO.getPhone());
-        staffRepository.save(staff);
-        log.debug("Create Information for Staff: {}", staff);
-        return staff;
+    @SneakyThrows
+    public StaffDTO createStaff(@Valid StaffDTO staffDTO) {
+        User staff = staffMapper.toEntity(staffDTO);
+        return staffMapper.toDto(staffRepository.save(staff));
     }
 }

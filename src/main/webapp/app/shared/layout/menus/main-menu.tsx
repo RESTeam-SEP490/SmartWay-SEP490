@@ -29,10 +29,10 @@ export const UserMenu = ({ onCollapse, isCollapsed }) => {
           onClick={() => onCollapse()}
         />
         <Menu selectedKeys={[location.pathname.split('/').pop()]} mode="horizontal" className="justify-center py-1 shadow-sm">
-          <Menu.SubMenu title={translate('menu.usermanagement.label')} icon={<TeamOutlined rev={TeamOutlined} />}>
+          <Menu.SubMenu title={translate('menu.staffmanagement.label')} icon={<TeamOutlined rev={TeamOutlined} />}>
             <Menu.Item key="users" icon={<UserOutlined rev={UserOutlined} />}>
-              <Translate contentKey="menu.usermanagement.submenu.users" />
-              <Link to="/users" />
+              <Translate contentKey="menu.staffmanagement.label" />
+              <Link to="/staffs" />
             </Menu.Item>
             <Menu.Item key="roles" icon={<ApartmentOutlined rev={ApartmentOutlined} />}>
               <Translate contentKey="menu.usermanagement.submenu.roles" />

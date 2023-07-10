@@ -1,6 +1,7 @@
 package com.resteam.smartway.service.dto;
 
 import com.resteam.smartway.config.Constants;
+import com.resteam.smartway.domain.Role;
 import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
@@ -42,10 +43,11 @@ public class StaffDTO {
     @Email
     private String email;
 
-    @NotBlank
     @Size(max = 50)
     private String restaurantId;
 
     @Size(min = 2, max = 10)
     private String langKey;
+
+    private RoleDTO role;
 }
