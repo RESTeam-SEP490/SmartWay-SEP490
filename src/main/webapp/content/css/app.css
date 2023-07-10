@@ -109,3 +109,7 @@ th.ant-table-cell::before {
   border-radius: 3px;
   /* roundness of the scroll thumb */
 }
+
+.ant-modal-title {
+  color: var(--600) !important;
+}

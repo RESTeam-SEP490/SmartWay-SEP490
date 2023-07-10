@@ -3,7 +3,6 @@ import 'app/config/dayjs.ts';
 import 'react-toastify/dist/ReactToastify.css';
 import '../content/css/app.css';
 import '../output.css';
-import '!style-loader!css-loader!bootstrap/dist/css/bootstrap.css';
 
 import React, { useEffect } from 'react';
 import { BrowserRouter } from 'react-router-dom';

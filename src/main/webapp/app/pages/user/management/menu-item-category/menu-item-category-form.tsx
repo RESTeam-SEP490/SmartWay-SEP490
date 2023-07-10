@@ -62,7 +62,7 @@ export const MenuItemCategoryForm = ({
         title={
           <Translate
             contentKey={isNew ? 'entity.label.addNew' : 'entity.label.edit'}
-            interpolate={{ entity: translate('global.menu.entities.menuItemCategory').toLowerCase() }}
+            interpolate={{ entity: translate('global.menu.entities.menuItemCategory')?.toLowerCase() }}
           />
         }
         footer={[]}
