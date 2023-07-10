@@ -16,7 +16,6 @@ import PrivateRoute from 'app/shared/auth/private-route';
 import ErrorBoundaryRoutes from 'app/shared/error/error-boundary-routes';
 import PageNotFound from 'app/shared/error/page-not-found';
 import { useAppSelector } from './config/store';
-import Header from './shared/layout/header/header';
 import AdminLogin from './modules/login/admin-login';
 
 const loading = <div>loading ...</div>;
