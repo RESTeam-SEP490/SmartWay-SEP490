@@ -68,7 +68,10 @@ public class MenuItemCategoryResource {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteRestaurant(@PathVariable String id) {
+    public ResponseEntity<Void> deleteRestaurant(@PathVariable("id") String id) {
+        if (id == null) {
+            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+        }
         menuItemCategoryService.deleteMenuItemCategory(UUID.fromString(id));
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id)).build();
     }

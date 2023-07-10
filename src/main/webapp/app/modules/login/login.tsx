@@ -90,7 +90,7 @@ export const Login = () => {
                 <span>
                   <Translate contentKey="login.link.noAccount">You don&apos;t have an restaurant yet?</Translate>
                 </span>{' '}
-                <Link to="/account/register" className="font-semibold hover:underline">
+                <Link to="/register" className="font-semibold hover:underline">
                   <Translate contentKey="login.link.getStarted">Get started now</Translate>
                 </Link>
               </FormItem>
