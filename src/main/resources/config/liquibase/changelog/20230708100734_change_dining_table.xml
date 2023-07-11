@@ -16,14 +16,6 @@
             </column>
         </addColumn>
     </changeSet>
-    <changeSet author="win (generated)" id="1688810864483-3">
-        <addColumn tableName="user">
-            <column defaultValueBoolean="false" name="is_system_admin" type="BIT(1)"/>
-        </addColumn>
-    </changeSet>
-    <changeSet author="win (generated)" id="1688810864483-4">
-        <dropPrimaryKey constraintName="PRIMARY" tableName="role_authority"/>
-    </changeSet>
     <changeSet author="win (generated)" id="1688810864483-5">
         <dropColumn columnName="status" tableName="dining_table"/>
     </changeSet>

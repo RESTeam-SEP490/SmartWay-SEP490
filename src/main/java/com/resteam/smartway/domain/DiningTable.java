@@ -19,7 +19,6 @@ public class DiningTable extends AbstractBaseAuditingEntity<UUID> implements Ser
 
     @Id
     @GeneratedValue(generator = "uuid-hibernate-generator")
-    @GenericGenerator(name = "uuid-hibernate-generator", strategy = "org.hibernate.id.UUIDGenerator")
     @Column(name = "id", columnDefinition = "BINARY(16)")
     private UUID id;
 
