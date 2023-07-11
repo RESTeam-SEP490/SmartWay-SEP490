@@ -4,19 +4,17 @@ import { Translate, translate } from 'react-jhipster';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 
 import { BarsOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
-import { Button, Card, Dropdown, Empty, Input, MenuProps, Radio, Table, Tag, Typography } from 'antd';
+import { Button, Card, Dropdown, Input, MenuProps, Radio, Table, Tag, Typography } from 'antd';
 import { CheckboxValueType } from 'antd/es/checkbox/Group';
-import { IMenuItem } from 'app/shared/model/menu-item.model';
-
-import MenuItemDetail from './menu-item-detail';
-import { MenuItemDialog } from './menu-item-dialog';
-import MenuItemForm from './menu-item-form';
-import { getEntities, setPageable } from './menu-item.reducer';
-import { currencyFormatter } from 'app/app.constant';
+import { IDiningTable } from 'app/shared/model/dining-table.model';
+import { ZoneCheckBoxes } from '../zone/zone';
+import DiningTableDetail from './dining-table-detail';
+import { DiningTableDialog } from './dining-table-dialog';
+import DiningTableForm from './dining-table-form';
+import { getEntities, setPageable } from './dining-table.reducer';
 import { DEFAULT_PAGINATION_CONFIG } from '../../../../shared/util/pagination.constants';
-import { MenuItemCategoryCheckBoxes } from '../menu-item-category/menu-item-category';
 
-export const MenuItem = () => {
+export const DiningTable = () => {
   const dispatch = useAppDispatch();
 
   const items: MenuProps['items'] = [
@@ -32,7 +30,7 @@ export const MenuItem = () => {
       key: '2',
       label: (
         <div onClick={() => handleUpdateIsActive(true)}>
-          <Translate contentKey="menuItem.action.allowSell" />
+          <Translate contentKey="diningTable.action.allowSell" />
         </div>
       ),
     },
@@ -40,58 +38,42 @@ export const MenuItem = () => {
       key: '3',
       label: (
         <div onClick={() => handleUpdateIsActive(false)}>
-          <Translate contentKey="menuItem.action.stopSell" />
+          <Translate contentKey="diningTable.action.stopSell" />
         </div>
       ),
     },
   ];
 
   const columns = [
-    { title: <Translate contentKey="menuItem.code.label" />, dataIndex: 'code', key: 'code' },
-    { title: <Translate contentKey="menuItem.name.label" />, dataIndex: 'name', key: 'name' },
-    { title: <Translate contentKey="menuItem.category.label" />, dataIndex: ['menuItemCategory', 'name'], key: 'menuItemCategory' },
+    { title: <Translate contentKey="diningTable.name.label" />, dataIndex: 'name', key: 'name' },
+    { title: <Translate contentKey="diningTable.zone.label" />, dataIndex: ['zone', 'name'], key: 'zone' },
     {
-      title: <Translate contentKey="menuItem.basePrice.label" />,
-      dataIndex: 'basePrice',
-      key: 'basePrice',
-      align: 'right' as const,
-      render: p => currencyFormatter(p),
-    },
-    {
-      title: <Translate contentKey="menuItem.sellPrice.label" />,
-      dataIndex: 'sellPrice',
-      key: 'sellPrice',
-      align: 'right' as const,
-      render: p => currencyFormatter(p),
-    },
-    {
-      title: <Translate contentKey="menuItem.status.label" />,
+      title: <Translate contentKey="diningTable.status.label" />,
       dataIndex: 'isActive',
       key: 'isActive',
-      render: (i: boolean) => <Translate contentKey={i ? 'menuItem.status.trueValue' : 'menuItem.status.falseValue'} />,
+      render: (i: boolean) => <Translate contentKey={i ? 'diningTable.status.trueValue' : 'diningTable.status.falseValue'} />,
     },
   ];
 
   const [expendedRow, setExpendedRow] = useState();
 
   const [isShowDialog, setIsShowDialog] = useState(false);
-  const [selectedItems, setSelectedItems] = useState<IMenuItem[]>([]);
+  const [selectedItems, setSelectedItems] = useState<IDiningTable[]>([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [allowSale, setAllowSale] = useState<boolean>();
 
   const [isShowForm, setIsShowForm] = useState(false);
-  const [updatingItem, setUpdatingItem] = useState<IMenuItem>();
+  const [updatingItem, setUpdatingItem] = useState<IDiningTable>();
 
-  const menuItemList = useAppSelector(state => state.menuItem.entities);
-  const pageable = useAppSelector(state => state.menuItem.pageable);
-  const updateSuccess = useAppSelector(state => state.menuItem.updateSuccess);
+  const diningTableList = useAppSelector(state => state.diningTable.entities);
+  const pageable = useAppSelector(state => state.diningTable.pageable);
+  const updateSuccess = useAppSelector(state => state.diningTable.updateSuccess);
 
-  const categoryList = useAppSelector(state => state.menuItemCategory.entities);
-  const categoryUpdateSuccess = useAppSelector(state => state.menuItemCategory.updateSuccess);
-  const count = useAppSelector(state => state.menuItem.totalItems);
-  const loading = useAppSelector(state => state.menuItem.loading);
+  const zoneList = useAppSelector(state => state.zone.entities);
+  const zoneUpdateSuccess = useAppSelector(state => state.zone.updateSuccess);
+  const count = useAppSelector(state => state.diningTable.totalItems);
+  const loading = useAppSelector(state => state.diningTable.loading);
 
-  //filter operation can do with tables
   if (pageable.isActive !== undefined) {
     if (pageable.isActive) items.splice(1, 1);
     else items.splice(2, 1);
@@ -103,7 +85,7 @@ export const MenuItem = () => {
 
   useEffect(() => {
     dispatch(getEntities());
-  }, [categoryUpdateSuccess]);
+  }, [zoneUpdateSuccess]);
 
   useEffect(() => {
     if (selectedItems.length > 0 && updateSuccess) {
@@ -121,17 +103,17 @@ export const MenuItem = () => {
     if (search !== pageable.search) dispatch(setPageable({ ...pageable, page: 0, search }));
   };
 
-  const handleOnchangeCategoryFilter = (checkedValues: CheckboxValueType[]) => {
-    const isCheckAll = checkedValues.length === categoryList?.length;
-    const selectedCategories = isCheckAll ? undefined : checkedValues.map(v => v.toString());
-    dispatch(setPageable({ ...pageable, page: 0, category: selectedCategories }));
+  const handleOnchangeZoneFilter = (checkedValues: CheckboxValueType[]) => {
+    const isCheckAll = checkedValues.length === zoneList?.length;
+    const selectedZones = isCheckAll ? undefined : checkedValues.map(v => v.toString());
+    dispatch(setPageable({ ...pageable, page: 0, zone: selectedZones }));
   };
 
   const handleOnchageStatusFilter = e => {
     dispatch(setPageable({ ...pageable, page: 0, isActive: e.target.value }));
   };
 
-  const handleOpen = (item: IMenuItem) => {
+  const handleOpen = (item: IDiningTable) => {
     setUpdatingItem(item);
     setIsShowForm(true);
   };
@@ -163,7 +145,7 @@ export const MenuItem = () => {
 
   const handleDelete = () => {
     const nextSelectedItems = selectedRowKeys.map(key => {
-      const m: IMenuItem = { id: key + '' };
+      const m: IDiningTable = { id: key + '' };
       return m;
     });
     setSelectedItems(nextSelectedItems);
@@ -172,7 +154,7 @@ export const MenuItem = () => {
 
   const handleUpdateIsActive = (isActive: boolean) => {
     const nextSelectedItems = selectedRowKeys.map(key => {
-      const m: IMenuItem = { id: key + '' };
+      const m: IDiningTable = { id: key + '' };
       return m;
     });
     setSelectedItems(nextSelectedItems);
@@ -187,8 +169,13 @@ export const MenuItem = () => {
 
   return (
     <>
-      <MenuItemForm menuItem={updatingItem} handleClose={handleClose} isOpen={isShowForm} />
-      <MenuItemDialog menuItems={selectedItems} handleClose={() => setIsShowDialog(false)} isOpen={isShowDialog} isActive={allowSale} />
+      <DiningTableForm diningTable={updatingItem} handleClose={handleClose} isOpen={isShowForm} />
+      <DiningTableDialog
+        diningTables={selectedItems}
+        handleClose={() => setIsShowDialog(false)}
+        isOpen={isShowDialog}
+        isActive={allowSale}
+      />
 
       <div className="flex h-full p-2">
         <div className="flex flex-col w-1/5 gap-4 p-4">
@@ -196,7 +183,7 @@ export const MenuItem = () => {
             <Typography.Title level={5}>
               <Translate contentKey="entity.action.find" />
             </Typography.Title>
-            <Input placeholder={translate('menuItem.search.placeholder')} onPressEnter={handleOnchangeSearch} />
+            <Input placeholder={translate('diningTable.search.placeholder')} onPressEnter={handleOnchangeSearch} />
           </Card>
           <Card bordered={false}>
             <Typography.Title level={5}>
@@ -204,23 +191,23 @@ export const MenuItem = () => {
             </Typography.Title>
             <Radio.Group className="flex flex-col gap-2" defaultValue={true} onChange={handleOnchageStatusFilter}>
               <Radio className="!font-normal" value={true}>
-                <Translate contentKey="menuItem.status.trueValue" />
+                <Translate contentKey="diningTable.status.trueValue" />
               </Radio>
               <Radio className="!font-normal" value={false}>
-                <Translate contentKey="menuItem.status.falseValue" />
+                <Translate contentKey="diningTable.status.falseValue" />
               </Radio>
               <Radio className="!font-normal" value={undefined}>
                 <Translate contentKey="entity.label.all" />
               </Radio>
             </Radio.Group>
           </Card>
-          <MenuItemCategoryCheckBoxes onFilter={handleOnchangeCategoryFilter} />
+          <ZoneCheckBoxes onFilter={handleOnchangeZoneFilter} />
         </div>
         <div className="w-4/5 p-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
               <Typography.Title level={3} className="!mb-0">
-                <Translate contentKey="menuItem.title" />
+                <Translate contentKey="diningTable.title" />
               </Typography.Title>
               {selectedRowKeys.length > 0 && (
                 <Tag className="px-4 py-1" closable color="blue" onClose={handleResetSelectedRowKey}>
@@ -235,7 +222,7 @@ export const MenuItem = () => {
                 </Button>
               </Dropdown>
               <Button type="primary" icon={<PlusOutlined rev={''} />} onClick={() => setIsShowForm(true)}>
-                <Translate contentKey="menuItem.addNewLabel" />
+                <Translate contentKey="diningTable.addNewLabel" />
               </Button>
               <Button type="primary" icon={<UploadOutlined rev={''} />}>
                 <Translate contentKey="entity.action.import" />
@@ -245,7 +232,7 @@ export const MenuItem = () => {
 
           <Table
             columns={columns.map(c => ({ ...c, ellipsis: true }))}
-            dataSource={menuItemList}
+            dataSource={diningTableList}
             pagination={{
               ...DEFAULT_PAGINATION_CONFIG,
               onChange: handleOnchangePage,
@@ -264,7 +251,7 @@ export const MenuItem = () => {
             rowClassName={'cursor-pointer'}
             loading={loading}
             expandable={{
-              expandedRowRender: record => <MenuItemDetail menuItem={record} onUpdate={() => handleOpen(record)} />,
+              expandedRowRender: record => <DiningTableDetail diningTable={record} onUpdate={() => handleOpen(record)} />,
               expandedRowClassName: () => '!bg-white',
               expandRowByClick: true,
               expandIcon: () => <></>,
@@ -274,9 +261,6 @@ export const MenuItem = () => {
                 else setExpendedRow(undefined);
               },
             }}
-            locale={{
-              emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={translate('global.table.empty')} />,
-            }}
           ></Table>
         </div>
       </div>
@@ -284,4 +268,4 @@ export const MenuItem = () => {
   );
 };
 
-export default MenuItem;
+export default DiningTable;

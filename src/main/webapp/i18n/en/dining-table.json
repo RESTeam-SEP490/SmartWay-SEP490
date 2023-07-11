@@ -1,0 +1,39 @@
+{
+  "diningTable": {
+    "title": "Dining tables",
+    "addNewLabel": "Add new table",
+    "infoTabs": {
+      "information": "Information",
+      "sold": "Sold",
+      "ingredients": "Ingredients"
+    },
+    "code.label": "Code",
+    "code.placeholder": "Auto-generated code",
+    "name.label": "Table name",
+    "name.placeholder": "Table name",
+    "status.label": "Status",
+    "status.trueValue": "Selling",
+    "status.falseValue": "Discontinued",
+    "search.placeholder": "Search by name",
+    "zone.name": "Name",
+    "zone.label": "Zone",
+    "zone.placeholder": "--- Choose zone ---",
+    "isActive.false": "Discontinued table",
+    "action": {
+      "delete.question": "Are you sure to delete table <b>{{ name }}</b>?",
+      "allowSell": "Mark as selling table",
+      "allowSell.question": "Are you sure to mark <b>{{ number }}</b> selected item(s) as selling item?",
+      "allowSellOne.question": "Are you sure to mark item <b>{{ name }}</b> as selling item?",
+      "stopSell": "Mark as discontinued item",
+      "stopSell.question": "Are you sure to mark <b>{{ number }}</b> selected item(s) as discontinued item?",
+      "stopSellOne.question": "Are you sure to mark table <b>{{ name }}</b> as discontinued item?"
+    }
+  },
+  "smartWayApp": {
+    "diningTable": {
+      "created": "Add new table successfully",
+      "updated": "Update table successfully",
+      "deleted": "Delete table successfully"
+    }
+  }
+}

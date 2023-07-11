@@ -1,0 +1,17 @@
+{
+  "zone": {
+    "label": "Zone",
+    "name": "Zone name",
+    "description": "Description"
+  },
+  "smartWayApp": {
+    "zone": {
+      "created": "Add new zone successfully",
+      "updated": "Update zone successfully",
+      "deleted": "Delete zone successfully",
+      "delete": {
+        "question": "Are you sure to delete zone <b>{{ name }}</b>?"
+      }
+    }
+  }
+}

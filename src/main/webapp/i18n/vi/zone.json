@@ -1,0 +1,17 @@
+{
+  "zone": {
+    "label": "Danh mục khu vực",
+    "name": "Tên khu vực",
+    "description": "Mô tả"
+  },
+  "smartWayApp": {
+    "zone": {
+      "created": "Thêm mới khu vực thành công",
+      "updated": "Cập nhật khu vực thành công",
+      "deleted": "Xoá khu vực thành công",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Khu vực {{ name }}?"
+      }
+    }
+  }
+}
