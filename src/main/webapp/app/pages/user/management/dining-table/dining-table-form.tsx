@@ -48,26 +48,11 @@ export const DiningTableForm = ({
 
   return (
     <>
-      <Modal
-        open={isOpen}
-        destroyOnClose
-        width={1000}
-        title={
-          <Translate
-            contentKey={isNew ? 'entity.label.addNew' : 'entity.label.edit'}
-            interpolate={{ entity: translate('global.menu.entities.diningTable').toLowerCase() }}
-          />
-        }
-        footer={[]}
-        onCancel={() => handleClose()}
-      >
+      <Modal open={isOpen} footer={[]} onCancel={() => handleClose()}>
         <Form {...DEFAULT_FORM_ITEM_LAYOUT} form={form} colon onFinish={saveEntity}>
           <Tabs className="p-2">
             <Tabs.TabPane tab={translate('diningTable.infoTabs.information')} key={1} className="flex gap-8 p-2">
               <div className="flex-grow">
-                {/* <Form.Item label={translate('diningTable.code.label')} name={'code'}> */}
-                {/*   <Input disabled prefix={<InfoCircleFilled rev={''} />} placeholder={translate('diningTable.code.placeholder')} /> */}
-                {/* </Form.Item> */}
                 <Form.Item
                   label={translate('diningTable.name.label')}
                   name={'name'}
