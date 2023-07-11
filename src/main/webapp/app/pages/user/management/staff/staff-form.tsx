@@ -89,14 +89,13 @@ export const StaffForm = ({ staff, isOpen, handleClose }: { staff?: IStaff; isOp
                   <Input.Password />
                 </Form.Item>
                 <Form.Item
-                  labelCol={{ span: 10 }}
                   label={translate('staff.email.label')}
                   name={'email'}
                   // rules={[{ required: true, message: translate('entity.validation.required') }]}
                 >
                   <Input />
                 </Form.Item>
-                <Form.Item labelCol={{ span: 10 }} label={translate('staff.phone.label')} name={'phone'}>
+                <Form.Item label={translate('staff.phone.label')} name={'phone'}>
                   <Input />
                 </Form.Item>
               </div>

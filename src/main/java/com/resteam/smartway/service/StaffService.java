@@ -5,6 +5,7 @@ import com.resteam.smartway.domain.User;
 import com.resteam.smartway.repository.*;
 import com.resteam.smartway.service.dto.StaffDTO;
 import com.resteam.smartway.service.mapper.StaffMapper;
+import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -22,6 +23,8 @@ import tech.jhipster.security.RandomUtil;
 @Service
 @Transactional
 public class StaffService {
+
+    private static final String ENTITY_NAME = "staff";
 
     private final Logger log = LoggerFactory.getLogger(StaffService.class);
 
@@ -66,5 +69,28 @@ public class StaffService {
     public StaffDTO createStaff(@Valid StaffDTO staffDTO) {
         User staff = staffMapper.toEntity(staffDTO);
         return staffMapper.toDto(staffRepository.save(staff));
+    }
+
+    public StaffDTO updateStaff(StaffDTO staffDTO) {
+        User staff = staffRepository
+            .findById(staffDTO.getId())
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, " id not found"));
+
+        staffMapper.partialUpdate(staff, staffDTO);
+        User result = staffRepository.save(staff);
+        return staffMapper.toDto(result);
+    }
+
+    public void deleteStaff(List<String> ids) {
+        List<User> staffIdList = ids
+            .stream()
+            .map(id -> {
+                if (id == null) throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "id null");
+                return staffRepository
+                    .findById(UUID.fromString(id))
+                    .orElseThrow(() -> new BadRequestAlertException("Invalid id", ENTITY_NAME, "id null"));
+            })
+            .collect(Collectors.toList());
+        staffRepository.deleteAll(staffIdList);
     }
 }

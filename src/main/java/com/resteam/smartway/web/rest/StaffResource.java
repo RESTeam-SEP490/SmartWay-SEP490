@@ -9,6 +9,7 @@ import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
 import com.resteam.smartway.web.rest.vm.ManagedUserVM;
 import java.net.URI;
 import java.util.List;
+import java.util.Objects;
 import javax.validation.Valid;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -62,6 +63,31 @@ public class StaffResource {
             .created(URI.create(result.getId().toString()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(staffDTO);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<StaffDTO> updateStaff(@PathVariable(value = "id") final String id, @Valid @RequestBody StaffDTO staffDTO) {
+        if (staffDTO.getId() == null) {
+            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "id null");
+        }
+        if (!Objects.equals(id, staffDTO.getId().toString())) {
+            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "id invalid");
+        }
+
+        StaffDTO result = staffService.updateStaff(staffDTO);
+        return ResponseEntity
+            .ok()
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+            .body(result);
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Void> deleteStaffs(@RequestParam(value = "ids") final List<String> ids) {
+        staffService.deleteStaff(ids);
+        return ResponseEntity
+            .noContent()
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, String.valueOf(ids)))
+            .build();
     }
 
     private static boolean isPasswordLengthInvalid(String password) {

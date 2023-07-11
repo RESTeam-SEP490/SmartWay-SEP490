@@ -9,6 +9,7 @@ import { BarsOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
 import StaffForm from 'app/pages/user/management/staff/staff-form';
 import { IMenuItem } from 'app/shared/model/menu-item.model';
 import { CheckboxValueType } from 'antd/es/checkbox/Group';
+import StaffDetail from 'app/pages/user/management/staff/staff-detail';
 
 export const Staff = () => {
   const dispatch = useAppDispatch();
@@ -19,7 +20,6 @@ export const Staff = () => {
     { title: <Translate contentKey="staff.phone.label" />, dataIndex: 'phone', key: 'phone' },
     { title: <Translate contentKey="staff.email.label" />, dataIndex: 'email', key: 'email' },
     { title: <Translate contentKey="staff.role.label" />, dataIndex: ['role', 'name'], key: 'role' },
-    { title: <Translate contentKey="staff.restaurantId.label" />, dataIndex: ['restaurant', 'id'], key: 'restaurant' },
   ];
 
   const [expendedRow, setExpendedRow] = useState();
@@ -141,16 +141,8 @@ export const Staff = () => {
             </div>
 
             <div className="flex gap-2">
-              {/*<Dropdown menu={{ items }} disabled={selectedRowKeys.length === 0} className="!w-32">*/}
-              {/*  <Button type="primary" icon={<BarsOutlined rev={''} />}>*/}
-              {/*    <Translate contentKey="entity.label.operations" />*/}
-              {/*  </Button>*/}
-              {/*</Dropdown>*/}
               <Button type="primary" icon={<PlusOutlined rev={''} />} onClick={() => setIsShowForm(true)}>
                 <Translate contentKey="staff.addNewLabel" />
-              </Button>
-              <Button type="primary" icon={<UploadOutlined rev={''} />}>
-                <Translate contentKey="entity.action.import" />
               </Button>
             </div>
           </div>
@@ -176,7 +168,7 @@ export const Staff = () => {
             rowClassName={'cursor-pointer'}
             loading={loading}
             expandable={{
-              // expandedRowRender: record => <Staff staff={record} onUpdate={() => handleOpen(record)} />,
+              expandedRowRender: record => <StaffDetail staff={record} onUpdate={() => handleOpen(record)} />,
               expandedRowClassName: () => '!bg-white',
               expandRowByClick: true,
               expandIcon: () => <></>,

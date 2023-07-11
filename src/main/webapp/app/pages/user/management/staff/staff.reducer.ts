@@ -8,6 +8,7 @@ import { cleanEntity, getListValuesInParam } from 'app/shared/util/entity-utils'
 import React from 'react';
 import { IMenuItem } from 'app/shared/model/menu-item.model';
 import { updateIsActiveEntity } from 'app/pages/user/management/menu-item/menu-item.reducer';
+import { IRole } from 'app/shared/model/role.model';
 
 const initialState: EntityState<IStaff> = {
   loading: false,
@@ -53,16 +54,9 @@ export const createEntity = createAsyncThunk(
 );
 
 export const updateEntity = createAsyncThunk(
-  'staff/update-entity',
+  'staff/update_entity',
   async (entity: IStaff, thunkAPI) => {
-    const data = new FormData();
-    data.append(
-      'staffDTO',
-      new Blob([JSON.stringify(cleanEntity(entity))], {
-        type: 'application/json',
-      })
-    );
-    const result = await axios.put<IStaff>(`${apiUrl}/${entity.id}`, data);
+    const result = await axios.put<IStaff>(`${apiUrl}/${entity.id}`, cleanEntity(entity));
     thunkAPI.dispatch(getEntities());
     return result;
   },
