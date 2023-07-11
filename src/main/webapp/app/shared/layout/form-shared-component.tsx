@@ -26,7 +26,7 @@ export const SubmitButton = ({ form, isNew, updating }: { form: FormInstance; is
       htmlType="submit"
       disabled={!isNew && (!form.isFieldsTouched() || !isValid)}
     >
-      <Translate contentKey={isNew ? 'entity.action.save' : 'entity.action.edit'}></Translate>
+      <Translate contentKey={isNew ? 'entity.action.save' : 'entity.action.update'}></Translate>
     </Button>
   );
 };

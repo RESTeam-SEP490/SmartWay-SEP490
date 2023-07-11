@@ -13,9 +13,9 @@ public interface RoleRepository extends BaseRepository<Role> {
     @DisableRestaurantFilter
     Role findByNameAndRestaurant(String name, Restaurant restaurant);
 
+    Optional<Role> findOneByName(String name);
+
     Role findByName(String name);
 
     List<Role> findAllBy();
-
-    Optional<Role> findOneByName(String name);
 }
