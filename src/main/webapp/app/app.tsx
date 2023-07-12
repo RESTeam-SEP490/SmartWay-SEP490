@@ -57,7 +57,7 @@ export const App = () => {
                   username={username}
                 />
               </ErrorBoundary>
-              <div className="px-4 bg-gray-100 grow">
+              <div className="px-4 bg-blue-600 grow">
                 <ErrorBoundary>
                   <CurrentApp />
                 </ErrorBoundary>

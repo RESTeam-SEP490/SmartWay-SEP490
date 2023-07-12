@@ -12,6 +12,8 @@
       "entities": {
         "main": "Entities",
         "restaurant": "Restaurant",
+        "table": "Table",
+        "menu": "Menu",
         "menuItem": "Menu item",
         "menuItemCategory": "Category",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"

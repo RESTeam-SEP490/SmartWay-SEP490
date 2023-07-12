@@ -38,7 +38,7 @@ label {
 }
 
 .ant-table-row:has(+ .ant-table-expanded-row) {
-  box-shadow: 0px 2px 2px inset var(--300) !important;
+  box-shadow: 0 2px 2px inset var(--300) !important;
   border-bottom: 1px solid transparent;
   background: var(--50);
 }
@@ -112,4 +112,12 @@ th.ant-table-cell::before {
 
 .ant-modal-title {
   color: var(--600) !important;
+}
+
+.ant-tabs-card .ant-tabs-nav {
+  margin: 0 !important;
+}
+
+.ant-tabs-card .ant-tabs-tab {
+  color: #fff;
 }
