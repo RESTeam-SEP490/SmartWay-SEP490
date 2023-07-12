@@ -1,0 +1,48 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet author="win (generated)" id="1688069065964-1">
+        <createTable tableName="dining_table">
+            <column name="id" type="BINARY(16)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="dining_tablePK"/>
+            </column>
+            <column name="created_by" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="datetime(6)"/>
+            <column name="last_modified_by" type="VARCHAR(50)"/>
+            <column name="last_modified_date" type="datetime(6)"/>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="status" type="VARCHAR(255)"/>
+            <column name="restaurant_id" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="zone_id" type="BINARY(16)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="win (generated)" id="1688069065964-2">
+        <createTable tableName="zone">
+            <column name="id" type="BINARY(16)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="zonePK"/>
+            </column>
+            <column name="created_by" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="datetime(6)"/>
+            <column name="last_modified_by" type="VARCHAR(50)"/>
+            <column name="last_modified_date" type="datetime(6)"/>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="restaurant_id" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="win (generated)" id="1688069065964-3">
+        <addForeignKeyConstraint baseColumnNames="restaurant_id" baseTableName="dining_table" constraintName="FK4mid64p7bx9e0pymsbvfa5ki7" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="restaurant" validate="true"/>
+    </changeSet>
+    <changeSet author="win (generated)" id="1688069065964-4">
+        <addForeignKeyConstraint baseColumnNames="zone_id" baseTableName="dining_table" constraintName="FK86ret3f7uhb9b9ltjv9f5wdwr" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="zone" validate="true"/>
+    </changeSet>
+    <changeSet author="win (generated)" id="1688069065964-5">
+        <addForeignKeyConstraint baseColumnNames="restaurant_id" baseTableName="zone" constraintName="FKnvio9bryu470onnvjtwpxkmg8" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="restaurant" validate="true"/>
+    </changeSet>
+</databaseChangeLog>
