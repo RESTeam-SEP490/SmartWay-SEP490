@@ -7,7 +7,6 @@ import { BarsOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
 import { Button, Card, Dropdown, Input, MenuProps, Radio, Table, Tag, Typography } from 'antd';
 import { CheckboxValueType } from 'antd/es/checkbox/Group';
 import { IDiningTable } from 'app/shared/model/dining-table.model';
-import { IMenuItem } from 'app/shared/model/menu-item.model';
 import { ZoneCheckBoxes } from '../zone/zone';
 import DiningTableDetail from './dining-table-detail';
 import { DiningTableDialog } from './dining-table-dialog';
@@ -46,29 +45,14 @@ export const DiningTable = () => {
   ];
 
   const columns = [
-    // { title: <Translate contentKey="diningTable.code.label" />, dataIndex: 'code', key: 'code' },
     { title: <Translate contentKey="diningTable.name.label" />, dataIndex: 'name', key: 'name' },
     { title: <Translate contentKey="diningTable.zone.label" />, dataIndex: ['zone', 'name'], key: 'zone' },
-    // {
-    //   title: <Translate contentKey="diningTable.basePrice.label" />,
-    //   dataIndex: 'basePrice',
-    //   key: 'basePrice',
-    //   align: 'right' as const,
-    //   render: p => currencyFormatter(p),
-    // },
-    // {
-    //   title: <Translate contentKey="diningTable.sellPrice.label" />,
-    //   dataIndex: 'sellPrice',
-    //   key: 'sellPrice',
-    //   align: 'right' as const,
-    //   render: p => currencyFormatter(p),
-    // },
-    // {
-    //   title: <Translate contentKey="menuItem.status.label" />,
-    //   dataIndex: 'isActive',
-    //   key: 'isActive',
-    //   render: (i: boolean) => <Translate contentKey={i ? 'menuItem.status.trueValue' : 'menuItem.status.falseValue'} />,
-    // },
+    {
+      title: <Translate contentKey="diningTable.status.label" />,
+      dataIndex: 'isActive',
+      key: 'isActive',
+      render: (i: boolean) => <Translate contentKey={i ? 'diningTable.status.trueValue' : 'diningTable.status.falseValue'} />,
+    },
   ];
 
   const [expendedRow, setExpendedRow] = useState();
@@ -79,9 +63,9 @@ export const DiningTable = () => {
   const [allowSale, setAllowSale] = useState<boolean>();
 
   const [isShowForm, setIsShowForm] = useState(false);
-  const [updatingItem, setUpdatingItem] = useState<IMenuItem>();
+  const [updatingItem, setUpdatingItem] = useState<IDiningTable>();
 
-  const menuItemList = useAppSelector(state => state.diningTable.entities);
+  const diningTableList = useAppSelector(state => state.diningTable.entities);
   const pageable = useAppSelector(state => state.diningTable.pageable);
   const updateSuccess = useAppSelector(state => state.diningTable.updateSuccess);
 
@@ -90,10 +74,10 @@ export const DiningTable = () => {
   const count = useAppSelector(state => state.diningTable.totalItems);
   const loading = useAppSelector(state => state.diningTable.loading);
 
-  // if (pageable.isActive !== undefined) {
-  //   if (pageable.isActive) items.splice(1, 1);
-  //   else items.splice(2, 1);
-  // }
+  if (pageable.isActive !== undefined) {
+    if (pageable.isActive) items.splice(1, 1);
+    else items.splice(2, 1);
+  }
 
   useEffect(() => {
     dispatch(getEntities());
@@ -122,7 +106,7 @@ export const DiningTable = () => {
   const handleOnchangeZoneFilter = (checkedValues: CheckboxValueType[]) => {
     const isCheckAll = checkedValues.length === zoneList?.length;
     const selectedZones = isCheckAll ? undefined : checkedValues.map(v => v.toString());
-    dispatch(setPageable({ ...pageable, page: 0, category: selectedZones }));
+    dispatch(setPageable({ ...pageable, page: 0, zone: selectedZones }));
   };
 
   const handleOnchageStatusFilter = e => {
@@ -186,7 +170,12 @@ export const DiningTable = () => {
   return (
     <>
       <DiningTableForm diningTable={updatingItem} handleClose={handleClose} isOpen={isShowForm} />
-      <DiningTableDialog diningTables={selectedItems} handleClose={() => setIsShowDialog(false)} isOpen={isShowDialog} />
+      <DiningTableDialog
+        diningTables={selectedItems}
+        handleClose={() => setIsShowDialog(false)}
+        isOpen={isShowDialog}
+        isActive={allowSale}
+      />
 
       <div className="flex h-full p-2">
         <div className="flex flex-col w-1/5 gap-4 p-4">
@@ -243,7 +232,7 @@ export const DiningTable = () => {
 
           <Table
             columns={columns.map(c => ({ ...c, ellipsis: true }))}
-            dataSource={menuItemList}
+            dataSource={diningTableList}
             pagination={{
               ...DEFAULT_PAGINATION_CONFIG,
               onChange: handleOnchangePage,
@@ -272,9 +261,6 @@ export const DiningTable = () => {
                 else setExpendedRow(undefined);
               },
             }}
-            // locale={{
-            //   emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={translate('global.table.empty')} />,
-            // }}
           ></Table>
         </div>
       </div>

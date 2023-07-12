@@ -1,16 +1,12 @@
 package com.resteam.smartway.web.rest;
 
 import com.resteam.smartway.service.DiningTableService;
-import com.resteam.smartway.service.MenuItemService;
 import com.resteam.smartway.service.dto.DiningTableDTO;
-import com.resteam.smartway.service.dto.MenuItemDTO;
+import com.resteam.smartway.service.dto.IsActiveUpdateDTO;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -22,7 +18,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
@@ -45,9 +40,10 @@ public class DiningTableResource {
     public ResponseEntity<List<DiningTableDTO>> loadDiningTableWithSearch(
         Pageable pageable,
         @RequestParam(value = "search", required = false) String searchText,
-        @RequestParam(value = "zoneIds", required = false) List<String> zoneIds
+        @RequestParam(value = "zoneIds", required = false) List<String> zoneIds,
+        @RequestParam(value = "isActive", required = false) Boolean isActive
     ) {
-        Page<DiningTableDTO> diningTablePage = diningTableService.loadDiningTablesWithSearch(pageable, searchText, zoneIds);
+        Page<DiningTableDTO> diningTablePage = diningTableService.loadDiningTablesWithSearch(pageable, searchText, zoneIds, isActive);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
             ServletUriComponentsBuilder.fromCurrentRequest(),
             diningTablePage
@@ -84,5 +80,23 @@ public class DiningTableResource {
             .ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
+    }
+
+    @PutMapping
+    public ResponseEntity<DiningTableDTO> updateRestaurant(@Valid @RequestBody IsActiveUpdateDTO isActiveUpdateDTO) {
+        diningTableService.updateIsActiveDiningTables(isActiveUpdateDTO);
+        return ResponseEntity
+            .ok()
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, isActiveUpdateDTO.getIds().toString()))
+            .build();
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Void> deleteRestaurants(@RequestParam(value = "ids") final List<String> ids) {
+        diningTableService.deleteDiningTable(ids);
+        return ResponseEntity
+            .noContent()
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, String.valueOf(ids)))
+            .build();
     }
 }

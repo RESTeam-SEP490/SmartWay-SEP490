@@ -1,16 +1,17 @@
 import { IZone } from './zone.model';
 
-export type ITableStatus = 'BOOKED' | 'FREE' | 'BUSY' | 'INACTIVE';
 export interface IDiningTable {
   id?: string;
   name?: string | null;
-  status?: ITableStatus;
+  isActive?: boolean | null;
+  isFree?: boolean | null;
   zone?: IZone | null;
 }
 
 export const defaultValue: Readonly<IDiningTable> = {
   id: '',
   name: '',
-  status: 'FREE',
+  isActive: null,
+  isFree: null,
   zone: null,
 };

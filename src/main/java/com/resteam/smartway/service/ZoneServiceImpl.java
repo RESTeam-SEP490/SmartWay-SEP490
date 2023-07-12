@@ -1,14 +1,10 @@
 package com.resteam.smartway.service;
 
-import com.resteam.smartway.domain.MenuItemCategory;
-import com.resteam.smartway.domain.Restaurant;
 import com.resteam.smartway.domain.Zone;
 import com.resteam.smartway.repository.ZoneRepository;
-import com.resteam.smartway.security.SecurityUtils;
 import com.resteam.smartway.service.dto.ZoneDTO;
 import com.resteam.smartway.service.mapper.ZoneMapper;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
-import com.resteam.smartway.web.rest.errors.RestaurantInfoNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -36,35 +32,28 @@ public class ZoneServiceImpl implements ZoneService {
 
     @Override
     public List<ZoneDTO> loadAllZones() {
-        String restaurantId = SecurityUtils.getCurrentRestaurantId().orElseThrow(RestaurantInfoNotFoundException::new);
-
-        List<Zone> zoneList = zoneRepository.findAllByRestaurantOrderByCreatedDateDesc(new Restaurant(restaurantId));
+        List<Zone> zoneList = zoneRepository.findAllByOrderByCreatedDateDesc();
         return zoneMapper.toDto(zoneList);
     }
 
     @Override
     @SneakyThrows
     public ZoneDTO createZone(ZoneDTO zoneDTO) {
-        String restaurantId = SecurityUtils.getCurrentRestaurantId().orElseThrow(RestaurantInfoNotFoundException::new);
-
         zoneRepository
-            .findOneByRestaurantAndName(new Restaurant(restaurantId), zoneDTO.getName())
+            .findOneByName(zoneDTO.getName())
             .ifPresent(m -> {
                 throw new BadRequestAlertException(applicationName, ENTITY_NAME, "existed");
             });
 
         Zone zone = zoneMapper.toEntity(zoneDTO);
-        zone.setRestaurant(new Restaurant(restaurantId));
 
         return zoneMapper.toDto(zoneRepository.save(zone));
     }
 
     @Override
     public ZoneDTO updateZone(ZoneDTO zoneDTO) {
-        String restaurantId = SecurityUtils.getCurrentRestaurantId().orElseThrow(RestaurantInfoNotFoundException::new);
-
         Zone zone = zoneRepository
-            .findByRestaurantAndId(new Restaurant(restaurantId), zoneDTO.getId())
+            .findById(zoneDTO.getId())
             .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
 
         zone.setName(zoneDTO.getName());
@@ -75,9 +64,7 @@ public class ZoneServiceImpl implements ZoneService {
 
     @Override
     public void deleteZone(UUID id) {
-        String restaurantId = SecurityUtils.getCurrentRestaurantId().orElseThrow(RestaurantInfoNotFoundException::new);
-
-        Optional<Zone> zone = zoneRepository.findByRestaurantAndId(new Restaurant(restaurantId), id);
+        Optional<Zone> zone = zoneRepository.findById(id);
         if (zone.isEmpty()) {
             throw new BadRequestAlertException("Menu item category not found", ENTITY_NAME, "entityNotFound");
         }

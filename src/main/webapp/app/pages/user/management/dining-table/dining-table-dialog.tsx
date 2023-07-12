@@ -11,10 +11,12 @@ export const DiningTableDialog = ({
   diningTables,
   isOpen,
   handleClose,
+  isActive,
 }: {
   diningTables: IDiningTable[];
   isOpen: boolean;
   handleClose: any;
+  isActive?: boolean;
 }) => {
   const dispatch = useAppDispatch();
   const updating = useAppSelector(state => state.diningTable.updating);
@@ -25,15 +27,14 @@ export const DiningTableDialog = ({
       handleClose();
     }
   }, [updateSuccess]);
-
   const handleOk = () => {
     const selectedItemIds = diningTables.map(item => item.id);
-    // if (isActive === undefined) {
-    //   dispatch(deleteEntity(selectedItemIds));
-    // } else {
-    //   const dto: IListUpdateBoolean = { isActive, ids: selectedItemIds };
-    //   dispatch(updateIsActiveEntity(dto));
-    // }
+    if (isActive === undefined) {
+      dispatch(deleteEntity(selectedItemIds));
+    } else {
+      const dto: IListUpdateBoolean = { isActive, ids: selectedItemIds };
+      dispatch(updateIsActiveEntity(dto));
+    }
   };
 
   return (
@@ -47,44 +48,43 @@ export const DiningTableDialog = ({
       footer={null}
       title={<Translate contentKey="entity.label.confirm" />}
     >
-      {/* {isActive === undefined ? ( */}
-      {/*   <Typography.Text> */}
-      {/*     {menuItems[0]?.code ? ( */}
-      {/*       <Translate contentKey="menuItem.action.delete.question" interpolate={{ code: menuItems[0].code }} /> */}
-      {/*     ) : ( */}
-      {/*       <Translate contentKey="entity.action.delete.question" interpolate={{ number: menuItems.length }} /> */}
-      {/*     )} */}
-      {/*   </Typography.Text> */}
-      {/* ) : ( */}
-      {/*   <Typography> */}
-      {/*     {menuItems[0]?.code ? ( */}
-      {/*       isActive ? ( */}
-      {/*         <Translate contentKey="menuItem.action.allowSellOne.question" interpolate={{ code: menuItems[0].code }} /> */}
-      {/*       ) : ( */}
-      {/*         <Translate contentKey="menuItem.action.stopSellOne.question" interpolate={{ code: menuItems[0].code }} /> */}
-      {/*       ) */}
-      {/*     ) : isActive ? ( */}
-      {/*       <Translate contentKey="menuItem.action.allowSell.question" interpolate={{ number: menuItems.length }} /> */}
-      {/*     ) : ( */}
-      {/*       <Translate contentKey="menuItem.action.stopSell.question" interpolate={{ number: menuItems.length }} /> */}
-      {/*     )} */}
-      {/*   </Typography> */}
-      {/* )} */}
-      {/* <div className="flex justify-end gap-2 mt-4"> */}
-      {/*   {isActive === undefined ? ( */}
-      {/*     <Button type="primary" icon={<DeleteFilled rev={''} />} htmlType="submit" loading={updating} onClick={handleOk}> */}
-      {/*       <Translate contentKey="entity.action.delete"></Translate> */}
-      {/*     </Button> */}
-      {/*   ) : ( */}
-      {/*     <Button type="primary" icon={<CheckSquareFilled rev={''} />} htmlType="submit" loading={updating} onClick={handleOk}> */}
-      {/*       <Translate contentKey="entity.label.confirm"></Translate> */}
-      {/*     </Button> */}
-      {/*   )} */}
-      {/*   <Button type="default" onClick={() => handleClose()}> */}
-      {/*     <StopOutlined rev={''} /> */}
-      {/*     <Translate contentKey="entity.action.cancel"></Translate> */}
-      {/*   </Button> */}
-      {/* </div> */}
+      {isActive === undefined ? (
+        <Typography.Text>
+          {diningTables[0]?.name ? (
+            <Translate contentKey="diningTable.action.delete.question" interpolate={{ name: diningTables[0].name }} />
+          ) : (
+            <Translate contentKey="entity.action.delete.question" interpolate={{ number: diningTables.length }} />
+          )}
+        </Typography.Text>
+      ) : (
+        <Typography>
+          {diningTables[0]?.name ? (
+            isActive ? (
+              <Translate contentKey="diningTable.action.allowSellOne.question" interpolate={{ name: diningTables[0].name }} />
+            ) : (
+              <Translate contentKey="diningTable.action.stopSellOne.question" interpolate={{ name: diningTables[0].name }} />
+            )
+          ) : isActive ? (
+            <Translate contentKey="diningTable.action.allowSell.question" interpolate={{ number: diningTables.length }} />
+          ) : (
+            <Translate contentKey="diningTable.action.stopSell.question" interpolate={{ number: diningTables.length }} />
+          )}
+        </Typography>
+      )}
+      <div className="flex justify-end gap-2 mt-4">
+        {isActive === undefined ? (
+          <Button type="primary" icon={<DeleteFilled rev={''} />} htmlType="submit" loading={updating} onClick={handleOk}>
+            <Translate contentKey="entity.action.delete"></Translate>
+          </Button>
+        ) : (
+          <Button type="primary" icon={<CheckSquareFilled rev={''} />} htmlType="submit" loading={updating} onClick={handleOk}>
+            <Translate contentKey="entity.label.confirm"></Translate>
+          </Button>
+        )}
+        <Button type="default" icon={<StopOutlined rev={''} />} onClick={() => handleClose()}>
+          <Translate contentKey="entity.action.cancel"></Translate>
+        </Button>
+      </div>
     </Modal>
   );
 };

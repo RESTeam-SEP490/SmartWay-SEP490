@@ -21,13 +21,9 @@ public class Zone extends AbstractBaseAuditingEntity<UUID> implements Serializab
 
     @Id
     @GeneratedValue(generator = "uuid-hibernate-generator")
-    @GenericGenerator(name = "uuid-hibernate-generator", strategy = "org.hibernate.id.UUIDGenerator")
     @Column(name = "id", columnDefinition = "BINARY(16)")
     private UUID id;
 
     @Column(name = "name")
     private String name;
-    //    @ManyToOne(fetch = FetchType.LAZY)
-    //    @JoinColumn(name = "restaurant_id")
-    //    private Restaurant restaurant;
 }
