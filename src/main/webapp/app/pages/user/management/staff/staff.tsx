@@ -2,14 +2,14 @@ import { useAppDispatch, useAppSelector } from 'app/config/store';
 import React, { useEffect, useState } from 'react';
 import { translate, Translate } from 'react-jhipster';
 import { IStaff } from 'app/shared/model/staff.model';
-import { Button, Card, Dropdown, Empty, Input, Radio, Table, Tag, Typography } from 'antd';
+import { Button, Card, Empty, Input, Table, Tag, Typography } from 'antd';
 import { DEFAULT_PAGINATION_CONFIG } from 'app/shared/util/pagination.constants';
 import { getEntities, setPageable } from 'app/pages/user/management/staff/staff.reducer';
-import { BarsOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
+import { PlusOutlined } from '@ant-design/icons';
 import StaffForm from 'app/pages/user/management/staff/staff-form';
-import { IMenuItem } from 'app/shared/model/menu-item.model';
 import { CheckboxValueType } from 'antd/es/checkbox/Group';
 import StaffDetail from 'app/pages/user/management/staff/staff-detail';
+import { RoleCheckBoxes } from 'app/pages/user/management/role/role-component';
 
 export const Staff = () => {
   const dispatch = useAppDispatch();
@@ -36,20 +36,13 @@ export const Staff = () => {
   const pageable = useAppSelector(state => state.staff.pageable);
   const updateSuccess = useAppSelector(state => state.staff.updateSuccess);
 
-  const restaurantList = useAppSelector(state => state.restaurant.entities);
+  const roleList = useAppSelector(state => state.role.entities);
   const count = useAppSelector(state => state.staff.totalItems);
   const loading = useAppSelector(state => state.staff.loading);
 
   useEffect(() => {
     dispatch(getEntities());
   }, [pageable]);
-
-  // useEffect(() => {
-  //   if (selectedItems.length > 0 && updateSuccess) {
-  //     setSelectedRowKeys([]);
-  //     setSelectedItems([]);
-  //   }
-  // }, [updateSuccess]);
 
   const handleOnchangePage = (page, pageSize) => {
     dispatch(setPageable({ ...pageable, page: page - 1, size: pageSize }));
@@ -61,13 +54,9 @@ export const Staff = () => {
   };
 
   const handleOnchangeRoleFilter = (checkedValues: CheckboxValueType[]) => {
-    const isCheckAll = checkedValues.length === staffList?.length;
+    const isCheckAll = checkedValues.length === roleList?.length;
     const selectedRoles = isCheckAll ? undefined : checkedValues.map(v => v.toString());
     dispatch(setPageable({ ...pageable, page: 0, role: selectedRoles }));
-  };
-
-  const handleOnchangeStatusFilter = e => {
-    dispatch(setPageable({ ...pageable, page: 0, isActive: e.target.value }));
   };
 
   const handleOpen = (staff: IStaff) => {
@@ -126,6 +115,7 @@ export const Staff = () => {
             </Typography.Title>
             <Input placeholder={translate('staff.search.placeholder')} onPressEnter={handleOnchangeSearch} />
           </Card>
+          <RoleCheckBoxes onFilter={handleOnchangeRoleFilter} />
         </div>
         <div className="w-4/5 p-4">
           <div className="flex items-center justify-between mb-4">
@@ -148,8 +138,8 @@ export const Staff = () => {
           </div>
 
           <Table
-            columns={columns.map(c => ({ ...c, ellipsis: true }))}
-            dataSource={isShowForm ? [] : staffList} // Add condition to show empty array when isShowForm is true
+            columns={columns.map(s => ({ ...s, ellipsis: true }))}
+            dataSource={staffList}
             pagination={{
               ...DEFAULT_PAGINATION_CONFIG,
               onChange: handleOnchangePage,

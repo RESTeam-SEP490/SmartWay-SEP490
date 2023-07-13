@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { Translate, translate } from 'react-jhipster';
-
-import { CheckSquareFilled, DeleteFilled, EditFilled, LockFilled } from '@ant-design/icons';
-import { Badge, Button, Form, Image, Input, InputNumber, Tabs, Typography } from 'antd';
-import TextArea from 'antd/es/input/TextArea';
-import { currencyFormatter, DEFAULT_FORM_ITEM_LAYOUT } from 'app/app.constant';
+import { DeleteFilled, EditFilled } from '@ant-design/icons';
+import { Button, Form, Input, Tabs, Typography } from 'antd';
+import { DEFAULT_FORM_ITEM_LAYOUT } from 'app/app.constant';
 import { useAppDispatch } from 'app/config/store';
 import { IStaff } from 'app/shared/model/staff.model';
 import StaffDelete from './staff-dialog';

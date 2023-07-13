@@ -1,7 +1,6 @@
-import { CheckSquareFilled, DeleteFilled, StopOutlined } from '@ant-design/icons';
+import { CheckSquareFilled, StopOutlined } from '@ant-design/icons';
 import { Button, Modal, Typography } from 'antd';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
-import { IMenuItem } from 'app/shared/model/menu-item.model';
 import React, { useEffect } from 'react';
 import { Translate } from 'react-jhipster';
 import { IListUpdateBoolean } from 'app/shared/model/list-update-boolean';

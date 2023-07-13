@@ -1,16 +1,11 @@
 import React, { useEffect, useState } from 'react';
-
 import { useAppDispatch, useAppSelector } from 'app/config/store';
-
-import { Button, Card, Checkbox, Empty, Form, Select, Typography } from 'antd';
-import { DeleteOutlined, EditFilled, PlusOutlined } from '@ant-design/icons';
+import { Card, Checkbox, Empty, Form, Select, Typography } from 'antd';
 import { Translate, translate } from 'react-jhipster';
-import { FormType } from 'app/app.constant';
 import { CheckboxValueType } from 'antd/es/checkbox/Group';
 import Scrollbars from 'react-custom-scrollbars-2';
-import RoleForm from 'app/pages/user/management/role-staff/role-form';
 import { IRole } from 'app/shared/model/role';
-import { getEntities } from 'app/pages/user/management/role-staff/role.reducer';
+import { getEntities } from 'app/pages/user/management/role/role.reducer';
 
 export const RoleSelect = () => {
   const [isShowForm, setIsShowForm] = useState(false);
@@ -20,10 +15,6 @@ export const RoleSelect = () => {
   console.log(roleList);
   const loading = useAppSelector(state => state.role.loading);
   const updateSuccess = useAppSelector(state => state.role.updateSuccess);
-
-  useEffect(() => {
-    dispatch(getEntities({}));
-  }, []);
 
   useEffect(() => {
     if (updateSuccess) {
@@ -48,18 +39,12 @@ export const RoleSelect = () => {
           }
         ></Select>
       </Form.Item>
-      <Button className="mb-6" type="text" size="small" shape="circle" onClick={() => setIsShowForm(true)}>
-        <PlusOutlined className="text-slate-500" rev={''} />
-      </Button>
-      <RoleForm isOpen={isShowForm} handleClose={() => setIsShowForm(false)} />
     </div>
   );
 };
 
 export const RoleCheckBoxes = ({ onFilter }: { onFilter: any }) => {
   const dispatch = useAppDispatch();
-  const [isShowForm, setIsShowForm] = useState(false);
-  const [isShowDeleteConfirm, setIsShowDeleteConfirm] = useState(false);
   const [selectedRole, setSelectedRole] = useState<IRole>();
 
   const roleList = useAppSelector(state => state.role.entities);
@@ -76,18 +61,6 @@ export const RoleCheckBoxes = ({ onFilter }: { onFilter: any }) => {
     onFilter(selectedRoleList);
   }, [selectedRoleList]);
 
-  const handleOpen = (formType: FormType, role: IRole) => {
-    setSelectedRole(role);
-    if (formType === 'delete') setIsShowDeleteConfirm(true);
-    else setIsShowForm(true);
-  };
-
-  const handleClose = (formType: FormType) => {
-    setSelectedRole(undefined);
-    if (formType === 'delete') setIsShowDeleteConfirm(false);
-    else setIsShowForm(false);
-  };
-
   const handleOnchange = (values: CheckboxValueType[]) => {
     setSelectedRoleList(values);
   };
@@ -99,9 +72,6 @@ export const RoleCheckBoxes = ({ onFilter }: { onFilter: any }) => {
           <Typography.Title level={5}>
             <Translate contentKey="staff.role.label" />
           </Typography.Title>
-          <Button type="primary" size="small" shape="circle" onClick={() => setIsShowForm(true)}>
-            <PlusOutlined rev={''} />
-          </Button>
         </div>
         {roleList.length > 0 ? (
           <Scrollbars className="!w-[calc(100%+8px)]" autoHeight autoHeightMax={300}>
@@ -118,14 +88,6 @@ export const RoleCheckBoxes = ({ onFilter }: { onFilter: any }) => {
                   >
                     {role.name}
                   </Checkbox>
-                  <div className="flex">
-                    <Button type="link" size="small" shape="circle" onClick={() => handleOpen('edit', role)}>
-                      <EditFilled className="text-slate-300 hover:text-blue-500" rev={''} />
-                    </Button>
-                    <Button type="link" size="small" shape="circle" onClick={() => handleOpen('delete', role)}>
-                      <DeleteOutlined className="text-slate-300 hover:text-red-400" rev={''} />
-                    </Button>
-                  </div>
                 </div>
               ))}
             </Checkbox.Group>
@@ -134,8 +96,6 @@ export const RoleCheckBoxes = ({ onFilter }: { onFilter: any }) => {
           <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={translate('global.table.empty')} />
         )}
       </Card>
-      <RoleForm role={selectedRole} isOpen={isShowForm} handleClose={() => handleClose('edit')} />
-      {/*<MenuItemCategoryDelete category={selectedCategory} isOpen={isShowDeleteConfirm} handleClose={() => handleClose('delete')} />*/}
     </>
   );
 };

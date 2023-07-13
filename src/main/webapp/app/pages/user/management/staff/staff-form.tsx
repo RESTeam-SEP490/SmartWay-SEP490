@@ -1,16 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Translate, translate } from 'react-jhipster';
-
 import { useAppDispatch, useAppSelector } from 'app/config/store';
-
-import { DeleteOutlined, InfoCircleFilled, PlusOutlined, StopOutlined } from '@ant-design/icons';
-import { Button, Form, Image, Input, InputNumber, message, Modal, Tabs, Upload } from 'antd';
-import { currencyFormatter, DEFAULT_FORM_ITEM_LAYOUT } from 'app/app.constant';
+import { StopOutlined } from '@ant-design/icons';
+import { Button, Form, Input, Modal, Tabs } from 'antd';
+import { DEFAULT_FORM_ITEM_LAYOUT } from 'app/app.constant';
 import { SubmitButton } from 'app/shared/layout/form-shared-component';
-import { getBase64 } from 'app/shared/util/image-utils';
 import { IStaff } from 'app/shared/model/staff.model';
 import { createEntity, updateEntity } from 'app/pages/user/management/staff/staff.reducer';
-import { RoleSelect } from 'app/pages/user/management/role-staff/role';
+import RoleSelect from 'app/pages/user/management/role/role-component';
 
 export const StaffForm = ({ staff, isOpen, handleClose }: { staff?: IStaff; isOpen: boolean; handleClose: any }) => {
   const dispatch = useAppDispatch();
@@ -70,10 +67,10 @@ export const StaffForm = ({ staff, isOpen, handleClose }: { staff?: IStaff; isOp
                 <Form.Item
                   label={translate('staff.username.label')}
                   name={'username'}
-                  // rules={[
-                  //   { required: true, message: translate('entity.validation.required') },
-                  //   { max: 100, message: translate('entity.validation.max', { max: 100 }) },
-                  // ]}
+                  rules={[
+                    { required: true, message: translate('entity.validation.required') },
+                    { max: 100, message: translate('entity.validation.max', { max: 100 }) },
+                  ]}
                 >
                   <Input />
                 </Form.Item>
@@ -85,13 +82,20 @@ export const StaffForm = ({ staff, isOpen, handleClose }: { staff?: IStaff; isOp
                 </Form.Item>
               </div>
               <div className="flex-grow">
-                <Form.Item label={translate('staff.password.label')} name="password">
+                <Form.Item
+                  label={translate('staff.password.label')}
+                  name="password"
+                  rules={[
+                    { required: true, message: translate('entity.validation.required') },
+                    { max: 100, message: translate('entity.validation.max', { max: 100 }) },
+                  ]}
+                >
                   <Input.Password />
                 </Form.Item>
                 <Form.Item
                   label={translate('staff.email.label')}
                   name={'email'}
-                  // rules={[{ required: true, message: translate('entity.validation.required') }]}
+                  rules={[{ required: true, message: translate('entity.validation.required') }]}
                 >
                   <Input />
                 </Form.Item>
