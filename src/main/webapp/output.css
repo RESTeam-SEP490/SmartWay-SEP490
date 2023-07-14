@@ -955,3 +955,7 @@
   color: #0066cc;
   font-size: 35px;
 }
+
+.selected {
+  background-color: #c2e0ff;
+}

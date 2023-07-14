@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, Space, Typography } from 'antd';
 import { ShoppingOutlined, TableOutlined } from '@ant-design/icons';
 
 export const TableList = () => {
   const tables = [
+    { id: 0, name: 'Takeaway' },
     { id: 1, name: 'Table 1' },
     { id: 2, name: 'Table 2' },
     { id: 3, name: 'Table 3' },
@@ -26,22 +27,27 @@ export const TableList = () => {
     { id: 20, name: 'Table 20' },
   ];
 
+  const [selectedTable, setSelectedTable] = useState(null);
+
+  const handleTableClick = tableId => {
+    setSelectedTable(tableId);
+  };
+
   return (
     <div className="bg-white rounded-e-lg rounded-bl-lg h-screen table-list-container">
-      <Card className="square-card">
-        <div className="flex-container table-item">
-          <Space direction="vertical" align="center">
-            <ShoppingOutlined rev={undefined} className="table-outlined-color" />
-            <Typography style={{ color: '#0066CC' }}>Takeaway</Typography>
-          </Space>
-        </div>
-      </Card>
-
       {tables.map(table => (
-        <Card key={table.id} className="square-card">
+        <Card
+          key={table.id}
+          className={`square-card ${selectedTable === table.id ? 'selected' : ''}`}
+          onClick={() => handleTableClick(table.id)}
+        >
           <div className="flex-container table-item">
             <Space direction="vertical" align="center">
-              <TableOutlined className="table-outlined-color" rev={undefined} />
+              {table.id === 0 ? (
+                <ShoppingOutlined className="table-outlined-color" rev={undefined} />
+              ) : (
+                <TableOutlined className="table-outlined-color" rev={undefined} />
+              )}
               <Typography style={{ color: '#0066CC' }}>{table.name}</Typography>
             </Space>
           </div>

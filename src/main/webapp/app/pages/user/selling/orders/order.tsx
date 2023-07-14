@@ -1,6 +1,6 @@
 import { BiRestaurant } from 'react-icons/bi';
 import { TableOutlined } from '@ant-design/icons';
-import { Card, Col, Row, Tabs, TabsProps } from 'antd';
+import { Col, Row, Tabs, TabsProps } from 'antd';
 import React from 'react';
 import { Translate } from 'react-jhipster';
 import TableList from './order-screen-components/table-list';
