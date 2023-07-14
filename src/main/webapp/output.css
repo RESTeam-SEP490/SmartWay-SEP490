@@ -921,6 +921,7 @@
   border-radius: 10px;
   overflow: hidden;
   margin-left: 5%;
+  margin-top: 5%;
 }
 
 .square-card :hover {
@@ -938,9 +939,8 @@
 .table-list-container {
   display: flex;
   flex-wrap: wrap;
-  padding: 2% 0 2% 0;
   column-gap: 2%;
-  align-content: space-evenly;
+  align-content: flex-start;
 }
 
 .table-item {
@@ -958,4 +958,12 @@
 
 .selected {
   background-color: #c2e0ff;
+}
+
+.empty-message {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
 }
