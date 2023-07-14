@@ -1,6 +1,6 @@
 package com.resteam.smartway.web.rest;
 
-import com.resteam.smartway.service.UserService;
+import com.resteam.smartway.service.UserServiceImpl;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -23,10 +23,10 @@ public class PublicUserResource {
 
     private final Logger log = LoggerFactory.getLogger(PublicUserResource.class);
 
-    private final UserService userService;
+    private final UserServiceImpl userServiceImpl;
 
-    public PublicUserResource(UserService userService) {
-        this.userService = userService;
+    public PublicUserResource(UserServiceImpl userServiceImpl) {
+        this.userServiceImpl = userServiceImpl;
     }
 
     /**
@@ -57,6 +57,6 @@ public class PublicUserResource {
      */
     @GetMapping("/authorities")
     public List<String> getAuthorities() {
-        return userService.getAuthorities();
+        return userServiceImpl.getAuthorities();
     }
 }
