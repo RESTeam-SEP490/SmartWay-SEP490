@@ -6,7 +6,7 @@ import getStore from 'app/config/store';
 import { DEFAULT_PAGEABLE } from 'app/app.constant';
 import { cleanEntity, getListValuesInParam } from 'app/shared/util/entity-utils';
 import React from 'react';
-import { updateIsActiveEntity } from 'app/pages/user/management/menu-item/menu-item.reducer';
+import { updateIsActiveEntity } from 'app/pages/tenant/management/menu-item/menu-item.reducer';
 
 const initialState: EntityState<IStaff> = {
   loading: false,

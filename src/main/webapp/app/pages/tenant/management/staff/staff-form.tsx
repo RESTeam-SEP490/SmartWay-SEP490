@@ -6,8 +6,8 @@ import { Button, Form, Input, Modal, Tabs } from 'antd';
 import { DEFAULT_FORM_ITEM_LAYOUT } from 'app/app.constant';
 import { SubmitButton } from 'app/shared/layout/form-shared-component';
 import { IStaff } from 'app/shared/model/staff.model';
-import { createEntity, updateEntity } from 'app/pages/user/management/staff/staff.reducer';
-import RoleSelect from 'app/pages/user/management/role/role-component';
+import { createEntity, updateEntity } from 'app/pages/tenant/management/staff/staff.reducer';
+import RoleSelect from 'app/pages/tenant/management/role/role-component';
 
 export const StaffForm = ({ staff, isOpen, handleClose }: { staff?: IStaff; isOpen: boolean; handleClose: any }) => {
   const dispatch = useAppDispatch();

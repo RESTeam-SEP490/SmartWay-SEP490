@@ -5,14 +5,13 @@ import { Translate, translate } from 'react-jhipster';
 import { CheckboxValueType } from 'antd/es/checkbox/Group';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { IRole } from 'app/shared/model/role';
-import { getEntities } from 'app/pages/user/management/role/role.reducer';
+import { getEntities } from 'app/pages/tenant/management/role/role.reducer';
 
 export const RoleSelect = () => {
   const [isShowForm, setIsShowForm] = useState(false);
   const dispatch = useAppDispatch();
 
   const roleList = useAppSelector(state => state.role.entities).map(c => ({ value: c.id, label: c.name }));
-  console.log(roleList);
   const loading = useAppSelector(state => state.role.loading);
   const updateSuccess = useAppSelector(state => state.role.updateSuccess);
 

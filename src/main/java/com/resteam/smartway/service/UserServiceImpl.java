@@ -80,7 +80,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void registerUser(TenantRegistrationDTO tenantRegistrationDTO) {
+    public String registerUser(TenantRegistrationDTO tenantRegistrationDTO) {
         restaurantRepository
             .findOneById(tenantRegistrationDTO.getRestaurantId())
             .ifPresent(r -> {
@@ -105,6 +105,7 @@ public class UserServiceImpl implements UserService {
         userRepository.save(newUser);
 
         log.debug("Created Information for User: {}", newUser);
+        return savedRestaurant.getId();
     }
 
     @Transactional
