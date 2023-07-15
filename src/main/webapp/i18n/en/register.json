@@ -9,17 +9,23 @@
       "validate": {
         "login": {
           "required": "Your username is required.",
-          "minlength": "Your username is required to be at least 1 character.",
-          "maxlength": "Your username cannot be longer than 50 characters.",
+          "minlength": "Your username is must be at least 4 character.",
+          "maxlength": "Your username cannot be longer than 20 characters.",
           "pattern": "Your username is invalid."
         }
       },
-      "success": "<strong>Registration successfully!</strong>.",
+      "success": "<strong>Your registration was successful!</strong>.",
+      "success.subtitle": "Your restaurant has been created at:",
+      "success.button": "Start now",
       "error": {
         "fail": "<strong>Registration failed!</strong> Please try again later.",
         "userexists": "<strong>Login name already registered!</strong> Please choose another one.",
         "emailexists": "<strong>Email is already in use!</strong> Please choose another one."
-      }
+      },
+      "alreadyHasAccount": "Already has an account?"
     }
+  },
+  "error": {
+    "restaurantExists": "<strong>This restaurant name already registered!</strong> Please choose another one."
   }
 }

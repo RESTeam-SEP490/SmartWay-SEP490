@@ -6,8 +6,7 @@ import getStore from 'app/config/store';
 import { DEFAULT_PAGEABLE } from 'app/app.constant';
 import { cleanEntity, getListValuesInParam } from 'app/shared/util/entity-utils';
 import React from 'react';
-import { IMenuItem } from 'app/shared/model/menu-item.model';
-import { updateIsActiveEntity } from 'app/pages/user/management/menu-item/menu-item.reducer';
+import { updateIsActiveEntity } from 'app/pages/tenant/management/menu-item/menu-item.reducer';
 
 const initialState: EntityState<IStaff> = {
   loading: false,
@@ -26,9 +25,9 @@ export const setPageable = createAsyncThunk('staff/set_pageable', (pageable: IQu
 });
 
 export const getEntities = createAsyncThunk('/staff/fetch_entity_list', async () => {
-  const { sort, page, size, restaurant, search } = getStore().getState().staff.pageable;
-  const requestUrl = `${apiUrl}?page=${page}&size=${size}&sort=${sort}&search=${search ? search : ''}&restaurantId=${getListValuesInParam(
-    restaurant
+  const { sort, page, size, role, search } = getStore().getState().staff.pageable;
+  const requestUrl = `${apiUrl}?page=${page}&size=${size}&sort=${sort}&search=${search ? search : ''}&roleIds=${getListValuesInParam(
+    role
   )}`;
   return axios.get<IStaff[]>(requestUrl);
 });
@@ -45,14 +44,7 @@ export const getEntity = createAsyncThunk(
 export const createEntity = createAsyncThunk(
   'staff/create_entity',
   async (entity: IStaff, thunkAPI) => {
-    const data = new FormData();
-    data.append(
-      'staffDTO',
-      new Blob([JSON.stringify(entity)], {
-        type: 'application/json',
-      })
-    );
-    const result = await axios.put<IStaff>(`${apiUrl}/${entity.id}`, data);
+    const result = await axios.post<IStaff>(apiUrl, cleanEntity(entity));
     thunkAPI.dispatch(getEntities());
     return result;
   },
@@ -60,16 +52,9 @@ export const createEntity = createAsyncThunk(
 );
 
 export const updateEntity = createAsyncThunk(
-  'staff/update-entity',
+  'staff/update_entity',
   async (entity: IStaff, thunkAPI) => {
-    const data = new FormData();
-    data.append(
-      'staffDTO',
-      new Blob([JSON.stringify(cleanEntity(entity))], {
-        type: 'application/json',
-      })
-    );
-    const result = await axios.put<IStaff>(`${apiUrl}/${entity.id}`, data);
+    const result = await axios.put<IStaff>(`${apiUrl}/${entity.id}`, cleanEntity(entity));
     thunkAPI.dispatch(getEntities());
     return result;
   },

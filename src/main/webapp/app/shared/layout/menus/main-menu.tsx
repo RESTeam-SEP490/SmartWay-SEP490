@@ -14,25 +14,18 @@ import React from 'react';
 import { Translate, translate } from 'react-jhipster';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
-export const UserMenu = ({ onCollapse, isCollapsed }) => {
+export const UserMenu = () => {
   const location = useLocation();
 
   return (
     <>
       <div className="border-b border-blue-600 border-solid"></div>
-      <div className="relative">
-        <Button
-          type="primary"
-          ghost
-          icon={isCollapsed ? <VerticalAlignBottomOutlined rev={''} /> : <VerticalAlignTopOutlined rev={''} />}
-          className="right-2 absolute top-[50%] -translate-y-[50%]"
-          onClick={() => onCollapse()}
-        />
+      <div>
         <Menu selectedKeys={[location.pathname.split('/').pop()]} mode="horizontal" className="justify-center py-1 shadow-sm">
-          <Menu.SubMenu title={translate('menu.usermanagement.label')} icon={<TeamOutlined rev={TeamOutlined} />}>
+          <Menu.SubMenu title={translate('menu.staffmanagement.label')} icon={<TeamOutlined rev={TeamOutlined} />}>
             <Menu.Item key="users" icon={<UserOutlined rev={UserOutlined} />}>
-              <Translate contentKey="menu.usermanagement.submenu.users" />
-              <Link to="/users" />
+              <Translate contentKey="menu.staffmanagement.label" />
+              <Link to="/staffs" />
             </Menu.Item>
             <Menu.Item key="roles" icon={<ApartmentOutlined rev={ApartmentOutlined} />}>
               <Translate contentKey="menu.usermanagement.submenu.roles" />

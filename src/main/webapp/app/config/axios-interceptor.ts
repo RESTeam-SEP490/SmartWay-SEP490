@@ -11,6 +11,7 @@ const setupAxiosInterceptors = onUnauthenticated => {
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    config.headers['x-restaurant-subdomain'] = window.location.host.split('.')[0];
     return config;
   };
   const onResponseSuccess = response => response;

@@ -13,6 +13,8 @@
         "main": "Entities",
         "restaurant": "Restaurant",
         "menuItem": "Menu item",
+        "staff": "Staff",
+        "role": "Role",
         "menuItemCategory": "Category",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
       },
@@ -58,8 +60,8 @@
       "email.placeholder": "Your email",
       "phone.label": "Phone number",
       "phone.placeholder": "Your phone number",
-      "restaurantName.label": "Restaurant name",
-      "restaurantName.placeholder": "Your restaurant name"
+      "restaurantName.label": "Restaurant subdomain",
+      "restaurantName.placeholder": "Your restaurant subdomain"
     },
     "table": {
       "empty": "No data",
@@ -75,43 +77,43 @@
         },
         "register": {
           "noaccount": "You don't have an account yet?",
-          "link": "Register a new account"
+          "link": "Register a new account",
+          "restaurantNameTooltip": "The subdomain to access your restaurant management.<br/>Must contains only alphabets and numbers"
         }
       },
       "error": {
         "dontmatch": "The password and its confirmation do not match!"
       },
       "validate": {
+        "fullName": {
+          "required": "Full name is required",
+          "pattern": "Full name must contains only letters and spaces",
+          "max": "Full name cannot be longer than 50 characters"
+        },
         "newpassword": {
-          "required": "Your password is required.",
-          "minlength": "Your password is required to be at least 4 characters.",
-          "maxlength": "Your password cannot be longer than 50 characters.",
-          "strength": "Password strength:"
+          "required": "Password is required",
+          "minlength": "Password is must be at least 4 characters",
+          "maxlength": "Password cannot be more than 50 characters"
         },
         "confirmpassword": {
-          "required": "Your confirmation password is required.",
-          "minlength": "Your confirmation password is required to be at least 4 characters.",
-          "maxlength": "Your confirmation password cannot be longer than 50 characters."
+          "required": "Your confirmation password is required",
+          "minlength": "Your confirmation password is required to be at least 4 characters",
+          "maxlength": "Your confirmation password cannot be more than 50 characters"
         },
         "email": {
-          "required": "Your email is required.",
-          "invalid": "Your email is invalid.",
-          "minlength": "Your email is required to be at least 5 characters.",
-          "maxlength": "Your email cannot be longer than 50 characters."
+          "required": "Your email is required",
+          "invalid": "Your email is invalid",
+          "minlength": "Your email is required to be at least 5 characters",
+          "maxlength": "Your email cannot be more than 50 characters"
         },
         "phone": {
-          "required": "Your phone number is required.",
-          "invalid": "Your phone number is invalid."
-        },
-        "fullName": {
-          "required": "Full name is required.",
-          "pattern": "Full name should be letters only.",
-          "maxlength": "Full name cannot be longer than 50 characters."
+          "required": "Phone number is required",
+          "invalid": "Phone number is invalid"
         },
         "restaurantName": {
-          "required": "Restaurant name is required.",
-          "pattern": "Restaurant name should be letters only.",
-          "maxlength": "Restaurant name cannot be longer than 50 characters."
+          "required": "Restaurant name is required",
+          "pattern": "Restaurant name must contains only alphabets and numbers",
+          "max": "Restaurant name cannot be more than 50 characters"
         }
       }
     },

@@ -1,13 +1,11 @@
+import { Result } from 'antd';
 import React from 'react';
 import { Translate } from 'react-jhipster';
-import { Alert } from 'reactstrap';
 
 const PageNotFound = () => {
   return (
-    <div>
-      <Alert color="danger">
-        <Translate contentKey="error.http.404">The page does not exist.</Translate>
-      </Alert>
+    <div className="pt-14">
+      <Result status="404" title="404" subTitle={<Translate contentKey="error.http.404">The page does not exist.</Translate>} />;
     </div>
   );
 };
