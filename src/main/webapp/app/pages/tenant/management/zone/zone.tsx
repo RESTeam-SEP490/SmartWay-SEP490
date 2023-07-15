@@ -28,7 +28,7 @@ export const ZoneSelect = () => {
 
   return (
     <div className="flex items-center gap-2">
-      <Form.Item name={['zone', 'id']} className="flex-grow" rules={[{ required: true, message: translate('entity.validation.required') }]}>
+      <Form.Item name={['zone', 'id']} className="flex-grow">
         <Select
           showSearch
           loading={loading}
