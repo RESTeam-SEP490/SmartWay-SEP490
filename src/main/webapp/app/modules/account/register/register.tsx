@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Translate, isEmail, translate } from 'react-jhipster';
+import { isEmail, Translate, translate } from 'react-jhipster';
 
 import { CheckCircleFilled } from '@ant-design/icons';
 import { Alert, Button, Form, Result, Select, Space, Typography } from 'antd';
@@ -12,7 +12,7 @@ import { Brand } from 'app/shared/layout/header/header-components';
 import { LocaleMenu } from 'app/shared/layout/menus';
 import CountryList from 'country-list-with-dial-code-and-flag';
 import CountryFlagSvg from 'country-list-with-dial-code-and-flag/dist/flag-svg';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { handleRegister, reset } from './register.reducer';
 
 export const RegisterPage = () => {
@@ -47,8 +47,11 @@ export const RegisterPage = () => {
   return (
     <div>
       <div className="flex">
-        <div className="hidden min-h-screen p-4 lg:block lg:w-3/12 xl:w-5/12">
-          <div className="w-full h-full bg-blue-600 rounded-md"></div>
+        <div className="hidden min-h-screen p-6 lg:block lg:w-3/12 xl:w-5/12 ">
+          <div className="w-full h-full  relative">
+            <div className="absolute top-0 bottom-0 w-full rounded-lg bg-center bg-cover bg-wall-primary bg-[url('content/images/wall.jpg')]"></div>
+            <div className="absolute top-0 bottom-0 w-full rounded-lg bg-gradient-to-l from-40 to-90  from-blue-600/60 to-blue-300/60"></div>
+          </div>
         </div>
         <div className="flex flex-col items-center w-full min-h-screen p-4 lg:w-9/12 xl:w-7/12">
           <div className="flex items-center justify-between w-full px-8 py-6 ">
@@ -252,15 +255,7 @@ export const RegisterPage = () => {
                   </Col>
                 </Row>
 
-                <Row className="flex items-center justify-between mt-4">
-                  <div className="flex items-center gap-2">
-                    <Typography.Text>
-                      <Translate contentKey="register.messages.alreadyHasAccount" />
-                    </Typography.Text>
-                    <Link to="/login" className="font-semibold hover:underline">
-                      <Translate contentKey="login.form.button">Login</Translate>
-                    </Link>
-                  </div>
+                <Row className="flex items-center justify-end mt-4">
                   <Button htmlType="submit" type="primary" size="large">
                     <Translate contentKey="register.form.button">Register</Translate>
                   </Button>

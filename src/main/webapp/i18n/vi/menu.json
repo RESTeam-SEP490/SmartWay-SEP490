@@ -1,15 +1,21 @@
 {
   "menu": {
-    "usermanagement": {
-      "label": "Quản lý người dùng",
+    "foodMenu": {
+      "label": "Quản lý thực đơn",
+      "submenu": {}
+    },
+    "staff": {
+      "label": "Quản lý nhân viên",
       "submenu": {
-        "users": "Người dùng",
+        "staffs": "Nhân viên",
         "roles": "Vai trò"
       }
     },
-    "menumanagement": {
-      "label": "Quản lý thực đơn",
-      "submenu": {}
+    "table": {
+      "label": "Quản lý bàn"
+    },
+    "bill": {
+      "label": "Quản lý hoá đơn"
     }
   }
 }
