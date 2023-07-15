@@ -5,13 +5,13 @@ import axios from 'axios';
 import getStore from 'app/config/store';
 import { DEFAULT_PAGEABLE } from 'app/app.constant';
 import { cleanEntity, getListValuesInParam } from 'app/shared/util/entity-utils';
-import React from 'react';
 import { updateIsActiveEntity } from 'app/pages/tenant/management/menu-item/menu-item.reducer';
 
 const initialState: EntityState<IStaff> = {
   loading: false,
   errorMessage: null,
   entities: [],
+  totalItems: 0,
   entity: defaultValue,
   updating: false,
   updateSuccess: false,
@@ -95,6 +95,7 @@ export const StaffSlice = createEntitySlice({
 
         return {
           ...state,
+          totalItems: Number(count),
           loading: false,
           entities: data,
         };

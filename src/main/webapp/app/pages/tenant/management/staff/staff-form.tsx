@@ -45,6 +45,15 @@ export const StaffForm = ({ staff, isOpen, handleClose }: { staff?: IStaff; isOp
     }
   };
 
+  const validateEmail = (_, value) => {
+    const emailRegex = /^[A-Za-z0-9]+@[A-Za-z0-9.-]+\.[A-Z]{2,}$/i;
+    if (!emailRegex.test(value) && value) {
+      return Promise.reject(new Error(translate('entity.validation.email')));
+    }
+
+    return Promise.resolve();
+  };
+
   return (
     <>
       <Modal
@@ -74,10 +83,17 @@ export const StaffForm = ({ staff, isOpen, handleClose }: { staff?: IStaff; isOp
                 >
                   <Input />
                 </Form.Item>
-                <Form.Item label={translate('staff.fullName.label')} name={'fullName'}>
+                <Form.Item
+                  label={translate('staff.fullName.label')}
+                  name={'fullName'}
+                  rules={[
+                    { required: true, message: translate('entity.validation.required') },
+                    { max: 100, message: translate('entity.validation.max', { max: 100 }) },
+                  ]}
+                >
                   <Input />
                 </Form.Item>
-                <Form.Item label={translate('staff.role.label')} name="id">
+                <Form.Item label={translate('staff.role.label')} name="id" required>
                   <RoleSelect />
                 </Form.Item>
               </div>
@@ -95,11 +111,22 @@ export const StaffForm = ({ staff, isOpen, handleClose }: { staff?: IStaff; isOp
                 <Form.Item
                   label={translate('staff.email.label')}
                   name={'email'}
-                  rules={[{ required: true, message: translate('entity.validation.required') }]}
+                  rules={[
+                    { validator: validateEmail },
+                    { required: true, message: translate('entity.validation.required') },
+                    { max: 100, message: translate('entity.validation.max', { max: 100 }) },
+                  ]}
                 >
                   <Input />
                 </Form.Item>
-                <Form.Item label={translate('staff.phone.label')} name={'phone'}>
+                <Form.Item
+                  label={translate('staff.phone.label')}
+                  name={'phone'}
+                  rules={[
+                    { required: true, message: translate('entity.validation.required') },
+                    { max: 100, message: translate('entity.validation.max', { max: 100 }) },
+                  ]}
+                >
                   <Input />
                 </Form.Item>
               </div>

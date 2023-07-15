@@ -152,16 +152,19 @@ public class UserServiceImpl implements UserService {
     @SneakyThrows
     @Override
     public StaffDTO createStaff(StaffDTO staffDTO) {
+        String encryptedPassword = passwordEncoder.encode(staffDTO.getPassword());
+        staffDTO.setPassword(encryptedPassword);
         User staff = staffMapper.toEntity(staffDTO);
         return staffMapper.toDto(userRepository.save(staff));
     }
 
     @Override
     public StaffDTO updateStaff(StaffDTO staffDTO) {
+        String encryptedPassword = passwordEncoder.encode(staffDTO.getPassword());
         User staff = userRepository
             .findById(staffDTO.getId())
             .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME_STAFF, " id not found"));
-
+        staffDTO.setPassword(encryptedPassword);
         staffMapper.partialUpdate(staff, staffDTO);
         User result = userRepository.save(staff);
         return staffMapper.toDto(result);
