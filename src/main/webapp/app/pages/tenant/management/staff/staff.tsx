@@ -4,12 +4,12 @@ import { translate, Translate } from 'react-jhipster';
 import { IStaff } from 'app/shared/model/staff.model';
 import { Button, Card, Empty, Input, Table, Tag, Typography } from 'antd';
 import { DEFAULT_PAGINATION_CONFIG } from 'app/shared/util/pagination.constants';
-import { getEntities, setPageable } from 'app/pages/user/management/staff/staff.reducer';
+import { getEntities, setPageable } from 'app/pages/tenant/management/staff/staff.reducer';
 import { PlusOutlined } from '@ant-design/icons';
-import StaffForm from 'app/pages/user/management/staff/staff-form';
+import StaffForm from 'app/pages/tenant/management/staff/staff-form';
 import { CheckboxValueType } from 'antd/es/checkbox/Group';
-import StaffDetail from 'app/pages/user/management/staff/staff-detail';
-import { RoleCheckBoxes } from 'app/pages/user/management/role/role-component';
+import StaffDetail from 'app/pages/tenant/management/staff/staff-detail';
+import { RoleCheckBoxes } from 'app/pages/tenant/management/role/role-component';
 
 export const Staff = () => {
   const dispatch = useAppDispatch();

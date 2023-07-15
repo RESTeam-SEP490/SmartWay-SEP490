@@ -13,7 +13,7 @@ public interface UserService {
 
     Optional<User> requestPasswordReset(String mail);
 
-    void registerUser(TenantRegistrationDTO tenantRegistrationDTO);
+    String registerUser(TenantRegistrationDTO tenantRegistrationDTO);
 
     void changePassword(String currentClearTextPassword, String newPassword);
 

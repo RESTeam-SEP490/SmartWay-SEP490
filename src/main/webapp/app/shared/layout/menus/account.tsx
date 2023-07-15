@@ -1,10 +1,11 @@
 import { DownOutlined, FileTextOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons';
 import { Avatar, Button, Dropdown, MenuProps, Space, Typography } from 'antd';
-import React from 'react';
+import { RedirectLoginModal } from 'app/modules/login/redirect-login-modal';
+import React, { useState } from 'react';
 import { Translate } from 'react-jhipster';
 import { Link, useNavigate } from 'react-router-dom';
 
-const accountMenuItemsAuthenticated = name => {
+export const AuthenticatedAccountMenu = ({ name }: { name: string }) => {
   const items: MenuProps['items'] = [
     {
       key: 'profile',
@@ -38,21 +39,29 @@ const accountMenuItemsAuthenticated = name => {
   );
 };
 
-const accountMenuItems = navigate => (
-  <div className="flex gap-2">
-    <Button size="large" type="primary" ghost onClick={() => navigate('/login')} className="!w-32 !font-semibold">
-      <Translate contentKey="global.menu.account.login">Sign in</Translate>
-    </Button>{' '}
-    <Button size="large" type="primary" onClick={() => navigate('/register')} className="!w-32 !font-semibold">
-      <Translate contentKey="global.menu.account.register">Register</Translate>
-    </Button>
-  </div>
-);
-
-export const AccountMenu = ({ isAuthenticated = false, name }) => {
+export const AccountMenu = () => {
   const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState(false);
 
-  return <>{isAuthenticated ? accountMenuItemsAuthenticated(name) : accountMenuItems(navigate)}</>;
+  return (
+    <>
+      <RedirectLoginModal isOpen={isOpen} handleClose={() => setIsOpen(false)} />
+      <div className="flex gap-2">
+        <Button size="large" type="primary" ghost onClick={() => setIsOpen(true)} className="!w-32 !font-semibold">
+          <Translate contentKey="global.menu.account.login">Sign in</Translate>
+        </Button>{' '}
+        <Button size="large" type="primary" onClick={() => navigate('/register')} className="!w-32 !font-semibold">
+          <Translate contentKey="global.menu.account.register">Register</Translate>
+        </Button>
+      </div>
+    </>
+  );
 };
 
-export default AccountMenu;
+// export const AccountMenu = ({ isAuthenticated = false, name }) => {
+//   const navigate = useNavigate();
+
+//   return <>{isAuthenticated ? accountMenuItemsAuthenticated(name) : accountMenuItems()}</>;
+// };
+
+// export default AccountMenu;

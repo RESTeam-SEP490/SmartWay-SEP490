@@ -5,8 +5,8 @@ import React, { useEffect } from 'react';
 import { Translate } from 'react-jhipster';
 import { IListUpdateBoolean } from 'app/shared/model/list-update-boolean';
 import { IStaff } from 'app/shared/model/staff.model';
-import { deleteEntity } from 'app/pages/user/management/staff/staff.reducer';
-import { updateIsActiveEntity } from 'app/pages/user/management/menu-item/menu-item.reducer';
+import { deleteEntity } from 'app/pages/tenant/management/staff/staff.reducer';
+import { updateIsActiveEntity } from 'app/pages/tenant/management/menu-item/menu-item.reducer';
 
 export const StaffDialog = ({
   staffs,

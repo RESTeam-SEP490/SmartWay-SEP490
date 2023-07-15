@@ -33,7 +33,7 @@ public class TenantRegistrationDTO {
     @Pattern(regexp = "^[p{L}\\D]+$")
     private String fullName;
 
-    @Pattern(regexp = "^\\d+$")
+    @Pattern(regexp = "^[+]\\d{5,15}$")
     private String phone;
 
     @Email
@@ -41,6 +41,7 @@ public class TenantRegistrationDTO {
 
     @NotBlank
     @Size(max = 50)
+    @Pattern(regexp = "^[a-z\\d]+$")
     private String restaurantId;
 
     @Size(min = 2, max = 10)

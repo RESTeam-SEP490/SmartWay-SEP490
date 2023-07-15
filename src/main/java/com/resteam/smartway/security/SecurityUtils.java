@@ -1,8 +1,11 @@
 package com.resteam.smartway.security;
 
+import com.resteam.smartway.config.ApplicationProperties;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Stream;
+import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -27,6 +30,14 @@ public final class SecurityUtils {
             return (String) authentication.getPrincipal();
         }
         return null;
+    }
+
+    public static Optional<String> getRestaurantFromHeader(HttpServletRequest servletRequest, ApplicationProperties applicationProperties) {
+        String restaurantId = servletRequest.getHeader(applicationProperties.getHeader().getSubdomain());
+        if (StringUtils.isBlank(restaurantId)) {
+            return Optional.empty();
+        }
+        return Optional.of(restaurantId);
     }
 
     public static Optional<String> getCurrentUserJWT() {

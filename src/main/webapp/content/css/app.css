@@ -113,3 +113,9 @@ th.ant-table-cell::before {
 .ant-modal-title {
   color: var(--600) !important;
 }
+.ant-form-large .ant-form-item .ant-form-item-label > label {
+  height: 25px;
+}
+.ant-input-lg {
+  padding: 7.2px 11px;
+}

@@ -30,9 +30,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         if (username == null) {
             throw new UsernameNotFoundException("Username and domain must be provided");
         }
-        if (RestaurantContext.getCurrentRestaurant().getId() == null) {
-            RestaurantContext.setCurrentRestaurantById("system@");
-        }
 
         return userRepository
             .findOneWithAuthoritiesByUsername(username)
