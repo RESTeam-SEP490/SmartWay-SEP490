@@ -1,10 +1,10 @@
 import './header.scss';
 
-import React, { useState } from 'react';
-import { Storage, Translate } from 'react-jhipster';
+import React from 'react';
+import { Translate } from 'react-jhipster';
 import LoadingBar from 'react-redux-loading-bar';
 import { useLocation } from 'react-router-dom';
-import { AccountMenu, AdminMenu, AuthenticatedAccountMenu, LocaleMenu } from '../menus';
+import { AccountMenu, AuthenticatedAccountMenu, LocaleMenu } from '../menus';
 import { UserMenu } from '../menus/main-menu';
 import { Brand } from './header-components';
 import { AppType } from 'app/app.constant';
@@ -61,7 +61,7 @@ const MainAppHeader = (props: IHeaderProps) => {
 
 const TenantAppHeader = (props: IHeaderProps) => {
   return (
-    <div className={location.pathname.includes('login') ? 'hidden' : 'bg-white'}>
+    <div className={location.pathname.includes('login') ? 'hidden' : 'bg-white shadow-md z-10'}>
       {/* {renderDevRibbon()} */}
       <LoadingBar className="loading-bar" />
       <div className="flex items-center justify-between py-2 mx-auto transition-all duration-300 ease-linear lg:max-w-7xl">
