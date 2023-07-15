@@ -18,6 +18,7 @@
     "zone.label": "Khu vực",
     "zone.placeholder": "--- Chọn loại khu vực ---",
     "isActive.false": "Ngưng kinh doanh",
+    "message": "Bàn này chưa có khu vực",
     "action": {
       "delete.question": "Xoá dữ liệu của bàn <b>{{ name }}</b>?",
       "allowSell": "Cho phép kinh doanh",

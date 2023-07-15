@@ -108,7 +108,11 @@ public class MenuItemServiceImpl implements MenuItemService {
                 menuItem.setImageKey(path);
             }
         }
-
+        UUID menuItemCategoryId = menuItemDTO.getMenuItemCategory().getId();
+        MenuItemCategory menuItemCategory = menuItemCategoryRepository
+            .findById(menuItemCategoryId)
+            .orElseThrow(() -> new BadRequestAlertException("Category is not found", ENTITY_NAME, "idnotfound"));
+        menuItem.setMenuItemCategory(menuItemCategory);
         menuItemMapper.partialUpdate(menuItem, menuItemDTO);
         if (menuItemDTO.getImageUrl() == null || menuItemDTO.getImageUrl().isEmpty()) {
             s3Service.deleteFile(menuItem.getImageKey());

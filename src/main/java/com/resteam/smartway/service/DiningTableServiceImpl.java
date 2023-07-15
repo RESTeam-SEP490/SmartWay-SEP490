@@ -68,7 +68,11 @@ public class DiningTableServiceImpl implements DiningTableService {
         DiningTable diningTable = diningTableRepository
             .findById(diningTableDTO.getId())
             .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
-
+        UUID zoneId = diningTableDTO.getZone().getId();
+        Zone zone = zoneRepository
+            .findById(zoneId)
+            .orElseThrow(() -> new BadRequestAlertException("Zone is not found", ENTITY_NAME, "idnotfound"));
+        diningTable.setZone(zone);
         diningTableMapper.partialUpdate(diningTable, diningTableDTO);
 
         DiningTable result = diningTableRepository.save(diningTable);

@@ -19,6 +19,7 @@
     "zone.label": "Zone",
     "zone.placeholder": "--- Choose zone ---",
     "isActive.false": "Discontinued table",
+    "message": "This table has not been selected for a zone",
     "action": {
       "delete.question": "Are you sure to delete table <b>{{ name }}</b>?",
       "allowSell": "Mark as selling table",
