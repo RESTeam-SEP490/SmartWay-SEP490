@@ -52,10 +52,10 @@ export const authenticate = createAsyncThunk(
   }
 );
 
-export const login: (restaurantId: string, username: string, password: string, rememberMe?: boolean) => AppThunk =
-  (restaurantId, username, password, rememberMe = false) =>
+export const login: (username: string, password: string, rememberMe?: boolean) => AppThunk =
+  (username, password, rememberMe = false) =>
   async dispatch => {
-    const result = await dispatch(authenticate({ restaurantId, username, password, rememberMe }));
+    const result = await dispatch(authenticate({ username, password, rememberMe }));
     const response = result.payload as AxiosResponse;
     const bearerToken = response?.headers?.authorization;
     if (bearerToken && bearerToken.slice(0, 7) === 'Bearer ') {

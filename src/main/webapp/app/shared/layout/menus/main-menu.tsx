@@ -1,49 +1,88 @@
 import {
   ApartmentOutlined,
-  BarsOutlined,
-  FullscreenOutlined,
+  AppstoreOutlined,
+  DesktopOutlined,
+  FileTextOutlined,
+  ProfileOutlined,
   TeamOutlined,
   UserOutlined,
-  VerticalAlignBottomOutlined,
-  VerticalAlignTopOutlined,
 } from '@ant-design/icons';
-import { Button, Menu, MenuItemProps, MenuProps } from 'antd';
-import { ItemType, MenuItemType } from 'antd/es/menu/hooks/useItems';
-import { IconType } from 'antd/es/notification/interface';
+import { Button, Menu } from 'antd';
+import { AUTHORITIES } from 'app/config/constants';
+import { useAppSelector } from 'app/config/store';
 import React from 'react';
 import { Translate, translate } from 'react-jhipster';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
-export const UserMenu = ({ onCollapse, isCollapsed }) => {
+export const UserMenu = () => {
   const location = useLocation();
+  const { authorities } = useAppSelector(state => state.authentication.account);
+  const isHiddenWithAuthority = (requiredAuthorities: string[]) => {
+    if (authorities && authorities.length !== 0) {
+      if (requiredAuthorities.length === 0) {
+        return false;
+      }
+      return !requiredAuthorities.some(auth => authorities.includes(auth));
+    }
+    return true;
+  };
 
   return (
     <>
-      <div className="border-b border-blue-600 border-solid"></div>
-      <div className="relative">
-        <Button
-          type="primary"
-          ghost
-          icon={isCollapsed ? <VerticalAlignBottomOutlined rev={''} /> : <VerticalAlignTopOutlined rev={''} />}
-          className="right-2 absolute top-[50%] -translate-y-[50%]"
-          onClick={() => onCollapse()}
-        />
-        <Menu selectedKeys={[location.pathname.split('/').pop()]} mode="horizontal" className="justify-center py-1 shadow-sm">
-          <Menu.SubMenu title={translate('menu.usermanagement.label')} icon={<TeamOutlined rev={TeamOutlined} />}>
-            <Menu.Item key="users" icon={<UserOutlined rev={UserOutlined} />}>
-              <Translate contentKey="menu.usermanagement.submenu.users" />
-              <Link to="/users" />
+      <div className="border-b border-blue-300 border-solid"></div>
+      <div className="border-b-2 border-blue-600 border-solid "></div>
+      <div className="max-w-7xl mx-auto flex justify-between items-center">
+        <div className="grow">
+          <Menu selectedKeys={[location.pathname.split('/').pop()]} mode="horizontal" className="justify-center py-1">
+            <Menu.SubMenu title={translate('menu.staff.label')} icon={<TeamOutlined className="!text-lg" rev={''} />}>
+              <Menu.Item
+                key="staff"
+                icon={<UserOutlined className="!text-lg" rev={''} />}
+                hidden={isHiddenWithAuthority([AUTHORITIES.ADMIN, AUTHORITIES.STAFF_VIEW])}
+              >
+                <Translate contentKey="menu.staff.submenu.staffs" />
+                <Link to="/staff" />
+              </Menu.Item>
+              <Menu.Item
+                key="roles"
+                icon={<ApartmentOutlined className="!text-lg" rev={''} />}
+                hidden={isHiddenWithAuthority([AUTHORITIES.ADMIN, AUTHORITIES.STAFFROLE_VIEW])}
+              >
+                <Translate contentKey="menu.staff.submenu.roles" />
+                <Link to="/roles" />
+              </Menu.Item>
+            </Menu.SubMenu>
+            <Menu.Item
+              key="menu-items"
+              icon={<ProfileOutlined className="!text-lg" rev={''} />}
+              hidden={isHiddenWithAuthority([AUTHORITIES.ADMIN, AUTHORITIES.MENUITEM_VIEW])}
+            >
+              <Translate contentKey="menu.foodMenu.label" />
+              <Link to="/menu-items" />
             </Menu.Item>
-            <Menu.Item key="roles" icon={<ApartmentOutlined rev={ApartmentOutlined} />}>
-              <Translate contentKey="menu.usermanagement.submenu.roles" />
-              <Link to="/roles" />
+            <Menu.Item
+              key="tables"
+              icon={<AppstoreOutlined className="!text-lg" rev={''} />}
+              hidden={isHiddenWithAuthority([AUTHORITIES.ADMIN, AUTHORITIES.TABLE_VIEW])}
+            >
+              <Translate contentKey="menu.table.label" />
+              <Link to="/tables" />
             </Menu.Item>
-          </Menu.SubMenu>
-          <Menu.Item key="menu-items" icon={<BarsOutlined rev={ApartmentOutlined} />}>
-            <Translate contentKey="menu.menumanagement.label" />
-            <Link to="/menu-items" />
-          </Menu.Item>
-        </Menu>
+            <Menu.Item
+              key="bills"
+              icon={<FileTextOutlined className="!text-lg" rev={''} />}
+              hidden={isHiddenWithAuthority([AUTHORITIES.ADMIN, AUTHORITIES.BILL_VIEW])}
+            >
+              <Translate contentKey="menu.bill.label" />
+              <Link to="/bills" />
+            </Menu.Item>
+          </Menu>
+        </div>
+        <div className="">
+          <Button type="primary" icon={<DesktopOutlined rev={''} />}>
+            POS Screen
+          </Button>
+        </div>
       </div>
     </>
   );

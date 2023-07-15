@@ -1,7 +1,10 @@
 package com.resteam.smartway.service.dto;
 
+import static com.resteam.smartway.service.dto.TenantRegistrationDTO.PASSWORD_MAX_LENGTH;
+import static com.resteam.smartway.service.dto.TenantRegistrationDTO.PASSWORD_MIN_LENGTH;
+
 import com.resteam.smartway.config.Constants;
-import javax.persistence.Column;
+import java.util.UUID;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
@@ -15,11 +18,9 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class TenantRegistrationDTO {
+public class StaffDTO {
 
-    public static final int PASSWORD_MIN_LENGTH = 4;
-
-    public static final int PASSWORD_MAX_LENGTH = 100;
+    private UUID id;
 
     @NotBlank
     @Pattern(regexp = Constants.LOGIN_REGEX)
@@ -33,17 +34,17 @@ public class TenantRegistrationDTO {
     @Pattern(regexp = "^[p{L}\\D]+$")
     private String fullName;
 
-    @Pattern(regexp = "^[+]\\d{5,15}$")
+    @Pattern(regexp = "^\\d+$")
     private String phone;
 
     @Email
     private String email;
 
-    @NotBlank
     @Size(max = 50)
-    @Pattern(regexp = "^[a-z\\d]+$")
     private String restaurantId;
 
     @Size(min = 2, max = 10)
     private String langKey;
+
+    private RoleDTO role;
 }

@@ -83,6 +83,7 @@
     "antd-img-crop": "^4.12.2",
     "axios": "0.27.2",
     "bootstrap": "5.2.0",
+    "country-list-with-dial-code-and-flag": "^5.0.2",
     "dayjs": "1.11.5",
     "lodash": "4.17.21",
     "path-browserify": "1.0.1",

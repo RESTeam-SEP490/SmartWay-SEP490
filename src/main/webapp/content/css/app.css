@@ -38,9 +38,10 @@ label {
 }
 
 .ant-table-row:has(+ .ant-table-expanded-row) {
-  box-shadow: 0 2px 2px inset var(--300) !important;
+  box-shadow: 0px 2px 2px inset var(--300) !important;
   border-bottom: 1px solid transparent;
   background: var(--50);
+  font-weight: 600;
 }
 
 .ant-table-row:has(+ .ant-table-expanded-row) td:first-child {
@@ -63,6 +64,7 @@ label {
 
 .ant-table-row:has(+ .ant-table-expanded-row[style='display: none;']) td {
   background: #fff;
+  font-weight: 400;
 }
 
 /* Image css */
@@ -112,6 +114,17 @@ th.ant-table-cell::before {
 
 .ant-modal-title {
   color: var(--600) !important;
+}
+.ant-form-large .ant-form-item .ant-form-item-label > label {
+  height: 25px;
+}
+.ant-input-lg {
+  padding: 7.2px 11px;
+}
+
+.bg-wall-primary {
+  box-shadow: inset 0 0 0 2000px rgba(77, 129, 241, 0.5);
+  /* filter: grayscale(100%); */
 }
 
 .ant-tabs-card .ant-tabs-nav {

@@ -1,185 +1,268 @@
 import React, { useEffect, useState } from 'react';
-import { Translate, isEmail, translate } from 'react-jhipster';
-import { toast } from 'react-toastify';
+import { isEmail, Translate, translate } from 'react-jhipster';
 
-import { Button, Form, Select, Typography } from 'antd';
+import { CheckCircleFilled } from '@ant-design/icons';
+import { Alert, Button, Form, Result, Select, Space, Typography } from 'antd';
 import { Col, Row } from 'antd/es/grid';
 import Input from 'antd/es/input/Input';
 import Password from 'antd/es/input/Password';
+import { toNonAccentVietnamese } from 'app/app.constant';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
-import PasswordStrengthBar from 'app/shared/layout/password/password-strength-bar';
-import { handleRegister, reset } from './register.reducer';
-import { useLocation, useNavigate } from 'react-router-dom';
 import { Brand } from 'app/shared/layout/header/header-components';
 import { LocaleMenu } from 'app/shared/layout/menus';
+import CountryList from 'country-list-with-dial-code-and-flag';
+import CountryFlagSvg from 'country-list-with-dial-code-and-flag/dist/flag-svg';
+import { useNavigate } from 'react-router-dom';
+import { handleRegister, reset } from './register.reducer';
 
 export const RegisterPage = () => {
-  const [password, setPassword] = useState('');
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const location = useLocation();
-
-  const { Option } = Select;
-
-  useEffect(
-    () => () => {
-      dispatch(reset());
-    },
-    []
-  );
-
-  const currentLocale = useAppSelector(state => state.locale.currentLocale);
-
-  const handleValidSubmit = ({ fullName, phone, email, restaurantId, username, firstPassword }) => {
-    dispatch(handleRegister({ fullName, phone, email, restaurantId, username, password: firstPassword, langKey: currentLocale }));
-  };
-
-  const updatePassword = event => setPassword(event.target.value);
-
-  const successMessage = useAppSelector(state => state.register.successMessage);
+  const [countryList, setCountryList] = useState([]);
+  const [form] = Form.useForm();
 
   useEffect(() => {
-    if (successMessage) {
-      toast.success(translate(successMessage));
-      navigate('/login');
-    }
-  }, [successMessage]);
+    dispatch(reset());
+    setCountryList([...CountryList.getAll()]);
+  }, []);
 
-  const prefixSelector = (
-    <Form.Item name="prefix" noStyle>
-      <Select className="w-fit" defaultValue="86">
-        <Option value="86">+84</Option>
-        <Option value="87">+87</Option>
-      </Select>
-    </Form.Item>
-  );
+  const currentLocale = useAppSelector(state => state.locale.currentLocale);
+  const successLink = useAppSelector(state => state.register.restaurantLink);
+  const domain = useAppSelector(state => state.applicationProfile.domain);
+
+  const handleSubmit = ({ fullName, phone, dialCode, email, restaurantId, username, password }) => {
+    dispatch(
+      handleRegister({
+        fullName,
+        phone: dialCode + phone.replace(/^0+/, ''),
+        email,
+        restaurantId,
+        username,
+        password,
+        langKey: currentLocale,
+      })
+    );
+  };
 
   return (
     <div>
       <div className="flex">
-        <div className="w-5/12 p-4 min-h-max">
-          <div className="w-full h-full bg-blue-600 rounded-md"></div>
+        <div className="hidden min-h-screen p-6 lg:block lg:w-3/12 xl:w-5/12 ">
+          <div className="w-full h-full  relative">
+            <div className="absolute top-0 bottom-0 w-full rounded-lg bg-center bg-cover bg-wall-primary bg-[url('content/images/wall.jpg')]"></div>
+            <div className="absolute top-0 bottom-0 w-full rounded-lg bg-gradient-to-l from-40 to-90  from-blue-600/60 to-blue-300/60"></div>
+          </div>
         </div>
-        <div className="flex flex-col items-center w-7/12 p-4">
-          <div className="flex justify-between w-full px-8 py-6 ">
+        <div className="flex flex-col items-center w-full min-h-screen p-4 lg:w-9/12 xl:w-7/12">
+          <div className="flex items-center justify-between w-full px-8 py-6 ">
             <Brand />
             <LocaleMenu currentLocale={currentLocale} />
           </div>
-          <div className="w-2/3">
-            <Typography.Title className="!mb-0">
-              <Translate contentKey="register.title">Create your account</Translate>
-            </Typography.Title>
-            <Typography.Text className="text-gray-500">
-              <Translate contentKey="register.subtitle">Enter your credentials to access your Account</Translate>
-            </Typography.Text>
-            <Form layout="vertical" name="register" onFinish={handleValidSubmit} scrollToFirstError className="!mt-10 w-full">
-              <Form.Item
-                name="fullName"
-                label={translate('global.form.fullName.label')}
-                rules={[
-                  { required: true, message: translate('global.messages.validate.fullName.required') },
-                  { pattern: /^[\p{L}\D]+$/gu, message: translate('global.messages.validate.fullName.pattern') },
-                  { min: 1, message: translate('global.messages.validate.fullName.min') },
-                  { max: 50, message: translate('global.messages.validate.fullName.max') },
-                ]}
+          {successLink ? (
+            <div className="flex items-center justify-center grow">
+              <Result
+                className="w-88"
+                icon={<CheckCircleFilled className="!text-blue-600" rev={''} />}
+                title={translate('register.messages.success')}
+                extra={
+                  <>
+                    <Alert
+                      type="info"
+                      message={
+                        <div className="flex flex-col items-center gap-2 px-10 py-4">
+                          <span>
+                            <Translate contentKey="register.messages.success.subtitle" />
+                          </span>
+                          <Button
+                            type="link"
+                            className="font-semibold hover:underline !py-0"
+                            onClick={() => window.location.replace(successLink + '.' + domain)}
+                          >
+                            {successLink + '.' + domain}
+                          </Button>
+                        </div>
+                      }
+                    />
+                    <Button
+                      onClick={() => window.location.replace(successLink + '.' + domain)}
+                      type="primary"
+                      className="!w-40 mt-4"
+                      size="large"
+                    >
+                      <Translate contentKey="register.messages.success.button" />
+                    </Button>
+                  </>
+                }
+              ></Result>
+            </div>
+          ) : (
+            <div className="w-3/4">
+              <Typography.Title className="!mb-1 text-blue" level={2}>
+                <Translate contentKey="register.title">Create your account</Translate>
+              </Typography.Title>
+              <Typography.Text className="text-gray-500">
+                <Translate contentKey="register.subtitle">Enter your credentials to access your Account</Translate>
+              </Typography.Text>
+              <Form
+                form={form}
+                requiredMark={false}
+                size="large"
+                layout="vertical"
+                name="register"
+                onFinish={handleSubmit}
+                scrollToFirstError
+                className="!mt-8 w-full"
               >
-                <Input placeholder={translate('global.form.fullName.placeholder')} />
-              </Form.Item>
-              <Row>
-                <Col span={12} className="pr-2">
-                  <Form.Item
-                    name="phone"
-                    label={translate('global.form.phone.label')}
-                    rules={[
-                      { required: true, message: translate('global.messages.validate.phone.required') },
-                      { min: 5, message: translate('global.messages.validate.phone.minlength') },
-                      { max: 50, message: translate('global.messages.validate.phone.maxlength') },
-                    ]}
-                  >
-                    <Input addonBefore={prefixSelector} placeholder={translate('global.form.phone.placeholder')} />
-                  </Form.Item>
-                </Col>
-                <Col span={12} className="pl-2">
-                  <Form.Item
-                    name="email"
-                    label={translate('global.form.email.label')}
-                    rules={[
-                      { type: 'email' },
-                      { required: true, message: translate('global.messages.validate.email.required') },
-                      { min: 5, message: translate('global.messages.validate.email.minlength') },
-                      { max: 254, message: translate('global.messages.validate.email.maxlength') },
-                      {
-                        validator: (_, value: string) => (isEmail(value) ? Promise.resolve() : Promise.reject()),
-                        message: translate('global.messages.validate.email.invalid'),
-                      },
-                    ]}
-                  >
-                    <Input placeholder={translate('global.form.email.placeholder')} />
-                  </Form.Item>
-                </Col>
-              </Row>
-              <Form.Item
-                name="restaurantId"
-                label={translate('global.form.restaurantName.label')}
-                rules={[
-                  { required: true, message: translate('global.messages.validate.restaurantName.required') },
-                  { pattern: /^[a-z0-9]+$/, message: translate('global.messages.validate.restaurantName.pattern') },
-                  { max: 30, message: translate('global.messages.validate.restaurantName.max') },
-                ]}
-              >
-                <Input placeholder={translate('global.form.restaurantName.placeholder')} />
-              </Form.Item>
-              <Row>
-                <Col span={12} className="pr-2">
-                  <Form.Item
-                    name="username"
-                    label={translate('global.form.username.label')}
-                    rules={[
-                      { required: true, message: translate('register.messages.validate.login.required') },
-                      {
-                        pattern: /^[a-zA-Z0-9!$&*+=?^_`{|}~.-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$|^[_.@A-Za-z0-9-]+$/,
-                        message: translate('register.messages.validate.login.pattern'),
-                      },
-                      { min: 1, message: translate('register.messages.validate.login.minlength') },
-                      { max: 50, message: translate('register.messages.validate.login.maxlength') },
-                    ]}
-                  >
-                    <Input placeholder={translate('global.form.username.placeholder')} />
-                  </Form.Item>
-                </Col>
-                <Col span={12} className="pl-2">
-                  <Form.Item
-                    name="firstPassword"
-                    label={translate('global.form.password.label')}
-                    rules={[
-                      { required: true, message: translate('global.messages.validate.newpassword.required') },
-                      { min: 4, message: translate('global.messages.validate.newpassword.minlength') },
-                      { max: 50, message: translate('global.messages.validate.newpassword.maxlength') },
-                    ]}
-                  >
-                    <Password onChange={updatePassword} placeholder={translate('global.form.password.placeholder')} className="mb-2" />
-                  </Form.Item>
-                  <PasswordStrengthBar password={password} />
-                </Col>
-              </Row>
+                <Form.Item
+                  name="fullName"
+                  validateFirst
+                  label={translate('global.form.fullName.label')}
+                  rules={[
+                    { required: true, message: translate('global.messages.validate.fullName.required') },
+                    { pattern: /^[\p{L}\D]+$/gu, message: translate('global.messages.validate.fullName.pattern') },
+                    { max: 50, message: translate('global.messages.validate.fullName.max') },
+                  ]}
+                >
+                  <Input placeholder={translate('global.form.fullName.placeholder')} />
+                </Form.Item>
+                <Row>
+                  <Col span={14} className="pr-2">
+                    <Form.Item label={translate('global.form.phone.label')} className="mb-0">
+                      <Space.Compact className="w-full">
+                        <Form.Item name="dialCode" className="!w-28" initialValue={'+84'}>
+                          <Select
+                            className="w-fit"
+                            optionLabelProp="label"
+                            defaultValue="+84"
+                            popupMatchSelectWidth={false}
+                            showSearch
+                            popupClassName="!w-88"
+                          >
+                            {countryList.map(c => (
+                              <Select.Option
+                                key={c.dialCode + ' ' + c.name}
+                                value={c.dialCode}
+                                label={
+                                  <>
+                                    <img
+                                      width={20}
+                                      className="mb-1 mr-2"
+                                      src={`data:image/svg+xml;utf8,${encodeURIComponent(CountryFlagSvg[c.code])}`}
+                                    />
+                                    {c.dialCode}
+                                  </>
+                                }
+                              >
+                                <img
+                                  width={20}
+                                  className="mb-1 mr-2"
+                                  src={`data:image/svg+xml;utf8,${encodeURIComponent(CountryFlagSvg[c.code])}`}
+                                />
+                                {c.name}
+                                <span className="ml-2 text-gray-600">{'(' + c.dialCode + ')'}</span>
+                              </Select.Option>
+                            ))}
+                          </Select>
+                        </Form.Item>
+                        <Form.Item
+                          name="phone"
+                          className="grow"
+                          validateFirst
+                          rules={[
+                            { required: true, message: translate('global.messages.validate.phone.required') },
+                            { pattern: /^\d{8,10}$/, message: translate('global.messages.validate.phone.invalid') },
+                          ]}
+                        >
+                          <Input placeholder={translate('global.form.phone.placeholder')} />
+                        </Form.Item>
+                      </Space.Compact>
+                    </Form.Item>
+                  </Col>
+                  <Col span={10} className="pl-2">
+                    <Form.Item
+                      name="email"
+                      validateFirst
+                      label={translate('global.form.email.label')}
+                      rules={[
+                        { required: true, message: translate('global.messages.validate.email.required') },
+                        { max: 255, message: translate('global.messages.validate.email.maxlength') },
+                        {
+                          validator: (_, value: string) => (isEmail(value) ? Promise.resolve() : Promise.reject()),
+                          message: translate('global.messages.validate.email.invalid'),
+                        },
+                      ]}
+                    >
+                      <Input placeholder={translate('global.form.email.placeholder')} />
+                    </Form.Item>
+                  </Col>
+                </Row>
+                <Form.Item
+                  name="restaurantId"
+                  tooltip={translate('global.messages.info.register.restaurantNameTooltip')}
+                  validateTrigger={[]}
+                  label={translate('global.form.restaurantName.label')}
+                  rules={[
+                    { required: true, message: translate('global.messages.validate.restaurantName.required') },
+                    { max: 50, message: translate('global.messages.validate.restaurantName.max') },
+                  ]}
+                >
+                  <Input
+                    placeholder={translate('global.form.restaurantName.placeholder')}
+                    addonAfter={'smart-way.website'}
+                    onBlur={e => {
+                      form.setFieldValue(
+                        'restaurantId',
+                        toNonAccentVietnamese(e.target.value)
+                          .toLowerCase()
+                          .replace(/[^a-z0-9]/gi, '')
+                      );
+                      if (form.isFieldTouched('restaurantId')) form.validateFields(['restaurantId']);
+                    }}
+                  />
+                </Form.Item>
+                <Row>
+                  <Col span={12} className="pr-2">
+                    <Form.Item
+                      name="username"
+                      validateFirst
+                      label={translate('global.form.username.label')}
+                      rules={[
+                        { required: true, message: translate('register.messages.validate.login.required') },
+                        { min: 4, message: translate('register.messages.validate.login.minlength') },
+                        {
+                          pattern: /^(?=[a-zA-Z0-9._]+$)(?!.*[_.]{2})[^_.].*[^_.]$/,
+                          message: translate('register.messages.validate.login.pattern'),
+                        },
+                        { max: 20, message: translate('register.messages.validate.login.maxlength') },
+                      ]}
+                    >
+                      <Input placeholder={translate('global.form.username.placeholder')} />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12} className="pl-2">
+                    <Form.Item
+                      name="password"
+                      validateFirst
+                      label={translate('global.form.password.label')}
+                      rules={[
+                        { required: true, message: translate('global.messages.validate.newpassword.required') },
+                        { min: 4, message: translate('global.messages.validate.newpassword.minlength') },
+                        { max: 50, message: translate('global.messages.validate.newpassword.maxlength') },
+                      ]}
+                    >
+                      <Password placeholder={translate('global.form.password.placeholder')} />
+                    </Form.Item>
+                  </Col>
+                </Row>
 
-              <Form.Item
-                name="secondPassword"
-                label={translate('global.form.confirmpassword.label')}
-                rules={[
-                  { required: true, message: translate('global.messages.validate.confirmpassword.required') },
-                  { min: 4, message: translate('global.messages.validate.confirmpassword.minlength') },
-                  { max: 50, message: translate('global.messages.validate.confirmpassword.maxlength') },
-                  { validator: (_, value) => (value === password ? Promise.resolve() : Promise.reject()) },
-                ]}
-              >
-                <Password placeholder={translate('global.form.confirmpassword.placeholder')} />
-              </Form.Item>
-              <Button htmlType="submit" block type="primary" size="large">
-                <Translate contentKey="register.form.button">Register</Translate>
-              </Button>
-            </Form>
-          </div>
+                <Row className="flex items-center justify-end mt-4">
+                  <Button htmlType="submit" type="primary" size="large">
+                    <Translate contentKey="register.form.button">Register</Translate>
+                  </Button>
+                </Row>
+              </Form>
+            </div>
+          )}
         </div>
       </div>
     </div>

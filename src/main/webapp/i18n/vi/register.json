@@ -9,17 +9,23 @@
       "validate": {
         "login": {
           "required": "Bạn phải nhập tên tài khoản.",
-          "minlength": "Tên tài khoản phải có ít nhất 1 ký tự.",
-          "maxlength": "Tên tài khoản không được vượt quá 50 ký tự.",
+          "minlength": "Tên tài khoản phải có ít nhất 4 ký tự.",
+          "maxlength": "Tên tài khoản không được vượt quá 20 ký tự.",
           "pattern": "Your username is invalid."
         }
       },
-      "success": "<strong>Đăng ký thành công!</strong> Bạn vui lòng kiểm tra hộp thư để xác nhận tài khoản.",
+      "success": "<strong>Đăng ký thành công!</strong>",
+      "success.subtitle": "Đã khởi tạo nhà hạng tại địa chỉ:",
+      "success.button": "Truy cập ngay",
       "error": {
         "fail": "<strong>Đăng ký thất bại!</strong> Vui lòng thử lại sau.",
         "userexists": "<strong>Tên tài khoản này đã được sử dụng!</strong> Bạn vui lòng chọn tên tài khoản khác.",
         "emailexists": "<strong>Email này đã được sử dụng!</strong> Bạn vui lòng nhập email khác."
-      }
+      },
+      "alreadyHasAccount": "Đã có tài khoản?"
     }
+  },
+  "error": {
+    "restaurantExists": "<strong>Tên nhà hàng này đã được đăng ký!</strong> Vui lòng chọn tên nhà hàng khác."
   }
 }

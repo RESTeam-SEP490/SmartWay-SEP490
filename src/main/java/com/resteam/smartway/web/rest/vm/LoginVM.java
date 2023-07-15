@@ -10,8 +10,6 @@ import lombok.Data;
 @Data
 public class LoginVM {
 
-    private String restaurantId;
-
     @NotNull
     @Size(min = 1, max = 50)
     private String username;
