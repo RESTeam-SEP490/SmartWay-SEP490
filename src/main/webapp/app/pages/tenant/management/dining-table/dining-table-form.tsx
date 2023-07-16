@@ -28,6 +28,13 @@ export const DiningTableForm = ({
   const updateSuccess = useAppSelector(state => state.diningTable.updateSuccess);
 
   useEffect(() => {
+    if (!isNew) {
+      form.setFieldsValue({ ...diningTable });
+    } else {
+      form.resetFields();
+    }
+  }, [isNew]);
+  useEffect(() => {
     if (updateSuccess) {
       form.resetFields();
       handleClose();
