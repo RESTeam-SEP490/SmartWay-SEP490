@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Translate, translate } from 'react-jhipster';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 
-import { InfoCircleFilled, StopOutlined } from '@ant-design/icons';
+import { StopOutlined } from '@ant-design/icons';
 import { Button, Form, Input, Modal, Tabs } from 'antd';
 import { DEFAULT_FORM_ITEM_LAYOUT } from 'app/app.constant';
 import { SubmitButton } from 'app/shared/layout/form-shared-component';
@@ -28,6 +28,13 @@ export const DiningTableForm = ({
   const updateSuccess = useAppSelector(state => state.diningTable.updateSuccess);
 
   useEffect(() => {
+    if (!isNew) {
+      form.setFieldsValue({ ...diningTable });
+    } else {
+      form.resetFields();
+    }
+  }, [isNew]);
+  useEffect(() => {
     if (updateSuccess) {
       form.resetFields();
       handleClose();
@@ -38,7 +45,7 @@ export const DiningTableForm = ({
       ...diningTable,
       ...values,
     };
-
+    if (entity.zone.id === undefined) entity.zone = null;
     if (isNew) {
       dispatch(createEntity(entity));
     } else {
@@ -63,7 +70,7 @@ export const DiningTableForm = ({
                 >
                   <Input />
                 </Form.Item>
-                <Form.Item label={translate('diningTable.zone.label')} required>
+                <Form.Item label={translate('diningTable.zone.label')}>
                   <ZoneSelect />
                 </Form.Item>
               </div>
