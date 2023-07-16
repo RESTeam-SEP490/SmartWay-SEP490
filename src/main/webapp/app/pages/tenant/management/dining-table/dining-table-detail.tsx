@@ -38,9 +38,15 @@ export const DiningTableDetail = ({ diningTable, onUpdate }: { diningTable: IDin
 
           <div className="flex">
             <Form {...DEFAULT_FORM_ITEM_LAYOUT} colon className="flex-grow ml-6">
-              <Form.Item className="!mb-0" label={translate('diningTable.zone.label')}>
-                <Input bordered={false} value={diningTable.zone.name} />
-              </Form.Item>
+              <Form {...DEFAULT_FORM_ITEM_LAYOUT} colon className="flex-grow ml-6">
+                <Form.Item className="!mb-0" label={translate('diningTable.zone.label')}>
+                  {diningTable.zone && diningTable.zone.name !== undefined ? (
+                    <Input bordered={false} value={diningTable.zone.name} />
+                  ) : (
+                    <Translate contentKey="diningTable.message" />
+                  )}
+                </Form.Item>
+              </Form>
             </Form>
           </div>
           <div className="flex justify-end gap-2 mt-4">
