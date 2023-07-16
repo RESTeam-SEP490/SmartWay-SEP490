@@ -16,6 +16,7 @@
         "staff": "Staff",
         "role": "Role",
         "menuItemCategory": "Category",
+        "username": "Username",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
       },
       "account": {
@@ -169,7 +170,9 @@
       "pattern": "This field should follow pattern for {{ pattern }}.",
       "number": "This field should be a number.",
       "datetimelocal": "This field should be a date and time.",
-      "patternLogin": "This field can only contain letters, digits and e-mail addresses."
+      "patternLogin": "This field can only contain letters, digits and e-mail addresses.",
+      "email": "Invalid email format.",
+      "phoneRegexCS": "Invalid phone number format."
     },
     "filters": {
       "all": "Select all",
