@@ -1,18 +1,21 @@
 {
   "menu": {
-    "usermanagement": {
-      "label": "User Management",
-      "submenu": {
-        "users": "Users",
-        "roles": "Roles"
-      }
-    },
-    "menumanagement": {
+    "foodMenu": {
       "label": "Menu Management",
       "submenu": {}
     },
-    "staffmanagement": {
-      "label": "Staff Management"
+    "staff": {
+      "label": "Staff Management",
+      "submenu": {
+        "staffs": "Staff",
+        "roles": "Roles"
+      }
+    },
+    "table": {
+      "label": "Table Management"
+    },
+    "bill": {
+      "label": "Bill Management"
     }
   }
 }
