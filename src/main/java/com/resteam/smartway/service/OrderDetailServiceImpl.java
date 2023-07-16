@@ -30,21 +30,21 @@ public class OrderDetailServiceImpl implements OrderDetailService {
         return orderDetailMapper.toDto(orderDetail);
     }
 
-    private String generateCode() {
-        Optional<OrderDetail> lastOrderDetail = orderDetailRepository.findTopByOrderByCodeDesc();
-
-        if (lastOrderDetail.isEmpty()) return "ODe000001"; else {
-            String lastCode = lastOrderDetail.get().getCode();
-            int nextCodeInt = Integer.parseInt(lastCode.substring(2)) + 1;
-            if (nextCodeInt > 999999) throw new IllegalStateException("Maximum Code reached");
-            return String.format("OD%06d", nextCodeInt);
-        }
-    }
+    //    private String generateCode() {
+    //        Optional<OrderDetail> lastOrderDetail = orderDetailRepository.findTopByOrderByCodeDesc();
+    //
+    //        if (lastOrderDetail.isEmpty()) return "ODe000001"; else {
+    //            String lastCode = lastOrderDetail.get().getCode();
+    //            int nextCodeInt = Integer.parseInt(lastCode.substring(2)) + 1;
+    //            if (nextCodeInt > 999999) throw new IllegalStateException("Maximum Code reached");
+    //            return String.format("OD%06d", nextCodeInt);
+    //        }
+    //    }
 
     @Override
     public List<OrderDetailDTO> getAllOrderDetails() {
         List<OrderDetail> orderDetails = orderDetailRepository.findAll();
-        return orderDetailMapper.toDtoList(orderDetails);
+        return orderDetailMapper.toDto(orderDetails);
     }
 
     @Override

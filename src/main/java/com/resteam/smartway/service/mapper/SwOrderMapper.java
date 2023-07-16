@@ -7,9 +7,5 @@ import org.mapstruct.Mapper;
 import org.springframework.stereotype.Component;
 
 @Component
-@Mapper(componentModel = "spring", uses = { SwOrderMapper.class })
-public interface SwOrderMapper extends EntityMapper<SwOrderDTO, SwOrder> {
-    SwOrder toEntity(SwOrderDTO dto);
-
-    SwOrderDTO toDto(SwOrder entity);
-}
+@Mapper(componentModel = "spring", uses = { OrderDetailMapper.class, DiningTableMapper.class })
+public interface SwOrderMapper extends EntityMapper<SwOrderDTO, SwOrder> {}

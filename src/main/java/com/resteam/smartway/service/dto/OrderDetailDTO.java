@@ -13,7 +13,7 @@ import lombok.Setter;
 public class OrderDetailDTO {
 
     private UUID id;
-    private SwOrderDTO swOrder;
+    private String orderId;
     private MenuItemDTO menuItem;
     private int quantity;
 }

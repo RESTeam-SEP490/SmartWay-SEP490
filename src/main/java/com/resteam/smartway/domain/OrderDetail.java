@@ -16,11 +16,9 @@ import lombok.Setter;
 public class OrderDetail {
 
     @Id
+    @GeneratedValue
     @Column(name = "id", columnDefinition = "BINARY(16)")
     private UUID id;
-
-    @Column(length = 8)
-    private String code;
 
     @ManyToOne
     @JoinColumn(name = "order_id", referencedColumnName = "id", columnDefinition = "BINARY(16)")

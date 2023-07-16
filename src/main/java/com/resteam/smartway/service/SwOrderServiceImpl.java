@@ -1,14 +1,18 @@
 package com.resteam.smartway.service;
 
 import com.amazonaws.services.kms.model.NotFoundException;
+import com.resteam.smartway.domain.DiningTable;
+import com.resteam.smartway.domain.MenuItem;
 import com.resteam.smartway.domain.OrderDetail;
 import com.resteam.smartway.domain.SwOrder;
+import com.resteam.smartway.repository.DiningTableRepository;
+import com.resteam.smartway.repository.MenuItemRepository;
+import com.resteam.smartway.repository.OrderDetailRepository;
 import com.resteam.smartway.repository.SwOrderRepository;
-import com.resteam.smartway.service.dto.MenuItemDTO;
+import com.resteam.smartway.service.dto.OrderDetailDTO;
 import com.resteam.smartway.service.dto.SwOrderDTO;
-import com.resteam.smartway.service.mapper.MenuItemMapper;
+import com.resteam.smartway.service.mapper.OrderDetailMapper;
 import com.resteam.smartway.service.mapper.SwOrderMapper;
-import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -24,18 +28,22 @@ public class SwOrderServiceImpl implements SwOrderService {
 
     private final SwOrderRepository swOrderRepository;
     private final SwOrderMapper swOrderMapper;
-    private final MenuItemServiceImpl menuItemService;
-    private final MenuItemMapper menuItemMapper;
+    private final DiningTableRepository diningTableRepository;
+    private final MenuItemRepository menuItemRepository;
+    private final OrderDetailMapper orderDetailMapper;
+    private final OrderDetailRepository orderDetailRepository;
 
     @Override
     public SwOrderDTO createOrder(SwOrderDTO orderDTO) {
         SwOrder order = swOrderMapper.toEntity(orderDTO);
-        order.setId(UUID.randomUUID());
-        order.setItems(new ArrayList<>());
-        order.setTable(orderDTO.getTableName());
+        DiningTable table = diningTableRepository
+            .findById(order.getTable().getId())
+            .orElseThrow(() -> new NotFoundException("table not found"));
+        order.setTable(table);
+        String orderCode = generateCode();
+        order.setCode(orderCode);
         order.setPaid(false);
         order.setPayDate(null);
-
         SwOrder savedOrder = swOrderRepository.save(order);
         return swOrderMapper.toDto(savedOrder);
     }
@@ -48,7 +56,6 @@ public class SwOrderServiceImpl implements SwOrderService {
 
     private String generateCode() {
         Optional<SwOrder> lastOrder = swOrderRepository.findTopByOrderByCodeDesc();
-
         if (lastOrder.isEmpty()) return "OD000001"; else {
             String lastCode = lastOrder.get().getCode();
             int nextCodeInt = Integer.parseInt(lastCode.substring(2)) + 1;
@@ -68,31 +75,35 @@ public class SwOrderServiceImpl implements SwOrderService {
         SwOrder existingOrder = swOrderRepository
             .findById(orderId)
             .orElseThrow(() -> new NotFoundException("Order not found with ID: " + orderId));
-
+        //        swOrderMapper.toEntity(e);
         // Cập nhật thong tin
-        existingOrder.setCode(orderDTO.getCode());
-        existingOrder.setTable(orderDTO.getTableName());
+        DiningTable table = diningTableRepository
+            .findById(existingOrder.getTable().getId())
+            .orElseThrow(() -> new NotFoundException("table not found"));
+        existingOrder.setTable(table);
 
         // Lưu đơn hàng đã được cập nhật
         SwOrder updatedOrder = swOrderRepository.save(existingOrder);
         return swOrderMapper.toDto(updatedOrder);
     }
 
-    public SwOrderDTO addItemToOrder(UUID orderId, UUID menuItemId) {
+    @Override
+    public OrderDetailDTO addItemToOrder(OrderDetailDTO orderDetailDTO) {
+        OrderDetail orderDetail = orderDetailMapper.toEntity(orderDetailDTO);
         SwOrder swOrder = swOrderRepository
-            .findById(orderId)
-            .orElseThrow(() -> new NotFoundException("Order not found with ID: " + orderId));
-        MenuItemDTO menuItemDTO = menuItemService.getMenuItemById(menuItemId);
-
-        // Tạo OrderDetail mới
-        OrderDetail orderDetail = new OrderDetail();
-        orderDetail.setMenuItem(menuItemMapper.toEntity(menuItemDTO));
-        orderDetail.setQuantity(1); // Số lượng mặt hàng
+            .findById(orderDetail.getSwOrder().getId())
+            .orElseThrow(() -> new NotFoundException("Order not found"));
+        MenuItem menuItem = menuItemRepository
+            .findById(orderDetail.getMenuItem().getId())
+            .orElseThrow(() -> new NotFoundException("Item not found "));
+        //find detail by order and menu item -> Detail option
+        //option emty -> save detail moi
+        //else -> get().setQuantity() cong them -> save lai
 
         // Thêm OrderDetail vào danh sách items của đơn hàng
-        swOrder.getItems().add(orderDetail);
-
-        swOrderRepository.save(swOrder);
-        return swOrderMapper.toDto(swOrder);
+        orderDetail.setSwOrder(swOrder);
+        orderDetail.setMenuItem(menuItem);
+        OrderDetail savedOrderDetail = orderDetailRepository.save(orderDetail);
+        return orderDetailMapper.toDto(savedOrderDetail);
     }
 }

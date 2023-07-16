@@ -20,6 +20,7 @@ import lombok.Setter;
 public class SwOrder extends AbstractBaseAuditingEntity<UUID> implements Serializable {
 
     @Id
+    @GeneratedValue
     @Column(name = "id", columnDefinition = "BINARY(16)")
     private UUID id;
 
