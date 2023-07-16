@@ -6,6 +6,7 @@ import getStore from 'app/config/store';
 import { DEFAULT_PAGEABLE } from 'app/app.constant';
 import { cleanEntity, getListValuesInParam } from 'app/shared/util/entity-utils';
 import { updateIsActiveEntity } from 'app/pages/tenant/management/menu-item/menu-item.reducer';
+import { translate } from 'react-jhipster';
 
 const initialState: EntityState<IStaff> = {
   loading: false,
@@ -118,6 +119,23 @@ export const StaffSlice = createEntitySlice({
       });
   },
 });
+
+// Validation for staff form
+export const validateEmail = (_, value) => {
+  const emailRegex = /^[A-Za-z0-9]+@[A-Za-z0-9.-]+\.[A-Z]{2,}$/i;
+  if (!emailRegex.test(value) && value) {
+    return Promise.reject(new Error(translate('entity.validation.email')));
+  }
+  return Promise.resolve();
+};
+
+export const validatePhone = (_, value) => {
+  const phoneRegex = /^\d+$/;
+  if (!phoneRegex.test(value) && value) {
+    return Promise.reject(new Error(translate('entity.validation..phoneRegexCS')));
+  }
+  return Promise.resolve();
+};
 
 export const { reset } = StaffSlice.actions;
 

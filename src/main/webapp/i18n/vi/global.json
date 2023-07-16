@@ -14,6 +14,7 @@
         "restaurant": "Restaurant",
         "menuItem": "Món",
         "menuItemCategory": "Danh mục",
+        "staff": "nhân viên",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
       },
       "account": {
@@ -165,7 +166,9 @@
       "maxbytes": "Dung lượng trường này phải nhỏ hơn {{ max }} bytes.",
       "pattern": "Trường này phải theo định dạng {{ pattern }}.",
       "number": "Trường này phải là một số.",
-      "datetimelocal": "Trường này phải là định dạng thời gian."
+      "datetimelocal": "Trường này phải là định dạng thời gian.",
+      "email": "Định dạng email không hợp lệ.",
+      "phoneRegexCS": "Định dạng số điện thoại không hợp lệ."
     },
     "filters": {
       "set": "Following filters are set",

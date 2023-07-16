@@ -1,18 +1,19 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Translate, translate } from 'react-jhipster';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { StopOutlined } from '@ant-design/icons';
-import { Button, Form, Input, Modal, Tabs } from 'antd';
+import { Button, Checkbox, Form, Input, Modal, Tabs } from 'antd';
 import { DEFAULT_FORM_ITEM_LAYOUT } from 'app/app.constant';
 import { SubmitButton } from 'app/shared/layout/form-shared-component';
 import { IStaff } from 'app/shared/model/staff.model';
-import { createEntity, updateEntity } from 'app/pages/tenant/management/staff/staff.reducer';
+import { createEntity, updateEntity, validateEmail, validatePhone } from 'app/pages/tenant/management/staff/staff.reducer';
 import RoleSelect from 'app/pages/tenant/management/role/role-component';
 
 export const StaffForm = ({ staff, isOpen, handleClose }: { staff?: IStaff; isOpen: boolean; handleClose: any }) => {
   const dispatch = useAppDispatch();
   const [form] = Form.useForm();
 
+  const [resetPassword, setResetPassword] = useState(false);
   const isNew = staff?.id === undefined;
   const updating = useAppSelector(state => state.staff.updating);
   const updateSuccess = useAppSelector(state => state.staff.updateSuccess);
@@ -20,6 +21,7 @@ export const StaffForm = ({ staff, isOpen, handleClose }: { staff?: IStaff; isOp
   useEffect(() => {
     if (!isNew) {
       form.setFieldsValue({ ...staff });
+      setResetPassword(false);
     } else {
       form.resetFields();
     }
@@ -45,13 +47,8 @@ export const StaffForm = ({ staff, isOpen, handleClose }: { staff?: IStaff; isOp
     }
   };
 
-  const validateEmail = (_, value) => {
-    const emailRegex = /^[A-Za-z0-9]+@[A-Za-z0-9.-]+\.[A-Z]{2,}$/i;
-    if (!emailRegex.test(value) && value) {
-      return Promise.reject(new Error(translate('entity.validation.email')));
-    }
-
-    return Promise.resolve();
+  const handleResetPasswordChange = e => {
+    setResetPassword(e.target.checked);
   };
 
   return (
@@ -59,6 +56,7 @@ export const StaffForm = ({ staff, isOpen, handleClose }: { staff?: IStaff; isOp
       <Modal
         open={isOpen}
         destroyOnClose
+        centered
         width={1000}
         title={
           <Translate
@@ -78,7 +76,8 @@ export const StaffForm = ({ staff, isOpen, handleClose }: { staff?: IStaff; isOp
                   name={'username'}
                   rules={[
                     { required: true, message: translate('entity.validation.required') },
-                    { max: 100, message: translate('entity.validation.max', { max: 100 }) },
+                    { max: 50, message: translate('entity.validation.max', { max: 50 }) },
+                    { min: 4, message: translate('entity.validation.min', { min: 4 }) },
                   ]}
                 >
                   <Input />
@@ -99,22 +98,12 @@ export const StaffForm = ({ staff, isOpen, handleClose }: { staff?: IStaff; isOp
               </div>
               <div className="flex-grow">
                 <Form.Item
-                  label={translate('staff.password.label')}
-                  name="password"
-                  rules={[
-                    { required: true, message: translate('entity.validation.required') },
-                    { max: 100, message: translate('entity.validation.max', { max: 100 }) },
-                  ]}
-                >
-                  <Input.Password />
-                </Form.Item>
-                <Form.Item
                   label={translate('staff.email.label')}
                   name={'email'}
                   rules={[
                     { validator: validateEmail },
                     { required: true, message: translate('entity.validation.required') },
-                    { max: 100, message: translate('entity.validation.max', { max: 100 }) },
+                    { max: 50, message: translate('entity.validation.max', { max: 100 }) },
                   ]}
                 >
                   <Input />
@@ -123,12 +112,47 @@ export const StaffForm = ({ staff, isOpen, handleClose }: { staff?: IStaff; isOp
                   label={translate('staff.phone.label')}
                   name={'phone'}
                   rules={[
+                    { validator: validatePhone },
                     { required: true, message: translate('entity.validation.required') },
-                    { max: 100, message: translate('entity.validation.max', { max: 100 }) },
+                    { max: 20, message: translate('entity.validation.max', { max: 20 }) },
                   ]}
                 >
                   <Input />
                 </Form.Item>
+                {!isNew ? (
+                  <>
+                    <Checkbox onChange={handleResetPasswordChange} className="font-normal mb-2 ml-28 ">
+                      {translate('staff.resetPassword.label')}
+                    </Checkbox>
+                    {resetPassword && (
+                      <Form.Item
+                        label={translate('staff.password.label')}
+                        name="password"
+                        rules={[
+                          { required: true, message: translate('entity.validation.required') },
+                          { max: 60, message: translate('entity.validation.max', { max: 60 }) },
+                          { min: 4, message: translate('entity.validation.min', { min: 4 }) },
+                        ]}
+                      >
+                        <Input.Password />
+                      </Form.Item>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <Form.Item
+                      label={translate('staff.password.label')}
+                      name="password"
+                      rules={[
+                        { required: true, message: translate('entity.validation.required') },
+                        { max: 60, message: translate('entity.validation.max', { max: 60 }) },
+                        { min: 4, message: translate('entity.validation.min', { min: 4 }) },
+                      ]}
+                    >
+                      <Input.Password />
+                    </Form.Item>
+                  </>
+                )}
               </div>
             </Tabs.TabPane>
           </Tabs>

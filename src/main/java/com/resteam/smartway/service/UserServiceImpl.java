@@ -145,7 +145,6 @@ public class UserServiceImpl implements UserService {
         List<UUID> roleUUIDList = null;
         if (roleIds != null && roleIds.size() > 0) roleUUIDList = roleIds.stream().map(UUID::fromString).collect(Collectors.toList());
         Page<User> userPage = userRepository.findWithFilterParams(searchText, roleUUIDList, pageable);
-
         return userPage.map(staffMapper::toDto);
     }
 
@@ -160,12 +159,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public StaffDTO updateStaff(StaffDTO staffDTO) {
-        String encryptedPassword = passwordEncoder.encode(staffDTO.getPassword());
         User staff = userRepository
             .findById(staffDTO.getId())
             .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME_STAFF, " id not found"));
-        staffDTO.setPassword(encryptedPassword);
         staffMapper.partialUpdate(staff, staffDTO);
+        if (staffDTO.getPassword() != null) {
+            String encryptedPassword = passwordEncoder.encode(staffDTO.getPassword());
+            staff.setPassword(encryptedPassword);
+        }
         User result = userRepository.save(staff);
         return staffMapper.toDto(result);
     }
