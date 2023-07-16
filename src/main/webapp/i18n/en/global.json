@@ -16,6 +16,7 @@
         "staff": "Staff",
         "role": "Role",
         "menuItemCategory": "Category",
+        "username": "Username",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
       },
       "account": {

@@ -25,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -52,7 +53,10 @@ public class UserServiceImpl implements UserService {
 
     private final StaffMapper staffMapper;
 
-    private final String ENTITY_NAME_STAFF = "staff";
+    private final String ENTITY_NAME_STAFF = "username";
+
+    @Value("${jhipster.clientApp.name}")
+    private String applicationName;
 
     @Override
     public Optional<User> completePasswordReset(String newPassword, String key) {
@@ -151,10 +155,17 @@ public class UserServiceImpl implements UserService {
     @SneakyThrows
     @Override
     public StaffDTO createStaff(StaffDTO staffDTO) {
-        String encryptedPassword = passwordEncoder.encode(staffDTO.getPassword());
-        staffDTO.setPassword(encryptedPassword);
+        Optional<User> existingStaff = userRepository.findOneByUsername(staffDTO.getUsername());
+        if (existingStaff.isPresent()) {
+            throw new BadRequestAlertException(applicationName, ENTITY_NAME_STAFF, "existed");
+        }
+
         User staff = staffMapper.toEntity(staffDTO);
-        return staffMapper.toDto(userRepository.save(staff));
+        String encryptedPassword = passwordEncoder.encode(staffDTO.getPassword());
+        staff.setPassword(encryptedPassword);
+
+        User savedStaff = userRepository.save(staff);
+        return staffMapper.toDto(savedStaff);
     }
 
     @Override
@@ -162,6 +173,10 @@ public class UserServiceImpl implements UserService {
         User staff = userRepository
             .findById(staffDTO.getId())
             .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME_STAFF, " id not found"));
+        Optional<User> existingStaff = userRepository.findOneByUsername(staffDTO.getUsername());
+        if (existingStaff.isPresent() && !existingStaff.get().getId().equals(staffDTO.getId())) {
+            throw new BadRequestAlertException(applicationName, ENTITY_NAME_STAFF, "existed");
+        }
         staffMapper.partialUpdate(staff, staffDTO);
         if (staffDTO.getPassword() != null) {
             String encryptedPassword = passwordEncoder.encode(staffDTO.getPassword());
