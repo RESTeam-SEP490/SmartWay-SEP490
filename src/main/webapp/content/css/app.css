@@ -134,3 +134,36 @@ th.ant-table-cell::before {
 .ant-tabs-card .ant-tabs-tab {
   color: #fff;
 }
+.ant-tabs-top.ant-tabs-card > .ant-tabs-nav::before {
+  content: none;
+}
+.ant-segmented .ant-segmented-item-label {
+  padding: 2px 24px;
+}
+
+.ant-segmented .ant-segmented-item-selected {
+  color: var(--600);
+}
+.ant-input-affix-wrapper {
+  padding: 4.2px 11px;
+}
+.ant-menu-vertical > .ant-menu-item {
+  height: 60px;
+  line-height: 60px;
+  border-radius: 0 8px 8px 0;
+}
+
+.ant-menu-dark .ant-menu-item-selected::before {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 0;
+  width: 3px;
+  border-radius: 3px;
+  height: 100%;
+  background: #fff;
+}
+
+.ant-segmented .ant-segmented-group {
+  gap: 4px;
+}

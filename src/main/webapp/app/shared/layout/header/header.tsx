@@ -61,7 +61,7 @@ const MainAppHeader = (props: IHeaderProps) => {
 
 const TenantAppHeader = (props: IHeaderProps) => {
   return (
-    <div className={location.pathname.includes('login') ? 'hidden' : 'bg-white shadow-md z-10'}>
+    <div className={['login', 'pos'].some(key => location.pathname.includes(key)) ? 'hidden' : 'bg-white shadow-md z-10'}>
       {/* {renderDevRibbon()} */}
       <LoadingBar className="loading-bar" />
       <div className="flex items-center justify-between py-2 mx-auto transition-all duration-300 ease-linear lg:max-w-7xl">

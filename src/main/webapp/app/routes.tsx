@@ -15,6 +15,7 @@ import PrivateRoute from 'app/shared/auth/private-route';
 import ErrorBoundaryRoutes from 'app/shared/error/error-boundary-routes';
 import PageNotFound from 'app/shared/error/page-not-found';
 import AdminLogin from './modules/login/admin-login';
+import Order from 'app/pages/tenant/selling/routes';
 import { Spin } from 'antd';
 
 const loading = (
@@ -75,6 +76,7 @@ export const TenantAppRoutes = () => {
         element={
           <PrivateRoute hasAnyAuthorities={[AUTHORITIES.USER, AUTHORITIES.ADMIN]}>
             <Tenant />
+            <Order />
           </PrivateRoute>
         }
       ></Route>

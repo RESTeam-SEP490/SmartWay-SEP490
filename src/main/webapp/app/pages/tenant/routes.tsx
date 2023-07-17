@@ -3,13 +3,13 @@ import { Route } from 'react-router-dom';
 
 import ErrorBoundaryRoutes from 'app/shared/error/error-boundary-routes';
 
-import MenuItem from './management/menu-item/menu-item';
-import { Staff } from './management/staff/staff';
-import Role from './management/role/role';
-import DiningTable from './management/dining-table';
-import PageNotFound from 'app/shared/error/page-not-found';
-import PrivateRoute from 'app/shared/auth/private-route';
 import { AUTHORITIES } from 'app/config/constants';
+import PrivateRoute from 'app/shared/auth/private-route';
+import PageNotFound from 'app/shared/error/page-not-found';
+import DiningTable from './management/dining-table';
+import MenuItem from './management/menu-item/menu-item';
+import Role from './management/role/role';
+import { Staff } from './management/staff/staff';
 
 export default () => {
   return (
@@ -47,7 +47,7 @@ export default () => {
             </PrivateRoute>
           }
         />
-        <Route path="*" element={<PageNotFound />} />
+        {/* <Route path="*" element={<PageNotFound />} /> */}
       </ErrorBoundaryRoutes>
     </div>
   );

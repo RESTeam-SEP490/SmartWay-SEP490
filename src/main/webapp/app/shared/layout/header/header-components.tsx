@@ -6,15 +6,19 @@ import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Typography } from 'antd';
 
-export const BrandIcon = props => (
-  <div className="flex items-center justify-center gap-2 ">
-    <div {...props} className="translate-y-1">
-      <img src="content/images/SW_logo.svg" alt="Logo" width={48} />
+type BrandType = 'primary' | 'white';
+
+export const BrandIcon = ({ type = 'primary', isHiddenText = false, ...props }) => (
+  <div {...props}>
+    <div className="flex items-center justify-center gap-2 ">
+      <div className="translate-y-1">
+        <img src={type === 'primary' ? 'content/images/SW_logo.svg' : 'content/images/SW_logo_white.svg'} alt="Logo" width={48} />
+      </div>
+      <Typography.Title level={3} className="!m-0" hidden={isHiddenText}>
+        <span className=" text-slate-400">Smart</span>
+        <span className="text-blue-600 ">Way</span>
+      </Typography.Title>
     </div>
-    <Typography.Title level={3} className="!m-0">
-      <span className=" text-slate-400">Smart</span>
-      <span className="text-blue-600 ">Way</span>
-    </Typography.Title>
   </div>
 );
 

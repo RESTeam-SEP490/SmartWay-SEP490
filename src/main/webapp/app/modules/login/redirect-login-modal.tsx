@@ -14,7 +14,7 @@ export const RedirectLoginModal = ({ isOpen, handleClose }) => {
   const [form] = Form.useForm();
 
   const handleSubmit = ({ subdomain }) => {
-    window.location.replace(`http://${subdomain}.${domain}`);
+    window.location.replace(`https://${subdomain}.${domain}`);
   };
   return (
     <Modal open={isOpen} title={translate('login.form.button')} destroyOnClose onCancel={handleClose} centered footer={[]}>
