@@ -34,7 +34,11 @@ export const UserMenu = () => {
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         <div className="grow">
           <Menu selectedKeys={[location.pathname.split('/').pop()]} mode="horizontal" className="justify-center py-1">
-            <Menu.SubMenu title={translate('menu.staff.label')} icon={<TeamOutlined className="!text-lg" rev={''} />}>
+            <Menu.SubMenu
+              title={translate('menu.staff.label')}
+              icon={<TeamOutlined className="!text-lg" rev={''} />}
+              className={isHiddenWithAuthority([AUTHORITIES.ADMIN, AUTHORITIES.STAFF_VIEW, AUTHORITIES.STAFFROLE_VIEW]) && 'hidden'}
+            >
               <Menu.Item
                 key="staff"
                 icon={<UserOutlined className="!text-lg" rev={''} />}

@@ -1,0 +1,29 @@
+{
+  "staff": {
+    "title": "Nhân viên",
+    "addNewLabel": "Tạo mới nhân viên",
+    "username.label": "Tên đăng nhập",
+    "password.label": "Mật khẩu",
+    "fullName.label": "Họ và tên",
+    "phone.label": "Số điện thoại",
+    "email.label": "Email",
+    "restaurantId.label": "Nhà hàng",
+    "role.label": "Vai trò",
+    "langkey.label": "en",
+    "role.placeholder": "Chọn vai trò",
+    "search.placeholder": "Tìm kiếm",
+    "information.label": "Thông tin",
+    "resetPassword.label": "Đặt mới mật khẩu",
+    "action": {
+      "delete.question": "Bạn có muốn xóa username <b>{{ code }}</b> không ?"
+    }
+  },
+
+  "smartWayApp": {
+    "staff": {
+      "created": "Tạo mới nhân viên thành công",
+      "updated": "Cập nhật nhân viên thành công",
+      "deleted": "Xóa nhân viên thành công"
+    }
+  }
+}

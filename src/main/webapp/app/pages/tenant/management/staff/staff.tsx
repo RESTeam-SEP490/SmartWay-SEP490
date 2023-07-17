@@ -2,17 +2,29 @@ import { useAppDispatch, useAppSelector } from 'app/config/store';
 import React, { useEffect, useState } from 'react';
 import { translate, Translate } from 'react-jhipster';
 import { IStaff } from 'app/shared/model/staff.model';
-import { Button, Card, Empty, Input, Table, Tag, Typography } from 'antd';
+import { Button, Card, Dropdown, Empty, Input, MenuProps, Table, Tag, Typography } from 'antd';
 import { DEFAULT_PAGINATION_CONFIG } from 'app/shared/util/pagination.constants';
 import { getEntities, setPageable } from 'app/pages/tenant/management/staff/staff.reducer';
-import { PlusOutlined } from '@ant-design/icons';
+import { BarsOutlined, PlusOutlined } from '@ant-design/icons';
 import StaffForm from 'app/pages/tenant/management/staff/staff-form';
 import { CheckboxValueType } from 'antd/es/checkbox/Group';
 import StaffDetail from 'app/pages/tenant/management/staff/staff-detail';
 import { RoleCheckBoxes } from 'app/pages/tenant/management/role/role-component';
+import StaffDialog from 'app/pages/tenant/management/staff/staff-dialog';
 
 export const Staff = () => {
   const dispatch = useAppDispatch();
+
+  const items: MenuProps['items'] = [
+    {
+      key: '1',
+      label: (
+        <div onClick={() => handleDelete()}>
+          <Translate contentKey="entity.action.delete" />
+        </div>
+      ),
+    },
+  ];
 
   const columns = [
     { title: <Translate contentKey="staff.username.label" />, dataIndex: 'username', key: 'username' },
@@ -43,6 +55,13 @@ export const Staff = () => {
   useEffect(() => {
     dispatch(getEntities());
   }, [pageable]);
+
+  useEffect(() => {
+    if (selectedItems.length > 0 && updateSuccess) {
+      setSelectedRowKeys([]);
+      setSelectedItems([]);
+    }
+  }, [updateSuccess]);
 
   const handleOnchangePage = (page, pageSize) => {
     dispatch(setPageable({ ...pageable, page: page - 1, size: pageSize }));
@@ -106,6 +125,7 @@ export const Staff = () => {
   return (
     <>
       <StaffForm staff={updateStaff} isOpen={isShowForm} handleClose={handleClose} />
+      <StaffDialog staffs={selectedItems} isOpen={isShowDialog} handleClose={() => setIsShowDialog(false)} isActive={allowSale} />
 
       <div className="flex h-full p-2">
         <div className="flex flex-col w-1/5 gap-4 p-4">
@@ -131,6 +151,12 @@ export const Staff = () => {
             </div>
 
             <div className="flex gap-2">
+              <Dropdown menu={{ items }} disabled={selectedRowKeys.length === 0} className="!w-32">
+                <Button type="primary" icon={<BarsOutlined rev={''} />}>
+                  <Translate contentKey="entity.label.operations" />
+                </Button>
+              </Dropdown>
+
               <Button type="primary" icon={<PlusOutlined rev={''} />} onClick={() => setIsShowForm(true)}>
                 <Translate contentKey="staff.addNewLabel" />
               </Button>

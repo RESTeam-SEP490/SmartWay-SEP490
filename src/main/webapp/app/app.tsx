@@ -31,7 +31,7 @@ export const App = () => {
 
   const appType = useAppSelector(state => state.applicationProfile.appType);
   const domain = useAppSelector(state => state.applicationProfile.domain);
-  if (appType == null) window.location.replace('http://www.' + domain + '/page-not-found');
+  if (appType == null) window.location.replace('https://www.' + domain + '/page-not-found');
 
   const currentLocale = useAppSelector(state => state.locale.currentLocale);
   const isAuthenticated = useAppSelector(state => state.authentication.isAuthenticated);
