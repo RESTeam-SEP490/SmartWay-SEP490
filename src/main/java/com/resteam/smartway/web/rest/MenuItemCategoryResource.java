@@ -18,7 +18,7 @@ import tech.jhipster.web.util.HeaderUtil;
 
 @Log4j2
 @RestController
-@RequestMapping("/api/npm start" + "")
+@RequestMapping("/api/menu-item-categories")
 @Transactional
 @RequiredArgsConstructor
 public class MenuItemCategoryResource {

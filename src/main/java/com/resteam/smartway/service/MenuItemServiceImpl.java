@@ -70,13 +70,14 @@ public class MenuItemServiceImpl implements MenuItemService {
             s3Service.uploadImage(imageSource, path);
             menuItem.setImageKey(path);
         }
-        UUID menuItemCategoryId = menuItemDTO.getMenuItemCategory().getId();
-        MenuItemCategory menuItemCategory = menuItemCategoryRepository
-            .findById(menuItemCategoryId)
-            .orElseThrow(() -> new BadRequestAlertException("Category is not found", ENTITY_NAME, "idnotfound"));
-        menuItem.setMenuItemCategory(menuItemCategory);
+        if (menuItemDTO.getMenuItemCategory() != null) {
+            UUID menuItemCategoryId = menuItemDTO.getMenuItemCategory().getId();
+            MenuItemCategory menuItemCategory = menuItemCategoryRepository
+                .findById(menuItemCategoryId)
+                .orElseThrow(() -> new BadRequestAlertException("Category is not found", ENTITY_NAME, "idnotfound"));
+            menuItem.setMenuItemCategory(menuItemCategory);
+        }
         menuItem.setCode(menuItemCode);
-
         return menuItemMapper.toDto(menuItemRepository.save(menuItem));
     }
 
@@ -108,11 +109,13 @@ public class MenuItemServiceImpl implements MenuItemService {
                 menuItem.setImageKey(path);
             }
         }
-        UUID menuItemCategoryId = menuItemDTO.getMenuItemCategory().getId();
-        MenuItemCategory menuItemCategory = menuItemCategoryRepository
-            .findById(menuItemCategoryId)
-            .orElseThrow(() -> new BadRequestAlertException("Category is not found", ENTITY_NAME, "idnotfound"));
-        menuItem.setMenuItemCategory(menuItemCategory);
+        if (menuItemDTO.getMenuItemCategory() != null) {
+            UUID menuItemCategoryId = menuItemDTO.getMenuItemCategory().getId();
+            MenuItemCategory menuItemCategory = menuItemCategoryRepository
+                .findById(menuItemCategoryId)
+                .orElseThrow(() -> new BadRequestAlertException("Category is not found", ENTITY_NAME, "idnotfound"));
+            menuItem.setMenuItemCategory(menuItemCategory);
+        }
         menuItemMapper.partialUpdate(menuItem, menuItemDTO);
         if (menuItemDTO.getImageUrl() == null || menuItemDTO.getImageUrl().isEmpty()) {
             s3Service.deleteFile(menuItem.getImageKey());
