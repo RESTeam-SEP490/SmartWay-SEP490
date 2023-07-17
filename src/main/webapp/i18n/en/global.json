@@ -15,6 +15,7 @@
         "menuItem": "Menu item",
         "staff": "Staff",
         "role": "Role",
+        "table": "Table",
         "menuItemCategory": "Category",
         "username": "Username",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"

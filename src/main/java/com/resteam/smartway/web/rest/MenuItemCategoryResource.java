@@ -1,5 +1,6 @@
 package com.resteam.smartway.web.rest;
 
+import com.resteam.smartway.security.AuthoritiesConstants;
 import com.resteam.smartway.service.MenuItemCategoryService;
 import com.resteam.smartway.service.dto.MenuItemCategoryDTO;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
@@ -12,13 +13,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import tech.jhipster.web.util.HeaderUtil;
 
 @Log4j2
 @RestController
-@RequestMapping("/api/npm start" + "")
+@RequestMapping("/api/menu-item-categories")
 @Transactional
 @RequiredArgsConstructor
 public class MenuItemCategoryResource {
@@ -31,13 +35,15 @@ public class MenuItemCategoryResource {
     private final MenuItemCategoryService menuItemCategoryService;
 
     @GetMapping
+    @PostAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_MENUITEM_VIEW')")
     public ResponseEntity<List<MenuItemCategoryDTO>> loadMenuItemCategories() {
         List<MenuItemCategoryDTO> menuItemCategoryList = menuItemCategoryService.loadAllMenuItemCategories();
         return ResponseEntity.ok(menuItemCategoryList);
     }
 
     @PostMapping
-    public ResponseEntity<MenuItemCategoryDTO> createMenuItem(@Valid @RequestBody MenuItemCategoryDTO menuItemCategoryDTO) {
+    @PostAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_MENUITEM_CREATE')")
+    public ResponseEntity<MenuItemCategoryDTO> createMenuItemCategory(@Valid @RequestBody MenuItemCategoryDTO menuItemCategoryDTO) {
         if (menuItemCategoryDTO.getId() != null) {
             throw new BadRequestAlertException("A new entity cannot already have an ID", ENTITY_NAME, "id_exist");
         }
@@ -49,7 +55,8 @@ public class MenuItemCategoryResource {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<MenuItemCategoryDTO> updateRestaurant(
+    @PostAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_MENUITEM_UPDATE')")
+    public ResponseEntity<MenuItemCategoryDTO> updateCategory(
         @PathVariable(value = "id", required = false) final String id,
         @Valid @RequestBody MenuItemCategoryDTO menuItemCategoryDTO
     ) {
@@ -68,7 +75,8 @@ public class MenuItemCategoryResource {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteRestaurant(@PathVariable("id") String id) {
+    @PostAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_MENUITEM_DELETE')")
+    public ResponseEntity<Void> deleteCategory(@PathVariable("id") String id) {
         if (id == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
