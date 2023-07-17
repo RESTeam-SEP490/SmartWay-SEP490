@@ -49,7 +49,7 @@ export const RegisterPage = () => {
       <div className="flex">
         <div className="hidden min-h-screen p-6 lg:block lg:w-3/12 xl:w-5/12 ">
           <div className="w-full h-full  relative">
-            <div className="absolute top-0 bottom-0 w-full rounded-lg bg-center bg-cover bg-wall-primary bg-[url('content/images/wall.jpg')]"></div>
+            <div className="absolute top-0 bottom-0 w-full rounded-lg bg-center bg-cover bg-wall-primary bg-[url('content/images/wall.jpeg')]"></div>
             <div className="absolute top-0 bottom-0 w-full rounded-lg bg-gradient-to-l from-40 to-90  from-blue-600/60 to-blue-300/60"></div>
           </div>
         </div>
@@ -75,16 +75,16 @@ export const RegisterPage = () => {
                           </span>
                           <Button
                             type="link"
-                            className="font-semibold hover:underline !py-0"
-                            onClick={() => window.location.replace(successLink + '.' + domain)}
+                            className="font-normal hover:underline !py-0"
+                            onClick={() => window.location.replace('https://' + successLink + '.' + domain)}
                           >
-                            {successLink + '.' + domain}
+                            {'https://' + successLink + '.' + domain}
                           </Button>
                         </div>
                       }
                     />
                     <Button
-                      onClick={() => window.location.replace(successLink + '.' + domain)}
+                      onClick={() => window.location.replace('https://' + successLink + '.' + domain)}
                       type="primary"
                       className="!w-40 mt-4"
                       size="large"

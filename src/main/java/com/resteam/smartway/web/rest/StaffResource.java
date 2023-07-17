@@ -14,6 +14,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -33,6 +35,8 @@ public class StaffResource {
 
     private final UserService userService;
 
+    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
     @GetMapping
     public ResponseEntity<List<StaffDTO>> getAllStaffWithSearch(
         Pageable pageable,
@@ -40,6 +44,9 @@ public class StaffResource {
         @RequestParam(value = "roleIds", required = false) List<String> roleIds
     ) {
         Page<StaffDTO> staffDTOPage = userService.loadStaffsWithSearch(pageable, searchText, roleIds);
+        for (StaffDTO s : staffDTOPage) {
+            s.setPassword(null);
+        }
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), staffDTOPage);
 
         return new ResponseEntity<>(staffDTOPage.getContent(), headers, HttpStatus.OK);

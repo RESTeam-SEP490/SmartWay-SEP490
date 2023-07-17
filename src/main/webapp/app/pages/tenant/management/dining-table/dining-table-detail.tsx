@@ -26,44 +26,44 @@ export const DiningTableDetail = ({ diningTable, onUpdate }: { diningTable: IDin
 
   return (
     <>
-      <Tabs defaultValue={1}>
-        <Tabs.TabPane
-          tab={translate('diningTable.infoTabs.information')}
-          key={1}
-          className="p-4 details max-w-[calc((100vw-32px)*4/5-66px)]"
-        >
-          <div className="">
-            <Typography.Title level={4}>{diningTable.name}</Typography.Title>
-          </div>
+      <div className="p-4 details max-w-[calc((100vw-32px)*4/5-66px)]">
+        <div className="">
+          <Typography.Title level={4}>{diningTable.name}</Typography.Title>
+        </div>
 
-          <div className="flex">
+        <div className="flex">
+          <Form {...DEFAULT_FORM_ITEM_LAYOUT} colon className="flex-grow ml-6">
             <Form {...DEFAULT_FORM_ITEM_LAYOUT} colon className="flex-grow ml-6">
               <Form.Item className="!mb-0" label={translate('diningTable.zone.label')}>
-                <Input bordered={false} value={diningTable.zone.name} />
+                {diningTable.zone && diningTable.zone.name !== undefined ? (
+                  <Input bordered={false} value={diningTable.zone.name} />
+                ) : (
+                  <Translate contentKey="diningTable.message" />
+                )}
               </Form.Item>
             </Form>
-          </div>
-          <div className="flex justify-end gap-2 mt-4">
-            <Button type="primary" onClick={onUpdate}>
-              <EditFilled rev={''} />
-              <Translate contentKey="entity.action.edit" />
+          </Form>
+        </div>
+        <div className="flex justify-end gap-2 mt-4">
+          <Button type="primary" onClick={onUpdate}>
+            <EditFilled rev={''} />
+            <Translate contentKey="entity.action.edit" />
+          </Button>
+          {diningTable.isActive ? (
+            <Button danger type="primary" icon={<LockFilled rev={''} />} onClick={handleUpdateisActive}>
+              <Translate contentKey="diningTable.action.stopSell" />
             </Button>
-            {diningTable.isActive ? (
-              <Button danger type="primary" icon={<LockFilled rev={''} />} onClick={handleUpdateisActive}>
-                <Translate contentKey="diningTable.action.stopSell" />
-              </Button>
-            ) : (
-              <Button type="primary" icon={<CheckSquareFilled rev={''} />} onClick={handleUpdateisActive}>
-                <Translate contentKey="diningTable.action.allowSell" />
-              </Button>
-            )}
-            <Button type="primary" danger onClick={handleDelete}>
-              <DeleteFilled rev={''} />
-              <Translate contentKey="entity.action.delete" />
+          ) : (
+            <Button type="primary" icon={<CheckSquareFilled rev={''} />} onClick={handleUpdateisActive}>
+              <Translate contentKey="diningTable.action.allowSell" />
             </Button>
-          </div>
-        </Tabs.TabPane>
-      </Tabs>
+          )}
+          <Button type="primary" danger onClick={handleDelete}>
+            <DeleteFilled rev={''} />
+            <Translate contentKey="entity.action.delete" />
+          </Button>
+        </div>
+      </div>
       <DiningTableDelete
         diningTables={[diningTable]}
         handleClose={() => setIsShowDialog(false)}
