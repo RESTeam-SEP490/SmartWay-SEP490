@@ -76,7 +76,7 @@ export const RoleCheckBoxes = ({ onFilter }: { onFilter: any }) => {
           <Scrollbars className="!w-[calc(100%+8px)]" autoHeight autoHeightMax={300}>
             <Checkbox.Group className="flex-col w-full pr-2 h-fit" value={selectedRoleList} onChange={handleOnchange}>
               {roleList.map(role => (
-                <div className="flex justify-between w-full py-2 " key={'checkbox'}>
+                <div className="flex justify-between w-full py-2 " key={role.id}>
                   <Checkbox
                     key={role.id}
                     value={role.id}
