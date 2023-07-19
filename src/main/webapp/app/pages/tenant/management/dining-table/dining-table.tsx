@@ -46,6 +46,13 @@ export const DiningTable = () => {
 
   const columns = [
     { title: <Translate contentKey="diningTable.name.label" />, dataIndex: 'name', key: 'name' },
+    {
+      title: <Translate contentKey="diningTable.numberOfSeat.label" />,
+      dataIndex: 'numberOfSeats',
+      key: 'numberOfSeats',
+      render: numberOfSeats => (numberOfSeats !== 0 ? numberOfSeats : <Translate contentKey="diningTable.message.seat" />),
+    },
+
     { title: <Translate contentKey="diningTable.zone.label" />, dataIndex: ['zone', 'name'], key: 'zone' },
     {
       title: <Translate contentKey="diningTable.status.label" />,

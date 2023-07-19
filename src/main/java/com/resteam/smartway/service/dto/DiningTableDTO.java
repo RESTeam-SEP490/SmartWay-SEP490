@@ -21,5 +21,7 @@ public class DiningTableDTO {
 
     private Boolean isFree = true;
 
+    private int numberOfSeats;
+
     private ZoneDTO zone;
 }
