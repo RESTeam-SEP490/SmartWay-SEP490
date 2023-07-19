@@ -9,5 +9,12 @@
         "Status": "Trạng thái"
       }
     }
+  },
+  "smartWayApp": {
+    "tenant": {
+      "created": "Thêm mới người dùng thành công",
+      "updated": "Cập nhật người dùng thành công",
+      "deleted": "Xóa người dùng thành công"
+    }
   }
 }

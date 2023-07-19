@@ -10,14 +10,17 @@ import com.resteam.smartway.repository.RoleRepository;
 import com.resteam.smartway.repository.UserRepository;
 import com.resteam.smartway.security.SecurityUtils;
 import com.resteam.smartway.security.multitenancy.context.RestaurantContext;
+import com.resteam.smartway.service.dto.ProfileDTO;
 import com.resteam.smartway.service.dto.StaffDTO;
 import com.resteam.smartway.service.dto.TenantRegistrationDTO;
+import com.resteam.smartway.service.mapper.ProfileMapper;
 import com.resteam.smartway.service.mapper.StaffMapper;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
 import com.resteam.smartway.web.rest.errors.SubdomainAlreadyUsedException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -53,7 +56,11 @@ public class UserServiceImpl implements UserService {
 
     private final StaffMapper staffMapper;
 
+    private final ProfileMapper profileMapper;
+
     private final String ENTITY_NAME_STAFF = "username";
+
+    private final String ENTITY_USERNAME_PROFILE = "username";
 
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
@@ -137,6 +144,16 @@ public class UserServiceImpl implements UserService {
         return userRepository.findOneWithAuthoritiesByUsername(username);
     }
 
+    @Override
+    public ProfileDTO getUserProfile() {
+        String username = SecurityUtils.getCurrentUsername().orElseThrow(() -> new UsernameNotFoundException(("Username must be provide")));
+        User userOptional = userRepository
+            .findOneByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException(("Username not fond")));
+        //        userOptional.setPassword(null);
+        return profileMapper.toDto(userOptional);
+    }
+
     @Transactional(readOnly = true)
     @Override
     public List<String> getAuthorities() {
@@ -149,7 +166,11 @@ public class UserServiceImpl implements UserService {
         List<UUID> roleUUIDList = null;
         if (roleIds != null && roleIds.size() > 0) roleUUIDList = roleIds.stream().map(UUID::fromString).collect(Collectors.toList());
         Page<User> userPage = userRepository.findWithFilterParams(searchText, roleUUIDList, pageable);
-        return userPage.map(staffMapper::toDto);
+        return userPage.map(item -> {
+            StaffDTO staffDTO = staffMapper.toDto(item);
+            staffDTO.setPassword(null);
+            return staffDTO;
+        });
     }
 
     @SneakyThrows
@@ -213,5 +234,24 @@ public class UserServiceImpl implements UserService {
                 user.setLangKey(langKey);
                 log.debug("Changed Information for User: {}", user);
             });
+    }
+
+    public ProfileDTO updateProfile(ProfileDTO profileDTO) {
+        User profile = userRepository
+            .findById(profileDTO.getId())
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_USERNAME_PROFILE, " id not found"));
+        Optional<User> existingUser = userRepository.findOneByUsername(profileDTO.getUsername());
+        if (existingUser.isPresent() && !existingUser.get().getId().equals(profileDTO.getId())) {
+            throw new BadRequestAlertException(applicationName, ENTITY_USERNAME_PROFILE, "existed");
+        }
+        profileMapper.partialUpdate(profile, profileDTO);
+        if (profileDTO.getResetPassword() != null && profileDTO.getPassword() != null) {
+            if (Objects.equals(profileDTO.getPassword(), profile.getPassword())) {
+                String encryptedPassword = passwordEncoder.encode(profileDTO.getResetPassword());
+                profile.setPassword(encryptedPassword);
+            }
+        }
+        User result = userRepository.save(profile);
+        return profileMapper.toDto(result);
     }
 }

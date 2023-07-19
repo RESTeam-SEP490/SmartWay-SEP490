@@ -68,7 +68,7 @@ const TenantAppHeader = (props: IHeaderProps) => {
         <Brand />
         <div className="flex items-center gap-10">
           <LocaleMenu currentLocale={props.currentLocale} />
-          <AuthenticatedAccountMenu name={props.username} />
+          <AuthenticatedAccountMenu name={props.username} />z
         </div>
       </div>
       {props.isAuthenticated && <UserMenu />}

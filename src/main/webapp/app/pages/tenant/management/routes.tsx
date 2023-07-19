@@ -1,14 +1,12 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
-
 import ErrorBoundaryRoutes from 'app/shared/error/error-boundary-routes';
-
 import Restaurant from './restaurant';
 import MenuItemRoutes from './menu-item';
 import { Staff } from 'app/pages/tenant/management/staff/staff';
-import { ZoneCheckBoxes } from './zone/zone';
 import DiningTable from './dining-table';
 import Role from './role/role';
+import { TenantProfileForm } from 'app/pages/tenant/management/tenant-profile/tenant-profile-form';
 
 export default () => {
   return (
@@ -20,6 +18,7 @@ export default () => {
         <Route path="staffs/*" element={<Staff />} />
         <Route path="roles" element={<Role />} />
         <Route path="table" element={<DiningTable />} />
+        <Route path="account/profile" element={<TenantProfileForm />} />
       </ErrorBoundaryRoutes>
     </div>
   );

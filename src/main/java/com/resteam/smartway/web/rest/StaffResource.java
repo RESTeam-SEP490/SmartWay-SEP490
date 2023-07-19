@@ -44,11 +44,7 @@ public class StaffResource {
         @RequestParam(value = "roleIds", required = false) List<String> roleIds
     ) {
         Page<StaffDTO> staffDTOPage = userService.loadStaffsWithSearch(pageable, searchText, roleIds);
-        for (StaffDTO s : staffDTOPage) {
-            s.setPassword(null);
-        }
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), staffDTOPage);
-
         return new ResponseEntity<>(staffDTOPage.getContent(), headers, HttpStatus.OK);
     }
 

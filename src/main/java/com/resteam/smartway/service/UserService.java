@@ -1,6 +1,7 @@
 package com.resteam.smartway.service;
 
 import com.resteam.smartway.domain.User;
+import com.resteam.smartway.service.dto.ProfileDTO;
 import com.resteam.smartway.service.dto.StaffDTO;
 import com.resteam.smartway.service.dto.TenantRegistrationDTO;
 import java.util.List;
@@ -19,6 +20,8 @@ public interface UserService {
 
     Optional<User> getUserWithAuthorities();
 
+    ProfileDTO getUserProfile();
+
     List<String> getAuthorities();
 
     Page<StaffDTO> loadStaffsWithSearch(Pageable pageable, String searchText, List<String> roleIds);
@@ -30,4 +33,6 @@ public interface UserService {
     void deleteStaff(List<String> ids);
 
     void updateUser(String fullName, String email, String langKey);
+
+    ProfileDTO updateProfile(ProfileDTO profileDTO);
 }

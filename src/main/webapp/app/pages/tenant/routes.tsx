@@ -1,8 +1,6 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
-
 import ErrorBoundaryRoutes from 'app/shared/error/error-boundary-routes';
-
 import MenuItem from './management/menu-item/menu-item';
 import { Staff } from './management/staff/staff';
 import Role from './management/role/role';
@@ -10,6 +8,7 @@ import DiningTable from './management/dining-table';
 import PageNotFound from 'app/shared/error/page-not-found';
 import PrivateRoute from 'app/shared/auth/private-route';
 import { AUTHORITIES } from 'app/config/constants';
+import { TenantProfileForm } from 'app/pages/tenant/management/tenant-profile/tenant-profile-form';
 
 export default () => {
   return (
@@ -44,6 +43,14 @@ export default () => {
           element={
             <PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.TABLE_VIEW]}>
               <DiningTable />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="account/profile"
+          element={
+            <PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.USER]}>
+              <TenantProfileForm />
             </PrivateRoute>
           }
         />

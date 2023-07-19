@@ -43,6 +43,13 @@ public class User extends AbstractBaseAuditingEntity<UUID> implements Serializab
     @Column(length = 20)
     private String phone;
 
+    //    @Column(length = 100)
+    //    private String address;
+    //
+    //    private Instant birthdate;
+    //
+    //    private String gender;
+
     @Column(name = "lang_key", length = 10)
     private String langKey;
 
