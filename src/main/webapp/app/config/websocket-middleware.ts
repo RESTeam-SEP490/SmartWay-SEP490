@@ -91,13 +91,13 @@ const unsubscribe = () => {
 
 export default store => next => action => {
   if (getAccount.fulfilled.match(action)) {
-    connect();
+    // connect();
     const isAdmin = action.payload.data.authorities.includes('ROLE_ADMIN');
     if (!alreadyConnectedOnce && isAdmin) {
-      subscribe();
-      receive().subscribe(activity => {
-        return store.dispatch(websocketActivityMessage(activity));
-      });
+      // subscribe();
+      // receive().subscribe(activity => {
+      //   return store.dispatch(websocketActivityMessage(activity));
+      // });
     }
   } else if (getAccount.rejected.match(action) || action.type === logoutSession().type) {
     unsubscribe();

@@ -15,8 +15,8 @@ export const BrandIcon = ({ type = 'primary', isHiddenText = false, ...props }) 
         <img src={type === 'primary' ? 'content/images/SW_logo.svg' : 'content/images/SW_logo_white.svg'} alt="Logo" width={48} />
       </div>
       <Typography.Title level={3} className="!m-0" hidden={isHiddenText}>
-        <span className=" text-slate-400">Smart</span>
-        <span className="text-blue-600 ">Way</span>
+        <span className={type === 'primary' ? ' text-slate-400' : 'text-white'}>Smart</span>
+        <span className={type === 'primary' ? ' text-blue-600' : 'text-white'}>Way</span>
       </Typography.Title>
     </div>
   </div>

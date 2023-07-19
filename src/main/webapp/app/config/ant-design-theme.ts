@@ -28,6 +28,19 @@ const colors = {
     900: '#061C4C',
     950: '#030E26',
   },
+  red: {
+    50: '#FDF3F2',
+    100: '#FAE7E5',
+    200: '#F6D4D0',
+    300: '#F1BCB6',
+    400: '#EDA8A1',
+    500: '#E89187',
+    600: '#E47D71',
+    700: '#D63A29',
+    800: '#8D261B',
+    900: '#49140E',
+    950: '#220907',
+  },
 };
 
 export const theme: ThemeConfig = {
@@ -38,16 +51,27 @@ export const theme: ThemeConfig = {
     colorLink: colors.blue[600],
     colorLinkHover: colors.blue[500],
     colorLinkActive: colors.blue[700],
-    paddingContentVerticalLG: 10,
-    padding: 10,
+    paddingContentVerticalLG: 12,
+    padding: 12,
+    colorText: colors.blue[950],
     colorSuccess: colors.green[600],
     colorSuccessHover: colors.green[500],
     colorSuccessActive: colors.green[700],
+    colorError: colors.red[600],
+    colorErrorHover: colors.red[500],
+    colorErrorActive: colors.red[700],
     controlItemBgActive: colors.blue[100],
   },
   components: {
     Table: {
       colorFillAlter: '#fff',
+    },
+    Menu: {
+      colorText: '#64748b',
+      subMenuItemBg: '#fff',
+    },
+    Card: {
+      colorBorderSecondary: '#e2e8f0',
     },
   },
 };

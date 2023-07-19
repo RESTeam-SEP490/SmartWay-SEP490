@@ -46,7 +46,7 @@ export const TableList = () => {
             <Segmented options={[{ label: 'All', value: null }, ...zoneList.map(z => ({ label: z.name, value: z.id }))]} />
           </div>
           <div className="flex gap-12">
-            <Input.Search allowClear enterButton className="w-60 " placeholder="Search table" />
+            {/* <Input.Search allowClear enterButton className="w-60 " placeholder="Search table" /> */}
             <Radio.Group className="flex gap-2 items-center" defaultValue={true} onChange={() => true}>
               <Radio className="!font-normal" value={true}>
                 <Translate contentKey="menuItem.status.trueValue" />

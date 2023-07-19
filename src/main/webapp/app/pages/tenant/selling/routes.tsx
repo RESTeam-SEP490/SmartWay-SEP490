@@ -10,10 +10,8 @@ export default () => {
   return (
     <div className=" bg-gray-100 grow">
       <ErrorBoundaryRoutes>
-        <Route path="pos">
-          <Route path="orders" element={<OrderScreen />} />
-        </Route>
-        <Route path="*" element={<PageNotFound />} />
+        <Route path="orders" element={<OrderScreen />} />
+        {/* <Route path="*" element={<PageNotFound />} /> */}
       </ErrorBoundaryRoutes>
     </div>
   );
