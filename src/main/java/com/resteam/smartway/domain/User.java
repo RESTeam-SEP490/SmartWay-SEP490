@@ -3,6 +3,7 @@ package com.resteam.smartway.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.Date;
 import java.util.UUID;
 import javax.persistence.*;
 import lombok.*;
@@ -43,12 +44,12 @@ public class User extends AbstractBaseAuditingEntity<UUID> implements Serializab
     @Column(length = 20)
     private String phone;
 
-    //    @Column(length = 100)
-    //    private String address;
-    //
-    //    private Instant birthdate;
-    //
-    //    private String gender;
+    private Date birthdate;
+
+    private String gender;
+
+    @Column(length = 100)
+    private String address;
 
     @Column(name = "lang_key", length = 10)
     private String langKey;

@@ -1,5 +1,4 @@
 import { IRole } from 'app/shared/model/role';
-import dayjs from 'dayjs';
 
 export interface ITenant {
   id?: any;
@@ -11,7 +10,7 @@ export interface ITenant {
   role?: IRole;
   password?: string;
   langKey?: string;
-  birthday?: dayjs.Dayjs;
+  birthday?: Date;
   resetPassword?: string;
 }
 
