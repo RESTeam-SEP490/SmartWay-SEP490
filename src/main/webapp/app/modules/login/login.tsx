@@ -77,7 +77,7 @@ export const Login = () => {
         </div>
         <div className="hidden md:block md:w-6/12 xl:w-7/12 h-screen p-6">
           <div className="w-full h-full  relative">
-            <div className="absolute top-0 bottom-0 w-full rounded-lg bg-bottom lg:bg-right-bottom bg-cover bg-wall-primary bg-[url('content/images/wall-2.jpg')]"></div>
+            <div className="absolute top-0 bottom-0 w-full rounded-lg bg-bottom lg:bg-right-bottom bg-cover bg-wall-primary bg-[url('content/images/wall-2.jpeg')]"></div>
             <div className="absolute top-0 bottom-0 w-full rounded-lg bg-gradient-to-l from-12 to-90  from-blue-600/60 to-blue-200/60"></div>
           </div>
         </div>

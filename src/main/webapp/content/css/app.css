@@ -41,7 +41,7 @@ label {
   box-shadow: 0px 2px 2px inset var(--300) !important;
   border-bottom: 1px solid transparent;
   background: var(--50);
-  font-weight: 600;
+  color: var(--700);
 }
 
 .ant-table-row:has(+ .ant-table-expanded-row) td:first-child {
@@ -64,7 +64,7 @@ label {
 
 .ant-table-row:has(+ .ant-table-expanded-row[style='display: none;']) td {
   background: #fff;
-  font-weight: 400;
+  color: #000;
 }
 
 /* Image css */
