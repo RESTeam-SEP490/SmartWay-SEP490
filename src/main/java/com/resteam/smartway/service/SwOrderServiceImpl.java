@@ -95,15 +95,26 @@ public class SwOrderServiceImpl implements SwOrderService {
             .orElseThrow(() -> new NotFoundException("Order not found"));
         MenuItem menuItem = menuItemRepository
             .findById(orderDetail.getMenuItem().getId())
-            .orElseThrow(() -> new NotFoundException("Item not found "));
-        //find detail by order and menu item -> Detail option
-        //option emty -> save detail moi
-        //else -> get().setQuantity() cong them -> save lai
+            .orElseThrow(() -> new NotFoundException("Item not found"));
+        // Kiểm tra món ăn có đủ trong kho không
+        if (!menuItem.getIsInStock()) {
+            throw new RuntimeException("Item is out of stock");
+        }
 
-        // Thêm OrderDetail vào danh sách items của đơn hàng
-        orderDetail.setSwOrder(swOrder);
-        orderDetail.setMenuItem(menuItem);
-        OrderDetail savedOrderDetail = orderDetailRepository.save(orderDetail);
-        return orderDetailMapper.toDto(savedOrderDetail);
+        Optional<OrderDetail> existingOrderDetail = orderDetailRepository.findBySwOrderAndMenuItem(swOrder, menuItem);
+
+        if (existingOrderDetail.isPresent()) {
+            // OrderDetail có tồn tại thì get nó,
+            OrderDetail detailToUpdate = existingOrderDetail.get();
+            int newQuantity = detailToUpdate.getQuantity() + orderDetail.getQuantity();
+            detailToUpdate.setQuantity(newQuantity);
+            OrderDetail updatedOrderDetail = orderDetailRepository.save(detailToUpdate);
+            return orderDetailMapper.toDto(updatedOrderDetail);
+        } else {
+            orderDetail.setSwOrder(swOrder);
+            orderDetail.setMenuItem(menuItem);
+            OrderDetail savedOrderDetail = orderDetailRepository.save(orderDetail);
+            return orderDetailMapper.toDto(savedOrderDetail);
+        }
     }
 }
