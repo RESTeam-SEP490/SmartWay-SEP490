@@ -2,7 +2,8 @@
   "zone": {
     "label": "Zone",
     "name": "Zone name",
-    "description": "Description"
+    "description": "Description",
+    "entity": "Zone"
   },
   "smartWayApp": {
     "zone": {

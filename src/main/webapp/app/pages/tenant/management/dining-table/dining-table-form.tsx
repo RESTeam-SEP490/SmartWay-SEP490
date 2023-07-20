@@ -73,7 +73,7 @@ export const DiningTableForm = ({
                 >
                   <Input />
                 </Form.Item>
-                <Form.Item labelCol={{ span: 10 }} label={translate('diningTable.numberOfSeat.label')} name={'numberOfSeats'}>
+                <Form.Item label={translate('diningTable.numberOfSeat.label')} name={'numberOfSeats'}>
                   <InputNumber min={0} className="w-40" keyboard formatter={currencyFormatter} />
                 </Form.Item>
                 <Form.Item label={translate('diningTable.zone.label')}>

@@ -55,7 +55,7 @@ export const ZoneForm = ({ zone, isOpen, handleClose }: { zone?: IZone; isOpen: 
         title={
           <Translate
             contentKey={isNew ? 'entity.label.addNew' : 'entity.label.edit'}
-            interpolate={{ entity: translate('global.menu.entities.zone').toLowerCase() }}
+            interpolate={{ entity: translate('zone.entity').toLowerCase() }}
           />
         }
         footer={[]}

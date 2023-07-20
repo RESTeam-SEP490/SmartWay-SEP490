@@ -7,8 +7,8 @@
       "sold": "Sold",
       "ingredients": "Ingredients"
     },
-    "numberOfSeats": "Số ghế",
-    "numberOfSeats.label": "Số ghế",
+    "numberOfSeat": "Số ghế",
+    "numberOfSeat.label": "Số ghế",
     "name.label": "Tên bàn",
     "name.placeholder": "Tên bàn",
     "sellPrice.placeholder": "Giá bán",
