@@ -50,12 +50,14 @@ public class DiningTableServiceImpl implements DiningTableService {
     @Override
     @SneakyThrows
     public DiningTableDTO createDiningTable(DiningTableDTO diningTableDTO) {
-        UUID zoneId = diningTableDTO.getZone().getId();
-        Zone zone = zoneRepository
-            .findById(zoneId)
-            .orElseThrow(() -> new BadRequestAlertException("Zone is not found", ENTITY_NAME, "idnotfound"));
         DiningTable diningTable = diningTableMapper.toEntity(diningTableDTO);
-        diningTable.setZone(zone);
+        if (diningTableDTO.getZone() != null) {
+            UUID zoneId = diningTableDTO.getZone().getId();
+            Zone zone = zoneRepository
+                .findById(zoneId)
+                .orElseThrow(() -> new BadRequestAlertException("Zone is not found", ENTITY_NAME, "idnotfound"));
+            diningTable.setZone(zone);
+        }
         diningTable.setIsFree(true);
         diningTable.setIsActive(true);
 
@@ -68,11 +70,13 @@ public class DiningTableServiceImpl implements DiningTableService {
         DiningTable diningTable = diningTableRepository
             .findById(diningTableDTO.getId())
             .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
-        UUID zoneId = diningTableDTO.getZone().getId();
-        Zone zone = zoneRepository
-            .findById(zoneId)
-            .orElseThrow(() -> new BadRequestAlertException("Zone is not found", ENTITY_NAME, "idnotfound"));
-        diningTable.setZone(zone);
+        if (diningTableDTO.getZone() != null) {
+            UUID zoneId = diningTableDTO.getZone().getId();
+            Zone zone = zoneRepository
+                .findById(zoneId)
+                .orElseThrow(() -> new BadRequestAlertException("Zone is not found", ENTITY_NAME, "idnotfound"));
+            diningTable.setZone(zone);
+        }
         diningTableMapper.partialUpdate(diningTable, diningTableDTO);
 
         DiningTable result = diningTableRepository.save(diningTable);
