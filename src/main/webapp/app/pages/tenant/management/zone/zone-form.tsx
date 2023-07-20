@@ -7,7 +7,6 @@ import { StopOutlined } from '@ant-design/icons';
 import { Button, Form, Input, Modal } from 'antd';
 import { DEFAULT_FORM_ITEM_LAYOUT } from 'app/app.constant';
 import { SubmitButton } from 'app/shared/layout/form-shared-component';
-import { IMenuItemCategory } from 'app/shared/model/menu-item-category.model';
 import { createEntity, updateEntity } from './zone.reducer';
 import { IZone } from 'app/shared/model/zone.model';
 
