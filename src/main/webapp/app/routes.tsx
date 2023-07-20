@@ -73,7 +73,7 @@ export const TenantAppRoutes = () => {
         </Route>
       </Route>
       <Route
-        path="management/*"
+        path="managing/*"
         element={
           <PrivateRoute hasAnyAuthorities={[AUTHORITIES.USER, AUTHORITIES.ADMIN]}>
             <Tenant />
@@ -89,7 +89,7 @@ export const TenantAppRoutes = () => {
         }
       ></Route>
 
-      <Route element={<PageNotFound />} />
+      <Route path="*" element={<PageNotFound />} />
     </ErrorBoundaryRoutes>
   );
 };

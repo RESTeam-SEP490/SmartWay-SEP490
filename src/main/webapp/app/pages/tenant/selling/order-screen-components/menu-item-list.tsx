@@ -1,58 +1,94 @@
-import { MinusCircleFilled, PlusCircleFilled } from '@ant-design/icons';
-import { Button, Image, Typography } from 'antd';
-import { currencyFormatter } from 'app/app.constant';
-import { useAppSelector } from 'app/config/store';
+import { SyncOutlined } from '@ant-design/icons';
+import { Button, Image, Segmented, Typography } from 'antd';
+import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { IMenuItem } from 'app/shared/model/menu-item.model';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
-import { MdMonetizationOn, MdOutlineFastfood } from 'react-icons/md';
+import { MdOutlineFastfood } from 'react-icons/md';
+import { DEFAULT_PAGEABLE, currencyFormatter } from '../../../../app.constant';
+import { getEntities as getCategories } from '../../management/menu-item-category/menu-item-category.reducer';
+import { getEntities as getMenuItems, setPageable } from '../../management/menu-item/menu-item.reducer';
 
-export const OrderDetails = () => {
+export const MenuItemList = () => {
+  const dispatch = useAppDispatch();
   const menuItemList = useAppSelector(state => state.menuItem.entities);
+  const categoryList = useAppSelector(state => state.menuItemCategory.entities);
+
+  const [filteredMenuItemList, setFilteredMenuItemList] = useState([]);
+  const [filter, setFilter] = useState({ zoneId: '' });
+
+  // useEffect(() => {
+  //   dispatch(setPageable({ ...DEFAULT_PAGEABLE, size: 10000, isActive: true }));
+  //   dispatch(getMenuItems());
+  //   dispatch(getCategories({}));
+  // }, []);
+
+  useEffect(() => {
+    const { zoneId } = filter;
+    let nextFilteredMenuItemList: IMenuItem[] = [...menuItemList];
+    if (zoneId?.length > 0) nextFilteredMenuItemList = nextFilteredMenuItemList.filter(item => item.menuItemCategory.id === zoneId);
+    setFilteredMenuItemList(nextFilteredMenuItemList);
+  }, [filter, menuItemList]);
+
+  const [selectedTable, setSelectedTable] = useState(null);
+  const handleTableClick = tableId => {
+    setSelectedTable(tableId);
+  };
 
   return (
-    <>
-      <div className="flex flex-col divide-y divide-slate-200 p-2 h-screen w-[464px] bg-white">
-        <div className="p-4">
-          <Typography.Title level={3} className="!mb-0">
-            Current Order
-          </Typography.Title>
-          <Typography.Title level={5} className="!m-0 !text-slate-400">
-            Bàn 4
-          </Typography.Title>
-        </div>
-        <div className="border-t border-0 border-solid border-slate-200 mt-2 mx-2"></div>
-        <div className="px-2 pt-2 grow">
-          <Scrollbars className="grow w-full">
-            <div className="flex flex-col gap-2 pr-4">{menuItemList.map(table => OrderDetailCard(table))}</div>
-          </Scrollbars>
-        </div>
-        <div className="border-t border-0 border-solid border-slate-200 mx-2"></div>
-        <div className="flex mt-4 mb-2 p-2 gap-2">
-          <Button
-            icon={<MdMonetizationOn size={20} />}
-            size="large"
-            type="primary"
-            className="grow flex items-center justify-center bg-green-600 hover:!bg-green-500 active:!bg-green-700"
-          >
-            Thanh toán
-          </Button>
-          <Button size="large" type="primary" className="grow">
-            Thanh toán
-          </Button>
-        </div>
+    <div className="p-2 bg-white h-[calc(100vh-66px)] flex flex-col rounded-se-lg rounded-b-lg">
+      <div className="flex justify-between items-center py-4 px-2">
+        <Segmented
+          options={[{ label: 'All', value: '' }, ...categoryList.map(z => ({ label: z.name, value: z.id }))]}
+          onChange={value => setFilter(prev => ({ ...prev, zoneId: value.toString() }))}
+        />
+        <Button
+          size="large"
+          icon={<SyncOutlined rev="" />}
+          shape="circle"
+          type="ghost"
+          className="hover:!text-blue-600 !text-slate-600"
+        ></Button>
       </div>
-    </>
+
+      <Scrollbars className="grow  rounded-md bg-gray-200">
+        <div className="flex flex-wrap gap-4 m-4 ">{filteredMenuItemList.map(item => MenuItemCard(item))}</div>
+      </Scrollbars>
+      {/* {tableList.length > 0 ? (
+        sortedDiningTableList.map(table => (
+          <Card
+            key={table.id}
+            className={`square-card ${selectedTable === table.id ? 'selected' : ''}`}
+            onClick={() => handleTableClick(table.id)}
+          >
+            <div className="flex-container table-item">
+              <Space direction="vertical" align="center">
+                {table.name === 'Takeaway' ? (
+                  <ShoppingOutlined className="table-outlined-color" rev={undefined} />
+                ) : (
+                  <TableOutlined className="table-outlined-color" rev={undefined} />
+                )}
+                <Typography style={{ color: '#0066CC' }}>{table.name}</Typography>
+              </Space>
+            </div>
+            </Card>
+            ))
+            ) : (
+              <div className="empty-message">
+              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={translate('global.table.empty')} />
+              </div>
+            )} */}
+    </div>
   );
 };
 
-const OrderDetailCard = (item: IMenuItem) => (
+const MenuItemCard = (item: IMenuItem) => (
   <div
     key={item.id}
-    className="flex items-center p-2 pb-2 w-full h-28  text-blue-600 bg-white rounded-lg
+    className="flex flex-col items-center p-2 pb-2 w-40  text-blue-600 bg-white rounded-lg
     cursor-pointer border border-solid border-transparent hover:border-blue-200 hover:shadow-md"
   >
-    <div className="h-full aspect-square bg-blue-100 flex items-center justify-center overflow-hidden rounded-md">
+    <div className="w-full aspect-square bg-blue-100 flex items-center justify-center overflow-hidden rounded-md">
       {item.imageUrl ? (
         <>
           <Image
@@ -68,15 +104,13 @@ const OrderDetailCard = (item: IMenuItem) => (
         </>
       )}
     </div>
-    <div className="h-full ml-4 flex flex-col justify-between">
-      <Typography.Text className="font-semibold w-64" ellipsis={{ tooltip: item.name }}>
+    <div className="my-2 flex flex-col items-center">
+      <Typography.Text className="font-semibold w-32 text-center" ellipsis={{ tooltip: item.name }}>
         {item.name}
       </Typography.Text>
-      <div className="flex w-fit  items-center text-blue-600">
-        <Button size="large" shape="circle" icon={<PlusCircleFilled rev={''} />} className="!p-0"></Button>
-        <span>6</span>
-        <Button size="large" shape="circle" icon={<MinusCircleFilled rev={''} />} className="!p-0"></Button>
-      </div>
+      <Typography.Text className="font-semibold text-blue-600">{currencyFormatter(item.sellPrice)}</Typography.Text>
     </div>
   </div>
 );
+
+export default MenuItemList;

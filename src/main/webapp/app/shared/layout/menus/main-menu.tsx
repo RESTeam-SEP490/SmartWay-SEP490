@@ -11,7 +11,7 @@ import { Button, Menu } from 'antd';
 import { AUTHORITIES } from 'app/config/constants';
 import { useAppSelector } from 'app/config/store';
 import React, { useState } from 'react';
-import { Translate, translate } from 'react-jhipster';
+import { Storage, Translate, translate } from 'react-jhipster';
 import { Link, useLocation } from 'react-router-dom';
 import {
   MdOutlineManageAccounts,
@@ -27,7 +27,7 @@ import {
 export const UserMenu = () => {
   const location = useLocation();
   const { authorities } = useAppSelector(state => state.authentication.account);
-  const [isCollapse, setIsCollapse] = useState(false);
+  const [isCollapse, setIsCollapse] = useState(Storage.local.get('isCollapse', true));
 
   const isHiddenWithAuthority = (requiredAuthorities: string[]) => {
     if (authorities && authorities.length !== 0) {
@@ -37,6 +37,11 @@ export const UserMenu = () => {
       return !requiredAuthorities.some(auth => authorities.includes(auth));
     }
     return true;
+  };
+
+  const handleCollapse = () => {
+    Storage.local.set('isCollapse', !isCollapse);
+    setIsCollapse(!isCollapse);
   };
 
   return (
@@ -54,7 +59,7 @@ export const UserMenu = () => {
           hidden={isHiddenWithAuthority([AUTHORITIES.ADMIN, AUTHORITIES.STAFF_VIEW])}
         >
           <Translate contentKey="menu.dashboard.label" />
-          <Link to="/dashboard" />
+          <Link to="/managing/dashboard" />
         </Menu.Item>
         <Menu.SubMenu
           title={translate('menu.staff.label')}
@@ -67,7 +72,7 @@ export const UserMenu = () => {
             hidden={isHiddenWithAuthority([AUTHORITIES.ADMIN, AUTHORITIES.STAFF_VIEW])}
           >
             <Translate contentKey="menu.staff.submenu.staffs" />
-            <Link to="/staff" />
+            <Link to="/managing/staff" />
           </Menu.Item>
           <Menu.Item
             key="roles"
@@ -75,7 +80,7 @@ export const UserMenu = () => {
             hidden={isHiddenWithAuthority([AUTHORITIES.ADMIN, AUTHORITIES.STAFFROLE_VIEW])}
           >
             <Translate contentKey="menu.staff.submenu.roles" />
-            <Link to="/roles" />
+            <Link to="/managing/roles" />
           </Menu.Item>
         </Menu.SubMenu>
         <Menu.Item
@@ -84,7 +89,7 @@ export const UserMenu = () => {
           hidden={isHiddenWithAuthority([AUTHORITIES.ADMIN, AUTHORITIES.MENUITEM_VIEW])}
         >
           <Translate contentKey="menu.foodMenu.label" />
-          <Link to="/menu-items" />
+          <Link to="/managing/menu-items" />
         </Menu.Item>
         <Menu.Item
           key="tables"
@@ -92,7 +97,7 @@ export const UserMenu = () => {
           hidden={isHiddenWithAuthority([AUTHORITIES.ADMIN, AUTHORITIES.TABLE_VIEW])}
         >
           <Translate contentKey="menu.table.label" />
-          <Link to="/tables" />
+          <Link to="/managing/tables" />
         </Menu.Item>
         <Menu.Item
           key="bills"
@@ -100,11 +105,11 @@ export const UserMenu = () => {
           hidden={isHiddenWithAuthority([AUTHORITIES.ADMIN, AUTHORITIES.BILL_VIEW])}
         >
           <Translate contentKey="menu.bill.label" />
-          <Link to="/bills" />
+          <Link to="/managing/bills" />
         </Menu.Item>
       </Menu>
       <div className="mx-4 h-16 border-t border-solid border-0 border-slate-200 ">
-        <Button onClick={() => setIsCollapse(prev => !prev)} className="!shadow-none px-1 float-right mr-2 my-4 text-slate-400">
+        <Button onClick={handleCollapse} className="!shadow-none px-1 float-right mr-2 my-4 text-slate-400">
           <MdOutlineTune size={24} />
         </Button>
       </div>

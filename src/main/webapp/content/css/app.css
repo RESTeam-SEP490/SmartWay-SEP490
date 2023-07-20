@@ -128,27 +128,55 @@ th.ant-table-cell::before {
 
 .bg-wall-primary {
   box-shadow: inset 0 0 0 2000px rgba(77, 129, 241, 0.5);
-  /* filter: grayscale(100%); */
 }
 
 .ant-tabs-card .ant-tabs-nav {
   margin: 0 !important;
 }
 
-.ant-tabs-card .ant-tabs-tab {
-  color: #fff;
+.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab:not(.ant-tabs-tab-active) {
+  color: #64748b;
+  background: var(--200);
+  border-bottom: none;
 }
+
+.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab:not(.ant-tabs-tab-active):hover {
+  opacity: 0.8;
+}
+
+.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab-active {
+  border-bottom: none;
+}
+
 .ant-tabs-top.ant-tabs-card > .ant-tabs-nav::before {
   content: none;
 }
+
+.ant-segmented {
+  background: none;
+}
+
 .ant-segmented .ant-segmented-item-label {
-  padding: 2px 24px;
+  padding: 4px 24px;
 }
 
 .ant-segmented .ant-segmented-item-selected {
-  color: var(--600);
+  background: var(--200);
 }
-.ant-input-affix-wrapper {
+.ant-segmented .ant-segmented-item {
+  border-radius: 16px;
+}
+
+.ant-segmented .ant-segmented-thumb {
+  background-color: var(--200);
+  border-radius: 16px;
+}
+
+.ant-segmented .ant-segmented-group {
+  gap: 4px;
+}
+
+.ant-input-affix-wrapper:not(.ant-input-affix-wrapper-lg) {
   padding: 4.2px 11px;
 }
 .ant-menu-vertical:not(.ant-menu-sub) > .ant-menu-item,
@@ -195,28 +223,36 @@ th.ant-table-cell::before {
   right: -13px;
   top: 50%;
   transform: translateY(-50%);
-  width: 5px;
-  border-radius: 6px 0 0 6px;
-  height: 80%;
+  width: 4px;
+  border-radius: 3px 0 0 3px;
+  height: calc(100% - 4px);
   background: #4d81f1;
+}
+
+.ant-menu-dark .ant-menu-item-selected::before {
+  background: #fff;
+  right: unset;
+  left: -12px;
+  border-radius: 0 3px 3px 0;
 }
 
 .ant-menu-vertical .ant-menu-item .ant-menu-item-icon,
 .ant-menu-vertical .ant-menu-submenu-title .ant-menu-item-icon {
   font-size: 20px !important;
 }
-.ant-menu-light:not(.ant-menu-horizontal) .ant-menu-item:not(.ant-menu-item-selected):hover,
-.ant-menu-light .ant-menu-submenu-title:hover:not(.ant-menu-item-selected):not(.ant-menu-submenu-selected) {
+.ant-menu-dark:not(.ant-menu-horizontal) .ant-menu-item:not(.ant-menu-item-selected):hover,
+.ant-menu-dark .ant-menu-submenu-title:hover:not(.ant-menu-item-selected):not(.ant-menu-submenu-selected) {
+  background: color-mix(in srgb, var(--500) 70%, transparent);
 }
 
 .ant-menu-light .ant-menu-submenu-selected .ant-menu-submenu-title {
   background: var(--100);
 }
 
-.ant-menu .ant-menu-submenu-arrow {
-  inset-inline-end: 8px;
+.ant-menu-dark .ant-menu-item-selected {
+  background: color-mix(in srgb, var(--500) 70%, transparent);
 }
 
-.ant-segmented .ant-segmented-group {
-  gap: 4px;
+.ant-menu .ant-menu-submenu-arrow {
+  inset-inline-end: 8px;
 }
