@@ -151,7 +151,9 @@ public class UserServiceImpl implements UserService {
             .findOneByUsername(username)
             .orElseThrow(() -> new UsernameNotFoundException(("Username not fond")));
         //        userOptional.setPassword(null);
-        return profileMapper.toDto(userOptional);
+        ProfileDTO profileDTO = profileMapper.toDto(userOptional);
+        profileDTO.setBirthday(userOptional.getBirthday());
+        return profileDTO;
     }
 
     @Transactional(readOnly = true)
@@ -244,6 +246,7 @@ public class UserServiceImpl implements UserService {
         if (existingUser.isPresent() && !existingUser.get().getId().equals(profileDTO.getId())) {
             throw new BadRequestAlertException(applicationName, ENTITY_USERNAME_PROFILE, "existed");
         }
+        profile.setBirthday(profileDTO.getBirthday());
         profileMapper.partialUpdate(profile, profileDTO);
         if (profileDTO.getResetPassword() != null && profileDTO.getPassword() != null) {
             if (Objects.equals(profileDTO.getPassword(), profile.getPassword())) {

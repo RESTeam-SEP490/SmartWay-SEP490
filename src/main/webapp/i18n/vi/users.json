@@ -8,7 +8,32 @@
         "staffCode": "Mã NV",
         "Status": "Trạng thái"
       }
-    }
+    },
+    "addNewLabel": "Thêm mới người dùng",
+    "username.label": "Tài khoản",
+    "password.label": "Mật khẩu",
+    "newPassword.label": "Mật khẩu mới",
+    "confirmPassword.label": "Nhập lại mật khẩu mới",
+    "currentPassword.label": "Mật khẩu hiện tại",
+    "fullName.label": "Họ và tên",
+    "phone.label": "Điện thoại",
+    "email.label": "Email",
+    "address.label": "Địa chỉ",
+    "restaurantId.label": "Nhà hàng",
+    "birthday.label": "Ngày sinh",
+    "gender.label": "Giới tính",
+    "role.label": "Vai trò",
+    "langkey.label": "en",
+    "role.placeholder": "Chọn vai trò",
+    "search.placeholder": "Tìm kiếm",
+    "information.label": "Thông tin",
+    "resetPassword.label": "Làm mới mật khẩu",
+    "infoTabs": {
+      "information": "Thông tin",
+      "changePassword": "Thay đổi mật khẩu"
+    },
+    "savePassword": "Lưu mật khẩu",
+    "save": "Lưu"
   },
   "smartWayApp": {
     "tenant": {

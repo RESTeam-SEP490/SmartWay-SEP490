@@ -6,6 +6,7 @@ import role from './role/role.reducer';
 import diningTable from './dining-table/dining-table.reducer';
 import zone from './zone/zone.reducer';
 import tenant from './tenant-profile/tenant-profile.reducer';
+import changePassword from './tenant-profile/tenant-change-password.reducer';
 /* jhipster-needle-add-reducer-import - JHipster will add reducer here */
 
 const entitiesReducers = {
@@ -17,6 +18,7 @@ const entitiesReducers = {
   zone,
   role,
   tenant,
+  changePassword,
   /* jhipster-needle-add-reducer-combine - JHipster will add reducer here */
 };
 

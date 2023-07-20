@@ -4,6 +4,7 @@ import static com.resteam.smartway.service.dto.TenantRegistrationDTO.PASSWORD_MA
 import static com.resteam.smartway.service.dto.TenantRegistrationDTO.PASSWORD_MIN_LENGTH;
 
 import com.resteam.smartway.config.Constants;
+import java.util.Date;
 import java.util.UUID;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -41,6 +42,12 @@ public class ProfileDTO {
 
     @Email
     private String email;
+
+    private String address;
+
+    private Date birthday;
+
+    private String gender;
 
     @Size(min = 2, max = 10)
     private String langKey;

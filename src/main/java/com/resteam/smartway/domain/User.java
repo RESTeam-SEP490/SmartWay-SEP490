@@ -44,7 +44,7 @@ public class User extends AbstractBaseAuditingEntity<UUID> implements Serializab
     @Column(length = 20)
     private String phone;
 
-    private Date birthdate;
+    private Date birthday;
 
     private String gender;
 

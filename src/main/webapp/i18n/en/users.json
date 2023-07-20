@@ -13,7 +13,7 @@
     "username.label": "Username",
     "password.label": "Password",
     "newPassword.label": "New password",
-    "retypePassword.label": "Retype password",
+    "confirmPassword.label": "Confirm password",
     "currentPassword.label": "Current password",
     "fullName.label": "Full name",
     "phone.label": "Phone",
@@ -21,6 +21,7 @@
     "address.label": "Address",
     "restaurantId.label": "Restaurant",
     "birthday.label": "Birthday",
+    "gender.label": "Gender",
     "role.label": "Role",
     "langkey.label": "en",
     "role.placeholder": "Choose role",
@@ -30,7 +31,9 @@
     "infoTabs": {
       "information": "Information",
       "changePassword": "Change Password"
-    }
+    },
+    "savePassword": "Save password",
+    "save": "Save"
   },
   "smartWayApp": {
     "tenant": {

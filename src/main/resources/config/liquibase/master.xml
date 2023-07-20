@@ -19,7 +19,7 @@
     <include file="config/liquibase/changelog/20230703115952_add_is_system_admin_into_user.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20230703115952_load_data_for_system_admin.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20230708100734_change_dining_table.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20230719121556_add_address_birthday_gender.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230719165000_add_column_address_gender_birthday.xml.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
     <!-- jhipster-needle-liquibase-add-incremental-changelog - JHipster will add incremental liquibase changelogs here -->

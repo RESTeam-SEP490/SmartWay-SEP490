@@ -1,4 +1,5 @@
 import { IRole } from 'app/shared/model/role';
+import { Moment } from 'moment';
 
 export interface ITenant {
   id?: any;
@@ -10,8 +11,9 @@ export interface ITenant {
   role?: IRole;
   password?: string;
   langKey?: string;
-  birthday?: Date;
-  resetPassword?: string;
+  birthday?: Moment | null;
+  gender?: string;
+  newPassword?: string;
 }
 
 export const defaultValue: Readonly<ITenant> = {};
