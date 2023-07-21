@@ -1,12 +1,11 @@
 package com.resteam.smartway.service;
 
-import com.amazonaws.services.kms.model.NotFoundException;
 import com.resteam.smartway.domain.OrderDetail;
 import com.resteam.smartway.repository.OrderDetailRepository;
 import com.resteam.smartway.service.dto.OrderDetailDTO;
 import com.resteam.smartway.service.mapper.OrderDetailMapper;
+import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -21,12 +20,13 @@ public class OrderDetailServiceImpl implements OrderDetailService {
 
     private final OrderDetailRepository orderDetailRepository;
     private final OrderDetailMapper orderDetailMapper;
+    private static final String ENTITY_NAME = "orderDetail";
 
     @Override
     public OrderDetailDTO getOrderDetailById(UUID orderDetailId) {
         OrderDetail orderDetail = orderDetailRepository
             .findById(orderDetailId)
-            .orElseThrow(() -> new NotFoundException("Order detail not found with ID: " + orderDetailId));
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
         return orderDetailMapper.toDto(orderDetail);
     }
 
@@ -62,7 +62,7 @@ public class OrderDetailServiceImpl implements OrderDetailService {
     public void deleteOrderDetail(UUID orderDetailId) {
         OrderDetail orderDetail = orderDetailRepository
             .findById(orderDetailId)
-            .orElseThrow(() -> new NotFoundException("Order detail not found with ID: " + orderDetailId));
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
         orderDetailRepository.delete(orderDetail);
     }
 }

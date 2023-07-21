@@ -1,11 +1,13 @@
 package com.resteam.smartway.domain;
 
+import java.time.Instant;
 import java.util.UUID;
 import javax.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
 
 @Getter
 @Setter
@@ -29,4 +31,11 @@ public class OrderDetail {
     private MenuItem menuItem;
 
     private int quantity;
+
+    @Column(name = "is_cooked", nullable = false)
+    private boolean isCooked;
+
+    @CreatedDate
+    @Column(name = "created_date", nullable = false)
+    private Instant createdDate = Instant.now();
 }

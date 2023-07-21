@@ -13,5 +13,6 @@ public interface OrderDetailService {
 
     void updateOrderDetail(OrderDetailDTO orderDetailDTO);
 
+    //Hủy món
     void deleteOrderDetail(UUID orderDetailId);
 }

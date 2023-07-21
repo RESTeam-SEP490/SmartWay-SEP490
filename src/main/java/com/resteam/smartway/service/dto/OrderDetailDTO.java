@@ -16,4 +16,5 @@ public class OrderDetailDTO {
     private String orderId;
     private MenuItemDTO menuItem;
     private int quantity;
+    private boolean isCooked;
 }

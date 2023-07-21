@@ -1,9 +1,9 @@
 package com.resteam.smartway.web.rest;
 
-import com.resteam.smartway.service.OrderDetailService;
 import com.resteam.smartway.service.SwOrderService;
 import com.resteam.smartway.service.dto.OrderDetailDTO;
 import com.resteam.smartway.service.dto.SwOrderDTO;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -21,7 +21,6 @@ public class OrderResource {
 
     private static final String ENTITY_NAME = "order";
 
-    private final OrderDetailService orderDetailService;
     private final SwOrderService swOrderService;
 
     @PostMapping
@@ -52,5 +51,17 @@ public class OrderResource {
     public ResponseEntity<Void> deleteOrder(@PathVariable UUID orderId) {
         swOrderService.deleteOrder(orderId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/kitchen")
+    public ResponseEntity<List<OrderDetailDTO>> getOrderDetailsForKitchen() {
+        List<OrderDetailDTO> orderDetails = swOrderService.getUncookedOrderDetailsForKitchen();
+        return new ResponseEntity<>(orderDetails, HttpStatus.OK);
+    }
+
+    @GetMapping("/table/{tableId}")
+    public ResponseEntity<List<OrderDetailDTO>> getOrderDetailsForTable(@PathVariable UUID tableId) {
+        List<OrderDetailDTO> orderDetails = swOrderService.getOrderDetailsForTable(tableId);
+        return new ResponseEntity<>(orderDetails, HttpStatus.OK);
     }
 }
