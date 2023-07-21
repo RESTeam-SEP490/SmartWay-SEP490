@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Translate, translate } from 'react-jhipster';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 
-import { InfoCircleFilled, StopOutlined } from '@ant-design/icons';
-import { Button, Form, Input, Modal, Tabs } from 'antd';
-import { DEFAULT_FORM_ITEM_LAYOUT } from 'app/app.constant';
+import { StopOutlined } from '@ant-design/icons';
+import { Button, Form, Input, InputNumber, Modal, Tabs } from 'antd';
+import { currencyFormatter, DEFAULT_FORM_ITEM_LAYOUT } from 'app/app.constant';
 import { SubmitButton } from 'app/shared/layout/form-shared-component';
 import { IDiningTable } from 'app/shared/model/dining-table.model';
 import ZoneSelect from '../zone/zone';
@@ -28,17 +28,27 @@ export const DiningTableForm = ({
   const updateSuccess = useAppSelector(state => state.diningTable.updateSuccess);
 
   useEffect(() => {
+    if (!isNew) {
+      let table = { ...diningTable };
+      if (diningTable.numberOfSeats == 0) table = { ...table, numberOfSeats: undefined };
+      form.setFieldsValue({ ...table });
+    } else {
+      form.resetFields();
+    }
+  }, [isNew]);
+  useEffect(() => {
     if (updateSuccess) {
       form.resetFields();
       handleClose();
     }
   }, [updateSuccess]);
   const saveEntity = values => {
+    console.log(values);
     const entity = {
       ...diningTable,
       ...values,
     };
-
+    if (entity.zone.id === undefined) entity.zone = null;
     if (isNew) {
       dispatch(createEntity(entity));
     } else {
@@ -63,7 +73,10 @@ export const DiningTableForm = ({
                 >
                   <Input />
                 </Form.Item>
-                <Form.Item label={translate('diningTable.zone.label')} required>
+                <Form.Item label={translate('diningTable.numberOfSeat.label')} name={'numberOfSeats'}>
+                  <InputNumber min={0} className="w-40" keyboard formatter={currencyFormatter} />
+                </Form.Item>
+                <Form.Item label={translate('diningTable.zone.label')}>
                   <ZoneSelect />
                 </Form.Item>
               </div>

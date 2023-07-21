@@ -1,4 +1,4 @@
-import { CheckSquareFilled, StopOutlined } from '@ant-design/icons';
+import { CheckSquareFilled, DeleteFilled, StopOutlined } from '@ant-design/icons';
 import { Button, Modal, Typography } from 'antd';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import React, { useEffect } from 'react';
@@ -50,13 +50,39 @@ export const StaffDialog = ({
       footer={null}
       title={<Translate contentKey="entity.label.confirm" />}
     >
-      <Typography.Text>
-        <Translate contentKey="staff.action.delete.question" interpolate={{ code: staffs[0].username }} />
-      </Typography.Text>
+      {isActive === undefined ? (
+        <Typography.Text>
+          {staffs[0]?.username ? (
+            <Translate contentKey="menuItem.action.delete.question" interpolate={{ code: staffs[0].username }} />
+          ) : (
+            <Translate contentKey="entity.action.delete.question" interpolate={{ number: staffs.length }} />
+          )}
+        </Typography.Text>
+      ) : (
+        <Typography>
+          {staffs[0]?.id ? (
+            isActive ? (
+              <Translate contentKey="menuItem.action.allowSellOne.question" interpolate={{ code: staffs[0].id }} />
+            ) : (
+              <Translate contentKey="menuItem.action.stopSellOne.question" interpolate={{ code: staffs[0].id }} />
+            )
+          ) : isActive ? (
+            <Translate contentKey="menuItem.action.allowSell.question" interpolate={{ number: staffs.length }} />
+          ) : (
+            <Translate contentKey="menuItem.action.stopSell.question" interpolate={{ number: staffs.length }} />
+          )}
+        </Typography>
+      )}
       <div className="flex justify-end gap-2 mt-4">
-        <Button type="primary" icon={<CheckSquareFilled rev={''} />} htmlType="submit" loading={updating} onClick={handleOk}>
-          <Translate contentKey="entity.label.confirm"></Translate>
-        </Button>
+        {isActive === undefined ? (
+          <Button type="primary" icon={<DeleteFilled rev={''} />} htmlType="submit" loading={updating} onClick={handleOk}>
+            <Translate contentKey="entity.action.delete"></Translate>
+          </Button>
+        ) : (
+          <Button type="primary" icon={<CheckSquareFilled rev={''} />} htmlType="submit" loading={updating} onClick={handleOk}>
+            <Translate contentKey="entity.label.confirm"></Translate>
+          </Button>
+        )}
         <Button type="default" onClick={() => handleClose()}>
           <StopOutlined rev={''} />
           <Translate contentKey="entity.action.cancel"></Translate>

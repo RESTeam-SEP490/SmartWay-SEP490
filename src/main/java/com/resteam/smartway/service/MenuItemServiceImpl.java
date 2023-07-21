@@ -2,12 +2,15 @@ package com.resteam.smartway.service;
 
 import com.amazonaws.services.kms.model.NotFoundException;
 import com.resteam.smartway.domain.MenuItem;
+import com.resteam.smartway.domain.MenuItemCategory;
+import com.resteam.smartway.repository.MenuItemCategoryRepository;
 import com.resteam.smartway.repository.MenuItemRepository;
 import com.resteam.smartway.security.multitenancy.context.RestaurantContext;
 import com.resteam.smartway.service.aws.S3Service;
 import com.resteam.smartway.service.dto.IsActiveUpdateDTO;
 import com.resteam.smartway.service.dto.MenuItemDTO;
 import com.resteam.smartway.service.mapper.MenuItemMapper;
+import com.resteam.smartway.web.rest.MenuItemCategoryResource;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
 import java.util.List;
 import java.util.Optional;
@@ -36,6 +39,8 @@ public class MenuItemServiceImpl implements MenuItemService {
     private final S3Service s3Service;
 
     private final MenuItemMapper menuItemMapper;
+
+    private final MenuItemCategoryRepository menuItemCategoryRepository;
 
     @Override
     public Page<MenuItemDTO> loadMenuItemsWithSearch(Pageable pageable, String searchText, List<String> categoryIds, Boolean isActive) {
@@ -66,8 +71,14 @@ public class MenuItemServiceImpl implements MenuItemService {
             s3Service.uploadImage(imageSource, path);
             menuItem.setImageKey(path);
         }
+        if (menuItemDTO.getMenuItemCategory() != null) {
+            UUID menuItemCategoryId = menuItemDTO.getMenuItemCategory().getId();
+            MenuItemCategory menuItemCategory = menuItemCategoryRepository
+                .findById(menuItemCategoryId)
+                .orElseThrow(() -> new BadRequestAlertException("Category is not found", ENTITY_NAME, "idnotfound"));
+            menuItem.setMenuItemCategory(menuItemCategory);
+        }
         menuItem.setCode(menuItemCode);
-
         return menuItemMapper.toDto(menuItemRepository.save(menuItem));
     }
 
@@ -99,7 +110,13 @@ public class MenuItemServiceImpl implements MenuItemService {
                 menuItem.setImageKey(path);
             }
         }
-
+        if (menuItemDTO.getMenuItemCategory() != null) {
+            UUID menuItemCategoryId = menuItemDTO.getMenuItemCategory().getId();
+            MenuItemCategory menuItemCategory = menuItemCategoryRepository
+                .findById(menuItemCategoryId)
+                .orElseThrow(() -> new BadRequestAlertException("Category is not found", ENTITY_NAME, "idnotfound"));
+            menuItem.setMenuItemCategory(menuItemCategory);
+        }
         menuItemMapper.partialUpdate(menuItem, menuItemDTO);
         if (menuItemDTO.getImageUrl() == null || menuItemDTO.getImageUrl().isEmpty()) {
             s3Service.deleteFile(menuItem.getImageKey());

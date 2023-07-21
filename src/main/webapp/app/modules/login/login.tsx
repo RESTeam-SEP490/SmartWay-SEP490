@@ -3,7 +3,6 @@ import { Link, Navigate, useLocation } from 'react-router-dom';
 
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Alert, Button, Checkbox, Form, Input, Typography } from 'antd';
-import FormItem from 'antd/es/form/FormItem';
 import Password from 'antd/es/input/Password';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { BrandIcon } from 'app/shared/layout/header/header-components';
@@ -30,19 +29,19 @@ export const Login = () => {
   return (
     <div>
       <div className="flex">
-        <div className="flex flex-col items-center w-5/12 p-4 ">
+        <div className="flex flex-col items-center w-full lg:w-6/12 xl:w-5/12 p-4 ">
           <div className="flex items-center justify-between w-full px-8 py-6 ">
             <BrandIcon />
             <LocaleMenu currentLocale={currentLocale} />
           </div>
-          <div className="flex flex-col justify-center lg:w-80 grow">
-            <Typography.Title className="!mb-1">
+          <div className="flex flex-col justify-center -translate-y-8 lg:w-80 grow">
+            <Typography.Title className="!mb-1" level={2}>
               <Translate contentKey="login.title">Welcome back</Translate>
             </Typography.Title>
             <Typography.Text className="text-gray-500 ">
               <Translate contentKey="login.subtitle">Enter your credentials to access your Account</Translate>
             </Typography.Text>
-            <Form layout="vertical" size="large" name="login" onFinish={handleLogin} scrollToFirstError className="!mt-12">
+            <Form layout="vertical" size="large" name="login" onFinish={handleLogin} scrollToFirstError className="!mt-10">
               {loginError ? (
                 <Alert className="mb-4" showIcon type="error" message={translate('login.messages.error.authentication')} />
               ) : null}
@@ -76,8 +75,11 @@ export const Login = () => {
             </Form>
           </div>
         </div>
-        <div className="w-7/12 h-screen p-4">
-          <div className="w-full min-h-full bg-blue-600 rounded-md"></div>
+        <div className="hidden md:block md:w-6/12 xl:w-7/12 h-screen p-6">
+          <div className="w-full h-full  relative">
+            <div className="absolute top-0 bottom-0 w-full rounded-lg bg-bottom lg:bg-right-bottom bg-cover bg-wall-primary bg-[url('content/images/wall-2.jpeg')]"></div>
+            <div className="absolute top-0 bottom-0 w-full rounded-lg bg-gradient-to-l from-12 to-90  from-blue-600/60 to-blue-200/60"></div>
+          </div>
         </div>
       </div>
     </div>

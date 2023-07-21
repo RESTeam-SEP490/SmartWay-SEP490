@@ -1,7 +1,9 @@
 package com.resteam.smartway.service;
 
 import com.resteam.smartway.domain.DiningTable;
+import com.resteam.smartway.domain.Zone;
 import com.resteam.smartway.repository.DiningTableRepository;
+import com.resteam.smartway.repository.ZoneRepository;
 import com.resteam.smartway.service.dto.DiningTableDTO;
 import com.resteam.smartway.service.dto.IsActiveUpdateDTO;
 import com.resteam.smartway.service.mapper.DiningTableMapper;
@@ -27,6 +29,8 @@ public class DiningTableServiceImpl implements DiningTableService {
 
     private final DiningTableRepository diningTableRepository;
 
+    private final ZoneRepository zoneRepository;
+
     private final DiningTableMapper diningTableMapper;
 
     @Override
@@ -47,6 +51,13 @@ public class DiningTableServiceImpl implements DiningTableService {
     @SneakyThrows
     public DiningTableDTO createDiningTable(DiningTableDTO diningTableDTO) {
         DiningTable diningTable = diningTableMapper.toEntity(diningTableDTO);
+        if (diningTableDTO.getZone() != null) {
+            UUID zoneId = diningTableDTO.getZone().getId();
+            Zone zone = zoneRepository
+                .findById(zoneId)
+                .orElseThrow(() -> new BadRequestAlertException("Zone is not found", ENTITY_NAME, "idnotfound"));
+            diningTable.setZone(zone);
+        }
         diningTable.setIsFree(true);
         diningTable.setIsActive(true);
 
@@ -59,7 +70,13 @@ public class DiningTableServiceImpl implements DiningTableService {
         DiningTable diningTable = diningTableRepository
             .findById(diningTableDTO.getId())
             .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
-
+        if (diningTableDTO.getZone() != null) {
+            UUID zoneId = diningTableDTO.getZone().getId();
+            Zone zone = zoneRepository
+                .findById(zoneId)
+                .orElseThrow(() -> new BadRequestAlertException("Zone is not found", ENTITY_NAME, "idnotfound"));
+            diningTable.setZone(zone);
+        }
         diningTableMapper.partialUpdate(diningTable, diningTableDTO);
 
         DiningTable result = diningTableRepository.save(diningTable);

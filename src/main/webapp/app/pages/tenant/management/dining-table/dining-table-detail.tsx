@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Translate, translate } from 'react-jhipster';
 
 import { CheckSquareFilled, DeleteFilled, EditFilled, LockFilled } from '@ant-design/icons';
-import { Badge, Button, Form, Image, Input, InputNumber, Tabs, Typography } from 'antd';
+import { Badge, Button, Card, Descriptions, Form, Image, Input, InputNumber, Tabs, Typography } from 'antd';
 import { currencyFormatter, DEFAULT_FORM_ITEM_LAYOUT } from 'app/app.constant';
 
 import { useAppDispatch } from 'app/config/store';
@@ -33,15 +33,20 @@ export const DiningTableDetail = ({ diningTable, onUpdate }: { diningTable: IDin
           className="p-4 details max-w-[calc((100vw-32px)*4/5-66px)]"
         >
           <div className="">
-            <Typography.Title level={4}>{diningTable.name}</Typography.Title>
+            <Typography.Title level={4}></Typography.Title>
           </div>
 
           <div className="flex">
-            <Form {...DEFAULT_FORM_ITEM_LAYOUT} colon className="flex-grow ml-6">
-              <Form.Item className="!mb-0" label={translate('diningTable.zone.label')}>
-                <Input bordered={false} value={diningTable.zone.name} />
-              </Form.Item>
-            </Form>
+            <Card title={diningTable.name} className="w-full">
+              <Descriptions column={1}>
+                <Descriptions.Item label={translate('diningTable.numberOfSeat.label')}>
+                  {diningTable.numberOfSeats !== 0 ? diningTable.numberOfSeats : <Translate contentKey="diningTable.message.seat" />}
+                </Descriptions.Item>
+                <Descriptions.Item label={translate('diningTable.zone.label')}>
+                  {diningTable.zone ? diningTable.zone.name : <Translate contentKey="diningTable.message" />}
+                </Descriptions.Item>
+              </Descriptions>
+            </Card>
           </div>
           <div className="flex justify-end gap-2 mt-4">
             <Button type="primary" onClick={onUpdate}>

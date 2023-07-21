@@ -1,5 +1,3 @@
-import './home.scss';
-
 import React from 'react';
 
 import { Button, Image, Typography } from 'antd';

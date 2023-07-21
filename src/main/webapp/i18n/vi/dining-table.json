@@ -7,25 +7,29 @@
       "sold": "Sold",
       "ingredients": "Ingredients"
     },
+    "numberOfSeat": "Số ghế",
+    "numberOfSeat.label": "Số ghế",
     "name.label": "Tên bàn",
     "name.placeholder": "Tên bàn",
     "sellPrice.placeholder": "Giá bán",
     "status.label": "Trạng thái",
-    "status.trueValue": "Đang kinh doanh",
-    "status.falseValue": "Ngưng kinh doanh",
+    "status.trueValue": "Đang hoạt động",
+    "status.falseValue": "Ngưng hoạt động",
     "search.placeholder": "Nhập tên, mã món để tìm kiếm",
     "zone.name": "Tên bàn",
     "zone.label": "Khu vực",
     "zone.placeholder": "--- Chọn loại khu vực ---",
-    "isActive.false": "Ngưng kinh doanh",
+    "isActive.false": "Ngưng hoạt động",
+    "message": "Bàn này chưa có khu vực",
+    "message.seat": "Số ghế chưa được thiết lập",
     "action": {
       "delete.question": "Xoá dữ liệu của bàn <b>{{ name }}</b>?",
-      "allowSell": "Cho phép kinh doanh",
-      "allowSell.question": "Cho phép kinh doanh danh sách <b>{{ number }}</b> bàn đã chọn?",
-      "allowSellOne.question": "Cho phép kinh doanh bàn <b>{{ name }}</b>?",
+      "allowSell": "Cho phép hoạt động",
+      "allowSell.question": "Cho phép hoạt động<b>{{ number }}</b> bàn đã chọn?",
+      "allowSellOne.question": "Cho phép bàn hoạt động <b>{{ name }}</b>?",
       "stopSell": "Ngưng kinh doanh",
-      "stopSell.question": "Ngưng kinh doanh danh sách <b>{{ number }}</b> bàn đã chọn?",
-      "stopSellOne.question": "Ngưng kinh doanh <b>{{ name }}</b>?"
+      "stopSell.question": "Ngưng hoạt động <b>{{ number }}</b> bàn đã chọn?",
+      "stopSellOne.question": "Ngưng hoạt động <b>{{ name }}</b>?"
     }
   },
   "smartWayApp": {
