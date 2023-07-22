@@ -9,6 +9,7 @@ import { Staff } from 'app/pages/tenant/management/staff/staff';
 import { ZoneCheckBoxes } from './zone/zone';
 import DiningTable from './dining-table';
 import Role from './role/role';
+import Stripe from 'app/pages/tenant/stripe/Stripe';
 
 export default () => {
   return (
@@ -20,6 +21,7 @@ export default () => {
         <Route path="staffs/*" element={<Staff />} />
         <Route path="roles" element={<Role />} />
         <Route path="table" element={<DiningTable />} />
+        <Route path="stripe" element={<Stripe />} />
       </ErrorBoundaryRoutes>
     </div>
   );

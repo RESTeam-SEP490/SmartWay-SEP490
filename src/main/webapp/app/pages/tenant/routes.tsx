@@ -10,6 +10,7 @@ import DiningTable from './management/dining-table';
 import PageNotFound from 'app/shared/error/page-not-found';
 import PrivateRoute from 'app/shared/auth/private-route';
 import { AUTHORITIES } from 'app/config/constants';
+import Stripe from 'app/pages/tenant/stripe/Stripe';
 
 export default () => {
   return (
@@ -44,6 +45,14 @@ export default () => {
           element={
             <PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.TABLE_VIEW]}>
               <DiningTable />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="stripe"
+          element={
+            <PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.TABLE_VIEW]}>
+              <Stripe />
             </PrivateRoute>
           }
         />

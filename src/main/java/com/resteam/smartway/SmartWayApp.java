@@ -3,6 +3,7 @@ package com.resteam.smartway;
 import com.resteam.smartway.config.ApplicationProperties;
 import com.resteam.smartway.config.AwsProperties;
 import com.resteam.smartway.config.CRLFLogConverter;
+import com.stripe.Stripe;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
@@ -10,8 +11,6 @@ import java.util.Collection;
 import java.util.Optional;
 import javax.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
@@ -24,12 +23,15 @@ import tech.jhipster.config.JHipsterConstants;
 @EnableConfigurationProperties({ LiquibaseProperties.class, ApplicationProperties.class, AwsProperties.class })
 public class SmartWayApp {
 
-    private static final Logger log = LoggerFactory.getLogger(SmartWayApp.class);
-
     private final Environment env;
 
     public SmartWayApp(Environment env) {
         this.env = env;
+    }
+
+    @PostConstruct
+    public void setup() {
+        Stripe.apiKey = "sk_test_51NVRyPJIb8aSIDrPsuj2KzfUFgkBADTljIwDslfLAtoW2YrZMBEKOQLpVsbgyp6BzEtC5mr5lzSvKApg77XqGAHS00T8WKsbza";
     }
 
     /**
