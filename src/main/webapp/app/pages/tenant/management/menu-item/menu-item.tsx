@@ -184,7 +184,6 @@ export const MenuItem = () => {
     e.preventDefault();
     setSelectedRowKeys([]);
   };
-
   return (
     <>
       <MenuItemForm menuItem={updatingItem} handleClose={handleClose} isOpen={isShowForm} />

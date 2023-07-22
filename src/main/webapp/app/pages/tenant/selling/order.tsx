@@ -54,12 +54,14 @@ export const OrderScreen = () => {
   return (
     <div className="flex h-full">
       <div
-        className={` bg-blue-600 flex flex-col pt-4 justify-between transition-all duration-300 ease-in-collapse ${
+        className={` bg-blue-600 flex flex-col pt-2 justify-between transition-all duration-300 ease-in-collapse ${
           isCollapse ? 'w-20' : '!w-48'
         }`}
       >
         <div className="">
-          <BrandIcon type="white" isHiddenText={isCollapse} />
+          <div className="px-3">
+            <BrandIcon type="white" isHiddenText={isCollapse} />
+          </div>
           <Menu mode="inline" theme="dark" className="bg-blue-600 !text-white pt-4" inlineCollapsed={isCollapse}>
             <Menu.Item icon={<MdOutlineDisplaySettings size={24} />}>Table</Menu.Item>
             {/* <Menu.Item icon={<FileTextOutlined className="!text-xl" rev={''} />}>Table</Menu.Item> */}
@@ -71,7 +73,7 @@ export const OrderScreen = () => {
           </Button>
         </div>
       </div>{' '}
-      <div className="flex pt-4 pr-2 bg-blue-600 grow">
+      <div className="flex pt-2 pr-4 bg-blue-600 grow">
         <Tabs items={items} type="card" className="grow"></Tabs>
       </div>
       <div className="">

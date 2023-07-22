@@ -7,7 +7,7 @@ type BrandType = 'primary' | 'white';
 
 export const BrandIcon = ({ type = 'primary', isHiddenText = false, ...props }) => (
   <div {...props}>
-    <div className="mx-3 flex items-center gap-2 ">
+    <div className=" flex items-center gap-2 ">
       <div className="translate-y-1">
         <img src={type === 'primary' ? 'content/images/SW_logo.svg' : 'content/images/SW_logo_white.svg'} alt="Logo" width={48} />
       </div>

@@ -256,3 +256,33 @@ th.ant-table-cell::before {
 .ant-menu .ant-menu-submenu-arrow {
   inset-inline-end: 8px;
 }
+
+.none-draggable {
+  user-drag: none;
+  -webkit-user-drag: none;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}
+
+.bill-total-wrapper::after,
+.bill-total-wrapper::before {
+  content: '';
+  display: block;
+  width: 12px;
+  height: 20px;
+  position: absolute;
+  background: #fff;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.bill-total-wrapper::after {
+  left: 0;
+  border-radius: 0 12px 12px 0;
+}
+.bill-total-wrapper::before {
+  right: 0;
+  border-radius: 12px 0 0 12px;
+}
