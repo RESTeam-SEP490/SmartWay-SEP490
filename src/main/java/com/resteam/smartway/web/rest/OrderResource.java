@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,5 +65,11 @@ public class OrderResource {
     public ResponseEntity<List<OrderDetailDTO>> getOrderDetailsForTable(@PathVariable UUID tableId) {
         List<OrderDetailDTO> orderDetails = swOrderService.getOrderDetailsForTable(tableId);
         return new ResponseEntity<>(orderDetails, HttpStatus.OK);
+    }
+
+    @GetMapping("/not-paid")
+    public ResponseEntity<Page<SwOrderDTO>> loadListOrderNotPaid(Pageable pageable) {
+        Page<SwOrderDTO> notPaidOrders = swOrderService.findNotPaidOrders(pageable);
+        return ResponseEntity.ok(notPaidOrders);
     }
 }
