@@ -24,4 +24,6 @@ public interface SwOrderService {
     List<OrderDetailDTO> getUncookedOrderDetailsForKitchen();
 
     Page<SwOrderDTO> findNotPaidOrders(Pageable pageable);
+
+    OrderDetailDTO addNote(UUID orderId, UUID orderDetailId, String note);
 }

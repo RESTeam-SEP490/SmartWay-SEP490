@@ -40,6 +40,7 @@ public class SwOrderServiceImpl implements SwOrderService {
     private static final String ORDER = "swOrder";
     private static final String TABLE = "table";
     private static final String MENUITEM = "menuItem";
+    private static final String ORDERDETAIL = "orderDetail";
 
     @Override
     public SwOrderDTO createOrder(OrderCreationDTO orderDTO) {
@@ -174,5 +175,24 @@ public class SwOrderServiceImpl implements SwOrderService {
     public Page<SwOrderDTO> findNotPaidOrders(Pageable pageable) {
         Page<SwOrder> notPaidOrders = swOrderRepository.findByIsPaidFalse(pageable);
         return notPaidOrders.map(swOrderMapper::toDto);
+    }
+
+    @Override
+    public OrderDetailDTO addNote(UUID orderId, UUID orderDetailId, String note) {
+        SwOrder swOrder = swOrderRepository
+            .findById(orderId)
+            .orElseThrow(() -> new BadRequestAlertException("Order not found", ORDER, "idnotfound"));
+
+        OrderDetail orderDetail = orderDetailRepository
+            .findById(orderDetailId)
+            .orElseThrow(() -> new BadRequestAlertException("Order detail not found", ORDERDETAIL, "idnotfound"));
+
+        if (!orderDetail.getSwOrder().getId().equals(orderId)) {
+            throw new BadRequestAlertException("Order detail does not belong to the specified order", ORDERDETAIL, "notmatch");
+        }
+
+        orderDetail.setNote(note);
+        OrderDetail updatedOrderDetail = orderDetailRepository.save(orderDetail);
+        return orderDetailMapper.toDto(updatedOrderDetail);
     }
 }

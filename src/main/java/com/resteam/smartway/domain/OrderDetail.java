@@ -35,6 +35,15 @@ public class OrderDetail {
     @Column(name = "is_cooked", nullable = false)
     private boolean isCooked;
 
+    @Column(name = "is_priority", nullable = false)
+    private boolean isPriority;
+
+    @Column(name = "note")
+    private String note;
+
+    @Column(name = "notified_time")
+    private Instant notifiedTime;
+
     @CreatedDate
     @Column(name = "created_date", nullable = false)
     private Instant createdDate = Instant.now();
