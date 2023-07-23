@@ -4,6 +4,8 @@ import com.resteam.smartway.service.dto.OrderDetailDTO;
 import com.resteam.smartway.service.dto.SwOrderDTO;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface SwOrderService {
     SwOrderDTO createOrder(SwOrderDTO orderDTO);
@@ -19,4 +21,6 @@ public interface SwOrderService {
     List<OrderDetailDTO> getOrderDetailsForTable(UUID tableId);
 
     List<OrderDetailDTO> getUncookedOrderDetailsForKitchen();
+
+    Page<SwOrderDTO> findNotPaidOrders(Pageable pageable);
 }
