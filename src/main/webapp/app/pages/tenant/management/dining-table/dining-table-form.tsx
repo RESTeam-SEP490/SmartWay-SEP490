@@ -4,8 +4,8 @@ import { Translate, translate } from 'react-jhipster';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 
 import { StopOutlined } from '@ant-design/icons';
-import { Button, Form, Input, Modal, Tabs } from 'antd';
-import { DEFAULT_FORM_ITEM_LAYOUT } from 'app/app.constant';
+import { Button, Form, Input, InputNumber, Modal, Tabs } from 'antd';
+import { currencyFormatter, DEFAULT_FORM_ITEM_LAYOUT } from 'app/app.constant';
 import { SubmitButton } from 'app/shared/layout/form-shared-component';
 import { IDiningTable } from 'app/shared/model/dining-table.model';
 import ZoneSelect from '../zone/zone';
@@ -29,20 +29,21 @@ export const DiningTableForm = ({
 
   useEffect(() => {
     if (!isNew) {
-      form.setFieldsValue({ ...diningTable });
+      let table = { ...diningTable };
+      if (diningTable.numberOfSeats == 0) table = { ...table, numberOfSeats: undefined };
+      form.setFieldsValue({ ...table });
     } else {
       form.resetFields();
     }
   }, [isNew]);
-
   useEffect(() => {
     if (updateSuccess) {
       form.resetFields();
       handleClose();
     }
   }, [updateSuccess]);
-
   const saveEntity = values => {
+    console.log(values);
     const entity = {
       ...diningTable,
       ...values,
@@ -57,33 +58,30 @@ export const DiningTableForm = ({
 
   return (
     <>
-      <Modal
-        open={isOpen}
-        footer={[]}
-        onCancel={() => handleClose()}
-        title={
-          <Translate
-            contentKey={isNew ? 'entity.label.addNew' : 'entity.label.edit'}
-            interpolate={{ entity: translate('global.menu.entities.table').toLowerCase() }}
-          />
-        }
-      >
-        <Form {...DEFAULT_FORM_ITEM_LAYOUT} form={form} colon onFinish={saveEntity} className="!mt-8">
-          <div className="flex-grow">
-            <Form.Item
-              label={translate('diningTable.name.label')}
-              name={'name'}
-              rules={[
-                { required: true, message: translate('entity.validation.required') },
-                { max: 100, message: translate('entity.validation.max', { max: 100 }) },
-              ]}
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item label={translate('diningTable.zone.label')} className="!mb-0">
-              <ZoneSelect />
-            </Form.Item>
-          </div>
+      <Modal open={isOpen} footer={[]} onCancel={() => handleClose()}>
+        <Form {...DEFAULT_FORM_ITEM_LAYOUT} form={form} colon onFinish={saveEntity}>
+          <Tabs className="p-2">
+            <Tabs.TabPane tab={translate('diningTable.infoTabs.information')} key={1} className="flex gap-8 p-2">
+              <div className="flex-grow">
+                <Form.Item
+                  label={translate('diningTable.name.label')}
+                  name={'name'}
+                  rules={[
+                    { required: true, message: translate('entity.validation.required') },
+                    { max: 100, message: translate('entity.validation.max', { max: 100 }) },
+                  ]}
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item label={translate('diningTable.numberOfSeat.label')} name={'numberOfSeats'}>
+                  <InputNumber min={0} className="w-40" keyboard formatter={currencyFormatter} />
+                </Form.Item>
+                <Form.Item label={translate('diningTable.zone.label')}>
+                  <ZoneSelect />
+                </Form.Item>
+              </div>
+            </Tabs.TabPane>
+          </Tabs>
           <div className="flex justify-end gap-2">
             <SubmitButton form={form} isNew={isNew} updating={updating} />
             <Button type="default" htmlType="reset" onClick={() => handleClose()}>
