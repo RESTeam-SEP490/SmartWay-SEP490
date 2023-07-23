@@ -1,5 +1,6 @@
 package com.resteam.smartway.service;
 
+import com.resteam.smartway.service.dto.OrderCreationDTO;
 import com.resteam.smartway.service.dto.OrderDetailDTO;
 import com.resteam.smartway.service.dto.SwOrderDTO;
 import java.util.List;
@@ -8,7 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface SwOrderService {
-    SwOrderDTO createOrder(SwOrderDTO orderDTO);
+    SwOrderDTO createOrder(OrderCreationDTO orderDTO);
 
     SwOrderDTO getOrderById(UUID orderId);
 

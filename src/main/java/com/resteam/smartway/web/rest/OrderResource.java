@@ -1,6 +1,7 @@
 package com.resteam.smartway.web.rest;
 
 import com.resteam.smartway.service.SwOrderService;
+import com.resteam.smartway.service.dto.OrderCreationDTO;
 import com.resteam.smartway.service.dto.OrderDetailDTO;
 import com.resteam.smartway.service.dto.SwOrderDTO;
 import java.util.List;
@@ -26,8 +27,8 @@ public class OrderResource {
     private final SwOrderService swOrderService;
 
     @PostMapping
-    public ResponseEntity<SwOrderDTO> createOrder(@RequestBody SwOrderDTO swOrderDTO) {
-        SwOrderDTO createdOrder = swOrderService.createOrder(swOrderDTO);
+    public ResponseEntity<SwOrderDTO> createOrder(@RequestBody OrderCreationDTO orderDTO) {
+        SwOrderDTO createdOrder = swOrderService.createOrder(orderDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
     }
 

@@ -9,11 +9,13 @@ import com.resteam.smartway.repository.DiningTableRepository;
 import com.resteam.smartway.repository.MenuItemRepository;
 import com.resteam.smartway.repository.OrderDetailRepository;
 import com.resteam.smartway.repository.SwOrderRepository;
+import com.resteam.smartway.service.dto.OrderCreationDTO;
 import com.resteam.smartway.service.dto.OrderDetailDTO;
 import com.resteam.smartway.service.dto.SwOrderDTO;
 import com.resteam.smartway.service.mapper.OrderDetailMapper;
 import com.resteam.smartway.service.mapper.SwOrderMapper;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
+import java.time.Instant;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -35,20 +37,38 @@ public class SwOrderServiceImpl implements SwOrderService {
     private final OrderDetailMapper orderDetailMapper;
     private final OrderDetailRepository orderDetailRepository;
 
-    private static final String ENTITY_NAME = "swOrder";
+    private static final String ORDER = "swOrder";
+    private static final String TABLE = "table";
+    private static final String MENUITEM = "menuItem";
 
     @Override
-    public SwOrderDTO createOrder(SwOrderDTO orderDTO) {
-        SwOrder order = swOrderMapper.toEntity(orderDTO);
+    public SwOrderDTO createOrder(OrderCreationDTO orderDTO) {
+        SwOrder swOrder = new SwOrder();
+
         DiningTable table = diningTableRepository
-            .findById(order.getTable().getId())
-            .orElseThrow(() -> new NotFoundException("table not found"));
-        order.setTable(table);
+            .findById(orderDTO.getTableId())
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", TABLE, "idnotfound"));
+        if (table.getIsFree()) {
+            swOrder.setTable(table);
+            table.setIsFree(false);
+        } else throw new BadRequestAlertException("Table not free", TABLE, "notfree");
+
+        MenuItem menuItem = menuItemRepository
+            .findById(orderDTO.getMenuItemId())
+            .orElseThrow(() -> new NotFoundException("menu Item not found"));
+
         String orderCode = generateCode();
-        order.setCode(orderCode);
-        order.setPaid(false);
-        order.setPayDate(null);
-        SwOrder savedOrder = swOrderRepository.save(order);
+        swOrder.setCode(orderCode);
+        swOrder.setPaid(false);
+        SwOrder savedOrder = swOrderRepository.save(swOrder);
+
+        OrderDetail orderDetail = new OrderDetail();
+        orderDetail.setMenuItem(menuItem);
+        orderDetail.setSwOrder(swOrder);
+        orderDetail.setCooked(false);
+        orderDetail.setQuantity(1);
+        orderDetailRepository.save(orderDetail);
+
         return swOrderMapper.toDto(savedOrder);
     }
 
@@ -56,7 +76,7 @@ public class SwOrderServiceImpl implements SwOrderService {
     public SwOrderDTO getOrderById(UUID orderId) {
         SwOrder order = swOrderRepository
             .findById(orderId)
-            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ORDER, "idnotfound"));
         return swOrderMapper.toDto(order);
     }
 
@@ -74,7 +94,7 @@ public class SwOrderServiceImpl implements SwOrderService {
     public void deleteOrder(UUID orderId) {
         SwOrder existingOrder = swOrderRepository
             .findById(orderId)
-            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ORDER, "idnotfound"));
         swOrderRepository.delete(existingOrder);
     }
 
@@ -82,12 +102,12 @@ public class SwOrderServiceImpl implements SwOrderService {
     public SwOrderDTO updateOrder(UUID orderId, SwOrderDTO orderDTO) {
         SwOrder existingOrder = swOrderRepository
             .findById(orderId)
-            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ORDER, "idnotfound"));
         //        swOrderMapper.toEntity(e);
         // Cập nhật thong tin
         DiningTable table = diningTableRepository
             .findById(existingOrder.getTable().getId())
-            .orElseThrow(() -> new NotFoundException("table not found"));
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", TABLE, "idnotfound"));
         existingOrder.setTable(table);
 
         // Lưu đơn hàng đã được cập nhật
@@ -100,10 +120,10 @@ public class SwOrderServiceImpl implements SwOrderService {
         OrderDetail orderDetail = orderDetailMapper.toEntity(orderDetailDTO);
         SwOrder swOrder = swOrderRepository
             .findById(orderDetail.getSwOrder().getId())
-            .orElseThrow(() -> new NotFoundException("Order not found"));
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ORDER, "idnotfound"));
         MenuItem menuItem = menuItemRepository
             .findById(orderDetail.getMenuItem().getId())
-            .orElseThrow(() -> new NotFoundException("Item not found"));
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", MENUITEM, "idnotfound"));
 
         // Kiểm tra món ăn có đủ trong kho không
         if (!menuItem.getIsInStock()) {
@@ -121,7 +141,7 @@ public class SwOrderServiceImpl implements SwOrderService {
     public List<OrderDetailDTO> getOrderDetailsForTable(UUID tableId) {
         SwOrder swOrder = swOrderRepository
             .findByTableId(tableId)
-            .orElseThrow(() -> new BadRequestAlertException("Order not found for the given table", ENTITY_NAME, "idnotfound"));
+            .orElseThrow(() -> new BadRequestAlertException("Order not found for the given table", TABLE, "idnotfound"));
 
         List<OrderDetail> orderDetails = swOrder.getItems();
 
