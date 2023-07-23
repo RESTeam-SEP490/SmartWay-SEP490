@@ -189,6 +189,9 @@ public class DiningTableServiceImpl implements DiningTableService {
 
         document.add(table);
 
+        float spacingAfterTable = 10f; // Adjust the spacing as needed (in points)
+        table.setSpacingAfter(spacingAfterTable);
+
         Paragraph subTotal = new Paragraph("SubTotal: ", headerFont);
         subTotal.setAlignment(Element.ALIGN_LEFT);
         document.add(subTotal);
@@ -244,6 +247,7 @@ public class DiningTableServiceImpl implements DiningTableService {
         headerCell.setBorderWidthLeft(0f); // Remove left border
         headerCell.setBorderWidthRight(0f); // Remove right border
         headerCell.setHorizontalAlignment(Element.ALIGN_LEFT);
+        headerCell.setPaddingBottom(5f);
         table.addCell(headerCell);
     }
 
