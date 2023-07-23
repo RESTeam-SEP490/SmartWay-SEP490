@@ -53,7 +53,12 @@ export const DiningTable = () => {
       render: numberOfSeats => (numberOfSeats !== 0 ? numberOfSeats : <Translate contentKey="diningTable.message.seat" />),
     },
 
-    { title: <Translate contentKey="diningTable.zone.label" />, dataIndex: ['zone', 'name'], key: 'zone' },
+    {
+      title: <Translate contentKey="diningTable.zone.label" />,
+      dataIndex: ['zone', 'name'],
+      key: 'zone',
+      render: zone => (zone !== undefined ? zone : <Translate contentKey="diningTable.message.seat" />),
+    },
     {
       title: <Translate contentKey="diningTable.status.label" />,
       dataIndex: 'isActive',

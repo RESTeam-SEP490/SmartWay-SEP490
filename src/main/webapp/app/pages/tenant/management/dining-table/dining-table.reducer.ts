@@ -56,14 +56,7 @@ export const createEntity = createAsyncThunk(
 export const updateEntity = createAsyncThunk(
   'diningTable/update_entity',
   async (entity: IDiningTable, thunkAPI) => {
-    const data = new FormData();
-    data.append(
-      'diningTableDTO',
-      new Blob([JSON.stringify(cleanEntity(entity))], {
-        type: 'application/json',
-      })
-    );
-    const result = await axios.put<IDiningTable>(`${apiUrl}/${entity.id}`, data);
+    const result = await axios.put<IDiningTable>(`${apiUrl}/${entity.id}`, cleanEntity(entity));
     thunkAPI.dispatch(getEntities());
     return result;
   },
