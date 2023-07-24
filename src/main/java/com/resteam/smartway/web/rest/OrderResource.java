@@ -1,8 +1,10 @@
 package com.resteam.smartway.web.rest;
 
 import com.resteam.smartway.service.SwOrderService;
+import com.resteam.smartway.service.dto.OrderCreationDTO;
 import com.resteam.smartway.service.dto.OrderDetailDTO;
 import com.resteam.smartway.service.dto.SwOrderDTO;
+import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -26,8 +28,8 @@ public class OrderResource {
     private final SwOrderService swOrderService;
 
     @PostMapping
-    public ResponseEntity<SwOrderDTO> createOrder(@RequestBody SwOrderDTO swOrderDTO) {
-        SwOrderDTO createdOrder = swOrderService.createOrder(swOrderDTO);
+    public ResponseEntity<SwOrderDTO> createOrder(@RequestBody OrderCreationDTO orderDTO) {
+        SwOrderDTO createdOrder = swOrderService.createOrder(orderDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
     }
 
@@ -71,5 +73,17 @@ public class OrderResource {
     public ResponseEntity<Page<SwOrderDTO>> loadListOrderNotPaid(Pageable pageable) {
         Page<SwOrderDTO> notPaidOrders = swOrderService.findNotPaidOrders(pageable);
         return ResponseEntity.ok(notPaidOrders);
+    }
+
+    @PostMapping("/add-note/{orderId}/{orderDetailId}")
+    public ResponseEntity<OrderDetailDTO> addNote(@PathVariable UUID orderId, @PathVariable UUID orderDetailId, @RequestBody String note) {
+        try {
+            OrderDetailDTO updatedOrderDetail = swOrderService.addNote(orderId, orderDetailId, note);
+            return ResponseEntity.ok(updatedOrderDetail);
+        } catch (BadRequestAlertException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
 }
