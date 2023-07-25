@@ -1,5 +1,6 @@
 package com.resteam.smartway.service;
 
+import com.amazonaws.services.kms.model.NotFoundException;
 import com.resteam.smartway.domain.MenuItem;
 import com.resteam.smartway.domain.MenuItemCategory;
 import com.resteam.smartway.repository.MenuItemCategoryRepository;
@@ -155,5 +156,13 @@ public class MenuItemServiceImpl implements MenuItemService {
             })
             .collect(Collectors.toList());
         menuItemRepository.saveAll(menuItemList);
+    }
+
+    public MenuItemDTO getMenuItemById(UUID menuItemId) {
+        MenuItem menuItem = menuItemRepository
+            .findById(menuItemId)
+            .orElseThrow(() -> new NotFoundException("Menu item not found with ID: " + menuItemId));
+
+        return menuItemMapper.toDto(menuItem);
     }
 }

@@ -14,16 +14,16 @@ export const RedirectLoginModal = ({ isOpen, handleClose }) => {
   const [form] = Form.useForm();
 
   const handleSubmit = ({ subdomain }) => {
-    window.location.replace(`http://${subdomain}.${domain}`);
+    window.location.replace(`https://${subdomain}.${domain}`);
   };
   return (
     <Modal open={isOpen} title={translate('login.form.button')} destroyOnClose onCancel={handleClose} centered footer={[]}>
-      <Form form={form} onFinish={handleSubmit} className="mt-8">
+      <Form form={form} onFinish={handleSubmit} className="mt-4">
         <Form.Item name="subdomain" className="!mb-2">
           <Input
             autoComplete="off"
             size="large"
-            addonAfter={'.' + (isInProduction ? DOMAIN_PROD : DOMAIN_DEV)}
+            addonAfter={<span className="font-medium text-slate-500">{'.' + domain}</span>}
             placeholder={translate('login.form.modal.placeholder')}
             onBlur={e => {
               form.setFieldValue(
@@ -40,7 +40,7 @@ export const RedirectLoginModal = ({ isOpen, handleClose }) => {
           <span>
             <Translate contentKey="login.link.noAccount">You don&apos;t have an restaurant yet?</Translate>
           </span>{' '}
-          <Link to="/register" className="font-semibold hover:underline">
+          <Link to="/register" className=" hover:underline">
             <Translate contentKey="login.link.getStarted">Get started now</Translate>
           </Link>
         </div>

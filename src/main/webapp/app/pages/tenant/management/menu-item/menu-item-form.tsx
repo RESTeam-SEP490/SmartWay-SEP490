@@ -30,6 +30,7 @@ export const MenuItemForm = ({ menuItem, isOpen, handleClose }: { menuItem?: IMe
       form.setFieldsValue({ ...menuItem, image: menuItem.imageUrl });
     } else {
       setImageUrl('');
+      setImageSource(undefined);
       form.resetFields();
     }
   }, [isNew]);
@@ -37,6 +38,7 @@ export const MenuItemForm = ({ menuItem, isOpen, handleClose }: { menuItem?: IMe
   useEffect(() => {
     if (updateSuccess) {
       setImageUrl('');
+      setImageSource(undefined);
       form.resetFields();
       handleClose();
     }
@@ -87,7 +89,7 @@ export const MenuItemForm = ({ menuItem, isOpen, handleClose }: { menuItem?: IMe
     }
     return true;
   };
-
+  console.log(imageSource);
   return (
     <>
       <Modal

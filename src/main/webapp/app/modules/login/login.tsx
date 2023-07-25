@@ -41,7 +41,7 @@ export const Login = () => {
             <Typography.Text className="text-gray-500 ">
               <Translate contentKey="login.subtitle">Enter your credentials to access your Account</Translate>
             </Typography.Text>
-            <Form layout="vertical" size="large" name="login" onFinish={handleLogin} scrollToFirstError className="!mt-10">
+            <Form size="large" name="login" onFinish={handleLogin} scrollToFirstError className="!mt-10">
               {loginError ? (
                 <Alert className="mb-4" showIcon type="error" message={translate('login.messages.error.authentication')} />
               ) : null}
@@ -57,7 +57,7 @@ export const Login = () => {
                   placeholder={translate('login.form.password.placeholder')}
                 />
               </Form.Item>
-              <Form.Item name="rememberMe" className="float-left" valuePropName="checked">
+              <Form.Item name="rememberMe" className="float-left" valuePropName="checked" initialValue={true}>
                 <Checkbox className="!font-normal ">
                   <Translate contentKey="login.form.rememberme" />
                 </Checkbox>

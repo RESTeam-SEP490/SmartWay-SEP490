@@ -10,7 +10,7 @@ export const LocaleMenu = ({ currentLocale }: { currentLocale: string }) => {
   const dispatch = useAppDispatch();
 
   const handleLocaleChange = langKey => {
-    Storage.session.set('locale', langKey);
+    Storage.local.set('locale', langKey);
     dispatch(setLocale(langKey));
   };
 

@@ -22,9 +22,6 @@ const initialState: EntityState<IMenuItem> = {
 const apiUrl = 'api/menu-items';
 
 // Actions
-export const setPageable = createAsyncThunk('menuItem/set_pageable', (pageable: IQueryParams) => {
-  return pageable;
-});
 
 export const getEntities = createAsyncThunk('menuItem/fetch_entity_list', async () => {
   const { sort, page, size, search, category, isActive } = getStore().getState().menuItem.pageable;
@@ -107,11 +104,13 @@ export const deleteEntity = createAsyncThunk(
 export const MenuItemSlice = createEntitySlice({
   name: 'menuItem',
   initialState,
+  reducers: {
+    setPageable(state, action) {
+      state.pageable = action.payload;
+    },
+  },
   extraReducers(builder) {
     builder
-      .addCase(setPageable.fulfilled, (state, action) => {
-        state.pageable = action.payload;
-      })
       .addCase(getEntity.fulfilled, (state, action) => {
         state.loading = false;
         state.entity = action.payload.data;
@@ -151,7 +150,7 @@ export const MenuItemSlice = createEntitySlice({
   },
 });
 
-export const { reset } = MenuItemSlice.actions;
+export const { reset, setPageable } = MenuItemSlice.actions;
 
 // Reducer
 export default MenuItemSlice.reducer;
