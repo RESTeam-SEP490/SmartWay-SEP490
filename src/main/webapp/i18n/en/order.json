@@ -1,0 +1,23 @@
+{
+  "order": {
+    "addNote.title": "Add note",
+    "form": {
+      "note.placeholder": "Enter note for this item"
+    },
+    "tableList": {
+      "status": {
+        "available": "Available",
+        "occupied": "Occupied"
+      }
+    },
+    "orderDetails": {
+      "ordering.label": "Ordering items",
+      "ordered.label": "Ordered items",
+      "ordering.total": "Ordering total",
+      "ordered.total": "Ordered total",
+      "total": "Total",
+      "charge": "Charge",
+      "notify": "Notify kitchen"
+    }
+  }
+}

@@ -124,7 +124,9 @@ export const OrderDetails = ({ currentOrder }: { currentOrder: IOrder }) => {
         </div>
         <div className="flex flex-col p-4 pb-0 ml-2 mr-4">
           <div className="flex items-center justify-between">
-            <Typography.Text>Total</Typography.Text>
+            <Typography.Text>
+              <Translate contentKey="order.orderDetails.total" />
+            </Typography.Text>
             <Typography.Title level={4} className="font-semibold !mt-0">
               {currencyFormatter(currentOrder.items.map(detail => detail.quantity * detail.menuItem.sellPrice).reduce((a, b) => a + b, 0))}
             </Typography.Title>
