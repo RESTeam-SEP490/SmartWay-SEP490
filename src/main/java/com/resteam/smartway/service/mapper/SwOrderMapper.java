@@ -1,7 +1,7 @@
 package com.resteam.smartway.service.mapper;
 
 import com.resteam.smartway.domain.SwOrder;
-import com.resteam.smartway.service.dto.SwOrderDTO;
+import com.resteam.smartway.service.dto.order.SwOrderDTO;
 import com.resteam.smartway.service.mapper.base.EntityMapper;
 import org.mapstruct.Mapper;
 import org.springframework.stereotype.Component;

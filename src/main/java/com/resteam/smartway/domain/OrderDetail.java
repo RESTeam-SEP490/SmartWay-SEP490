@@ -22,7 +22,7 @@ public class OrderDetail {
     @Column(name = "id", columnDefinition = "BINARY(16)")
     private UUID id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", referencedColumnName = "id", columnDefinition = "BINARY(16)")
     private SwOrder swOrder;
 
@@ -47,4 +47,13 @@ public class OrderDetail {
     @CreatedDate
     @Column(name = "created_date", nullable = false)
     private Instant createdDate = Instant.now();
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof OrderDetail) {
+            OrderDetail orderDetail = (OrderDetail) obj;
+            return orderDetail.getCreatedDate().isBefore(this.createdDate);
+        }
+        return super.equals(obj);
+    }
 }

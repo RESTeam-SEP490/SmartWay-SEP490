@@ -4,7 +4,7 @@ import { Route } from 'react-router-dom';
 import ErrorBoundaryRoutes from 'app/shared/error/error-boundary-routes';
 
 import PageNotFound from 'app/shared/error/page-not-found';
-import OrderScreen from './order';
+import OrderScreen from './order/order';
 
 export default () => {
   return (

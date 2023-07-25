@@ -2,7 +2,7 @@ package com.resteam.smartway.service;
 
 import com.resteam.smartway.domain.OrderDetail;
 import com.resteam.smartway.repository.OrderDetailRepository;
-import com.resteam.smartway.service.dto.OrderDetailDTO;
+import com.resteam.smartway.service.dto.order.OrderDetailDTO;
 import com.resteam.smartway.service.mapper.OrderDetailMapper;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
 import java.util.List;

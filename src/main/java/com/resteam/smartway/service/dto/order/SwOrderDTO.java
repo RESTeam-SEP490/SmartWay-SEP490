@@ -1,9 +1,10 @@
-package com.resteam.smartway.service.dto;
+package com.resteam.smartway.service.dto.order;
 
-import com.resteam.smartway.domain.DiningTable;
+import com.resteam.smartway.service.dto.DiningTableDTO;
+import com.resteam.smartway.service.dto.order.OrderDetailDTO;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,6 +21,8 @@ public class SwOrderDTO {
     private String code;
     private List<OrderDetailDTO> items;
     private boolean isPaid;
+
+    private Instant createdDate;
 
     @NotNull
     private DiningTableDTO table;

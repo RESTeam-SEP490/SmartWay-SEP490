@@ -271,11 +271,10 @@ th.ant-table-cell::before {
   content: '';
   display: block;
   width: 12px;
-  height: 20px;
+  height: 24px;
   position: absolute;
   background: #fff;
-  top: 50%;
-  transform: translateY(-50%);
+  bottom: 44px;
 }
 
 .bill-total-wrapper::after {
@@ -285,4 +284,26 @@ th.ant-table-cell::before {
 .bill-total-wrapper::before {
   right: 0;
   border-radius: 12px 0 0 12px;
+}
+
+/* custom tab in .order-details */
+.order-details,
+.order-details .ant-tabs-content,
+.order-details .ant-tabs-content .ant-tabs-tabpane {
+  height: 100%;
+}
+.order-details .ant-tabs-nav-list {
+  width: 100%;
+}
+.order-details .ant-tabs-nav-list .ant-tabs-tab {
+  width: 50%;
+  justify-content: center;
+}
+
+.order-details .ant-tabs-nav {
+  margin: 0 !important;
+}
+.order-details .ant-spin-container,
+.order-details .ant-spin-nested-loading {
+  height: 100%;
 }

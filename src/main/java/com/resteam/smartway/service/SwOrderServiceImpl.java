@@ -9,14 +9,13 @@ import com.resteam.smartway.repository.DiningTableRepository;
 import com.resteam.smartway.repository.MenuItemRepository;
 import com.resteam.smartway.repository.OrderDetailRepository;
 import com.resteam.smartway.repository.SwOrderRepository;
-import com.resteam.smartway.service.dto.OrderCreationDTO;
-import com.resteam.smartway.service.dto.OrderDetailDTO;
-import com.resteam.smartway.service.dto.SwOrderDTO;
+import com.resteam.smartway.service.dto.order.*;
 import com.resteam.smartway.service.mapper.OrderDetailMapper;
 import com.resteam.smartway.service.mapper.SwOrderMapper;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -61,13 +60,16 @@ public class SwOrderServiceImpl implements SwOrderService {
         String orderCode = generateCode();
         swOrder.setCode(orderCode);
         swOrder.setPaid(false);
-        SwOrder savedOrder = swOrderRepository.save(swOrder);
 
         OrderDetail orderDetail = new OrderDetail();
         orderDetail.setMenuItem(menuItem);
         orderDetail.setSwOrder(swOrder);
         orderDetail.setCooked(false);
         orderDetail.setQuantity(1);
+
+        swOrder.setItems(List.of(orderDetail));
+
+        SwOrder savedOrder = swOrderRepository.save(swOrder);
         orderDetailRepository.save(orderDetail);
 
         return swOrderMapper.toDto(savedOrder);
@@ -78,6 +80,11 @@ public class SwOrderServiceImpl implements SwOrderService {
         SwOrder order = swOrderRepository
             .findById(orderId)
             .orElseThrow(() -> new BadRequestAlertException("Entity not found", ORDER, "idnotfound"));
+        List<OrderDetail> orderDetails = order.getItems();
+        orderDetails.sort((o1, o2) -> {
+            if (o1.equals(o2)) return 1; else return -1;
+        });
+        order.setItems(orderDetails);
         return swOrderMapper.toDto(order);
     }
 
@@ -117,13 +124,12 @@ public class SwOrderServiceImpl implements SwOrderService {
     }
 
     @Override
-    public OrderDetailDTO addItemToOrder(OrderDetailDTO orderDetailDTO) {
-        OrderDetail orderDetail = orderDetailMapper.toEntity(orderDetailDTO);
-        SwOrder swOrder = swOrderRepository
-            .findById(orderDetail.getSwOrder().getId())
+    public void addItemToOrder(OrderDetailDTO orderDetailDTO) {
+        SwOrder order = swOrderRepository
+            .findById(orderDetailDTO.getOrderId())
             .orElseThrow(() -> new BadRequestAlertException("Entity not found", ORDER, "idnotfound"));
         MenuItem menuItem = menuItemRepository
-            .findById(orderDetail.getMenuItem().getId())
+            .findById(orderDetailDTO.getMenuItem().getId())
             .orElseThrow(() -> new BadRequestAlertException("Entity not found", MENUITEM, "idnotfound"));
 
         // Kiểm tra món ăn có đủ trong kho không
@@ -132,10 +138,50 @@ public class SwOrderServiceImpl implements SwOrderService {
         }
 
         // Thêm món ăn mới vào đơn hàng
-        orderDetail.setSwOrder(swOrder);
+        OrderDetail orderDetail = orderDetailMapper.toEntity(orderDetailDTO);
+        orderDetail.setSwOrder(order);
         orderDetail.setMenuItem(menuItem);
-        OrderDetail savedOrderDetail = orderDetailRepository.save(orderDetail);
-        return orderDetailMapper.toDto(savedOrderDetail);
+        orderDetailRepository.save(orderDetail);
+    }
+
+    @Override
+    public void adjustItemQuantity(OrderAdjustQuantityDTO dto) {
+        OrderDetail orderDetail = orderDetailRepository
+            .findById(dto.getOrderDetailId())
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ORDERDETAIL, "idnotfound"));
+        if (!orderDetail.getMenuItem().getIsInStock()) {
+            throw new RuntimeException("Item is out of stock");
+        }
+
+        orderDetail.setQuantity(orderDetail.getQuantity() + dto.getQuantityAdjust());
+        if (orderDetail.getQuantity() < 1) throw new BadRequestAlertException(
+            "Cannot decrease item quantity more",
+            ORDERDETAIL,
+            "cannotAdjust"
+        );
+        orderDetailRepository.save(orderDetail);
+    }
+
+    @Override
+    public void notifyKitchen(UUID orderId) {
+        SwOrder order = swOrderRepository
+            .findById(orderId)
+            .orElseThrow(() -> new BadRequestAlertException("Order not found for the given table", TABLE, "idnotfound"));
+
+        Instant notifyTime = Instant.now();
+        List<OrderDetail> orderDetails = order.getItems();
+        orderDetails =
+            orderDetails
+                .stream()
+                .map(detail -> {
+                    if (detail.getNotifiedTime() == null) detail.setNotifiedTime(notifyTime);
+                    return detail;
+                })
+                .collect(Collectors.toList());
+
+        order.setItems(orderDetails);
+
+        swOrderRepository.save(order);
     }
 
     @Override
@@ -178,20 +224,29 @@ public class SwOrderServiceImpl implements SwOrderService {
     }
 
     @Override
-    public OrderDetailDTO addNote(UUID orderId, UUID orderDetailId, String note) {
-        SwOrder swOrder = swOrderRepository
-            .findById(orderId)
-            .orElseThrow(() -> new BadRequestAlertException("Order not found", ORDER, "idnotfound"));
+    public List<SwOrderDTO> getAllIsPaidFalseOrder() {
+        List<SwOrder> orders = swOrderRepository
+            .findByIsPaidFalse()
+            .stream()
+            .map(order -> {
+                List<OrderDetail> orderDetails = order.getItems();
+                orderDetails.sort((o1, o2) -> {
+                    if (o1.equals(o2)) return 1; else return -1;
+                });
+                order.setItems(orderDetails);
+                return order;
+            })
+            .collect(Collectors.toList());
+        return swOrderMapper.toDto(orders);
+    }
 
+    @Override
+    public OrderDetailDTO addNote(DetailAddNoteDTO detailAddNoteDTO) {
         OrderDetail orderDetail = orderDetailRepository
-            .findById(orderDetailId)
+            .findById(detailAddNoteDTO.getOrderDetailId())
             .orElseThrow(() -> new BadRequestAlertException("Order detail not found", ORDERDETAIL, "idnotfound"));
 
-        if (!orderDetail.getSwOrder().getId().equals(orderId)) {
-            throw new BadRequestAlertException("Order detail does not belong to the specified order", ORDERDETAIL, "notmatch");
-        }
-
-        orderDetail.setNote(note);
+        orderDetail.setNote(detailAddNoteDTO.getNote());
         OrderDetail updatedOrderDetail = orderDetailRepository.save(orderDetail);
         return orderDetailMapper.toDto(updatedOrderDetail);
     }

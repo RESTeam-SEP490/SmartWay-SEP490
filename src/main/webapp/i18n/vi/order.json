@@ -1,0 +1,22 @@
+{
+  "order": {
+    "addNote.title": "Thêm ghi chú",
+    "form": {
+      "note.placeholder": "Nhập ghi chú"
+    },
+    "tableList": {
+      "status": {
+        "available": "Trống",
+        "occupied": "Đã nhận khách"
+      }
+    },
+    "orderDetails": {
+      "ordering.label": "Đang order",
+      "ordered.label": "Đã order",
+      "ordering.total": "Tổng đang order",
+      "ordered.total": "Tổng đã order",
+      "charge": "Thanh toán",
+      "notify": "Báo bếp"
+    }
+  }
+}

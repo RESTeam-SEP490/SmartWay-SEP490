@@ -3,6 +3,7 @@ package com.resteam.smartway.repository;
 import com.resteam.smartway.domain.OrderDetail;
 import com.resteam.smartway.domain.SwOrder;
 import com.resteam.smartway.security.multitenancy.repository.BaseRepository;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -19,4 +20,5 @@ public interface SwOrderRepository extends BaseRepository<SwOrder> {
     Optional<SwOrder> findByTableId(@Param("tableId") UUID tableId);
 
     Page<SwOrder> findByIsPaidFalse(Pageable pageable);
+    List<SwOrder> findByIsPaidFalse();
 }

@@ -1,4 +1,4 @@
-import { createAsyncThunk, isFulfilled, isPending } from '@reduxjs/toolkit';
+import { createAsyncThunk, current, isFulfilled, isPending } from '@reduxjs/toolkit';
 import axios from 'axios';
 
 import { DEFAULT_PAGEABLE } from 'app/app.constant';
@@ -22,9 +22,6 @@ const initialState: EntityState<IDiningTable> = {
 const apiUrl = 'api/dining_tables';
 
 // Actions
-export const setPageable = createAsyncThunk('diningTable/set_pageable', (pageable: IQueryParams) => {
-  return pageable;
-});
 
 export const getEntities = createAsyncThunk('diningTable/fetch_entity_list', async () => {
   const { sort, page, size, search, zone, isActive } = getStore().getState().diningTable.pageable;
@@ -96,11 +93,21 @@ export const deleteEntity = createAsyncThunk(
 export const DiningTableSlice = createEntitySlice({
   name: 'diningTable',
   initialState,
+  reducers: {
+    setPageable(state, action) {
+      state.pageable = action.payload;
+    },
+    websocketUpdateTable(state, action) {
+      const toUpdateTable = action.payload.table;
+      const nextTableList = state.entities.map(table => {
+        if (table.id === toUpdateTable.id) return toUpdateTable;
+        return table;
+      });
+      state.entities = nextTableList;
+    },
+  },
   extraReducers(builder) {
     builder
-      .addCase(setPageable.fulfilled, (state, action) => {
-        state.pageable = action.payload;
-      })
       .addCase(getEntity.fulfilled, (state, action) => {
         state.loading = false;
         state.entity = action.payload.data;
@@ -140,7 +147,7 @@ export const DiningTableSlice = createEntitySlice({
   },
 });
 
-export const { reset } = DiningTableSlice.actions;
+export const { reset, setPageable, websocketUpdateTable } = DiningTableSlice.actions;
 
 // Reducer
 export default DiningTableSlice.reducer;

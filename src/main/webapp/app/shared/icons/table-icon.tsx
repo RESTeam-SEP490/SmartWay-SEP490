@@ -1,6 +1,6 @@
 import React from 'react';
 
-type Status = 'available' | 'occupied' | 'booked';
+type Status = 'available' | 'occupied' | 'booked' | 'selected';
 
 export default function TableIcon({ size = 66, status = 'available' }: { size?: number; status?: Status }) {
   let fill = 'black';
@@ -13,8 +13,12 @@ export default function TableIcon({ size = 66, status = 'available' }: { size?: 
       fill = '#F7B940';
       break;
     }
-    default:
+    case 'selected': {
       fill = '#4D81F1';
+      break;
+    }
+    default:
+      fill = '#cbd5e1';
   }
   return (
     <svg width={size} height={(size * 40) / 66} viewBox="0 0 66 40" fill="none" xmlns="http://www.w3.org/2000/svg">

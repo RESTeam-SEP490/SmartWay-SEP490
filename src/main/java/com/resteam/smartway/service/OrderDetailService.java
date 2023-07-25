@@ -1,6 +1,6 @@
 package com.resteam.smartway.service;
 
-import com.resteam.smartway.service.dto.OrderDetailDTO;
+import com.resteam.smartway.service.dto.order.OrderDetailDTO;
 import java.util.List;
 import java.util.UUID;
 

@@ -1,16 +1,15 @@
 package com.resteam.smartway.web.rest;
 
 import com.resteam.smartway.service.SwOrderService;
-import com.resteam.smartway.service.dto.OrderCreationDTO;
-import com.resteam.smartway.service.dto.OrderDetailDTO;
-import com.resteam.smartway.service.dto.SwOrderDTO;
+import com.resteam.smartway.service.dto.order.DetailAddNoteDTO;
+import com.resteam.smartway.service.dto.order.OrderCreationDTO;
+import com.resteam.smartway.service.dto.order.OrderDetailDTO;
+import com.resteam.smartway.service.dto.order.SwOrderDTO;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,11 +32,11 @@ public class OrderResource {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
     }
 
-    @PostMapping("/add-item")
-    public ResponseEntity<OrderDetailDTO> addItemToOrder(@RequestBody OrderDetailDTO orderDetailDTO) {
-        OrderDetailDTO updatedOrderDetail = swOrderService.addItemToOrder(orderDetailDTO);
-        return ResponseEntity.ok(updatedOrderDetail);
-    }
+    //    @PostMapping("/add-item")
+    //    public ResponseEntity<OrderDetailDTO> addItemToOrder(@RequestBody OrderDetailDTO orderDetailDTO) {
+    //        OrderDetailDTO updatedOrderDetail = swOrderService.addItemToOrder(orderDetailDTO);
+    //        return ResponseEntity.ok(updatedOrderDetail);
+    //    }
 
     @GetMapping("/{orderId}")
     public ResponseEntity<SwOrderDTO> getOrderById(@PathVariable UUID orderId) {
@@ -70,20 +69,14 @@ public class OrderResource {
     }
 
     @GetMapping("/not-paid")
-    public ResponseEntity<Page<SwOrderDTO>> loadListOrderNotPaid(Pageable pageable) {
-        Page<SwOrderDTO> notPaidOrders = swOrderService.findNotPaidOrders(pageable);
+    public ResponseEntity<List<SwOrderDTO>> loadListOrderNotPaid() {
+        List<SwOrderDTO> notPaidOrders = swOrderService.getAllIsPaidFalseOrder();
         return ResponseEntity.ok(notPaidOrders);
     }
 
-    @PostMapping("/add-note/{orderId}/{orderDetailId}")
-    public ResponseEntity<OrderDetailDTO> addNote(@PathVariable UUID orderId, @PathVariable UUID orderDetailId, @RequestBody String note) {
-        try {
-            OrderDetailDTO updatedOrderDetail = swOrderService.addNote(orderId, orderDetailId, note);
-            return ResponseEntity.ok(updatedOrderDetail);
-        } catch (BadRequestAlertException e) {
-            return ResponseEntity.badRequest().build();
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
+    @PutMapping("/add-note")
+    public ResponseEntity<OrderDetailDTO> addNote(@RequestBody DetailAddNoteDTO detailAddNoteDTO) {
+        OrderDetailDTO updatedOrderDetail = swOrderService.addNote(detailAddNoteDTO);
+        return ResponseEntity.ok(updatedOrderDetail);
     }
 }

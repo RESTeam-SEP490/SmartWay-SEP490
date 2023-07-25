@@ -2,9 +2,7 @@ package com.resteam.smartway.domain;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import javax.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

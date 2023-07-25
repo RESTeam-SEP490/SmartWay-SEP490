@@ -1,8 +1,6 @@
 package com.resteam.smartway.service;
 
-import com.resteam.smartway.service.dto.OrderCreationDTO;
-import com.resteam.smartway.service.dto.OrderDetailDTO;
-import com.resteam.smartway.service.dto.SwOrderDTO;
+import com.resteam.smartway.service.dto.order.*;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -17,7 +15,11 @@ public interface SwOrderService {
 
     public SwOrderDTO updateOrder(UUID orderId, SwOrderDTO orderDTO);
 
-    OrderDetailDTO addItemToOrder(OrderDetailDTO orderDetailDTO);
+    void addItemToOrder(OrderDetailDTO orderDetailDTO);
+
+    void adjustItemQuantity(OrderAdjustQuantityDTO dto);
+
+    void notifyKitchen(UUID orderId);
 
     List<OrderDetailDTO> getOrderDetailsForTable(UUID tableId);
 
@@ -25,5 +27,7 @@ public interface SwOrderService {
 
     Page<SwOrderDTO> findNotPaidOrders(Pageable pageable);
 
-    OrderDetailDTO addNote(UUID orderId, UUID orderDetailId, String note);
+    List<SwOrderDTO> getAllIsPaidFalseOrder();
+
+    OrderDetailDTO addNote(DetailAddNoteDTO detailAddNoteDTO);
 }

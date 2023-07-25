@@ -1,4 +1,4 @@
-package com.resteam.smartway.service.dto;
+package com.resteam.smartway.service.dto.order;
 
 import java.util.List;
 import java.util.UUID;

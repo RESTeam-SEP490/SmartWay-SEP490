@@ -1,7 +1,7 @@
 package com.resteam.smartway.service.mapper;
 
 import com.resteam.smartway.domain.OrderDetail;
-import com.resteam.smartway.service.dto.OrderDetailDTO;
+import com.resteam.smartway.service.dto.order.OrderDetailDTO;
 import com.resteam.smartway.service.mapper.base.EntityMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
