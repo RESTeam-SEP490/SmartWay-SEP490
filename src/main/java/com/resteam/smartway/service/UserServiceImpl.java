@@ -8,6 +8,7 @@ import com.resteam.smartway.repository.AuthorityRepository;
 import com.resteam.smartway.repository.RestaurantRepository;
 import com.resteam.smartway.repository.RoleRepository;
 import com.resteam.smartway.repository.UserRepository;
+import com.resteam.smartway.security.AuthoritiesConstants;
 import com.resteam.smartway.security.SecurityUtils;
 import com.resteam.smartway.security.multitenancy.context.RestaurantContext;
 import com.resteam.smartway.service.dto.StaffDTO;
@@ -94,6 +95,7 @@ public class UserServiceImpl implements UserService {
         Restaurant restaurant = new Restaurant(tenantRegistrationDTO.getRestaurantId());
         Restaurant savedRestaurant = restaurantRepository.save(restaurant);
         RestaurantContext.setCurrentRestaurant(savedRestaurant);
+        createRole(tenantRegistrationDTO.getLangKey());
 
         Role role = roleRepository.findByNameAndRestaurant("ADMIN", new Restaurant("system@"));
 
@@ -110,6 +112,36 @@ public class UserServiceImpl implements UserService {
 
         log.debug("Created Information for User: {}", newUser);
         return savedRestaurant.getId();
+    }
+
+    private void createRole(String langkey) {
+        List<String> roleNames;
+        if (langkey.equals("vi")) {
+            roleNames = List.of("Bồi bàn", "Thu ngân", "Quản lý");
+        } else roleNames = List.of("Waiter", "Cashier", "Manager");
+
+        Role waiter = new Role();
+        waiter.setName(roleNames.get(0));
+        Authority authority = authorityRepository.findById(AuthoritiesConstants.ORDER_WAITER).orElseThrow();
+        waiter.setAuthorities(List.of(authority));
+
+        Role cashier = new Role();
+        cashier.setName(roleNames.get(1));
+        List<Authority> authorityList1 = AuthoritiesConstants.DEFAULT_CASHIER_AUTHORITIES
+            .stream()
+            .map(name -> authorityRepository.findById(name).orElseThrow())
+            .collect(Collectors.toList());
+        cashier.setAuthorities(authorityList1);
+
+        Role manager = new Role();
+        manager.setName(roleNames.get(2));
+        List<Authority> authorityList2 = AuthoritiesConstants.DEFAULT_MANAGER_AUTHORITIES
+            .stream()
+            .map(name -> authorityRepository.findById(name).orElseThrow())
+            .collect(Collectors.toList());
+        manager.setAuthorities(authorityList2);
+
+        roleRepository.saveAll(List.of(waiter, cashier, manager));
     }
 
     @Transactional

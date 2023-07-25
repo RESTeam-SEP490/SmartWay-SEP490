@@ -9,6 +9,8 @@ import { BrandIcon } from 'app/shared/layout/header/header-components';
 import { LocaleMenu } from 'app/shared/layout/menus';
 import { login } from 'app/shared/reducers/authentication';
 import { Translate, translate } from 'react-jhipster';
+import { hasAnyAuthority } from 'app/shared/auth/private-route';
+import { AUTHORITIES } from 'app/config/constants';
 
 export const Login = () => {
   const dispatch = useAppDispatch();
@@ -17,19 +19,28 @@ export const Login = () => {
   const loginError = useAppSelector(state => state.authentication.loginError);
   const location = useLocation();
   const loading = useAppSelector(state => state.authentication.loading);
+  const authorities = useAppSelector(state => state.authentication.account.authorities);
 
   const handleLogin = ({ username, password, rememberMe }) => {
     dispatch(login(username, password, rememberMe));
   };
 
-  const { from } = (location.state as any) || { from: { pathname: '/menu-items', search: location.search } };
   if (isAuthenticated) {
-    return <Navigate to={from} replace />;
+    let path = '';
+    if (authorities.includes(AUTHORITIES.ADMIN)) path = '/managing/dashboard';
+    else if (authorities.includes(AUTHORITIES.STAFF_VIEW)) path = '/managing/staff';
+    else if (authorities.includes(AUTHORITIES.MENUITEM_VIEW)) path = '/managing/menu-items';
+    else if (authorities.includes(AUTHORITIES.TABLE_VIEW)) path = '/managing/tables';
+    else if (authorities.includes(AUTHORITIES.BILL_VIEW)) path = '/managing/bills';
+    else if (authorities.includes(AUTHORITIES.ORDER_WAITER)) path = '/pos/orders';
+
+    return <Navigate to={path} replace />;
   }
+
   return (
     <div>
       <div className="flex">
-        <div className="flex flex-col items-center w-full lg:w-6/12 xl:w-5/12 p-4 ">
+        <div className="flex flex-col items-center w-full p-4 lg:w-6/12 xl:w-5/12 ">
           <div className="flex items-center justify-between w-full px-8 py-6 ">
             <BrandIcon />
             <LocaleMenu currentLocale={currentLocale} />
@@ -41,7 +52,7 @@ export const Login = () => {
             <Typography.Text className="text-gray-500 ">
               <Translate contentKey="login.subtitle">Enter your credentials to access your Account</Translate>
             </Typography.Text>
-            <Form layout="vertical" size="large" name="login" onFinish={handleLogin} scrollToFirstError className="!mt-10">
+            <Form size="large" name="login" onFinish={handleLogin} scrollToFirstError className="!mt-10">
               {loginError ? (
                 <Alert className="mb-4" showIcon type="error" message={translate('login.messages.error.authentication')} />
               ) : null}
@@ -57,7 +68,7 @@ export const Login = () => {
                   placeholder={translate('login.form.password.placeholder')}
                 />
               </Form.Item>
-              <Form.Item name="rememberMe" className="float-left" valuePropName="checked">
+              <Form.Item name="rememberMe" className="float-left" valuePropName="checked" initialValue={true}>
                 <Checkbox className="!font-normal ">
                   <Translate contentKey="login.form.rememberme" />
                 </Checkbox>
@@ -75,10 +86,10 @@ export const Login = () => {
             </Form>
           </div>
         </div>
-        <div className="hidden md:block md:w-6/12 xl:w-7/12 h-screen p-6">
-          <div className="w-full h-full  relative">
+        <div className="hidden h-screen p-6 md:block md:w-6/12 xl:w-7/12">
+          <div className="relative w-full h-full">
             <div className="absolute top-0 bottom-0 w-full rounded-lg bg-bottom lg:bg-right-bottom bg-cover bg-wall-primary bg-[url('content/images/wall-2.jpeg')]"></div>
-            <div className="absolute top-0 bottom-0 w-full rounded-lg bg-gradient-to-l from-12 to-90  from-blue-600/60 to-blue-200/60"></div>
+            <div className="absolute top-0 bottom-0 w-full rounded-lg bg-gradient-to-l from-12 to-90 from-blue-600/60 to-blue-200/60"></div>
           </div>
         </div>
       </div>

@@ -1,6 +1,8 @@
 package com.resteam.smartway.config;
 
 import com.resteam.smartway.security.AuthoritiesConstants;
+import com.resteam.smartway.security.CustomUserDetails;
+import com.resteam.smartway.security.multitenancy.context.RestaurantContext;
 import java.security.Principal;
 import java.util.*;
 import org.springframework.context.annotation.Bean;
@@ -39,7 +41,7 @@ public class WebsocketConfiguration implements WebSocketMessageBrokerConfigurer 
             .map(origins -> origins.toArray(new String[0]))
             .orElse(new String[0]);
         registry
-            .addEndpoint("/websocket/tracker")
+            .addEndpoint("/websocket/tracker", "/websocket/orders")
             .setHandshakeHandler(defaultHandshakeHandler())
             .setAllowedOrigins(allowedOrigins)
             .withSockJS()
@@ -77,13 +79,7 @@ public class WebsocketConfiguration implements WebSocketMessageBrokerConfigurer 
         return new DefaultHandshakeHandler() {
             @Override
             protected Principal determineUser(ServerHttpRequest request, WebSocketHandler wsHandler, Map<String, Object> attributes) {
-                Principal principal = request.getPrincipal();
-                if (principal == null) {
-                    Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
-                    authorities.add(new SimpleGrantedAuthority(AuthoritiesConstants.ROLE_ANONYMOUS));
-                    principal = new AnonymousAuthenticationToken("WebsocketConfiguration", "anonymous", authorities);
-                }
-                return principal;
+                return request.getPrincipal();
             }
         };
     }

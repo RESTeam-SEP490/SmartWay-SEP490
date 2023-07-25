@@ -20,6 +20,7 @@ import org.springframework.web.filter.GenericFilterBean;
 public class JWTFilter extends GenericFilterBean {
 
     public static final String AUTHORIZATION_HEADER = "Authorization";
+
     public static final String RESTAURANT_ID_HEADER = "x-restaurant-subdomain";
 
     public static final String AUTHORIZATION_TOKEN = "access_token";
@@ -35,12 +36,13 @@ public class JWTFilter extends GenericFilterBean {
         throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
         String jwt = resolveToken(httpServletRequest);
-        String headerRestaurantId = httpServletRequest.getHeader(RESTAURANT_ID_HEADER);
-        if (StringUtils.hasText(headerRestaurantId) && StringUtils.hasText(jwt) && this.tokenProvider.validateToken(jwt)) {
+        String subdomain = resolveSubdomain(httpServletRequest);
+
+        if (StringUtils.hasText(subdomain) && StringUtils.hasText(jwt) && this.tokenProvider.validateToken(jwt)) {
             Authentication authentication = this.tokenProvider.getAuthentication(jwt);
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String restaurantId = ((CustomUserDetails) authentication.getPrincipal()).getRestaurantId();
-            if (!restaurantId.equals(headerRestaurantId)) throw new BadCredentialsException("Restaurant subdomain not match!");
+            if (!restaurantId.equals(subdomain)) throw new BadCredentialsException("Restaurant subdomain not match!");
             RestaurantContext.setCurrentRestaurantById(restaurantId);
         }
         filterChain.doFilter(servletRequest, servletResponse);
@@ -54,6 +56,18 @@ public class JWTFilter extends GenericFilterBean {
         String jwt = request.getParameter(AUTHORIZATION_TOKEN);
         if (StringUtils.hasText(jwt)) {
             return jwt;
+        }
+        return null;
+    }
+
+    private String resolveSubdomain(HttpServletRequest request) {
+        String headerSubdomain = request.getHeader(RESTAURANT_ID_HEADER);
+        if (StringUtils.hasText(headerSubdomain)) {
+            return headerSubdomain;
+        }
+        String subdomain = request.getHeader("host").split("[.]")[0];
+        if (StringUtils.hasText(subdomain) && !subdomain.equals("www")) {
+            return subdomain;
         }
         return null;
     }

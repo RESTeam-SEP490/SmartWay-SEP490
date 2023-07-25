@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { isEmail, Translate, translate } from 'react-jhipster';
+import { Translate, isEmail, translate } from 'react-jhipster';
 
 import { CheckCircleFilled } from '@ant-design/icons';
 import { Alert, Button, Form, Result, Select, Space, Typography } from 'antd';
@@ -10,14 +10,12 @@ import { toNonAccentVietnamese } from 'app/app.constant';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { Brand } from 'app/shared/layout/header/header-components';
 import { LocaleMenu } from 'app/shared/layout/menus';
+import { getAppUrl } from 'app/shared/util/subdomain/helpers';
 import CountryList from 'country-list-with-dial-code-and-flag';
 import CountryFlagSvg from 'country-list-with-dial-code-and-flag/dist/flag-svg';
-import { useNavigate } from 'react-router-dom';
 import { handleRegister, reset } from './register.reducer';
 
 export const RegisterPage = () => {
-  const dispatch = useAppDispatch();
-  const navigate = useNavigate();
   const [countryList, setCountryList] = useState([]);
   const [form] = Form.useForm();
 
@@ -26,9 +24,12 @@ export const RegisterPage = () => {
     setCountryList([...CountryList.getAll()]);
   }, []);
 
+  const dispatch = useAppDispatch();
+
   const currentLocale = useAppSelector(state => state.locale.currentLocale);
-  const successLink = useAppSelector(state => state.register.restaurantLink);
+  const successSubdomain = useAppSelector(state => state.register.restaurantLink);
   const domain = useAppSelector(state => state.applicationProfile.domain);
+  const isInProd = useAppSelector(state => state.applicationProfile.inProduction);
 
   const handleSubmit = ({ fullName, phone, dialCode, email, restaurantId, username, password }) => {
     dispatch(
@@ -58,7 +59,7 @@ export const RegisterPage = () => {
             <Brand />
             <LocaleMenu currentLocale={currentLocale} />
           </div>
-          {successLink ? (
+          {successSubdomain ? (
             <div className="flex items-center justify-center grow">
               <Result
                 className="w-88"
@@ -76,15 +77,15 @@ export const RegisterPage = () => {
                           <Button
                             type="link"
                             className="font-normal hover:underline !py-0"
-                            onClick={() => window.location.replace('https://' + successLink + '.' + domain)}
+                            onClick={() => window.location.replace(getAppUrl(isInProd, successSubdomain, domain, ''))}
                           >
-                            {'https://' + successLink + '.' + domain}
+                            {getAppUrl(isInProd, successSubdomain, domain, '')}
                           </Button>
                         </div>
                       }
                     />
                     <Button
-                      onClick={() => window.location.replace('https://' + successLink + '.' + domain)}
+                      onClick={() => window.location.replace(getAppUrl(isInProd, successSubdomain, domain, ''))}
                       type="primary"
                       className="!w-40 mt-4"
                       size="large"

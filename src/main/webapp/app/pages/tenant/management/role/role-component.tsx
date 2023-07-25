@@ -66,7 +66,7 @@ export const RoleCheckBoxes = ({ onFilter }: { onFilter: any }) => {
 
   return (
     <>
-      <Card bordered={false} loading={loading}>
+      <Card loading={loading}>
         <div className="flex justify-between">
           <Typography.Title level={5}>
             <Translate contentKey="staff.role.label" />

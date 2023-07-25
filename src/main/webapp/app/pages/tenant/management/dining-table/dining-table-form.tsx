@@ -4,8 +4,8 @@ import { Translate, translate } from 'react-jhipster';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 
 import { StopOutlined } from '@ant-design/icons';
-import { Button, Form, Input, Modal, Tabs } from 'antd';
-import { DEFAULT_FORM_ITEM_LAYOUT } from 'app/app.constant';
+import { Button, Form, Input, InputNumber, Modal, Tabs } from 'antd';
+import { currencyFormatter, DEFAULT_FORM_ITEM_LAYOUT } from 'app/app.constant';
 import { SubmitButton } from 'app/shared/layout/form-shared-component';
 import { IDiningTable } from 'app/shared/model/dining-table.model';
 import ZoneSelect from '../zone/zone';
@@ -29,20 +29,21 @@ export const DiningTableForm = ({
 
   useEffect(() => {
     if (!isNew) {
-      form.setFieldsValue({ ...diningTable });
+      let table = { ...diningTable };
+      if (diningTable.numberOfSeats == 0) table = { ...table, numberOfSeats: undefined };
+      form.setFieldsValue({ ...table });
     } else {
       form.resetFields();
     }
   }, [isNew]);
-
   useEffect(() => {
     if (updateSuccess) {
       form.resetFields();
       handleClose();
     }
   }, [updateSuccess]);
-
   const saveEntity = values => {
+    console.log(values);
     const entity = {
       ...diningTable,
       ...values,
@@ -59,8 +60,10 @@ export const DiningTableForm = ({
     <>
       <Modal
         open={isOpen}
+        width={500}
         footer={[]}
         onCancel={() => handleClose()}
+        centered
         title={
           <Translate
             contentKey={isNew ? 'entity.label.addNew' : 'entity.label.edit'}
@@ -68,7 +71,7 @@ export const DiningTableForm = ({
           />
         }
       >
-        <Form {...DEFAULT_FORM_ITEM_LAYOUT} form={form} colon onFinish={saveEntity} className="!mt-8">
+        <Form labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} form={form} colon onFinish={saveEntity} className="p-2 pt-4 !m-0">
           <div className="flex-grow">
             <Form.Item
               label={translate('diningTable.name.label')}
@@ -80,10 +83,14 @@ export const DiningTableForm = ({
             >
               <Input />
             </Form.Item>
-            <Form.Item label={translate('diningTable.zone.label')} className="!mb-0">
+            <Form.Item label={translate('diningTable.numberOfSeat.label')} name={'numberOfSeats'}>
+              <InputNumber min={0} keyboard formatter={currencyFormatter} />
+            </Form.Item>
+            <Form.Item label={translate('diningTable.zone.label')}>
               <ZoneSelect />
             </Form.Item>
           </div>
+
           <div className="flex justify-end gap-2">
             <SubmitButton form={form} isNew={isNew} updating={updating} />
             <Button type="default" htmlType="reset" onClick={() => handleClose()}>

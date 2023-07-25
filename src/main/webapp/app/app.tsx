@@ -19,6 +19,7 @@ import { getSession } from 'app/shared/reducers/authentication';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { theme } from './config/ant-design-theme';
 import { AdminAppRoutes, MainAppRoutes, TenantAppRoutes } from './routes';
+import { getAppUrl } from './shared/util/subdomain/helpers';
 
 const baseHref = document.querySelector('base').getAttribute('href').replace(/\/$/, '');
 
@@ -31,7 +32,8 @@ export const App = () => {
 
   const appType = useAppSelector(state => state.applicationProfile.appType);
   const domain = useAppSelector(state => state.applicationProfile.domain);
-  if (appType == null) window.location.replace('https://www.' + domain + '/page-not-found');
+  const isInProd = useAppSelector(state => state.applicationProfile.inProduction);
+  if (appType == null) window.location.replace(getAppUrl(isInProd, 'www', domain, '/page-not-found'));
 
   const currentLocale = useAppSelector(state => state.locale.currentLocale);
   const isAuthenticated = useAppSelector(state => state.authentication.isAuthenticated);
