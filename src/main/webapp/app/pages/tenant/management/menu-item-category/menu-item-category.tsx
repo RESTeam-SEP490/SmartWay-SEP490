@@ -93,7 +93,7 @@ export const MenuItemCategoryCheckBoxes = ({ onFilter }: { onFilter: any }) => {
 
   return (
     <>
-      <Card bordered={false} loading={loading}>
+      <Card loading={loading}>
         <div className="flex justify-between">
           <Typography.Title level={5}>
             <Translate contentKey="menuItem.category.label" />

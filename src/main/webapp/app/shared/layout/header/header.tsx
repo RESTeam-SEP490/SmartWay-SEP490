@@ -3,7 +3,7 @@ import './header.scss';
 import React from 'react';
 import { Translate } from 'react-jhipster';
 import LoadingBar from 'react-redux-loading-bar';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { AccountMenu, AuthenticatedAccountMenu, LocaleMenu } from '../menus';
 import { UserMenu } from '../menus/main-menu';
 import { Brand, BrandIcon } from './header-components';
@@ -73,11 +73,11 @@ const TenantAppHeader = (props: IHeaderProps) => {
       {/* {renderDevRibbon()} */}
       <LoadingBar className="loading-bar" />
       <div className="">
-        <div className="flex items-center justify-between py-2  pl-4 pr-12">
+        <div className="flex items-center justify-between py-2 pl-4 pr-12">
           <BrandIcon />
           <div className="flex items-center gap-10">
             <Button type="primary" icon={<DesktopOutlined rev={''} />}>
-              POS Screen
+              <Link to={'/pos/orders'}>POS Screen</Link>
             </Button>
             <LocaleMenu currentLocale={props.currentLocale} />
             <AuthenticatedAccountMenu name={props.username} />

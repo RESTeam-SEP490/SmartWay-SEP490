@@ -93,6 +93,7 @@ export const MenuItemForm = ({ menuItem, isOpen, handleClose }: { menuItem?: IMe
   return (
     <>
       <Modal
+        centered
         open={isOpen}
         destroyOnClose
         width={1000}

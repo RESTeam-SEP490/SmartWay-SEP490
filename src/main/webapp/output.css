@@ -194,11 +194,6 @@
   margin-bottom: 1rem;
 }
 
-.my-2 {
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
 .\!mb-0 {
   margin-bottom: 0px !important;
 }
@@ -340,6 +335,10 @@
   aspect-ratio: 1 / 1;
 }
 
+.\!h-24 {
+  height: 6rem !important;
+}
+
 .\!h-40 {
   height: 10rem !important;
 }
@@ -400,30 +399,6 @@
 
 .h-screen {
   height: 100vh;
-}
-
-.h-60 {
-  height: 15rem;
-}
-
-.h-96 {
-  height: 24rem;
-}
-
-.\!h-96 {
-  height: 24rem !important;
-}
-
-.\!h-44 {
-  height: 11rem !important;
-}
-
-.\!h-32 {
-  height: 8rem !important;
-}
-
-.\!h-24 {
-  height: 6rem !important;
 }
 
 .min-h-full {
@@ -591,10 +566,6 @@
 
 .cursor-pointer {
   cursor: pointer;
-}
-
-.resize-none {
-  resize: none;
 }
 
 .\!resize-none {
@@ -935,6 +906,11 @@
 .px-10 {
   padding-left: 2.5rem;
   padding-right: 2.5rem;
+}
+
+.px-12 {
+  padding-left: 3rem;
+  padding-right: 3rem;
 }
 
 .px-2 {
