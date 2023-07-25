@@ -15,7 +15,7 @@
     "status.label": "Trạng thái",
     "status.trueValue": "Đang hoạt động",
     "status.falseValue": "Ngưng hoạt động",
-    "search.placeholder": "Nhập tên, mã món để tìm kiếm",
+    "search.placeholder": "Nhập tên, khu vực để tìm kiếm",
     "zone.name": "Tên bàn",
     "zone.label": "Khu vực",
     "zone.placeholder": "--- Chọn loại khu vực ---",

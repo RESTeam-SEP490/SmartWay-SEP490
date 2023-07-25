@@ -1,6 +1,7 @@
 package com.resteam.smartway.service.dto;
 
 import java.util.UUID;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import lombok.*;
@@ -21,7 +22,8 @@ public class DiningTableDTO {
 
     private Boolean isFree = true;
 
-    private int numberOfSeats;
+    @Min(1)
+    private Integer numberOfSeats;
 
     private ZoneDTO zone;
 }

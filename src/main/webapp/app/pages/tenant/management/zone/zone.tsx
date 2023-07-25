@@ -30,6 +30,7 @@ export const ZoneSelect = () => {
     <div className="flex items-center gap-2">
       <Form.Item name={['zone', 'id']} className="flex-grow">
         <Select
+          allowClear
           showSearch
           loading={loading}
           options={categoryList}
