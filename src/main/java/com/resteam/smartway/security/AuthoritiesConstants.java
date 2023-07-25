@@ -29,6 +29,10 @@ public final class AuthoritiesConstants {
     private static final String TABLE_CREATE = "PERMISSION_TABLE_CREATE";
     private static final String TABLE_EDIT = "PERMISSION_TABLE_EDIT";
     private static final String TABLE_DELETE = "PERMISSION_TABLE_DELETE";
+    private static final String ZONE_VIEW = "PERMISSION_ZONE_VIEW";
+    private static final String ZONE_CREATE = "PERMISSION_ZONE_CREATE";
+    private static final String ZONE_EDIT = "PERMISSION_ZONE_EDIT";
+    private static final String ZONE_DELETE = "PERMISSION_ZONE_DELETE";
     private static final String BILL_VIEW = "PERMISSION_BILL_VIEW";
     private static final String BILL_EDIT = "PERMISSION_BILL_EDIT";
     private static final String BILL_DELETE = "PERMISSION_BILL_DELETE";

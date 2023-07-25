@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -37,6 +38,7 @@ public class DiningTableResource {
     private final DiningTableService diningTableService;
 
     @GetMapping
+    @PostAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_TABLE_VIEW')")
     public ResponseEntity<List<DiningTableDTO>> loadDiningTableWithSearch(
         Pageable pageable,
         @RequestParam(value = "search", required = false) String searchText,
@@ -52,6 +54,7 @@ public class DiningTableResource {
     }
 
     @PostMapping
+    @PostAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_TABLE_CREATE')")
     public ResponseEntity<DiningTableDTO> createDiningTable(@Valid @RequestBody DiningTableDTO diningTableDTO) {
         if (diningTableDTO.getId() != null) {
             throw new BadRequestAlertException("A new entity cannot already have an ID", ENTITY_NAME, "id_exist");
@@ -64,6 +67,7 @@ public class DiningTableResource {
     }
 
     @PutMapping("/{id}")
+    @PostAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_TABLE_EDIT')")
     public ResponseEntity<DiningTableDTO> updateRestaurant(
         @PathVariable(value = "id", required = false) final String id,
         @Valid @RequestPart DiningTableDTO diningTableDTO
@@ -83,6 +87,7 @@ public class DiningTableResource {
     }
 
     @PutMapping
+    @PostAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_TABLE_EDIT')")
     public ResponseEntity<DiningTableDTO> updateRestaurant(@Valid @RequestBody IsActiveUpdateDTO isActiveUpdateDTO) {
         diningTableService.updateIsActiveDiningTables(isActiveUpdateDTO);
         return ResponseEntity
@@ -92,6 +97,7 @@ public class DiningTableResource {
     }
 
     @DeleteMapping
+    @PostAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_TABLE_DELETE')")
     public ResponseEntity<Void> deleteRestaurants(@RequestParam(value = "ids") final List<String> ids) {
         diningTableService.deleteDiningTable(ids);
         return ResponseEntity
