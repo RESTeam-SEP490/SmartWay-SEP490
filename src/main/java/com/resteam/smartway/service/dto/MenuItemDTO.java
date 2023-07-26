@@ -1,6 +1,7 @@
 package com.resteam.smartway.service.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.resteam.smartway.domain.Unit;
 import java.util.UUID;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
@@ -47,4 +48,7 @@ public class MenuItemDTO {
 
     @NotNull
     private MenuItemCategoryDTO menuItemCategory;
+
+    @NotNull
+    private Unit unit;
 }

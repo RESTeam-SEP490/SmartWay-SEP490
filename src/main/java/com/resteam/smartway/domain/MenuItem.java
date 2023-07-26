@@ -46,6 +46,10 @@ public class MenuItem extends AbstractBaseAuditingEntity<UUID> implements Serial
     private String description;
 
     @ManyToOne
+    @JoinColumn(name = "unit_id", referencedColumnName = "id", columnDefinition = "BINARY(16)")
+    private Unit unit;
+
+    @ManyToOne
     @JoinColumn(name = "category_id", referencedColumnName = "id", columnDefinition = "BINARY(16)")
     private MenuItemCategory menuItemCategory;
 }

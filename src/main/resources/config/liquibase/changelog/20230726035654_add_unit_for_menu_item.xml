@@ -1,0 +1,33 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet author="ASUS (generated)" id="1690343829378-1">
+        <createTable tableName="unit">
+            <column name="id" type="BINARY(16)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="unitPK"/>
+            </column>
+            <column name="created_by" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="datetime(6)"/>
+            <column name="last_modified_by" type="VARCHAR(50)"/>
+            <column name="last_modified_date" type="datetime(6)"/>
+            <column name="name" type="NVARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="restaurant_id" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="ASUS (generated)" id="1690343829378-2">
+        <addColumn tableName="menu_item">
+            <column name="unit_id" type="BINARY(16)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="ASUS (generated)" id="1690343829378-3">
+        <addForeignKeyConstraint baseColumnNames="unit_id" baseTableName="menu_item" constraintName="FK9tot4b2q0uwlq95nc79yxxbw9" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="unit" validate="true"/>
+    </changeSet>
+    <changeSet author="ASUS (generated)" id="1690343829378-4">
+        <addForeignKeyConstraint baseColumnNames="restaurant_id" baseTableName="unit" constraintName="FKns4goooph9pwmq9wqimyqdgc4" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="restaurant" validate="true"/>
+    </changeSet>
+</databaseChangeLog>

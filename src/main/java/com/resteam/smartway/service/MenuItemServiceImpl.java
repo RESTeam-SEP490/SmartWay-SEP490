@@ -3,8 +3,10 @@ package com.resteam.smartway.service;
 import com.amazonaws.services.kms.model.NotFoundException;
 import com.resteam.smartway.domain.MenuItem;
 import com.resteam.smartway.domain.MenuItemCategory;
+import com.resteam.smartway.domain.Unit;
 import com.resteam.smartway.repository.MenuItemCategoryRepository;
 import com.resteam.smartway.repository.MenuItemRepository;
+import com.resteam.smartway.repository.UnitRepository;
 import com.resteam.smartway.security.multitenancy.context.RestaurantContext;
 import com.resteam.smartway.service.aws.S3Service;
 import com.resteam.smartway.service.dto.IsActiveUpdateDTO;
@@ -35,6 +37,7 @@ public class MenuItemServiceImpl implements MenuItemService {
     private static final String ENTITY_NAME = "menu_item";
 
     private final MenuItemRepository menuItemRepository;
+    private final UnitRepository unitRepository;
 
     private final S3Service s3Service;
 
@@ -78,6 +81,13 @@ public class MenuItemServiceImpl implements MenuItemService {
                 .orElseThrow(() -> new BadRequestAlertException("Category is not found", ENTITY_NAME, "idnotfound"));
             menuItem.setMenuItemCategory(menuItemCategory);
         }
+        if (menuItemDTO.getUnit() != null) {
+            UUID unitId = menuItemDTO.getUnit().getId();
+            Unit unit = unitRepository
+                .findById(unitId)
+                .orElseThrow(() -> new BadRequestAlertException("unit is not found", ENTITY_NAME, "idnotfound"));
+            menuItem.setUnit(unit);
+        }
         menuItem.setCode(menuItemCode);
         return menuItemMapper.toDto(menuItemRepository.save(menuItem));
     }
@@ -117,6 +127,15 @@ public class MenuItemServiceImpl implements MenuItemService {
                 .orElseThrow(() -> new BadRequestAlertException("Category is not found", ENTITY_NAME, "idnotfound"));
             menuItem.setMenuItemCategory(menuItemCategory);
         }
+
+        if (menuItemDTO.getUnit() != null) {
+            UUID unitId = menuItemDTO.getUnit().getId();
+            Unit unit = unitRepository
+                .findById(unitId)
+                .orElseThrow(() -> new BadRequestAlertException("unit is not found", ENTITY_NAME, "idnotfound"));
+            menuItem.setUnit(unit);
+        }
+
         menuItemMapper.partialUpdate(menuItem, menuItemDTO);
         if (menuItemDTO.getImageUrl() == null || menuItemDTO.getImageUrl().isEmpty()) {
             s3Service.deleteFile(menuItem.getImageKey());

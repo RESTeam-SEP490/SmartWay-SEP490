@@ -23,6 +23,7 @@
     <include file="config/liquibase/changelog/20230712025933_add_order_and_order_detail.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20230721040107_add_createdDate_and_isCooked_into_OrderDetail.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20230723084415_add_isPriority_note_notifiedTime_in_orderDetail.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230726035654_add_unit_for_menu_item.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
     <!-- jhipster-needle-liquibase-add-incremental-changelog - JHipster will add incremental liquibase changelogs here -->
