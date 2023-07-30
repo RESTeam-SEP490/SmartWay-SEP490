@@ -16,6 +16,7 @@
         "menuItemCategory": "Danh mục",
         "staff": "nhân viên",
         "table": "Bàn",
+        "menu": "Thực đơn",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
       },
       "account": {

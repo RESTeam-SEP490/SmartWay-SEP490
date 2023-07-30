@@ -12,6 +12,8 @@
       "entities": {
         "main": "Entities",
         "restaurant": "Restaurant",
+        "table": "Table",
+        "menu": "Menu",
         "menuItem": "Menu item",
         "staff": "Staff",
         "role": "Role",

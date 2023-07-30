@@ -3,11 +3,13 @@ import './header.scss';
 import React from 'react';
 import { Translate } from 'react-jhipster';
 import LoadingBar from 'react-redux-loading-bar';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { AccountMenu, AuthenticatedAccountMenu, LocaleMenu } from '../menus';
 import { UserMenu } from '../menus/main-menu';
-import { Brand } from './header-components';
+import { Brand, BrandIcon } from './header-components';
 import { AppType } from 'app/app.constant';
+import { Button } from 'antd';
+import { DesktopOutlined } from '@ant-design/icons';
 
 export interface IHeaderProps {
   username?: string;
@@ -61,17 +63,27 @@ const MainAppHeader = (props: IHeaderProps) => {
 
 const TenantAppHeader = (props: IHeaderProps) => {
   return (
-    <div className={location.pathname.includes('login') ? 'hidden' : 'bg-white shadow-md z-10'}>
+    <div
+      className={
+        ['login', 'pos'].some(key => location.pathname.includes(key))
+          ? 'hidden'
+          : 'bg-white border-0 border-solid border-b border-slate-200'
+      }
+    >
       {/* {renderDevRibbon()} */}
       <LoadingBar className="loading-bar" />
-      <div className="flex items-center justify-between py-2 mx-auto transition-all duration-300 ease-linear lg:max-w-7xl">
-        <Brand />
-        <div className="flex items-center gap-10">
-          <LocaleMenu currentLocale={props.currentLocale} />
-          <AuthenticatedAccountMenu name={props.username} />
+      <div className="">
+        <div className="flex items-center justify-between py-2 pl-4 pr-12">
+          <BrandIcon />
+          <div className="flex items-center gap-10">
+            <Button type="primary" icon={<DesktopOutlined rev={''} />}>
+              <Link to={'/pos/orders'}>POS Screen</Link>
+            </Button>
+            <LocaleMenu currentLocale={props.currentLocale} />
+            <AuthenticatedAccountMenu name={props.username} />
+          </div>
         </div>
       </div>
-      {props.isAuthenticated && <UserMenu />}
     </div>
   );
 };

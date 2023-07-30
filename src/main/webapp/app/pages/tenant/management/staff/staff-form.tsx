@@ -68,78 +68,62 @@ export const StaffForm = ({ staff, isOpen, handleClose }: { staff?: IStaff; isOp
         onCancel={() => handleClose()}
       >
         <Form {...DEFAULT_FORM_ITEM_LAYOUT} form={form} colon onFinish={saveEntity}>
-          <Tabs className="p-2">
-            <Tabs.TabPane tab={translate('menuItem.infoTabs.information')} key={1} className="flex gap-8 p-2">
-              <div className="flex-grow">
-                <Form.Item
-                  label={translate('staff.username.label')}
-                  name={'username'}
-                  rules={[
-                    { required: true, message: translate('entity.validation.required') },
-                    { max: 50, message: translate('entity.validation.max', { max: 50 }) },
-                    { min: 4, message: translate('entity.validation.min', { min: 4 }) },
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
-                <Form.Item
-                  label={translate('staff.fullName.label')}
-                  name={'fullName'}
-                  rules={[
-                    { required: true, message: translate('entity.validation.required') },
-                    { max: 100, message: translate('entity.validation.max', { max: 100 }) },
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
-                <Form.Item label={translate('staff.role.label')} name="id" required>
-                  <RoleSelect />
-                </Form.Item>
-              </div>
-              <div className="flex-grow">
-                <Form.Item
-                  label={translate('staff.email.label')}
-                  name={'email'}
-                  rules={[
-                    { validator: validateEmail },
-                    { required: true, message: translate('entity.validation.required') },
-                    { max: 50, message: translate('entity.validation.max', { max: 100 }) },
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
-                <Form.Item
-                  label={translate('staff.phone.label')}
-                  name={'phone'}
-                  rules={[
-                    { validator: validatePhone },
-                    { required: true, message: translate('entity.validation.required') },
-                    { max: 20, message: translate('entity.validation.max', { max: 20 }) },
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
-                {!isNew ? (
-                  <>
-                    <Checkbox onChange={handleResetPasswordChange} className="font-normal mb-2 ml-28 ">
-                      {translate('staff.resetPassword.label')}
-                    </Checkbox>
-                    {resetPassword && (
-                      <Form.Item
-                        label={translate('staff.password.label')}
-                        name="password"
-                        rules={[
-                          { required: true, message: translate('entity.validation.required') },
-                          { max: 60, message: translate('entity.validation.max', { max: 60 }) },
-                          { min: 4, message: translate('entity.validation.min', { min: 4 }) },
-                        ]}
-                      >
-                        <Input.Password />
-                      </Form.Item>
-                    )}
-                  </>
-                ) : (
-                  <>
+          <div className="flex gap-8 p-4">
+            <div className="flex-grow">
+              <Form.Item
+                label={translate('staff.username.label')}
+                name={'username'}
+                rules={[
+                  { required: true, message: translate('entity.validation.required') },
+                  { max: 50, message: translate('entity.validation.max', { max: 50 }) },
+                  { min: 4, message: translate('entity.validation.min', { min: 4 }) },
+                ]}
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item
+                label={translate('staff.fullName.label')}
+                name={'fullName'}
+                rules={[
+                  { required: true, message: translate('entity.validation.required') },
+                  { max: 100, message: translate('entity.validation.max', { max: 100 }) },
+                ]}
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item label={translate('staff.role.label')} name="id" required>
+                <RoleSelect />
+              </Form.Item>
+            </div>
+            <div className="flex-grow">
+              <Form.Item
+                label={translate('staff.email.label')}
+                name={'email'}
+                rules={[
+                  { validator: validateEmail },
+                  { required: true, message: translate('entity.validation.required') },
+                  { max: 50, message: translate('entity.validation.max', { max: 100 }) },
+                ]}
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item
+                label={translate('staff.phone.label')}
+                name={'phone'}
+                rules={[
+                  { validator: validatePhone },
+                  { required: true, message: translate('entity.validation.required') },
+                  { max: 20, message: translate('entity.validation.max', { max: 20 }) },
+                ]}
+              >
+                <Input />
+              </Form.Item>
+              {!isNew ? (
+                <>
+                  <Checkbox onChange={handleResetPasswordChange} className="mb-2 font-normal ml-28 ">
+                    {translate('staff.resetPassword.label')}
+                  </Checkbox>
+                  {resetPassword && (
                     <Form.Item
                       label={translate('staff.password.label')}
                       name="password"
@@ -151,11 +135,25 @@ export const StaffForm = ({ staff, isOpen, handleClose }: { staff?: IStaff; isOp
                     >
                       <Input.Password />
                     </Form.Item>
-                  </>
-                )}
-              </div>
-            </Tabs.TabPane>
-          </Tabs>
+                  )}
+                </>
+              ) : (
+                <>
+                  <Form.Item
+                    label={translate('staff.password.label')}
+                    name="password"
+                    rules={[
+                      { required: true, message: translate('entity.validation.required') },
+                      { max: 60, message: translate('entity.validation.max', { max: 60 }) },
+                      { min: 4, message: translate('entity.validation.min', { min: 4 }) },
+                    ]}
+                  >
+                    <Input.Password />
+                  </Form.Item>
+                </>
+              )}
+            </div>
+          </div>
           <div className="flex justify-end gap-2">
             <SubmitButton form={form} isNew={isNew} updating={updating} />
             <Button type="default" htmlType="reset" onClick={() => handleClose()}>

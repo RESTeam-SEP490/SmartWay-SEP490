@@ -52,7 +52,12 @@ export const DiningTable = () => {
       render: numberOfSeats => (numberOfSeats !== 0 ? numberOfSeats : <Translate contentKey="diningTable.message.seat" />),
     },
 
-    { title: <Translate contentKey="diningTable.zone.label" />, dataIndex: ['zone', 'name'], key: 'zone' },
+    {
+      title: <Translate contentKey="diningTable.zone.label" />,
+      dataIndex: ['zone', 'name'],
+      key: 'zone',
+      render: zone => (zone !== undefined ? zone : <Translate contentKey="diningTable.message" />),
+    },
     {
       title: <Translate contentKey="diningTable.status.label" />,
       dataIndex: 'isActive',
@@ -336,13 +341,13 @@ export const DiningTable = () => {
 
       <div className="flex h-full p-2">
         <div className="flex flex-col w-1/5 gap-4 p-4">
-          <Card bordered={false}>
+          <Card>
             <Typography.Title level={5}>
               <Translate contentKey="entity.action.find" />
             </Typography.Title>
             <Input placeholder={translate('diningTable.search.placeholder')} onPressEnter={handleOnchangeSearch} />
           </Card>
-          <Card bordered={false}>
+          <Card>
             <Typography.Title level={5}>
               <Translate contentKey="entity.label.status" />
             </Typography.Title>
@@ -361,64 +366,65 @@ export const DiningTable = () => {
           <ZoneCheckBoxes onFilter={handleOnchangeZoneFilter} />
         </div>
         <div className="w-4/5 p-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-4">
-              <Typography.Title level={3} className="!mb-0">
-                <Translate contentKey="diningTable.title" />
-              </Typography.Title>
-              {selectedRowKeys.length > 0 && (
-                <Tag className="px-4 py-1" closable color="blue" onClose={handleResetSelectedRowKey}>
-                  <Translate contentKey="entity.action.select" interpolate={{ number: selectedRowKeys.length }} />
-                </Tag>
-              )}
-            </div>
-            <div className="flex gap-2">
-              <Dropdown menu={{ items }} disabled={selectedRowKeys.length === 0} className="!w-32">
-                <Button type="primary" icon={<BarsOutlined rev={''} />}>
-                  <Translate contentKey="entity.label.operations" />
+          <Card>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-4">
+                <Typography.Title level={3} className="!mb-0">
+                  <Translate contentKey="diningTable.title" />
+                </Typography.Title>
+                {selectedRowKeys.length > 0 && (
+                  <Tag className="px-4 py-1" closable color="blue" onClose={handleResetSelectedRowKey}>
+                    <Translate contentKey="entity.action.select" interpolate={{ number: selectedRowKeys.length }} />
+                  </Tag>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <Dropdown menu={{ items }} disabled={selectedRowKeys.length === 0} className="!w-32">
+                  <Button type="primary" icon={<BarsOutlined rev={''} />}>
+                    <Translate contentKey="entity.label.operations" />
+                  </Button>
+                </Dropdown>
+                <Button type="primary" icon={<PlusOutlined rev={''} />} onClick={() => setIsShowForm(true)}>
+                  <Translate contentKey="diningTable.addNewLabel" />
                 </Button>
-              </Dropdown>
-              <Button type="primary" icon={<PlusOutlined rev={''} />} onClick={() => setIsShowForm(true)}>
-                <Translate contentKey="diningTable.addNewLabel" />
-              </Button>
-              <Button type="primary" icon={<UploadOutlined rev={''} />} onClick={handleOpenPopup}>
-                <Translate contentKey="entity.action.import" />
-              </Button>
+                <Button type="primary" icon={<UploadOutlined rev={''} />}>
+                  <Translate contentKey="entity.action.import" />
+                </Button>
+              </div>
             </div>
-          </div>
-
-          <Table
-            columns={columns.map(c => ({ ...c, ellipsis: true }))}
-            dataSource={diningTableList}
-            pagination={{
-              ...DEFAULT_PAGINATION_CONFIG,
-              onChange: handleOnchangePage,
-              total: count,
-              current: pageable.page + 1,
-              locale: { items_per_page: '/ ' + translate('global.table.pageText') },
-            }}
-            scroll={{ x: true }}
-            rowSelection={{
-              type: 'checkbox',
-              selectedRowKeys,
-              onSelect: onSelectRow,
-              onSelectAll: onSelectAllRows,
-            }}
-            rowKey={'id'}
-            rowClassName={'cursor-pointer'}
-            loading={loading}
-            expandable={{
-              expandedRowRender: record => <DiningTableDetail diningTable={record} onUpdate={() => handleOpen(record)} />,
-              expandedRowClassName: () => '!bg-white',
-              expandRowByClick: true,
-              expandIcon: () => <></>,
-              expandedRowKeys: [expendedRow],
-              onExpand(expended, record) {
-                if (expended) setExpendedRow(record.id);
-                else setExpendedRow(undefined);
-              },
-            }}
-          ></Table>
+            <Table
+              columns={columns.map(c => ({ ...c, ellipsis: true }))}
+              dataSource={diningTableList}
+              pagination={{
+                ...DEFAULT_PAGINATION_CONFIG,
+                onChange: handleOnchangePage,
+                total: count,
+                current: pageable.page + 1,
+                locale: { items_per_page: '/ ' + translate('global.table.pageText') },
+              }}
+              scroll={{ x: true }}
+              rowSelection={{
+                type: 'checkbox',
+                selectedRowKeys,
+                onSelect: onSelectRow,
+                onSelectAll: onSelectAllRows,
+              }}
+              rowKey={'id'}
+              rowClassName={'cursor-pointer'}
+              loading={loading}
+              expandable={{
+                expandedRowRender: record => <DiningTableDetail diningTable={record} onUpdate={() => handleOpen(record)} />,
+                expandedRowClassName: () => '!bg-white',
+                expandRowByClick: true,
+                expandIcon: () => <></>,
+                expandedRowKeys: [expendedRow],
+                onExpand(expended, record) {
+                  if (expended) setExpendedRow(record.id);
+                  else setExpendedRow(undefined);
+                },
+              }}
+            ></Table>
+          </Card>
         </div>
       </div>
     </>

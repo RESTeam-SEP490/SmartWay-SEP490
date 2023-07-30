@@ -1,10 +1,13 @@
 package com.resteam.smartway.service;
 
+import com.itextpdf.text.DocumentException;
 import com.resteam.smartway.service.dto.DiningTableDTO;
 import com.resteam.smartway.service.dto.IsActiveUpdateDTO;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import lombok.SneakyThrows;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,4 +25,8 @@ public interface DiningTableService {
     void updateIsActiveDiningTables(IsActiveUpdateDTO isActiveUpdateDTO);
 
     Map<String, String> importDataTable(InputStream is);
+
+    Optional<DiningTableDTO> findById(UUID uuid);
+
+    byte[] generatePdfForDiningTable(DiningTableDTO diningTableDTO) throws DocumentException;
 }

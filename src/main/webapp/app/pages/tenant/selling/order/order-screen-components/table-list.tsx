@@ -1,0 +1,106 @@
+import { SyncOutlined } from '@ant-design/icons';
+import { Button, Radio, Segmented, Typography } from 'antd';
+import { useAppDispatch, useAppSelector } from 'app/config/store';
+import { getEntities as getZoneEntities } from 'app/pages/tenant/management/zone/zone.reducer';
+import TableIcon from 'app/shared/icons/table-icon';
+import { IDiningTable } from 'app/shared/model/dining-table.model';
+import React, { useEffect, useState } from 'react';
+import Scrollbars from 'react-custom-scrollbars-2';
+import { Translate, translate } from 'react-jhipster';
+import { selectOrderByTable } from '../order.reducer';
+
+export const TableList = () => {
+  const dispatch = useAppDispatch();
+  const tableList = useAppSelector(state => state.diningTable.entities);
+  const zoneList = useAppSelector(state => state.zone.entities);
+  const selectedTable = useAppSelector(state => state.order.selectedTable);
+
+  const [filteredTableList, setFilteredTableList] = useState([]);
+  const [filter, setFilter] = useState({ zoneId: '', isFree: undefined });
+
+  useEffect(() => {
+    dispatch(getZoneEntities({}));
+  }, []);
+
+  useEffect(() => {
+    if (tableList?.length > 0 && selectedTable.id === '') dispatch(selectOrderByTable(tableList[0]));
+  }, [tableList]);
+
+  useEffect(() => {
+    const { zoneId, isFree } = filter;
+    let nextFilteredTableList: IDiningTable[] = [...tableList];
+    if (zoneId?.length > 0) nextFilteredTableList = nextFilteredTableList.filter(table => table.zone?.id === zoneId);
+    if (isFree !== undefined) nextFilteredTableList = nextFilteredTableList.filter(table => table.isFree === isFree);
+    setFilteredTableList(nextFilteredTableList);
+  }, [filter, tableList]);
+
+  const handleSelectTable = table => {
+    dispatch(selectOrderByTable(table));
+  };
+
+  return (
+    <div className="p-2 bg-white h-[calc(100vh-66px)] flex flex-col rounded-se-lg rounded-b-lg">
+      <div className="flex flex-col gap-4 px-2 py-4">
+        <div className="flex items-center justify-between">
+          <Segmented
+            options={[
+              { label: <Translate contentKey="entity.label.all" />, value: '' },
+              ...zoneList.map(z => ({ label: z.name, value: z.id })),
+            ]}
+            onChange={value => setFilter(prev => ({ ...prev, zoneId: value.toString() }))}
+          />
+          <Button
+            size="large"
+            icon={<SyncOutlined rev="" />}
+            shape="circle"
+            type="ghost"
+            className="hover:!text-blue-600 !text-slate-600"
+          ></Button>
+        </div>
+        <Radio.Group
+          className="flex items-center gap-2 px-2"
+          defaultValue={undefined}
+          onChange={e => setFilter(prev => ({ ...prev, isFree: e.target.value }))}
+        >
+          <Radio className="!font-normal" value={undefined}>
+            <Translate contentKey="entity.label.all" />
+          </Radio>
+          <Radio className="!font-normal" value={true}>
+            <Translate contentKey="order.tableList.status.available" />
+          </Radio>
+          <Radio className="!font-normal" value={false}>
+            <Translate contentKey="order.tableList.status.occupied" />
+          </Radio>
+        </Radio.Group>
+      </div>
+      <Scrollbars className="bg-gray-200 rounded-md grow">
+        <div className="flex flex-wrap gap-4 m-4 ">
+          {filteredTableList.map(table => (
+            <TableCard
+              key={table.id}
+              table={table}
+              handleSelectTable={() => handleSelectTable(table)}
+              isSelected={selectedTable.id === table.id}
+            />
+          ))}
+        </div>
+      </Scrollbars>
+    </div>
+  );
+};
+
+const TableCard = ({ table, handleSelectTable, isSelected }: { table: IDiningTable; handleSelectTable: any; isSelected: boolean }) => {
+  return (
+    <div
+      onClick={handleSelectTable}
+      className={`flex flex-col items-center shadow-sm bg-white w-32 h-40 p-2 text-blue-600 rounded-lg  cursor-pointer hover:shadow-md border border-solid ${
+        isSelected ? 'border-blue-600 !shadow-md' : 'border-transparent'
+      }`}
+    >
+      <Typography.Text className={`pb-4 font-semibold ${isSelected ? '!text-blue-600' : ''}`}>{table.name}</Typography.Text>
+      <TableIcon size={80} status={isSelected ? 'selected' : table.isFree ? 'available' : 'occupied'} />
+    </div>
+  );
+};
+
+export default TableList;

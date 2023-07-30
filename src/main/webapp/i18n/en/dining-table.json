@@ -39,10 +39,10 @@
     "action": {
       "delete.question": "Are you sure to delete table <b>{{ name }}</b>?",
       "allowSell": "Mark as use table",
-      "allowSell.question": "Are you sure to mark <b>{{ number }}</b> selected item(s) as enable table?",
-      "allowSellOne.question": "Are you sure to mark item <b>{{ name }}</b> as enable table?",
-      "stopSell": "Mark as disable item",
-      "stopSell.question": "Are you sure to mark <b>{{ number }}</b> selected item(s) as discontinued table?",
+      "allowSell.question": "Are you sure to mark <b>{{ number }}</b> selected table(s) as enable table?",
+      "allowSellOne.question": "Are you sure to mark table <b>{{ name }}</b> as enable table?",
+      "stopSell": "Mark as disable table",
+      "stopSell.question": "Are you sure to mark <b>{{ number }}</b> selected table(s) as discontinued table?",
       "stopSellOne.question": "Are you sure to mark table <b>{{ name }}</b> as discontinued table?"
     }
   },

@@ -5,6 +5,7 @@ import staff from './staff/staff.reducer';
 import role from './role/role.reducer';
 import diningTable from './dining-table/dining-table.reducer';
 import zone from './zone/zone.reducer';
+import order from '../selling/order/order.reducer';
 /* jhipster-needle-add-reducer-import - JHipster will add reducer here */
 
 const entitiesReducers = {
@@ -15,6 +16,7 @@ const entitiesReducers = {
   diningTable,
   zone,
   role,
+  order,
   /* jhipster-needle-add-reducer-combine - JHipster will add reducer here */
 };
 

@@ -32,9 +32,8 @@ public class DiningTable extends AbstractBaseAuditingEntity<UUID> implements Ser
     @Column(name = "is_free", nullable = false)
     private Boolean isFree;
 
-    @Min(0)
     @Column(name = "number_of_seats")
-    private int numberOfSeats;
+    private Integer numberOfSeats;
 
     @ManyToOne
     @JoinColumn(name = "zone_id", referencedColumnName = "id")
