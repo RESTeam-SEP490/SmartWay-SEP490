@@ -7,13 +7,15 @@ import { IDiningTable } from 'app/shared/model/dining-table.model';
 import React, { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { Translate, translate } from 'react-jhipster';
-import { selectOrderByTable } from '../order.reducer';
+import { orderActions } from '../order.reducer';
+import { IOrder } from 'app/shared/model/order/order.model';
 
 export const TableList = () => {
   const dispatch = useAppDispatch();
   const tableList = useAppSelector(state => state.diningTable.entities);
   const zoneList = useAppSelector(state => state.zone.entities);
-  const selectedTable = useAppSelector(state => state.order.selectedTable);
+  const currentOrder: IOrder = useAppSelector(state => state.order.currentOrder);
+  const orders: IOrder = useAppSelector(state => state.order.activeOrders);
 
   const [filteredTableList, setFilteredTableList] = useState([]);
   const [filter, setFilter] = useState({ zoneId: '', isFree: undefined });
@@ -23,8 +25,9 @@ export const TableList = () => {
   }, []);
 
   useEffect(() => {
-    if (tableList?.length > 0 && selectedTable.id === '') dispatch(selectOrderByTable(tableList[0]));
-  }, [tableList]);
+    console.log(currentOrder);
+    if (tableList?.length > 0 && currentOrder.id === null) dispatch(orderActions.selectOrderByTable(tableList[0]));
+  }, [tableList, orders]);
 
   useEffect(() => {
     const { zoneId, isFree } = filter;
@@ -35,7 +38,7 @@ export const TableList = () => {
   }, [filter, tableList]);
 
   const handleSelectTable = table => {
-    dispatch(selectOrderByTable(table));
+    dispatch(orderActions.selectOrderByTable(table));
   };
 
   return (
@@ -80,7 +83,7 @@ export const TableList = () => {
               key={table.id}
               table={table}
               handleSelectTable={() => handleSelectTable(table)}
-              isSelected={selectedTable.id === table.id}
+              isSelected={currentOrder.tableList.map(table => table.id).includes(table.id)}
             />
           ))}
         </div>

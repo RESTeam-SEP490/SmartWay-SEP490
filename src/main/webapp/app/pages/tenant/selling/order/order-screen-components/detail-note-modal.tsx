@@ -2,7 +2,7 @@ import { Button, Form, Input, Modal, Typography } from 'antd';
 import { currencyFormatter } from 'app/app.constant';
 import { useAppSelector } from 'app/config/store';
 import { SubmitButton } from 'app/shared/layout/form-shared-component';
-import { IOrderDetail } from 'app/shared/model/order-detail.model';
+import { IOrderDetail } from 'app/shared/model/order/order-detail.model';
 import React, { useEffect } from 'react';
 import { Translate, translate } from 'react-jhipster';
 

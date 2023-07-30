@@ -6,10 +6,12 @@ import { Storage } from 'react-jhipster';
 
 import { websocketActivityMessage } from 'app/modules/administration/administration.reducer';
 import { getAccount, logoutSession } from 'app/shared/reducers/authentication';
-import { getEntities, selectTab, setChangedDetailId, websocketUpdateOrder } from './order.reducer';
 import getStore from 'app/config/store';
 import { IOrderEvent } from 'app/shared/model/dto/order-event.model';
-import { websocketUpdateTable } from '../../management/dining-table/dining-table.reducer';
+import { orderActions } from '../pages/tenant/selling/order/order.reducer';
+import OrderEvent from 'app/pages/tenant/selling/order/order-event';
+import { receiveChangedTable } from 'app/pages/tenant/management/dining-table/dining-table.reducer';
+import { IOrder } from 'app/shared/model/order/order.model';
 
 let stompClient = null;
 
@@ -20,7 +22,6 @@ let listener: Observable<any>;
 let listenerObserver: any;
 let alreadyConnectedOnce = false;
 const subdomain = window.location.host.split('.')[0];
-const store = getStore();
 
 const createConnection = (): Promise<any> => new Promise(resolve => (connectedPromise = resolve));
 
@@ -29,12 +30,10 @@ const createListener = (): Observable<any> =>
     listenerObserver = observer;
   });
 
-const subscribe = () => {
+const subscribe = (topicPath: string) => {
   connection.then(() => {
-    subscriber = stompClient.subscribe('/topic/orders/' + subdomain, data => {
-      const order = JSON.parse(data.body);
-      store.dispatch(websocketUpdateOrder(order));
-      store.dispatch(websocketUpdateTable(order));
+    subscriber = stompClient.subscribe(`/topic/${topicPath}/${subdomain}`, data => {
+      listenerObserver.next(JSON.parse(data.body));
     });
   });
 };
@@ -61,11 +60,15 @@ export const connect = () => {
   const socket = new SockJS(url);
   stompClient = Stomp.over(socket, { protocols: ['v12.stomp'] });
 
-  stompClient.connect(getHeader(), () => {
-    connectedPromise('success');
-    connectedPromise = null;
-    alreadyConnectedOnce = true;
-  });
+  stompClient.connect(
+    getHeader(),
+    () => {
+      connectedPromise('success');
+      connectedPromise = null;
+      alreadyConnectedOnce = true;
+    },
+    onConnectFailed
+  );
 };
 
 export const getHeader = () => {
@@ -90,59 +93,65 @@ const disconnect = () => {
 
 const receive = () => listener;
 
-const unsubscribe = () => {
-  if (subscriber !== null) {
-    subscriber.unsubscribe();
+const unsubscribe = (topicPath: string) => {
+  if (subscriber[topicPath] !== null) {
+    subscriber[topicPath].unsubscribe();
   }
   listener = createListener();
 };
 
-export const connectOrderWebSocket = () => {
-  connect();
-  if (!alreadyConnectedOnce) {
-    subscribe();
-    receive().subscribe(order => {
-      return null;
-    });
-  }
+const onConnectFailed = error => {
+  console.log('STOMP: ' + error);
+
+  setTimeout(connect, 3000);
+  console.log('Reconnect in 3s');
 };
 
-export const sendEvent = (event: IOrderEvent) => {
+export default store => next => action => {
+  if (orderActions.startConnecting.match(action)) {
+    connect();
+
+    if (stompClient !== null) {
+      store.dispatch(orderActions.connectionEstablished());
+
+      subscribe(OrderEvent.ReceiveChangedOrder);
+      receive().subscribe((order: IOrder) => {
+        store.dispatch(orderActions.receiveChangedOrder(order));
+        store.dispatch(receiveChangedTable(order.tableList));
+      });
+    }
+  }
+
+  if (orderActions.createOrder.match(action) && alreadyConnectedOnce) {
+    const currentTablelist = store.getState().order.currentOrder.tableList;
+    send(OrderEvent.CreateOrder, { menuItemId: action.payload, tableIdList: currentTablelist.map(table => table.id) });
+  }
+
+  if (orderActions.adjustDetailQuantity.match(action) && alreadyConnectedOnce) {
+    send(OrderEvent.AjustDetailQuantity, action.payload);
+  }
+
+  if (orderActions.addOrderDetail.match(action) && alreadyConnectedOnce) {
+    send(OrderEvent.AddOrderDetail, { ...action.payload, orderId: store.getState().order.currentOrder.id });
+  }
+
+  if (orderActions.deleteOrderDetail.match(action) && alreadyConnectedOnce) {
+    send(OrderEvent.DeleteOrderDetail, action.payload);
+  }
+
+  if (orderActions.notifyKitchen.match(action) && alreadyConnectedOnce) {
+    send(OrderEvent.NotifyKitchen, action.payload);
+  }
+
+  next(action);
+};
+
+const send = (orderEvent: OrderEvent, body?: {}) => {
   connection?.then(() => {
     stompClient?.send(
-      '/topic/orders-event/' + subdomain, // destination
-      JSON.stringify(event), // body
+      `/topic/${orderEvent}/${subdomain}`, // destination
+      body ? JSON.stringify(body) : null, // body
       getHeader() // header
     );
   });
-};
-
-export const adjustItemQuantity = (dto, orderId: string) => {
-  const event: IOrderEvent = {
-    type: 'ADJUST_ITEM_QUANTITY',
-    orderId,
-    rawData: JSON.stringify(dto),
-  };
-  sendEvent(event);
-  store.dispatch(setChangedDetailId(dto.orderDetailId));
-  store.dispatch(selectTab('ordering-tab'));
-};
-
-export const addItem = (dto, orderId: string) => {
-  const event: IOrderEvent = {
-    type: 'ADD_ITEM',
-    orderId,
-    rawData: JSON.stringify(dto),
-  };
-  sendEvent(event);
-  store.dispatch(selectTab('ordering-tab'));
-};
-
-export const notifyKitchen = orderId => {
-  sendEvent({ type: 'NOTIFY_KITCHEN', orderId, rawData: orderId });
-  store.dispatch(selectTab('ordered-tab'));
-};
-
-export const removeItem = (orderDetailId, orderId) => {
-  sendEvent({ type: 'DELETE_ITEM', orderId, rawData: orderDetailId });
 };

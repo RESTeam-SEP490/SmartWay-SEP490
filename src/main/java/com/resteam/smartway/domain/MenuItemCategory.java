@@ -1,6 +1,6 @@
 package com.resteam.smartway.domain;
 
-import java.io.Serializable;
+import com.resteam.smartway.domain.base.AbstractBaseAuditingEntity;
 import java.util.UUID;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -15,7 +15,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 @Table(name = "menu_item_category")
-public class MenuItemCategory extends AbstractBaseAuditingEntity<UUID> implements Serializable {
+public class MenuItemCategory extends AbstractBaseAuditingEntity<UUID> {
 
     @Id
     @GeneratedValue
