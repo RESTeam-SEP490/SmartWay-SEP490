@@ -387,7 +387,7 @@ export const DiningTable = () => {
                 <Button type="primary" icon={<PlusOutlined rev={''} />} onClick={() => setIsShowForm(true)}>
                   <Translate contentKey="diningTable.addNewLabel" />
                 </Button>
-                <Button type="primary" icon={<UploadOutlined rev={''} />}>
+                <Button type="primary" icon={<UploadOutlined rev={''} />} onClick={handleOpenPopup}>
                   <Translate contentKey="entity.action.import" />
                 </Button>
               </div>
