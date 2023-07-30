@@ -8,16 +8,15 @@ import com.resteam.smartway.service.dto.DiningTableDTO;
 import com.resteam.smartway.service.dto.IsActiveUpdateDTO;
 import com.resteam.smartway.service.mapper.DiningTableMapper;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.io.output.ByteArrayOutputStream;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Page;
@@ -38,14 +37,12 @@ public class DiningTableServiceImpl implements DiningTableService {
     private final ZoneRepository zoneRepository;
 
     private final DiningTableMapper diningTableMapper;
-
     private final ZoneService zoneService;
-
-    private final String FILE_NAME = "templates/excel/Table.xlsx";
     private final String NAME_SHEET_TABLE = "Table-Manage";
-    final String CONTENT_KEY_COLUMN_EMPTY = "diningTable.columnEmpty";
-    final String CONTENT_KEY_SEAT_INVALID = "diningTable.seatInvalid";
-    final String CONTENT_KEY_SEAT_INTEGER_INVALID = "diningTable.seatIntegerInvalid";
+    private final String CONTENT_KEY_COLUMN_EMPTY = "diningTable.columnEmpty";
+    private final String CONTENT_KEY_SEAT_INVALID = "diningTable.seatInvalid";
+    private final String CONTENT_KEY_SEAT_INTEGER_INVALID = "diningTable.seatIntegerInvalid";
+    private final String CONTENT_KEY_SHEET_NAME_INVALID = "diningTable.sheetInvalidName";
 
     @Override
     public Page<DiningTableDTO> loadDiningTablesWithSearch(Pageable pageable, String searchText, List<String> zoneIds, Boolean isActive) {
@@ -136,6 +133,10 @@ public class DiningTableServiceImpl implements DiningTableService {
         try {
             XSSFWorkbook workbook = new XSSFWorkbook(is);
             XSSFSheet sheet = workbook.getSheet(NAME_SHEET_TABLE);
+            if (workbook.getSheetAt(0) == null || !workbook.getSheetAt(0).getSheetName().equals(NAME_SHEET_TABLE)) {
+                errorMap.put("Sheet name", CONTENT_KEY_SHEET_NAME_INVALID);
+                return errorMap;
+            }
             int rowNumber = 0;
             Iterator<Row> iterator = sheet.iterator();
             boolean os = true;
@@ -204,36 +205,6 @@ public class DiningTableServiceImpl implements DiningTableService {
         }
 
         return errorMap;
-    }
-
-    @Override
-    public ByteArrayInputStream getDataTableFromExcel(List<DiningTable> diningTableList) throws IOException {
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(FILE_NAME);
-        Workbook workbook = new XSSFWorkbook(inputStream);
-
-        Sheet sheet = workbook.getSheetAt(0);
-        int rowIndex = 1;
-        for (DiningTable diningTable : diningTableList) {
-            Row row = sheet.createRow(rowIndex);
-            row.createCell(0).setCellValue(diningTable.getZone().getName());
-            row.createCell(1).setCellValue(diningTable.getName());
-            row.createCell(2).setCellValue(diningTable.getNumberOfSeats());
-            row.createCell(3).setCellValue(diningTable.getIsFree());
-            row.createCell(4).setCellValue(diningTable.getIsActive());
-            rowIndex++;
-        }
-
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        workbook.write(out);
-
-        workbook.close();
-        inputStream.close();
-        return new ByteArrayInputStream(out.toByteArray());
-    }
-
-    @Override
-    public List<DiningTable> listTable() {
-        return diningTableRepository.findAll();
     }
 
     private String getColumnLabel(int column) {

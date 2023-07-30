@@ -23,8 +23,10 @@
     "message": "Bàn này chưa có khu vực",
     "message.seat": "Số ghế chưa được thiết lập",
     "columnEmpty": "Dữ liệu trống",
-    "fileInvalid": "Chỉ file excel mới hợp lệ",
+    "fileInvalid": "Chỉ tệp excel mới hợp lệ (.xlsx)",
     "titleModalUpload": "Lưu bàn từ tệp chứa dữ liệu. Để thực hiện (Tải về file mẫu: ",
+    "fileInvalidName": "Chỉ chọn tên của tệp là Table.xlsx",
+    "sheetInvalidName": "Không đúng",
     "excelFile": "Tệp Excel",
     "note": "Lưu ý",
     "dataValid": "Bàn chỉ cho phép nhập vào dữ liệu hợp lệ",
@@ -49,5 +51,6 @@
       "updated": "Cập nhật bàn thành công",
       "deleted": "Xoá bàn thành công"
     }
-  }
+  },
+  "Sheet name": "Tên trang"
 }

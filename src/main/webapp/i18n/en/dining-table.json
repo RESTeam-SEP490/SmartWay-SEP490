@@ -24,7 +24,9 @@
     "message": "This table has not been selected for a zone",
     "message.seat": "Number of seat is not set",
     "columnEmpty": "Empty data",
-    "fileInvalid": "The Excel file is only valid",
+    "fileInvalid": "Please select a valid Excel file (.xlsx)",
+    "fileInvalidName": "Please select file name is Table.xlsx",
+    "sheetInvalidName": "Invalid",
     "titleModalUpload": "Import Table from Data File. Process Data (Download Sample File: ",
     "excelFile": "Excel File",
     "note": "Note",
@@ -50,5 +52,6 @@
       "updated": "Update table successfully",
       "deleted": "Delete table successfully"
     }
-  }
+  },
+  "Sheet name": "Sheet name"
 }

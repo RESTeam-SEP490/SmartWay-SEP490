@@ -185,7 +185,26 @@ export const DiningTable = () => {
 
   const handleFileSelect = event => {
     const file = event.target.files[0];
-    setSelectedFile(file);
+    if (file && file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+      if (file.name === 'Table.xlsx') {
+        setSelectedFile(file);
+        setError(null);
+      } else {
+        setSelectedFile(null);
+        setError(
+          <span style={{ color: 'red' }}>
+            <Translate contentKey={'diningTable.fileInvalidName'}></Translate>
+          </span>
+        );
+      }
+    } else {
+      setSelectedFile(null);
+      setError(
+        <span style={{ color: 'red' }}>
+          <Translate contentKey={'diningTable.fileInvalid'}></Translate>
+        </span>
+      );
+    }
   };
 
   const resetUpload = () => {
@@ -213,17 +232,19 @@ export const DiningTable = () => {
         resetUpload();
         setError(null);
       } catch (error) {
-        console.error('Error during upload:', error);
         const errorList = error.response.data;
-        console.log(errorList);
         let displayMessage = '';
         for (let i = 0; i < errorList.length; i++) {
           const error = errorList[i];
           const errorKey = error.errorKey;
-          const contentKey = translate(error.contentKey);
-          displayMessage += `${errorKey}: ${contentKey}\n`;
+          if (errorKey == 'Sheet name') {
+            const contentKey = translate(error.contentKey);
+            displayMessage += `${translate(errorKey)}: ${contentKey}\n`;
+          } else {
+            const contentKey = translate(error.contentKey);
+            displayMessage += `${errorKey}: ${contentKey}\n`;
+          }
         }
-        console.log(displayMessage);
         setError(<span style={{ whiteSpace: 'pre-line' }}>{displayMessage}</span>);
       }
     }
@@ -290,7 +311,7 @@ export const DiningTable = () => {
         </div>
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
           <div style={{ position: 'relative', marginRight: '10px' }}>
-            <input type="file" onChange={handleFileSelect} style={{ display: 'none' }} ref={fileInputRef} />
+            <input type="file" onChange={handleFileSelect} style={{ display: 'none' }} ref={fileInputRef} accept=".xlsx" />
             <div>
               <Button type="primary" onClick={() => fileInputRef.current.click()}>
                 <Translate contentKey={'diningTable.selectFile'}></Translate>

@@ -1,6 +1,5 @@
 package com.resteam.smartway.web.rest;
 
-import com.resteam.smartway.domain.DiningTable;
 import com.resteam.smartway.service.DiningTableService;
 import com.resteam.smartway.service.TemplateService;
 import com.resteam.smartway.service.dto.DiningTableDTO;
@@ -124,19 +123,6 @@ public class DiningTableResource {
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + FILE_NAME_TABLE);
         return ResponseEntity.ok().headers(headers).contentType(MediaType.parseMediaType(MEDIA_TYPE)).body(new InputStreamResource(stream));
-    }
-
-    @GetMapping("/export-table")
-    public ResponseEntity<InputStreamResource> exportTableList() throws IOException {
-        List<DiningTable> diningTables = diningTableService.listTable();
-        ByteArrayInputStream excelData = diningTableService.getDataTableFromExcel(diningTables);
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + FILE_NAME_TABLE);
-        return ResponseEntity
-            .ok()
-            .headers(headers)
-            .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
-            .body(new InputStreamResource(excelData));
     }
 
     @PostMapping("/import-table")
