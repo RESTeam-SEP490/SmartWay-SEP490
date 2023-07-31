@@ -9,3 +9,4 @@ public class DetailAddNoteDTO {
     private UUID orderDetailId;
     private String note;
 }
+//n

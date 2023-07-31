@@ -9,6 +9,9 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface OrderRepository extends BaseRepository<SwOrder> {
+    @Override
+    Optional<SwOrder> findById(UUID uuid);
+
     Optional<SwOrder> findTopByOrderByCodeDesc();
     List<SwOrder> findByIsPaidFalse();
     Optional<SwOrder> findByIdAndIsPaid(UUID id, boolean isPaid);

@@ -1,13 +1,10 @@
 package com.resteam.smartway.web.websocket;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.resteam.smartway.security.multitenancy.context.RestaurantContext;
 import com.resteam.smartway.service.OrderDetailService;
 import com.resteam.smartway.service.OrderService;
 import com.resteam.smartway.service.dto.order.*;
-import com.resteam.smartway.web.websocket.dto.OrderEventDTO;
-import java.util.List;
+import com.resteam.smartway.service.dto.order.notification.OrderDetailPriorityDTO;
 import java.util.Objects;
 import java.util.UUID;
 import javax.validation.Valid;
@@ -41,6 +38,13 @@ public class OrderWebsocket {
     public OrderDTO adjustOrderDetailQuantity(@Valid @Payload OrderDetailAdjustQuantityDTO dto, StompHeaderAccessor stompHeaderAccessor) {
         setRestaurantContext(stompHeaderAccessor);
         return orderService.adjustDetailQuantity(dto);
+    }
+
+    @MessageMapping("/topic/add-note/{restaurantId}")
+    @SendTo("/topic/receive-changed-order/{restaurantId}")
+    public OrderDTO addNoteToOrderDetail(@Valid @Payload DetailAddNoteDTO dto, StompHeaderAccessor stompHeaderAccessor) {
+        setRestaurantContext(stompHeaderAccessor);
+        return orderService.addNoteToOrderDetail(dto);
     }
 
     @MessageMapping("/topic/add-order-detail/{restaurantId}")
@@ -105,5 +109,12 @@ public class OrderWebsocket {
     private void setRestaurantContext(StompHeaderAccessor stompHeaderAccessor) {
         String resId = Objects.requireNonNull(stompHeaderAccessor.getNativeHeader(RESTAURANT_ID_HEADER)).get(0);
         RestaurantContext.setCurrentRestaurantById(resId);
+    }
+
+    @MessageMapping("/topic/change-priority/{restaurantId}")
+    @SendTo("/topic/receive-changed-order/{restaurantId}")
+    public OrderDTO changePriority(@Valid @Payload OrderDetailPriorityDTO orderDetailDTO, StompHeaderAccessor stompHeaderAccessor) {
+        setRestaurantContext(stompHeaderAccessor);
+        return orderService.changePriority(orderDetailDTO);
     }
 }

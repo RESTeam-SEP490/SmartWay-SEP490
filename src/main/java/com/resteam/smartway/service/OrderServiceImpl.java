@@ -13,10 +13,9 @@ import com.resteam.smartway.repository.order.KitchenNotificationHistoryRepositor
 import com.resteam.smartway.repository.order.OrderDetailRepository;
 import com.resteam.smartway.repository.order.OrderRepository;
 import com.resteam.smartway.service.dto.order.*;
-import com.resteam.smartway.service.mapper.order.OrderDetailMapper;
+import com.resteam.smartway.service.dto.order.notification.OrderDetailPriorityDTO;
 import com.resteam.smartway.service.mapper.order.OrderMapper;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
-import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -134,6 +133,24 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public OrderDTO addNoteToOrderDetail(DetailAddNoteDTO dto) {
+        OrderDetail orderDetail = orderDetailRepository
+            .findById(dto.getOrderDetailId())
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ORDER_DETAIL, "idnotfound"));
+        if (orderDetail.getOrder().isPaid()) throw new BadRequestAlertException(
+            "Order detail you want to adjust is in a paid order",
+            ORDER,
+            "paidOrder"
+        );
+        if (!(orderDetail.getUnnotifiedQuantity() == orderDetail.getQuantity())) {
+            throw new BadRequestAlertException("Cannot add note to this order", ORDER_DETAIL, "Cannotaddnote");
+        }
+        orderDetail.setNote(dto.getNote());
+        orderDetailRepository.saveAndFlush(orderDetail);
+        return orderMapper.toDto(sortOrderDetailsAndNotificationHistories(orderDetail.getOrder()));
+    }
+
+    @Override
     public OrderDTO addOrderDetail(OrderDetailAdditionDTO orderDetailDTO) {
         SwOrder order = orderRepository
             .findByIdAndIsPaid(orderDetailDTO.getOrderId(), false)
@@ -207,6 +224,26 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public OrderDTO findById(UUID id) {
+        SwOrder order = orderRepository.findById(id).orElseThrow(() -> new BadRequestAlertException("Invalid ID", ORDER, "idnotfound"));
+        return orderMapper.toDto(order);
+    }
+
+    //    @Override
+    //    public void deleteMenuItem(List<String> ids) {
+    //        List<MenuItem> menuItemIdList = ids
+    //            .stream()
+    //            .map(id -> {
+    //                if (id == null) throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+    //                return menuItemRepository
+    //                    .findById(UUID.fromString(id))
+    //                    .orElseThrow(() -> new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idnotfound"));
+    //            })
+    //            .collect(Collectors.toList());
+    //        menuItemRepository.deleteAll(menuItemIdList);
+    //    }
+
+    @Override
     public OrderDTO deleteOrderDetail(UUID orderDetailId) {
         OrderDetail orderDetail = orderDetailRepository
             .findById(orderDetailId)
@@ -223,6 +260,63 @@ public class OrderServiceImpl implements OrderService {
         order.getOrderDetailList().removeIf(detail -> detail.getId().equals(orderDetail.getId()));
 
         return orderMapper.toDto(sortOrderDetailsAndNotificationHistories(order));
+    }
+
+    public OrderDTO changePriority(OrderDetailPriorityDTO orderDetailDTO) {
+        UUID orderDetailId = orderDetailDTO.getOrderDetailId();
+        OrderDetail orderDetail = orderDetailRepository
+            .findById(orderDetailId)
+            .orElseThrow(() -> new BadRequestAlertException("Order detail was not found", ORDER_DETAIL, "idnotfound"));
+        orderDetail.setPriority(true);
+        orderDetailRepository.save(orderDetail);
+        SwOrder order = orderDetail.getOrder();
+
+        return orderMapper.toDto(order);
+    }
+
+    @Override
+    public void ungroupTables(UUID orderId, List<String> tableIds) {
+        SwOrder order = orderRepository
+            .findByIdAndIsPaid(orderId, false)
+            .orElseThrow(() -> new BadRequestAlertException("Order was not found or paid", ORDER, "idnotfound"));
+
+        List<DiningTable> tables = tableIds
+            .stream()
+            .map(id -> {
+                if (id == null) throw new BadRequestAlertException("Invalid id", TABLE, "idnull");
+                DiningTable table = diningTableRepository
+                    .findByIdAndIsFreeAndIsActive(UUID.fromString(id), false, true)
+                    .orElseThrow(() -> new BadRequestAlertException("Invalid ID", TABLE, "idnotfound"));
+                table.setIsFree(true);
+                return table;
+            })
+            .collect(Collectors.toList());
+
+        for (DiningTable table : tables) {
+            table.setIsFree(true);
+            order.getTableList().remove(table);
+        }
+
+        orderRepository.save(order);
+    }
+
+    @Override
+    public void groupTables(OrderDTO orderDTO, List<String> ids) {
+        SwOrder order = orderRepository
+            .findByIdAndIsPaid(orderDTO.getId(), false)
+            .orElseThrow(() -> new BadRequestAlertException("Order was not found or paid", ORDER, "idnotfound"));
+        List<DiningTable> tables = ids
+            .stream()
+            .map(id -> {
+                if (id == null) throw new BadRequestAlertException("Invalid id", TABLE, "idnull");
+                DiningTable table = diningTableRepository
+                    .findByIdAndIsFreeAndIsActive(UUID.fromString(id), true, true)
+                    .orElseThrow(() -> new BadRequestAlertException("Invalid ID", TABLE, "idnotfound"));
+                table.setIsFree(false);
+                return table;
+            })
+            .collect(Collectors.toList());
+        order.setTableList(tables);
     }
     //    @Override
     //    public List<ItemAdditionNotification> getAllOrderItemInKitchen(){

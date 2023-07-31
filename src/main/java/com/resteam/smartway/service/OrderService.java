@@ -1,8 +1,12 @@
 package com.resteam.smartway.service;
 
+import com.resteam.smartway.service.dto.DiningTableDTO;
 import com.resteam.smartway.service.dto.order.*;
+import com.resteam.smartway.service.dto.order.notification.OrderDetailPriorityDTO;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import org.springframework.transaction.annotation.Transactional;
 
 public interface OrderService {
     OrderDTO createOrder(OrderCreationDTO orderDTO);
@@ -16,4 +20,14 @@ public interface OrderService {
     List<OrderDTO> getAllActiveOrders();
 
     OrderDTO deleteOrderDetail(UUID orderDetailId);
+
+    OrderDTO addNoteToOrderDetail(DetailAddNoteDTO dto);
+
+    void groupTables(OrderDTO orderDTO, List<String> ids);
+
+    OrderDTO findById(UUID orderId);
+
+    void ungroupTables(UUID orderId, List<String> tableIds);
+
+    OrderDTO changePriority(OrderDetailPriorityDTO orderDetailDTO);
 }
