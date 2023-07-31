@@ -22,6 +22,20 @@
     "isActive.false": "Ngưng hoạt động",
     "message": "Bàn này chưa có khu vực",
     "message.seat": "Số ghế chưa được thiết lập",
+    "columnEmpty": "Dữ liệu trống",
+    "fileInvalid": "Chỉ tệp excel mới hợp lệ (.xlsx)",
+    "titleModalUpload": "Lưu bàn từ tệp chứa dữ liệu. Để thực hiện (Tải về file mẫu: ",
+    "fileInvalidName": "Chỉ chọn tên của tệp là Table.xlsx",
+    "sheetInvalidName": "Không đúng",
+    "excelFile": "Tệp Excel",
+    "note": "Lưu ý",
+    "dataValid": "Bàn chỉ cho phép nhập vào dữ liệu hợp lệ",
+    "specialCharacters": "Tên bàn hoặc khu vực thì nên hạn chế các ký tự như (@, #, $, *, /, -, _,...), như vậy thì nó sẽ\n    khó khăn trong việc in và sử dụng mã vạch.",
+    "selectFile": "Chọn tệp",
+    "upload": "Tải lên",
+    "seatInvalid": "Số bàn phải là kiểu số",
+    "seatIntegerInvalid": "Số bàn không được là số thập phân",
+    "uploadSuccess": "Tải lên thành công",
     "action": {
       "delete.question": "Xoá dữ liệu của bàn <b>{{ name }}</b>?",
       "allowSell": "Cho phép hoạt động",
@@ -38,5 +52,6 @@
       "updated": "Cập nhật bàn thành công",
       "deleted": "Xoá bàn thành công"
     }
-  }
+  },
+  "Sheet name": "Tên trang"
 }

@@ -1,10 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Translate, translate } from 'react-jhipster';
-
 import { useAppDispatch, useAppSelector } from 'app/config/store';
-
-import { BarsOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
-import { Button, Card, Dropdown, Input, MenuProps, Radio, Table, Tag, Typography } from 'antd';
+import { BarsOutlined, PlusOutlined, UploadOutlined, WarningOutlined } from '@ant-design/icons';
+import { Button, Card, Dropdown, Input, MenuProps, message, Modal, Radio, Table, Tag, Typography } from 'antd';
 import { CheckboxValueType } from 'antd/es/checkbox/Group';
 import { IDiningTable } from 'app/shared/model/dining-table.model';
 import { ZoneCheckBoxes } from '../zone/zone';
@@ -13,6 +11,7 @@ import { DiningTableDialog } from './dining-table-dialog';
 import DiningTableForm from './dining-table-form';
 import { getEntities, setPageable } from './dining-table.reducer';
 import { DEFAULT_PAGINATION_CONFIG } from '../../../../shared/util/pagination.constants';
+import axios from 'axios';
 
 export const DiningTable = () => {
   const dispatch = useAppDispatch();
@@ -68,23 +67,23 @@ export const DiningTable = () => {
   ];
 
   const [expendedRow, setExpendedRow] = useState();
-
   const [isShowDialog, setIsShowDialog] = useState(false);
   const [selectedItems, setSelectedItems] = useState<IDiningTable[]>([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [allowSale, setAllowSale] = useState<boolean>();
-
   const [isShowForm, setIsShowForm] = useState(false);
   const [updatingItem, setUpdatingItem] = useState<IDiningTable>();
-
+  const fileInputRef = useRef(null);
   const diningTableList = useAppSelector(state => state.diningTable.entities);
   const pageable = useAppSelector(state => state.diningTable.pageable);
   const updateSuccess = useAppSelector(state => state.diningTable.updateSuccess);
-
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
   const zoneList = useAppSelector(state => state.zone.entities);
   const zoneUpdateSuccess = useAppSelector(state => state.zone.updateSuccess);
   const count = useAppSelector(state => state.diningTable.totalItems);
   const loading = useAppSelector(state => state.diningTable.loading);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [error, setError] = useState(null);
 
   if (pageable.isActive !== undefined) {
     if (pageable.isActive) items.splice(1, 1);
@@ -179,6 +178,111 @@ export const DiningTable = () => {
     setSelectedRowKeys([]);
   };
 
+  const handleOpenPopup = () => {
+    setIsPopupVisible(true);
+  };
+
+  const handleCancelPopup = () => {
+    setIsPopupVisible(false);
+    resetUpload();
+    setError(null);
+  };
+
+  const handleFileSelect = event => {
+    const file = event.target.files[0];
+    if (file && file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+      if (file.name === 'Table.xlsx') {
+        setSelectedFile(file);
+        setError(null);
+      } else {
+        setSelectedFile(null);
+        setError(
+          <span style={{ color: 'red' }}>
+            <Translate contentKey={'diningTable.fileInvalidName'}></Translate>
+          </span>
+        );
+      }
+    } else {
+      setSelectedFile(null);
+      setError(
+        <span style={{ color: 'red' }}>
+          <Translate contentKey={'diningTable.fileInvalid'}></Translate>
+        </span>
+      );
+    }
+  };
+
+  const resetUpload = () => {
+    setSelectedFile(null);
+    fileInputRef.current.value = null;
+  };
+
+  const refreshMenuItems = () => {
+    dispatch(getEntities());
+  };
+
+  const handleUpload = async () => {
+    if (selectedFile) {
+      console.log('Đã chọn tệp:', selectedFile);
+      const formData = new FormData();
+      fileInputRef.current.value = null;
+      formData.append('file', selectedFile);
+      try {
+        const response = await axios.post('/api/dining_tables/import-table', formData);
+        setIsPopupVisible(false);
+        setTimeout(() => {
+          message.success(translate('diningTable.uploadSuccess'));
+        }, 2000);
+        refreshMenuItems();
+        resetUpload();
+        setError(null);
+      } catch (error) {
+        const errorList = error.response.data;
+        let displayMessage = '';
+        for (let i = 0; i < errorList.length; i++) {
+          const error = errorList[i];
+          const errorKey = error.errorKey;
+          if (errorKey == 'Sheet name') {
+            const contentKey = translate(error.contentKey);
+            displayMessage += `${translate(errorKey)}: ${contentKey}\n`;
+          } else {
+            const contentKey = translate(error.contentKey);
+            displayMessage += `${errorKey}: ${contentKey}\n`;
+          }
+        }
+        setError(<span style={{ whiteSpace: 'pre-line' }}>{displayMessage}</span>);
+      }
+    }
+  };
+
+  const downloadTemplate = () => {
+    const apiUrl = '/api/dining_tables/download-template';
+    axios({
+      url: apiUrl,
+      method: 'GET',
+      responseType: 'blob',
+    })
+      .then(response => {
+        const contentDisposition = response.headers['content-disposition'];
+        const fileNameMatch = contentDisposition?.match(/filename="(.+?)"/);
+        const fileName = fileNameMatch ? fileNameMatch[1] : 'Table.xlsx';
+        const blob = new Blob([response.data], {
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      })
+      .catch(error => {
+        console.error('Error during template download:', error);
+      });
+  };
+
   return (
     <>
       <DiningTableForm diningTable={updatingItem} handleClose={handleClose} isOpen={isShowForm} />
@@ -188,6 +292,52 @@ export const DiningTable = () => {
         isOpen={isShowDialog}
         isActive={allowSale}
       />
+
+      <Modal visible={isPopupVisible} onCancel={handleCancelPopup} footer={null}>
+        <p>
+          <Translate contentKey={'diningTable.titleModalUpload'}></Translate>
+          <a onClick={downloadTemplate} download>
+            <Translate contentKey={'diningTable.excelFile'}></Translate>
+          </a>
+          ).
+        </p>
+        <div style={{ backgroundColor: '#f9f9e0', padding: '10px' }}>
+          <p style={{ marginTop: '10px', fontStyle: 'italic', color: '#7b5e2a' }}>
+            <span style={{ fontWeight: 'bold' }}>
+              <WarningOutlined style={{ marginRight: '0.5rem' }} rev={''} />
+              <Translate contentKey={'diningTable.note'}></Translate>
+            </span>
+            <br />
+            <Translate contentKey={'diningTable.dataValid'}></Translate>
+            <br />
+            <br />
+            <Translate contentKey={'diningTable.specialCharacters'}></Translate>
+          </p>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
+          <div style={{ position: 'relative', marginRight: '10px' }}>
+            <input type="file" onChange={handleFileSelect} style={{ display: 'none' }} ref={fileInputRef} accept=".xlsx" />
+            <div>
+              <Button type="primary" onClick={() => fileInputRef.current.click()}>
+                <Translate contentKey={'diningTable.selectFile'}></Translate>
+              </Button>
+            </div>
+            {selectedFile && (
+              <div>
+                <div style={{ float: 'right' }}>
+                  <p>{selectedFile.name}</p>
+                </div>
+                <div>
+                  <Button type="primary" style={{ float: 'right' }} onClick={handleUpload}>
+                    <Translate contentKey={'diningTable.upload'}></Translate>
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+        {error && <div style={{ color: 'red', marginTop: '1rem' }}>{error}</div>}
+      </Modal>
 
       <div className="flex h-full p-2">
         <div className="flex flex-col w-1/5 gap-4 p-4">
@@ -237,7 +387,7 @@ export const DiningTable = () => {
                 <Button type="primary" icon={<PlusOutlined rev={''} />} onClick={() => setIsShowForm(true)}>
                   <Translate contentKey="diningTable.addNewLabel" />
                 </Button>
-                <Button type="primary" icon={<UploadOutlined rev={''} />}>
+                <Button type="primary" icon={<UploadOutlined rev={''} />} onClick={handleOpenPopup}>
                   <Translate contentKey="entity.action.import" />
                 </Button>
               </div>
