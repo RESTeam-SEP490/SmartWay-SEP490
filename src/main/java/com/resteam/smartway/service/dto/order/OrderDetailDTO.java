@@ -15,10 +15,9 @@ import lombok.Setter;
 public class OrderDetailDTO {
 
     private UUID id;
-    private UUID orderId;
     private MenuItemDTO menuItem;
     private int quantity;
-    private boolean isCooked;
+    private int unnotifiedQuantity;
     private Instant notifiedTime;
     private String note;
 }

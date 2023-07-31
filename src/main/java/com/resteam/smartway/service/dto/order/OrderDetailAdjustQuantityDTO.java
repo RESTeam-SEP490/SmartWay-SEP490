@@ -5,7 +5,7 @@ import javax.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class OrderAdjustQuantityDTO {
+public class OrderDetailAdjustQuantityDTO {
 
     @NotNull
     private UUID orderDetailId;

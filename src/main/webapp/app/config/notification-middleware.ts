@@ -78,7 +78,7 @@ export default () => next => action => {
             } else if (typeof data === 'string' && data !== '') {
               addErrorAlert(data);
             } else {
-              toast.error(data?.message || data?.error || data?.title || 'Unknown error!');
+              notification.error(data?.message || data?.error || data?.title || 'Unknown error!');
             }
             break;
           }
@@ -90,7 +90,7 @@ export default () => next => action => {
             if (typeof data === 'string' && data !== '') {
               addErrorAlert(data);
             } else {
-              toast.error(data?.message || data?.error || data?.title || 'Unknown error!');
+              notification.error(data?.message || data?.error || data?.title || 'Unknown error!');
             }
         }
       }
@@ -98,10 +98,10 @@ export default () => next => action => {
       /* eslint-disable no-console */
       console.log('Authentication Error: Trying to access url api/account with GET.');
     } else {
-      toast.error(error.message || 'Unknown error!');
+      notification.error(error.message || 'Unknown error!');
     }
   } else if (error) {
-    toast.error(error.message || 'Unknown error!');
+    notification.error(error.message || 'Unknown error!');
   }
 
   return next(action);

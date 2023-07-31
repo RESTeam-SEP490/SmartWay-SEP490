@@ -1,12 +1,15 @@
 import { Button, Form, Input, Modal, Typography } from 'antd';
 import { currencyFormatter } from 'app/app.constant';
-import { useAppSelector } from 'app/config/store';
+import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { SubmitButton } from 'app/shared/layout/form-shared-component';
-import { IOrderDetail } from 'app/shared/model/order-detail.model';
+import { IOrderDetail } from 'app/shared/model/order/order-detail.model';
 import React, { useEffect } from 'react';
 import { Translate, translate } from 'react-jhipster';
+import { addNote } from '../order.reducer';
 
 export const AddNoteForm = ({ detail, isOpen, handleClose }: { detail: IOrderDetail; isOpen: boolean; handleClose: any }) => {
+  const dispatch = useAppDispatch();
+
   const [form] = Form.useForm();
   const updating = useAppSelector(state => state.order.updating);
   const updateSuccess = useAppSelector(state => state.order.updateSuccess);
@@ -17,8 +20,12 @@ export const AddNoteForm = ({ detail, isOpen, handleClose }: { detail: IOrderDet
     }
   }, [updateSuccess]);
 
-  const handleSubmit = () => {
-    return true;
+  useEffect(() => {
+    form.setFieldValue('note', detail?.note);
+  }, [detail]);
+
+  const handleSubmit = values => {
+    dispatch(addNote({ orderDetailId: detail.id, note: values.note }));
   };
 
   return (
@@ -31,7 +38,7 @@ export const AddNoteForm = ({ detail, isOpen, handleClose }: { detail: IOrderDet
       footer={[]}
       onCancel={handleClose}
     >
-      <Form>
+      <Form onFinish={handleSubmit}>
         <div className="flex items-center justify-between p-2 px-4 mt-4 mb-2 bg-gray-100 rounded-md ">
           <Typography.Title level={5} className="!m-0">
             {detail?.menuItem.name}
@@ -42,7 +49,7 @@ export const AddNoteForm = ({ detail, isOpen, handleClose }: { detail: IOrderDet
             <Typography.Text>{detail?.quantity}</Typography.Text>
           </div>
         </div>
-        <Form.Item>
+        <Form.Item name={'note'} initialValue={detail?.note} required>
           <Input.TextArea placeholder={translate('order.form.note.placeholder')} className="!resize-none !h-24" />
         </Form.Item>
         <div className="flex justify-end gap-2">
