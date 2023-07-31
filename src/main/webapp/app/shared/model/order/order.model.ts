@@ -6,6 +6,7 @@ export interface IOrder {
   id?: string;
   code?: string | null;
   isPaid?: boolean | null;
+  createdDate?: string;
   tableList?: IDiningTable[];
   orderDetailList?: IOrderDetail[];
   kitchenNotificationHistoryList?: IKitchenNotificationHistory[];

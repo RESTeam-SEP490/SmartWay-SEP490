@@ -1,6 +1,4 @@
 enum OrderEvent {
-  RequestAllActiveOrder = 'request-all-active-orders',
-  ReceiveAllActiveOrder = 'receive-all-active-orders',
   CreateOrder = 'create-order',
   ReceiveChangedOrder = 'receive-changed-order',
   AddOrderDetail = 'add-order-detail',

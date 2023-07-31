@@ -1,27 +1,18 @@
-import {
-  ClockCircleOutlined,
-  DeleteFilled,
-  FieldTimeOutlined,
-  FileOutlined,
-  HistoryOutlined,
-  MinusOutlined,
-  PlusOutlined,
-  StarFilled,
-} from '@ant-design/icons';
+import { ClockCircleFilled, DeleteFilled, FileOutlined, HistoryOutlined, MinusOutlined, PlusOutlined, StarFilled } from '@ant-design/icons';
 import { Button, Drawer, Image, Spin, Typography } from 'antd';
 import { currencyFormatter } from 'app/app.constant';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
+import { IItemAdditionNotification } from 'app/shared/model/order/item-addition-notfication.model';
 import { IOrderDetail } from 'app/shared/model/order/order-detail.model';
 import { IOrder } from 'app/shared/model/order/order.model';
+import dayjs from 'dayjs';
 import { motion } from 'framer-motion';
 import React, { useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
-import { MdMonetizationOn, MdOutlineFastfood, MdOutlineRamenDining, MdRoomService } from 'react-icons/md';
+import { MdMonetizationOn, MdOutlineFastfood, MdOutlineRamenDining, MdRoomService, MdTableRestaurant } from 'react-icons/md';
 import { Translate, translate } from 'react-jhipster';
 import { orderActions } from '../order.reducer';
 import { AddNoteForm } from './detail-note-modal';
-import { current } from '@reduxjs/toolkit';
-import dayjs from 'dayjs';
 
 export const OrderDetails = () => {
   const dispatch = useAppDispatch();
@@ -54,44 +45,63 @@ export const OrderDetails = () => {
 
   return (
     <>
-      <Drawer title={'History'} closable open={isOpenNotificationHistory} onClose={() => setIsOpenNotificationHistory(false)}>
-        {!currentOrder.id ? (
-          <>
-            {currentOrder.kitchenNotificationHistoryList.map(history => (
-              <div key={history.id}>
-                <div className="flex items-center justify-between">
-                  <div className="flex">
-                    <ClockCircleOutlined rev={''} />
-                    {dayjs(history.notifiedTime).format('HH:mm:ss')}
-                  </div>
+      {currentOrder.id && (
+        <Drawer
+          width={480}
+          title={'History'}
+          closable={true}
+          open={isOpenNotificationHistory}
+          onClose={() => setIsOpenNotificationHistory(false)}
+        >
+          {currentOrder.kitchenNotificationHistoryList.map(history => (
+            <div key={history.id} className="pb-6 mb-2">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex gap-2 font-semibold">
+                  <ClockCircleFilled rev={''} className="text-blue-600" />
+                  {dayjs(history.notifiedTime).format('HH:mm:ss')}
+                </div>
+                <div className="">
+                  {`${'Bởi'} `}
+                  <span className="text-blue-600">{history.createdBy}</span>
                 </div>
               </div>
-            ))}
-          </>
-        ) : (
-          <></>
-        )}
-      </Drawer>
+              {history.itemAdditionNotificationList.map((addition: IItemAdditionNotification) => (
+                <div key={addition.id} className="flex gap-2 p-0.5 pl-2 text-gray-500">
+                  {`+ ${addition.quantity} ${addition.menuItemName}`}
+                  {addition.isPriority && <StarFilled rev={''} />}
+                </div>
+              ))}
+            </div>
+          ))}
+        </Drawer>
+      )}
       <AddNoteForm isOpen={isOpenNoteForm} detail={selectedDetail} handleClose={() => setIsOpenNoteForm(false)} />
       <div className="flex flex-col p-2 h-screen w-[480px] bg-white">
-        <div className="px-4 pt-2">
-          <div className="flex items-center justify-between">
+        <div className="px-4 pt-2 pb-4">
+          <div className="flex items-center justify-between h-10">
             <Typography.Title level={4} className="!mb-1">
               {currentOrder.id ? '#' + currentOrder.code : 'Current order'}
             </Typography.Title>
-            <div className="flex">
-              <Button
-                size="large"
-                type="text"
-                icon={<HistoryOutlined rev="" />}
-                onClick={() => setIsOpenNotificationHistory(true)}
-              ></Button>
-              <Button size="large" danger type="text" icon={<DeleteFilled rev="" />}></Button>
+            {currentOrder.id && (
+              <div className="flex">
+                <Button
+                  size="large"
+                  type="text"
+                  icon={<HistoryOutlined rev="" />}
+                  onClick={() => setIsOpenNotificationHistory(true)}
+                ></Button>
+                <Button size="large" danger type="text" icon={<DeleteFilled rev="" />}></Button>
+              </div>
+            )}
+          </div>
+          <div className="flex">
+            <div className="flex items-center justify-center gap-2 px-3 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg cursor-pointer">
+              <MdTableRestaurant size={20} />
+              <div className="">{`${currentOrder.tableList.map(table => table.name)[0]}${
+                currentOrder.tableList.length > 1 ? ` + ${currentOrder.tableList.length - 1}` : ''
+              }`}</div>
             </div>
           </div>
-          <Typography.Title level={5} className="!mt-0 !mb-3 !text-slate-400">
-            {translate('global.menu.entities.table') + '(' + currentOrder.tableList.map(table => table.name).join(', ') + ')'}
-          </Typography.Title>
         </div>
         <div className="ml-2 mr-2 border-0 border-t border-solid border-slate-200"></div>
         <div className="pl-3 pr-2 grow order-details">
@@ -242,7 +252,7 @@ const OrderDetailCard = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center text-blue-600 w-fit">
             <Button
-              disabled={detail.quantity === 1}
+              disabled={detail.quantity < 1}
               onClick={() => handelAdjustQuantity({ orderDetailId: detail.id, quantityAdjust: -1 })}
               type="primary"
               size="small"

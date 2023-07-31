@@ -9,6 +9,7 @@ import com.resteam.smartway.domain.order.notifications.KitchenNotificationHistor
 import com.resteam.smartway.repository.DiningTableRepository;
 import com.resteam.smartway.repository.MenuItemRepository;
 import com.resteam.smartway.repository.order.ItemAdditionNotificationRepository;
+import com.resteam.smartway.repository.order.KitchenNotificationHistoryRepository;
 import com.resteam.smartway.repository.order.OrderDetailRepository;
 import com.resteam.smartway.repository.order.OrderRepository;
 import com.resteam.smartway.service.dto.order.*;
@@ -31,11 +32,11 @@ public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
-    private final OrderDetailMapper orderDetailMapper;
     private final DiningTableRepository diningTableRepository;
     private final MenuItemRepository menuItemRepository;
     private final OrderDetailRepository orderDetailRepository;
     private final ItemAdditionNotificationRepository itemAdditionNotificationRepository;
+    private final KitchenNotificationHistoryRepository kitchenNotificationHistoryRepository;
 
     private static final String ORDER = "order";
     private static final String TABLE = "table";
@@ -144,6 +145,7 @@ public class OrderServiceImpl implements OrderService {
         OrderDetail orderDetail = new OrderDetail();
         orderDetail.setOrder(order);
         orderDetail.setMenuItem(menuItem);
+        orderDetail.setQuantity(orderDetailDTO.getQuantity());
         orderDetail.setUnnotifiedQuantity(orderDetail.getQuantity());
 
         OrderDetail savedOrderDetail = orderDetailRepository.saveAndFlush(orderDetail);
@@ -156,12 +158,10 @@ public class OrderServiceImpl implements OrderService {
             .findByIdAndIsPaid(orderId, false)
             .orElseThrow(() -> new BadRequestAlertException("Order was not found or paid", TABLE, "idnotfound"));
 
-        Instant notifyTime = Instant.now();
-
         KitchenNotificationHistory kitchenNotificationHistory = new KitchenNotificationHistory();
         kitchenNotificationHistory.setOrder(order);
-        kitchenNotificationHistory.setNotifiedTime(notifyTime);
 
+        List<ItemAdditionNotification> itemAdditionNotificationList = new ArrayList<>();
         List<OrderDetail> orderDetails = order
             .getOrderDetailList()
             .stream()
@@ -175,15 +175,16 @@ public class OrderServiceImpl implements OrderService {
                     notification.setQuantity(detail.getUnnotifiedQuantity());
                     notification.setCompleted(false);
 
-                    itemAdditionNotificationRepository.save(notification);
+                    itemAdditionNotificationList.add(notification);
 
                     detail.setUnnotifiedQuantity(0);
                 }
             })
             .collect(Collectors.toList());
 
-        order.setOrderDetailList(orderDetails);
-
+        kitchenNotificationHistory.setItemAdditionNotificationList(itemAdditionNotificationList);
+        List<KitchenNotificationHistory> kitchenNotificationHistoryList = order.getKitchenNotificationHistoryList();
+        kitchenNotificationHistoryList.add(kitchenNotificationHistory);
         SwOrder savedOrder = orderRepository.saveAndFlush(order);
 
         return orderMapper.toDto(sortOrderDetailsAndNotificationHistories(savedOrder));
@@ -223,4 +224,8 @@ public class OrderServiceImpl implements OrderService {
 
         return orderMapper.toDto(sortOrderDetailsAndNotificationHistories(order));
     }
+    //    @Override
+    //    public List<ItemAdditionNotification> getAllOrderItemInKitchen(){
+    //        kitchenNotificationHistoryRepository
+    //    }
 }

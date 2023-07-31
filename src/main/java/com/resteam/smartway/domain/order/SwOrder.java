@@ -29,13 +29,13 @@ public class SwOrder extends AbstractBaseAuditingEntity<UUID> {
     @Column(length = 8)
     private String code;
 
-    @Column(name = "is_paid")
+    @Column(name = "is_paid", nullable = false)
     private boolean isPaid;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderDetail> orderDetailList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "order")
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<KitchenNotificationHistory> kitchenNotificationHistoryList = new ArrayList<>();
 
     @ManyToMany

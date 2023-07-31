@@ -1,7 +1,6 @@
 package com.resteam.smartway.domain.order.notifications;
 
 import com.resteam.smartway.domain.base.AbstractBaseEntity;
-import com.resteam.smartway.domain.order.OrderDetail;
 import com.resteam.smartway.domain.order.SwOrder;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -42,7 +41,7 @@ public class KitchenNotificationHistory extends AbstractBaseEntity {
     @Column(name = "created_by", nullable = false, length = 50, updatable = false)
     private String createdBy;
 
-    @OneToMany(mappedBy = "kitchenNotificationHistory")
+    @OneToMany(mappedBy = "kitchenNotificationHistory", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemAdditionNotification> itemAdditionNotificationList = new ArrayList<>();
 
     @OneToMany(mappedBy = "kitchenNotificationHistory")

@@ -9,4 +9,5 @@ public class OrderDetailAdditionDTO {
 
     private UUID orderId;
     private MenuItemDTO menuItem;
+    private int quantity;
 }

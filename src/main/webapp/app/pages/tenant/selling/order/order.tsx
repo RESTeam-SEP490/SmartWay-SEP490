@@ -1,10 +1,8 @@
-import { Button, Menu, Tabs, TabsProps } from 'antd';
-import { useAppDispatch, useAppSelector } from 'app/config/store';
-import { BrandIcon } from 'app/shared/layout/header/header-components';
-import { IOrder, defaultValue } from 'app/shared/model/order/order.model';
-import React, { useEffect, useState } from 'react';
-import { MdFastfood, MdOutlineDisplaySettings, MdOutlineTune, MdTableRestaurant } from 'react-icons/md';
-import { Storage, Translate } from 'react-jhipster';
+import { Tabs, TabsProps } from 'antd';
+import { useAppDispatch } from 'app/config/store';
+import React, { useEffect } from 'react';
+import { MdFastfood, MdTableRestaurant } from 'react-icons/md';
+import { Translate } from 'react-jhipster';
 import { DEFAULT_PAGEABLE } from '../../../../app.constant';
 import { getEntities as getTables, setPageable as setTablePageable } from '../../management/dining-table/dining-table.reducer';
 import { getEntities as getCategories } from '../../management/menu-item-category/menu-item-category.reducer';

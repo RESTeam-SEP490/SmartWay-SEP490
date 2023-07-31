@@ -5,9 +5,6 @@
             <column name="id" type="BINARY(16)">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="item_addition_notificationPK"/>
             </column>
-            <column name="created_by" type="VARCHAR(50)">
-                <constraints nullable="false"/>
-            </column>
             <column name="is_completed" type="BIT">
                 <constraints nullable="false"/>
             </column>
