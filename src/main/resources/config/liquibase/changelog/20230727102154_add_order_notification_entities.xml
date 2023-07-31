@@ -1,0 +1,125 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1690453328717-1">
+        <createTable tableName="item_addition_notification">
+            <column name="id" type="BINARY(16)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="item_addition_notificationPK"/>
+            </column>
+            <column name="is_completed" type="BIT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_priority" type="BIT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="note" type="VARCHAR(255)"/>
+            <column name="quantity" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="restaurant_id" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="kitchen_notification_history_id" type="BINARY(16)"/>
+            <column name="order_detail_id" type="BINARY(16)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1690453328717-2">
+        <createTable tableName="item_cancellation_notification">
+            <column name="id" type="BINARY(16)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="item_cancellation_notificationPK"/>
+            </column>
+            <column name="quantity" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="restaurant_id" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="item_addition_notification_id" type="BINARY(16)"/>
+            <column name="kitchen_notification_history_id" type="BINARY(16)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1690453328717-3">
+        <createTable tableName="kitchen_notification_history">
+            <column name="id" type="BINARY(16)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="kitchen_notification_historyPK"/>
+            </column>
+            <column name="created_by" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="notified_time" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="restaurant_id" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="order_id" type="BINARY(16)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1690453328717-4">
+        <createTable tableName="ready_to_serve_notification">
+            <column name="id" type="BINARY(16)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="ready_to_serve_notificationPK"/>
+            </column>
+            <column name="is_completed" type="BIT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="quantity" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="restaurant_id" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="item_addition_notification_id" type="BINARY(16)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1690453328717-5">
+        <addColumn tableName="order_detail">
+            <column name="restaurant_id" type="varchar(30)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1690453328717-6">
+        <addColumn tableName="order_detail">
+            <column name="unnotified_quantity" type="integer"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1690453328717-7">
+        <addForeignKeyConstraint baseColumnNames="restaurant_id" baseTableName="order_detail" constraintName="FK1jeav0q1esiqjn0drtvv2xag6" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="restaurant" validate="true"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1690453328717-8">
+        <addForeignKeyConstraint baseColumnNames="item_addition_notification_id" baseTableName="ready_to_serve_notification" constraintName="FK2ds5khgbnwvir0e6ldnmvop4j" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="item_addition_notification" validate="true"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1690453328717-9">
+        <addForeignKeyConstraint baseColumnNames="restaurant_id" baseTableName="item_addition_notification" constraintName="FK5lu1yyfu11980u3n5630lui45" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="restaurant" validate="true"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1690453328717-10">
+        <addForeignKeyConstraint baseColumnNames="kitchen_notification_history_id" baseTableName="item_cancellation_notification" constraintName="FK8eoqwref80hxpy0iunha11wbf" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="kitchen_notification_history" validate="true"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1690453328717-11">
+        <addForeignKeyConstraint baseColumnNames="kitchen_notification_history_id" baseTableName="item_addition_notification" constraintName="FKbbtibe8bc3kxvtsb3iftanbko" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="kitchen_notification_history" validate="true"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1690453328717-12">
+        <addForeignKeyConstraint baseColumnNames="restaurant_id" baseTableName="item_cancellation_notification" constraintName="FKevs2et4u94t9j6kr1wrhhryt4" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="restaurant" validate="true"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1690453328717-13">
+        <addForeignKeyConstraint baseColumnNames="order_id" baseTableName="kitchen_notification_history" constraintName="FKg1fw6c18x29b66i6tkawxeqdq" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="sw_order" validate="true"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1690453328717-14">
+        <addForeignKeyConstraint baseColumnNames="restaurant_id" baseTableName="ready_to_serve_notification" constraintName="FKhbyvg6tr4pgn6xlrrnxpe4chh" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="restaurant" validate="true"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1690453328717-15">
+        <addForeignKeyConstraint baseColumnNames="restaurant_id" baseTableName="kitchen_notification_history" constraintName="FKlxw4bsi1lyt0eo7gj050h6a2d" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="restaurant" validate="true"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1690453328717-16">
+        <addForeignKeyConstraint baseColumnNames="item_addition_notification_id" baseTableName="item_cancellation_notification" constraintName="FKp3ttjo7w21bx19kwlxgimgwiq" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="item_addition_notification" validate="true"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1690453328717-17">
+        <addForeignKeyConstraint baseColumnNames="order_detail_id" baseTableName="item_addition_notification" constraintName="FKt4p49l0y8k9lbjjdmmerwjp7a" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="order_detail" validate="true"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1690453328717-20">
+        <dropColumn columnName="is_cooked" tableName="order_detail"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1690453328717-21">
+        <dropColumn columnName="notified_time" tableName="order_detail"/>
+    </changeSet>
+</databaseChangeLog>

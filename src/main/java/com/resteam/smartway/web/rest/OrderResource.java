@@ -1,13 +1,18 @@
 package com.resteam.smartway.web.rest;
 
-import com.resteam.smartway.service.SwOrderService;
+import com.resteam.smartway.domain.order.SwOrder;
+import com.resteam.smartway.service.OrderDetailService;
+import com.resteam.smartway.service.OrderService;
 import com.resteam.smartway.service.dto.order.DetailAddNoteDTO;
 import com.resteam.smartway.service.dto.order.OrderCreationDTO;
+import com.resteam.smartway.service.dto.order.OrderDTO;
 import com.resteam.smartway.service.dto.order.OrderDetailDTO;
-import com.resteam.smartway.service.dto.order.SwOrderDTO;
+import com.resteam.smartway.service.dto.order.notification.ItemAdditionNotificationDTO;
+import com.resteam.smartway.service.dto.order.notification.OrderDetailPriorityDTO;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
 import java.util.List;
 import java.util.UUID;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -24,59 +29,51 @@ public class OrderResource {
 
     private static final String ENTITY_NAME = "order";
 
-    private final SwOrderService swOrderService;
+    private final OrderService orderService;
 
     @PostMapping
-    public ResponseEntity<SwOrderDTO> createOrder(@RequestBody OrderCreationDTO orderDTO) {
-        SwOrderDTO createdOrder = swOrderService.createOrder(orderDTO);
+    public ResponseEntity<OrderDTO> createOrder(@RequestBody OrderCreationDTO orderDTO) {
+        OrderDTO createdOrder = orderService.createOrder(orderDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
     }
 
-    //    @PostMapping("/add-item")
-    //    public ResponseEntity<OrderDetailDTO> addItemToOrder(@RequestBody OrderDetailDTO orderDetailDTO) {
-    //        OrderDetailDTO updatedOrderDetail = swOrderService.addItemToOrder(orderDetailDTO);
-    //        return ResponseEntity.ok(updatedOrderDetail);
-    //    }
-
-    @GetMapping("/{orderId}")
-    public ResponseEntity<SwOrderDTO> getOrderById(@PathVariable UUID orderId) {
-        SwOrderDTO order = swOrderService.getOrderById(orderId);
-        return ResponseEntity.ok(order);
-    }
-
-    @PutMapping("/{orderId}")
-    public ResponseEntity<SwOrderDTO> updateOrder(@PathVariable UUID orderId, @RequestBody SwOrderDTO swOrderDTO) {
-        SwOrderDTO updatedOrder = swOrderService.updateOrder(orderId, swOrderDTO);
-        return ResponseEntity.ok(updatedOrder);
-    }
-
-    @DeleteMapping("/{orderId}")
-    public ResponseEntity<Void> deleteOrder(@PathVariable UUID orderId) {
-        swOrderService.deleteOrder(orderId);
-        return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/kitchen")
-    public ResponseEntity<List<OrderDetailDTO>> getOrderDetailsForKitchen() {
-        List<OrderDetailDTO> orderDetails = swOrderService.getUncookedOrderDetailsForKitchen();
-        return new ResponseEntity<>(orderDetails, HttpStatus.OK);
-    }
-
-    @GetMapping("/table/{tableId}")
-    public ResponseEntity<List<OrderDetailDTO>> getOrderDetailsForTable(@PathVariable UUID tableId) {
-        List<OrderDetailDTO> orderDetails = swOrderService.getOrderDetailsForTable(tableId);
-        return new ResponseEntity<>(orderDetails, HttpStatus.OK);
-    }
-
-    @GetMapping("/not-paid")
-    public ResponseEntity<List<SwOrderDTO>> loadListOrderNotPaid() {
-        List<SwOrderDTO> notPaidOrders = swOrderService.getAllIsPaidFalseOrder();
+    @GetMapping("/active-orders")
+    public ResponseEntity<List<OrderDTO>> getAllActiveOrders() {
+        List<OrderDTO> notPaidOrders = orderService.getAllActiveOrders();
         return ResponseEntity.ok(notPaidOrders);
     }
 
+    @GetMapping("/uncompleted-orders")
+    public ResponseEntity<List<ItemAdditionNotificationDTO>> getAllUncompletedOrder() {
+        return ResponseEntity.ok(orderService.getAllOrderItemInKitchen());
+    }
+
     @PutMapping("/add-note")
-    public ResponseEntity<OrderDetailDTO> addNote(@RequestBody DetailAddNoteDTO detailAddNoteDTO) {
-        OrderDetailDTO updatedOrderDetail = swOrderService.addNote(detailAddNoteDTO);
-        return ResponseEntity.ok(updatedOrderDetail);
+    public ResponseEntity<OrderDTO> addNoteToOrderDetail(@RequestBody DetailAddNoteDTO dto) {
+        OrderDTO updatedOrder = orderService.addNoteToOrderDetail(dto);
+        return ResponseEntity.ok(updatedOrder);
+    }
+
+    @PostMapping("/{orderId}/group-tables")
+    public ResponseEntity<Void> groupTables(@PathVariable UUID orderId, @RequestBody List<String> tableIds) {
+        OrderDTO orderDTO = orderService.findById(orderId);
+        orderService.groupTables(orderDTO, tableIds);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{orderId}/ungroup-tables")
+    public ResponseEntity<Void> ungroupTables(@PathVariable UUID orderId, @RequestBody List<String> tableIds) {
+        OrderDTO orderDTO = orderService.findById(orderId);
+        orderService.ungroupTables(orderId, tableIds);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{orderId}/change-priority")
+    public ResponseEntity<OrderDTO> changePriority(@PathVariable UUID orderId, @RequestBody OrderDetailPriorityDTO orderDetailPriorityDTO) {
+        orderDetailPriorityDTO.setOrderId(orderId);
+        OrderDTO updatedOrder = orderService.changePriority(orderDetailPriorityDTO);
+        return ResponseEntity.ok(updatedOrder);
     }
 }

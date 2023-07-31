@@ -90,11 +90,11 @@ export const DiningTableSlice = createEntitySlice({
     setPageable(state, action) {
       state.pageable = action.payload;
     },
-    websocketUpdateTable(state, action) {
-      const toUpdateTable = action.payload.table;
+    receiveChangedTable(state, action) {
+      const toUpdateTableList = action.payload;
       const nextTableList = state.entities.map(table => {
-        if (table.id === toUpdateTable.id) return toUpdateTable;
-        return table;
+        const toUpdateTable = toUpdateTableList.find(t => t.id === table.id);
+        return toUpdateTable ? toUpdateTable : table;
       });
       state.entities = nextTableList;
     },
@@ -140,7 +140,7 @@ export const DiningTableSlice = createEntitySlice({
   },
 });
 
-export const { reset, setPageable, websocketUpdateTable } = DiningTableSlice.actions;
+export const { reset, setPageable, receiveChangedTable } = DiningTableSlice.actions;
 
 // Reducer
 export default DiningTableSlice.reducer;

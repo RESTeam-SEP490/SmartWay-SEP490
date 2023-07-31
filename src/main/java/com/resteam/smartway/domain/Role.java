@@ -1,6 +1,7 @@
 package com.resteam.smartway.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.resteam.smartway.domain.base.AbstractBaseAuditingEntity;
 import java.util.Collection;
 import java.util.UUID;
 import javax.persistence.*;

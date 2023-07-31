@@ -4,7 +4,6 @@ import { Button, Image, Typography } from 'antd';
 import { useAppSelector } from 'app/config/store';
 import { Translate } from 'react-jhipster';
 import { Link } from 'react-router-dom';
-import { connectOrderWebSocket } from 'app/pages/tenant/selling/order/order.websocket';
 
 export const Home = () => {
   return (

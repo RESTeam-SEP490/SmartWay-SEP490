@@ -1,9 +1,14 @@
 package com.resteam.smartway.service;
 
-import com.resteam.smartway.domain.OrderDetail;
-import com.resteam.smartway.repository.OrderDetailRepository;
+import com.resteam.smartway.domain.MenuItem;
+import com.resteam.smartway.domain.order.OrderDetail;
+import com.resteam.smartway.domain.order.SwOrder;
+import com.resteam.smartway.repository.MenuItemRepository;
+import com.resteam.smartway.repository.order.OrderDetailRepository;
+import com.resteam.smartway.repository.order.OrderRepository;
+import com.resteam.smartway.service.dto.order.DetailAddNoteDTO;
 import com.resteam.smartway.service.dto.order.OrderDetailDTO;
-import com.resteam.smartway.service.mapper.OrderDetailMapper;
+import com.resteam.smartway.service.mapper.order.OrderDetailMapper;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
 import java.util.List;
 import java.util.UUID;
@@ -20,42 +25,27 @@ public class OrderDetailServiceImpl implements OrderDetailService {
 
     private final OrderDetailRepository orderDetailRepository;
     private final OrderDetailMapper orderDetailMapper;
+    private final OrderRepository orderRepository;
+    private final MenuItemRepository menuItemRepository;
     private static final String ENTITY_NAME = "orderDetail";
+    private static final String MENUITEM = "menuItem";
+    private static final String ORDER = "order";
 
     @Override
-    public OrderDetailDTO getOrderDetailById(UUID orderDetailId) {
+    public OrderDetailDTO addNote(DetailAddNoteDTO detailAddNoteDTO) {
         OrderDetail orderDetail = orderDetailRepository
-            .findById(orderDetailId)
-            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
-        return orderDetailMapper.toDto(orderDetail);
-    }
+            .findById(detailAddNoteDTO.getOrderDetailId())
+            .orElseThrow(() -> new BadRequestAlertException("Order detail not found", ENTITY_NAME, "idnotfound"));
 
-    //    private String generateCode() {
-    //        Optional<OrderDetail> lastOrderDetail = orderDetailRepository.findTopByOrderByCodeDesc();
-    //
-    //        if (lastOrderDetail.isEmpty()) return "ODe000001"; else {
-    //            String lastCode = lastOrderDetail.get().getCode();
-    //            int nextCodeInt = Integer.parseInt(lastCode.substring(2)) + 1;
-    //            if (nextCodeInt > 999999) throw new IllegalStateException("Maximum Code reached");
-    //            return String.format("OD%06d", nextCodeInt);
-    //        }
-    //    }
+        orderDetail.setNote(detailAddNoteDTO.getNote());
+        OrderDetail updatedOrderDetail = orderDetailRepository.save(orderDetail);
+        return orderDetailMapper.toDto(updatedOrderDetail);
+    }
 
     @Override
     public List<OrderDetailDTO> getAllOrderDetails() {
         List<OrderDetail> orderDetails = orderDetailRepository.findAll();
         return orderDetailMapper.toDto(orderDetails);
-    }
-
-    @Override
-    public void createOrderDetail(OrderDetailDTO orderDetailDTO) {
-        OrderDetail orderDetail = orderDetailMapper.toEntity(orderDetailDTO);
-        orderDetailRepository.save(orderDetail);
-    }
-
-    @Override
-    public void updateOrderDetail(OrderDetailDTO orderDetailDTO) {
-        return;
     }
 
     @Override
