@@ -18,6 +18,7 @@ import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
 import com.resteam.smartway.web.rest.errors.SubdomainAlreadyUsedException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -93,6 +94,9 @@ public class UserServiceImpl implements UserService {
             });
 
         Restaurant restaurant = new Restaurant(tenantRegistrationDTO.getRestaurantId());
+        Instant instant = Instant.now();
+        instant.plus(30, ChronoUnit.DAYS);
+        restaurant.setPlanExpiry(instant);
         Restaurant savedRestaurant = restaurantRepository.save(restaurant);
         RestaurantContext.setCurrentRestaurant(savedRestaurant);
         createRole(tenantRegistrationDTO.getLangKey());
@@ -245,5 +249,10 @@ public class UserServiceImpl implements UserService {
                 user.setLangKey(langKey);
                 log.debug("Changed Information for User: {}", user);
             });
+    }
+
+    @Override
+    public User findUserByRestaurantId(String id) {
+        return userRepository.findUserByRestaurantId(id);
     }
 }

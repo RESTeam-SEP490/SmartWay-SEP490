@@ -3,6 +3,7 @@ package com.resteam.smartway.repository;
 import com.resteam.smartway.domain.Restaurant;
 import com.resteam.smartway.domain.Role;
 import com.resteam.smartway.domain.User;
+import com.resteam.smartway.security.multitenancy.annotation.DisableRestaurantFilter;
 import com.resteam.smartway.security.multitenancy.repository.BaseRepository;
 import java.util.List;
 import java.util.Optional;
@@ -16,6 +17,9 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserRepository extends BaseRepository<User> {
+    @DisableRestaurantFilter
+    User findUserByRestaurantId(String id);
+
     Boolean existsByUsernameAndRestaurant(String username, Restaurant restaurant);
 
     Optional<User> findOneByResetKey(String resetKey);

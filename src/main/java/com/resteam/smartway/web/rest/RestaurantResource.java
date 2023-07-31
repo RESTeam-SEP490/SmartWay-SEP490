@@ -2,18 +2,18 @@ package com.resteam.smartway.web.rest;
 
 import com.resteam.smartway.domain.Restaurant;
 import com.resteam.smartway.repository.RestaurantRepository;
+import com.resteam.smartway.service.RestaurantService;
+import com.resteam.smartway.service.dto.RestaurantDTO;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import tech.jhipster.web.util.HeaderUtil;
@@ -27,6 +27,8 @@ import tech.jhipster.web.util.ResponseUtil;
 @Transactional
 public class RestaurantResource {
 
+    private final RestaurantService restaurantService;
+
     private final Logger log = LoggerFactory.getLogger(RestaurantResource.class);
 
     private static final String ENTITY_NAME = "restaurant";
@@ -36,7 +38,8 @@ public class RestaurantResource {
 
     private final RestaurantRepository restaurantRepository;
 
-    public RestaurantResource(RestaurantRepository restaurantRepository) {
+    public RestaurantResource(RestaurantService restaurantService, RestaurantRepository restaurantRepository) {
+        this.restaurantService = restaurantService;
         this.restaurantRepository = restaurantRepository;
     }
 
@@ -177,5 +180,11 @@ public class RestaurantResource {
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    @GetMapping("/manage-restaurants")
+    public ResponseEntity<List<RestaurantDTO>> getListRestaurants() {
+        List<RestaurantDTO> restaurantDTOs = restaurantService.getAllRestaurantDTOs();
+        return ResponseEntity.ok(restaurantDTOs);
     }
 }

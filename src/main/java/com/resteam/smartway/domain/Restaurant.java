@@ -1,6 +1,7 @@
 package com.resteam.smartway.domain;
 
 import java.io.Serializable;
+import java.time.Instant;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -26,6 +27,9 @@ public class Restaurant implements Serializable {
 
     @Column(name = "name")
     private String name;
+
+    @Column(name = "plan_expiry")
+    private Instant planExpiry;
 
     public Restaurant(String id) {
         this.id = id;

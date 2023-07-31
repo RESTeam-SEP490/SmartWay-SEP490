@@ -1,6 +1,7 @@
 package com.resteam.smartway.service;
 
 import com.resteam.smartway.domain.User;
+import com.resteam.smartway.security.multitenancy.annotation.DisableRestaurantFilter;
 import com.resteam.smartway.service.dto.StaffDTO;
 import com.resteam.smartway.service.dto.TenantRegistrationDTO;
 import java.util.List;
@@ -30,4 +31,6 @@ public interface UserService {
     void deleteStaff(List<String> ids);
 
     void updateUser(String fullName, String email, String langKey);
+
+    User findUserByRestaurantId(String id);
 }
