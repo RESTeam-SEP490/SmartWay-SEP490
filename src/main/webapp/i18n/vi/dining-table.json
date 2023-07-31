@@ -35,6 +35,7 @@
     "upload": "Tải lên",
     "seatInvalid": "Số bàn phải là kiểu số",
     "seatIntegerInvalid": "Số bàn không được là số thập phân",
+    "uploadSuccess": "Tải lên thành công",
     "action": {
       "delete.question": "Xoá dữ liệu của bàn <b>{{ name }}</b>?",
       "allowSell": "Cho phép hoạt động",

@@ -231,7 +231,7 @@ export const DiningTable = () => {
         const response = await axios.post('/api/dining_tables/import-table', formData);
         setIsPopupVisible(false);
         setTimeout(() => {
-          message.success('Upload successful');
+          message.success(translate('diningTable.uploadSuccess'));
         }, 2000);
         refreshMenuItems();
         resetUpload();

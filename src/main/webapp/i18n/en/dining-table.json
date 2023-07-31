@@ -28,6 +28,7 @@
     "fileInvalidName": "Please select file name is Table.xlsx",
     "sheetInvalidName": "Invalid",
     "titleModalUpload": "Import Table from Data File. Process Data (Download Sample File: ",
+    "uploadSuccess": "Upload Success",
     "excelFile": "Excel File",
     "note": "Note",
     "dataValid": "The Table only allows import data type valid",
