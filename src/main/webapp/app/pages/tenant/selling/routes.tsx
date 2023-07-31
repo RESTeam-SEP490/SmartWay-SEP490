@@ -17,6 +17,7 @@ import {
   MdOutlineTune,
   MdRestaurant,
 } from 'react-icons/md';
+import Kitchen from './kitchen/kitchen';
 
 export default () => {
   const location = useLocation();
@@ -27,8 +28,9 @@ export default () => {
     Storage.local.set('isCollapse', !isCollapse);
     setIsCollapse(!isCollapse);
   };
+
   return (
-    <div className="bg-gray-100 grow">
+    <div className="h-screen bg-gray-100 grow">
       <div className="flex h-full">
         <div
           className={` bg-blue-600 flex flex-col pt-2 justify-between transition-all duration-300 ease-in-collapse ${
@@ -47,11 +49,13 @@ export default () => {
               inlineCollapsed={isCollapse}
             >
               <Menu.Item icon={<MdOutlineRoomService size={24} />} key={'/pos/orders'}>
-                <Translate contentKey="menu.staff.submenu.staffs" />
+                {/* <Translate contentKey="menu.staff.submenu.staffs" /> */}
+                Gọi món
                 <Link to="/pos/orders" />
               </Menu.Item>
               <Menu.Item icon={<MdOutlineRestaurantMenu size={24} />} key={'/pos/kitchen'}>
-                <Translate contentKey="menu.staff.submenu.staffs" />
+                Bếp
+                {/* <Translate contentKey="menu.staff.submenu.staffs" /> */}
                 <Link to="/pos/kitchen" />
               </Menu.Item>
             </Menu>
@@ -70,10 +74,10 @@ export default () => {
             </div>
           </div>
         </div>{' '}
-        <div className="grow">
+        <div className="bg-blue-600 grow">
           <ErrorBoundaryRoutes>
             <Route path="orders" element={<OrderScreen />} />
-            <Route path="kitchen" element={<OrderScreen />} />
+            <Route path="kitchen" element={<Kitchen />} />
             {/* <Route path="*" element={<PageNotFound />} /> */}
           </ErrorBoundaryRoutes>
         </div>

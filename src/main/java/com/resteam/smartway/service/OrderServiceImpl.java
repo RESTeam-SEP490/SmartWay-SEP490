@@ -9,12 +9,13 @@ import com.resteam.smartway.domain.order.notifications.KitchenNotificationHistor
 import com.resteam.smartway.repository.DiningTableRepository;
 import com.resteam.smartway.repository.MenuItemRepository;
 import com.resteam.smartway.repository.order.ItemAdditionNotificationRepository;
-import com.resteam.smartway.repository.order.KitchenNotificationHistoryRepository;
 import com.resteam.smartway.repository.order.OrderDetailRepository;
 import com.resteam.smartway.repository.order.OrderRepository;
 import com.resteam.smartway.service.dto.order.*;
+import com.resteam.smartway.service.dto.order.notification.ItemAdditionNotificationDTO;
 import com.resteam.smartway.service.dto.order.notification.OrderDetailPriorityDTO;
 import com.resteam.smartway.service.mapper.order.OrderMapper;
+import com.resteam.smartway.service.mapper.order.notification.ItemAdditionNotificationMapper;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -35,7 +36,7 @@ public class OrderServiceImpl implements OrderService {
     private final MenuItemRepository menuItemRepository;
     private final OrderDetailRepository orderDetailRepository;
     private final ItemAdditionNotificationRepository itemAdditionNotificationRepository;
-    private final KitchenNotificationHistoryRepository kitchenNotificationHistoryRepository;
+    private final ItemAdditionNotificationMapper itemAdditionNotificationMapper;
 
     private static final String ORDER = "order";
     private static final String TABLE = "table";
@@ -260,6 +261,11 @@ public class OrderServiceImpl implements OrderService {
         order.getOrderDetailList().removeIf(detail -> detail.getId().equals(orderDetail.getId()));
 
         return orderMapper.toDto(sortOrderDetailsAndNotificationHistories(order));
+    }
+
+    @Override
+    public List<ItemAdditionNotificationDTO> getAllOrderItemInKitchen() {
+        return itemAdditionNotificationMapper.toDto(itemAdditionNotificationRepository.findByIsCompleted(false));
     }
 
     public OrderDTO changePriority(OrderDetailPriorityDTO orderDetailDTO) {

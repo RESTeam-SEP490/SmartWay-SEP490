@@ -11,4 +11,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ItemAdditionNotificationRepository extends BaseRepository<ItemAdditionNotification> {}
+public interface ItemAdditionNotificationRepository extends BaseRepository<ItemAdditionNotification> {
+    List<ItemAdditionNotification> findByIsCompleted(boolean isCompleted);
+}

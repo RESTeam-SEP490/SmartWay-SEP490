@@ -7,7 +7,7 @@ import { IOrderDetail } from 'app/shared/model/order/order-detail.model';
 import { IOrder } from 'app/shared/model/order/order.model';
 import dayjs from 'dayjs';
 import { motion } from 'framer-motion';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { MdMonetizationOn, MdOutlineFastfood, MdOutlineRamenDining, MdRoomService, MdTableRestaurant } from 'react-icons/md';
 import { Translate, translate } from 'react-jhipster';
@@ -17,10 +17,9 @@ import { AddNoteForm } from './detail-note-modal';
 export const OrderDetails = () => {
   const dispatch = useAppDispatch();
 
-  const currentTab = useAppSelector(state => state.order.currentTab);
   const loading = useAppSelector(state => state.order.loading);
   const currentOrder: IOrder = useAppSelector(state => state.order.currentOrder);
-  const isDisableNotifyButton = currentOrder.orderDetailList.every((detail: IOrderDetail) => detail.unnotifiedQuantity === 0);
+  const isDisableNotifyButton = currentOrder?.orderDetailList.every((detail: IOrderDetail) => detail.unnotifiedQuantity === 0);
 
   const [isOpenNoteForm, setIsOpenNoteForm] = useState(false);
   const [isOpenNotificationHistory, setIsOpenNotificationHistory] = useState(false);
@@ -68,7 +67,7 @@ export const OrderDetails = () => {
               {history.itemAdditionNotificationList.map((addition: IItemAdditionNotification) => (
                 <div key={addition.id} className="flex gap-2 p-0.5 pl-2 text-gray-500">
                   {`+ ${addition.quantity} ${addition.menuItemName}`}
-                  {addition.isPriority && <StarFilled rev={''} />}
+                  {addition.priority && <StarFilled rev={''} />}
                 </div>
               ))}
             </div>
@@ -135,31 +134,7 @@ export const OrderDetails = () => {
             </div>
           )}
         </div>
-        <div className="p-2 pl-8 pr-10 -mx-2 bg-green-100 border-0 border-t border-solid border-slate-200">
-          {currentTab === 'ordering-tab' ? (
-            <div className="flex items-center justify-between">
-              <Typography.Text className="!m-0 !text-gray-400">
-                <Translate contentKey="order.orderDetails.ordering.total" />
-              </Typography.Text>
-              <Typography.Title level={5} className="font-semibold !m-0">
-                {currencyFormatter(
-                  currentOrder.orderDetailList.map(detail => detail.quantity * detail.menuItem.sellPrice).reduce((a, b) => a + b, 0)
-                )}
-              </Typography.Title>
-            </div>
-          ) : (
-            <div className="flex items-center justify-between">
-              <Typography.Text className="!m-0 !text-gray-400">
-                <Translate contentKey="order.orderDetails.ordered.total" />
-              </Typography.Text>
-              <Typography.Title level={5} className="font-semibold !m-0">
-                {currencyFormatter(
-                  currentOrder.orderDetailList.map(detail => detail.quantity * detail.menuItem.sellPrice).reduce((a, b) => a + b, 0)
-                )}
-              </Typography.Title>
-            </div>
-          )}
-        </div>
+
         <div className="flex flex-col p-4 pb-0 ml-2 mr-4">
           <div className="flex items-center justify-between">
             <Typography.Text>
@@ -221,7 +196,7 @@ const OrderDetailCard = ({
       exit={{ opacity: 0, x: -20 }}
       className="flex items-center w-full h-24 p-2 text-blue-600 bg-white border !border-transparent border-solid rounded-lg hover:!border-blue-200 hover:shadow-md"
     >
-      <div className="relative flex items-center justify-center h-full overflow-hidden bg-blue-100 rounded-md aspect-square">
+      <div className="relative flex items-center justify-center h-full overflow-hidden bg-blue-100 rounded-md !aspect-square">
         {detail.menuItem.imageUrl ? (
           <>
             <Image preview={false} src={detail.menuItem.imageUrl} className="w-full h-full overflow-hidden none-draggable" />
@@ -238,16 +213,17 @@ const OrderDetailCard = ({
         />
       </div>
       <div className="flex flex-col justify-between h-full px-4 grow">
-        <Typography.Text className="w-full font-semibold text" ellipsis={{ tooltip: detail.menuItem.name }}>
+        <Typography.Text className="w-64 font-semibold text" ellipsis={{ tooltip: detail.menuItem.name }}>
           {index + '. ' + detail.menuItem.name}
         </Typography.Text>
         <Button
           onClick={onAddNote}
+          disabled={detail.quantity !== detail.unnotifiedQuantity}
           type="text"
           className="!p-0 py-1 !w-full !h-6 text-left !text-xs hover:!bg-transparent text-gray-400"
           icon={<FileOutlined rev={''} />}
         >
-          {detail.note ? detail.note : 'Nhập ghi chú...'}
+          {detail.note ? detail.note : detail.quantity !== detail.unnotifiedQuantity ? 'Không có ghi chú' : 'Nhập ghi chú...'}
         </Button>
         <div className="flex items-center justify-between">
           <div className="flex items-center text-blue-600 w-fit">

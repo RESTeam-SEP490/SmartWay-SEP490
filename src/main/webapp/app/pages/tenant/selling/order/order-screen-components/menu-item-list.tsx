@@ -42,10 +42,12 @@ export const MenuItemList = () => {
           })
         );
       } else {
-        orderActions.addOrderDetail({
-          menuItem: selectedItem,
-          quantity: 1,
-        });
+        dispatch(
+          orderActions.addOrderDetail({
+            menuItem: selectedItem,
+            quantity: 1,
+          })
+        );
       }
     }
   };

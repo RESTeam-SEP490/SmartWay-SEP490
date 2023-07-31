@@ -7,6 +7,7 @@ import com.resteam.smartway.service.dto.order.DetailAddNoteDTO;
 import com.resteam.smartway.service.dto.order.OrderCreationDTO;
 import com.resteam.smartway.service.dto.order.OrderDTO;
 import com.resteam.smartway.service.dto.order.OrderDetailDTO;
+import com.resteam.smartway.service.dto.order.notification.ItemAdditionNotificationDTO;
 import com.resteam.smartway.service.dto.order.notification.OrderDetailPriorityDTO;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
 import java.util.List;
@@ -36,22 +37,21 @@ public class OrderResource {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
     }
 
-    @GetMapping("/active")
+    @GetMapping("/active-orders")
     public ResponseEntity<List<OrderDTO>> getAllActiveOrders() {
         List<OrderDTO> notPaidOrders = orderService.getAllActiveOrders();
         return ResponseEntity.ok(notPaidOrders);
     }
 
-    @PostMapping("/add-note")
+    @GetMapping("/uncompleted-orders")
+    public ResponseEntity<List<ItemAdditionNotificationDTO>> getAllUncompletedOrder() {
+        return ResponseEntity.ok(orderService.getAllOrderItemInKitchen());
+    }
+
+    @PutMapping("/add-note")
     public ResponseEntity<OrderDTO> addNoteToOrderDetail(@RequestBody DetailAddNoteDTO dto) {
-        try {
-            OrderDTO updatedOrder = orderService.addNoteToOrderDetail(dto);
-            return ResponseEntity.ok(updatedOrder);
-        } catch (BadRequestAlertException e) {
-            return ResponseEntity.badRequest().body(null);
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(null);
-        }
+        OrderDTO updatedOrder = orderService.addNoteToOrderDetail(dto);
+        return ResponseEntity.ok(updatedOrder);
     }
 
     @PostMapping("/{orderId}/group-tables")

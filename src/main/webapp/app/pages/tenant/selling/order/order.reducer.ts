@@ -1,29 +1,38 @@
-import { PayloadAction, createAsyncThunk, createSlice, current, isFulfilled, isPending } from '@reduxjs/toolkit';
+import { PayloadAction, createAsyncThunk, createSlice, current } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-import { IDiningTable } from 'app/shared/model/dining-table.model';
+import { IMenuItem } from 'app/shared/model/menu-item.model';
 import { IOrder, defaultValue } from 'app/shared/model/order/order.model';
 import { serializeAxiosError } from 'app/shared/reducers/reducer.utils';
-import { Action } from 'rxjs/internal/scheduler/Action';
-import { IMenuItem } from 'app/shared/model/menu-item.model';
 
 const initialState = {
   isEstablishingConnection: false,
   isConnected: false,
   loading: false,
+  updating: false,
+  updateSuccess: false,
   activeOrders: [],
   selectedTable: [],
   currentOrder: defaultValue,
-  currentTab: 'ordering-tab',
   changedDetailId: null,
 };
 
 const apiUrl = 'api/orders';
 
 export const getEntities = createAsyncThunk('orders/fetch_entity_list', async () => {
-  const requestUrl = `${apiUrl}/active?cacheBuster=${new Date().getTime()}`;
+  const requestUrl = `${apiUrl}/active-orders?cacheBuster=${new Date().getTime()}`;
   return axios.get<IOrder[]>(requestUrl);
 });
+
+export const addNote = createAsyncThunk(
+  'orders/add_note',
+  async (detailAddnoteDto: { orderDetailId: string; note: string }) => {
+    const requestUrl = `${apiUrl}/add-note`;
+    const result = axios.put<IOrder>(requestUrl, detailAddnoteDto);
+    return result;
+  },
+  { serializeError: serializeAxiosError }
+);
 
 // slice
 
@@ -65,7 +74,8 @@ export const OrderSlice = createSlice({
         return order;
       });
 
-      state.currentOrder = toUpdateOrder;
+      if (state.currentOrder.id === toUpdateOrder.id) state.currentOrder = toUpdateOrder;
+
       if (isUpdate) state.activeOrders = nextOrderList;
       else state.activeOrders = [...nextOrderList, toUpdateOrder];
     },
@@ -91,6 +101,30 @@ export const OrderSlice = createSlice({
       .addCase(getEntities.fulfilled, (state, action) => {
         state.loading = false;
         state.activeOrders = action.payload.data;
+      })
+      .addCase(addNote.pending, (state, action) => {
+        state.updating = true;
+      })
+      .addCase(addNote.fulfilled, (state, action) => {
+        state.updateSuccess = true;
+        state.updating = false;
+
+        const toUpdateOrder = action.payload.data;
+        let isNew = true;
+        const nextActiveOrders = state.activeOrders.map(order => {
+          if (order.id === toUpdateOrder.id) {
+            isNew = false;
+            return toUpdateOrder;
+          } else return order;
+        });
+
+        if (isNew) state.activeOrders = [...nextActiveOrders, toUpdateOrder];
+        else state.activeOrders = nextActiveOrders;
+
+        if (state.currentOrder.id === toUpdateOrder.id) state.currentOrder = toUpdateOrder;
+      })
+      .addCase(addNote.rejected, (state, action) => {
+        state.updating = false;
       });
   },
 });

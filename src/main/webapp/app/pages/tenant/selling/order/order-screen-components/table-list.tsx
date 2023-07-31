@@ -95,7 +95,7 @@ export const TableList = () => {
 const TableCard = ({ table, handleSelectTable, isSelected }: { table: IDiningTable; handleSelectTable: any; isSelected: boolean }) => {
   const orders: IOrder[] = useAppSelector(state => state.order.activeOrders);
 
-  const orderOfThisTable = orders.find(o => o.tableList.map(t => t.id).includes(table.id));
+  const orderOfThisTable = orders?.find(o => o.tableList.map(t => t.id).includes(table.id));
 
   return (
     <div

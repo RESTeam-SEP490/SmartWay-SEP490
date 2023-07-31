@@ -8,8 +8,7 @@ export interface IItemAdditionNotification {
   note?: string | null;
   menuItemName?: string | null;
   tableList?: IDiningTable[] | [];
-  isCompleted?: boolean | null;
-  isPriority?: boolean | null;
+  priority?: boolean | null;
 }
 
 export const defaultValue: Readonly<IItemAdditionNotification> = {};
