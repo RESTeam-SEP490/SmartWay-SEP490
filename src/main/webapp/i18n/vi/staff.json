@@ -13,9 +13,27 @@
     "role.placeholder": "Chọn vai trò",
     "search.placeholder": "Tìm kiếm",
     "information.label": "Thông tin",
+    "columnEmpty": "Dữ liệu trống",
     "resetPassword.label": "Đặt mới mật khẩu",
+    "fileInvalid": "Chỉ tệp excel mới hợp lệ (.xlsx)",
+    "titleModalUpload": "Lưu nhân viên từ tệp chứa dữ liệu.",
+    "contentDownload": "Để thực hiện (Tải về file mẫu: ",
+    "fileInvalidName": "Chỉ chọn tên của tệp là Staff.xlsx",
+    "sheetInvalidName": "Không đúng",
+    "excelFile": "Tệp excel",
+    "note": "Lưu ý",
+    "dataValid": "Nhân viên chỉ cho phép nhập vào dữ liệu hợp lệ",
+    "specialCharacters": "Tên đăng nhập, họ và tên của nhân viên nên giới hạn các ký tự đặc biệt như (@, #, $, *, /, -, _,...), như vậy thì nó sẽ\n    dễ dàng hơn trong việc in và sử dụng mã vạch.",
+    "selectFile": "Chọn tệp",
+    "upload": "Tải lên",
+    "messagePhone": "Số điện thoại không hợp lệ",
+    "messageEmail": "Email không hợp lệ",
+    "messageFullName": "Họ và tên không hợp lệ",
+    "roleNotExist": "Vai trò không tồn tại",
+    "messagePassword": "Mật khẩu không hợp lệ",
+    "emptyFileName": "Dữ liệu trống",
     "action": {
-      "delete.question": "Bạn có muốn xóa username <b>{{ code }}</b> không ?"
+      "delete.question": "Bạn có muốn xóa tên đăng nhập <b>{{ code }}</b> không ?"
     }
   },
 
