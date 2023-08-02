@@ -171,17 +171,7 @@ export const Staff = () => {
   const handleFileSelect = event => {
     const file = event.target.files[0];
     if (file && file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
-      if (file.name === 'Staff.xlsx') {
-        setSelectedFile(file);
-        setError(null);
-      } else {
-        setSelectedFile(null);
-        setError(
-          <span style={{ color: 'red' }}>
-            <Translate contentKey={'diningTable.fileInvalidName'}></Translate>
-          </span>
-        );
-      }
+      setSelectedFile(file);
     } else {
       setSelectedFile(null);
       setError(
@@ -217,12 +207,15 @@ export const Staff = () => {
         for (let i = 0; i < errorList.length; i++) {
           const error = errorList[i];
           const errorKey = error.errorKey;
-          if (errorKey == 'Sheet name') {
-            const contentKey = translate(error.contentKey);
-            displayMessage += `${translate(errorKey)}: ${contentKey}\n`;
+          if (errorKey == 'staff.nullSecretKey') {
+            displayMessage = `${translate(errorKey)}`;
           } else {
-            const contentKey = translate(error.contentKey);
-            displayMessage += `${errorKey}: ${contentKey}\n`;
+            if (errorKey == 'staff.invalidSecretKey') {
+              displayMessage = `${translate(errorKey)}`;
+            } else {
+              const contentKey = translate(error.contentKey);
+              displayMessage += `${errorKey}: ${contentKey}\n`;
+            }
           }
         }
         setError(<span style={{ whiteSpace: 'pre-line' }}>{displayMessage}</span>);

@@ -32,7 +32,10 @@
     "selectFile": "Select File",
     "upload": "Upload",
     "keyRoleNotFound": "",
-    "messageFullName": "Full Name invalid",
+    "messageFullName": "Full Name is invalid",
+    "invalidSecretKey": "The file can only upload the system's sample excel file",
+    "messageUsername": "Username is invalid",
+    "nullSecretKey": "The file can only upload the system's sample excel file",
     "action": {
       "delete.question": "Are you sure to delete username <b>{{ code }}</b> ?"
     }

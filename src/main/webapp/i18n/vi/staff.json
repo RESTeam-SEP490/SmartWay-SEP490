@@ -32,6 +32,9 @@
     "roleNotExist": "Vai trò không tồn tại",
     "messagePassword": "Mật khẩu không hợp lệ",
     "emptyFileName": "Dữ liệu trống",
+    "invalidSecretKey": "Chỉ có tệp mẫu của hệ thống mới có thể tải lên",
+    "nullSecretKey": "Chỉ có tệp mẫu của hệ thống mới có thể tải lên",
+    "messageUsername": "Tài khoản không hợp lệ",
     "action": {
       "delete.question": "Bạn có muốn xóa tên đăng nhập <b>{{ code }}</b> không ?"
     }
