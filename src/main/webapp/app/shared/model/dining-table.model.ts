@@ -5,6 +5,7 @@ export interface IDiningTable {
   name?: string | null;
   isActive?: boolean | null;
   isFree?: boolean | null;
+  numberOfSeats?: number | null;
   zone?: IZone | null;
 }
 
@@ -13,5 +14,6 @@ export const defaultValue: Readonly<IDiningTable> = {
   name: '',
   isActive: null,
   isFree: null,
+  numberOfSeats: null,
   zone: null,
 };

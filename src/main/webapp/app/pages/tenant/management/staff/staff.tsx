@@ -129,7 +129,7 @@ export const Staff = () => {
 
       <div className="flex h-full p-2">
         <div className="flex flex-col w-1/5 gap-4 p-4">
-          <Card bordered={false}>
+          <Card>
             <Typography.Title level={5}>
               <Translate contentKey="entity.action.find" />
             </Typography.Title>
@@ -138,66 +138,68 @@ export const Staff = () => {
           <RoleCheckBoxes onFilter={handleOnchangeRoleFilter} />
         </div>
         <div className="w-4/5 p-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-4">
-              <Typography.Title level={3} className="!mb-0">
-                <Translate contentKey="staff.title" />
-              </Typography.Title>
-              {selectedRowKeys.length > 0 && (
-                <Tag className="px-4 py-1" closable color="blue" onClose={handleResetSelectedRowKey}>
-                  <Translate contentKey="entity.action.select" interpolate={{ number: selectedRowKeys.length }} />
-                </Tag>
-              )}
-            </div>
+          <Card>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-4">
+                <Typography.Title level={3} className="!mb-0">
+                  <Translate contentKey="staff.title" />
+                </Typography.Title>
+                {selectedRowKeys.length > 0 && (
+                  <Tag className="px-4 py-1" closable color="blue" onClose={handleResetSelectedRowKey}>
+                    <Translate contentKey="entity.action.select" interpolate={{ number: selectedRowKeys.length }} />
+                  </Tag>
+                )}
+              </div>
 
-            <div className="flex gap-2">
-              <Dropdown menu={{ items }} disabled={selectedRowKeys.length === 0} className="!w-32">
-                <Button type="primary" icon={<BarsOutlined rev={''} />}>
-                  <Translate contentKey="entity.label.operations" />
+              <div className="flex gap-2">
+                <Dropdown menu={{ items }} disabled={selectedRowKeys.length === 0} className="!w-32">
+                  <Button type="primary" icon={<BarsOutlined rev={''} />}>
+                    <Translate contentKey="entity.label.operations" />
+                  </Button>
+                </Dropdown>
+
+                <Button type="primary" icon={<PlusOutlined rev={''} />} onClick={() => setIsShowForm(true)}>
+                  <Translate contentKey="staff.addNewLabel" />
                 </Button>
-              </Dropdown>
-
-              <Button type="primary" icon={<PlusOutlined rev={''} />} onClick={() => setIsShowForm(true)}>
-                <Translate contentKey="staff.addNewLabel" />
-              </Button>
+              </div>
             </div>
-          </div>
 
-          <Table
-            columns={columns.map(s => ({ ...s, ellipsis: true }))}
-            dataSource={staffList}
-            pagination={{
-              ...DEFAULT_PAGINATION_CONFIG,
-              onChange: handleOnchangePage,
-              total: count,
-              current: pageable.page + 1,
-              locale: { items_per_page: '/ ' + translate('global.table.pageText') },
-            }}
-            scroll={{ x: true }}
-            rowSelection={{
-              type: 'checkbox',
-              selectedRowKeys,
-              onSelect: onSelectRow,
-              onSelectAll: onSelectAllRows,
-            }}
-            rowKey={'id'}
-            rowClassName={'cursor-pointer'}
-            loading={loading}
-            expandable={{
-              expandedRowRender: record => <StaffDetail staff={record} onUpdate={() => handleOpen(record)} />,
-              expandedRowClassName: () => '!bg-white',
-              expandRowByClick: true,
-              expandIcon: () => <></>,
-              expandedRowKeys: [expendedRow],
-              onExpand(expended, record) {
-                if (expended) setExpendedRow(record.id);
-                else setExpendedRow(undefined);
-              },
-            }}
-            locale={{
-              emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={translate('global.table.empty')} />,
-            }}
-          ></Table>
+            <Table
+              columns={columns.map(s => ({ ...s, ellipsis: true }))}
+              dataSource={staffList}
+              pagination={{
+                ...DEFAULT_PAGINATION_CONFIG,
+                onChange: handleOnchangePage,
+                total: count,
+                current: pageable.page + 1,
+                locale: { items_per_page: '/ ' + translate('global.table.pageText') },
+              }}
+              scroll={{ x: true }}
+              rowSelection={{
+                type: 'checkbox',
+                selectedRowKeys,
+                onSelect: onSelectRow,
+                onSelectAll: onSelectAllRows,
+              }}
+              rowKey={'id'}
+              rowClassName={'cursor-pointer'}
+              loading={loading}
+              expandable={{
+                expandedRowRender: record => <StaffDetail staff={record} onUpdate={() => handleOpen(record)} />,
+                expandedRowClassName: () => '!bg-white',
+                expandRowByClick: true,
+                expandIcon: () => <></>,
+                expandedRowKeys: [expendedRow],
+                onExpand(expended, record) {
+                  if (expended) setExpendedRow(record.id);
+                  else setExpendedRow(undefined);
+                },
+              }}
+              locale={{
+                emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={translate('global.table.empty')} />,
+              }}
+            ></Table>
+          </Card>
         </div>
       </div>
     </>

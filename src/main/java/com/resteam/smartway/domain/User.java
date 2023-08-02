@@ -1,7 +1,7 @@
 package com.resteam.smartway.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.io.Serializable;
+import com.resteam.smartway.domain.base.AbstractBaseAuditingEntity;
 import java.time.Instant;
 import java.util.Date;
 import java.util.UUID;
@@ -20,9 +20,7 @@ import lombok.*;
     subgraphs = { @NamedSubgraph(name = "authority-subgraph", attributeNodes = { @NamedAttributeNode("authorities") }) }
 )
 @Table(name = "user")
-public class User extends AbstractBaseAuditingEntity<UUID> implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+public class User extends AbstractBaseAuditingEntity<UUID> {
 
     @Id
     @GeneratedValue

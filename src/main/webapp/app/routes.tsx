@@ -3,7 +3,6 @@ import Loadable from 'react-loadable';
 import { Navigate, Route, useLocation } from 'react-router-dom';
 
 import { AUTHORITIES } from 'app/config/constants';
-import { sendActivity } from 'app/config/websocket-middleware';
 import Activate from 'app/modules/account/activate/activate';
 import PasswordResetFinish from 'app/modules/account/password-reset/finish/password-reset-finish';
 import PasswordResetInit from 'app/modules/account/password-reset/init/password-reset-init';
@@ -15,7 +14,9 @@ import PrivateRoute from 'app/shared/auth/private-route';
 import ErrorBoundaryRoutes from 'app/shared/error/error-boundary-routes';
 import PageNotFound from 'app/shared/error/page-not-found';
 import AdminLogin from './modules/login/admin-login';
+import Order from 'app/pages/tenant/selling/routes';
 import { Spin } from 'antd';
+import { useAppSelector } from './config/store';
 
 const loading = (
   <div className="flex items-center justify-center grow">
@@ -58,6 +59,7 @@ export const TenantAppRoutes = () => {
       <Route path="logout" element={<Logout />} />
       <Route path="account">
         <Route
+          index
           element={
             <PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.USER]}>
               <Account />
@@ -71,10 +73,18 @@ export const TenantAppRoutes = () => {
         </Route>
       </Route>
       <Route
-        path="*"
+        path="managing/*"
         element={
           <PrivateRoute hasAnyAuthorities={[AUTHORITIES.USER, AUTHORITIES.ADMIN]}>
             <Tenant />
+          </PrivateRoute>
+        }
+      ></Route>
+      <Route
+        path="pos/*"
+        element={
+          <PrivateRoute hasAnyAuthorities={[AUTHORITIES.USER, AUTHORITIES.ADMIN]}>
+            <Order />
           </PrivateRoute>
         }
       ></Route>

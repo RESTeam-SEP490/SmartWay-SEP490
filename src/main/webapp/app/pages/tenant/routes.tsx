@@ -9,53 +9,58 @@ import PageNotFound from 'app/shared/error/page-not-found';
 import PrivateRoute from 'app/shared/auth/private-route';
 import { AUTHORITIES } from 'app/config/constants';
 import { TenantProfileForm } from 'app/pages/tenant/management/tenant-profile/tenant-profile-form';
+import { UserMenu } from 'app/shared/layout/menus/main-menu';
+import { useAppSelector } from 'app/config/store';
 
 export default () => {
   return (
-    <div className="px-4 bg-slate-50 grow">
-      <ErrorBoundaryRoutes>
-        <Route
-          path="menu-items"
-          element={
-            <PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.MENUITEM_VIEW]}>
-              <MenuItem />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="staff"
-          element={
-            <PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.STAFF_VIEW]}>
-              <Staff />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="roles"
-          element={
-            <PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.STAFFROLE_VIEW]}>
-              <Role />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="tables"
-          element={
-            <PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.TABLE_VIEW]}>
-              <DiningTable />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="account/profile"
-          element={
-            <PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.USER]}>
-              <TenantProfileForm />
-            </PrivateRoute>
-          }
-        />
-        <Route path="*" element={<PageNotFound />} />
-      </ErrorBoundaryRoutes>
+    <div className="grow flex h-max w-full">
+      <UserMenu />
+      <div className="px-4 bg-gray-100 grow">
+        <ErrorBoundaryRoutes>
+          <Route
+            path="menu-items"
+            element={
+              <PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.MENUITEM_VIEW]}>
+                <MenuItem />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="staff"
+            element={
+              <PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.STAFF_VIEW]}>
+                <Staff />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="roles"
+            element={
+              <PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.STAFFROLE_VIEW]}>
+                <Role />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="tables"
+            element={
+              <PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.TABLE_VIEW]}>
+                <DiningTable />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="account/profile"
+            element={
+              <PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.USER]}>
+                <TenantProfileForm />
+              </PrivateRoute>
+            }
+          />
+          {/* <Route path="*" element={<PageNotFound />} /> */}
+        </ErrorBoundaryRoutes>
+      </div>
     </div>
   );
 };

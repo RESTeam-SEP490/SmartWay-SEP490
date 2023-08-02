@@ -16,6 +16,7 @@
     },
     "bill": {
       "label": "Quản lý hoá đơn"
-    }
+    },
+    "dashboard.label": "Tổng quan"
   }
 }

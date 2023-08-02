@@ -1,4 +1,4 @@
-package com.resteam.smartway.domain;
+package com.resteam.smartway.domain.base;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
@@ -22,8 +22,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 public abstract class AbstractBaseAuditingEntity<T> extends AbstractBaseEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
-    public abstract T getId();
 
     @CreatedBy
     @Column(name = "created_by", nullable = false, length = 50, updatable = false)

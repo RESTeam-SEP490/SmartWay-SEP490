@@ -1,13 +1,12 @@
 package com.resteam.smartway.domain;
 
-import java.io.Serializable;
+import com.resteam.smartway.domain.base.AbstractBaseAuditingEntity;
 import java.util.UUID;
 import javax.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.GenericGenerator;
 
 @Getter
 @Setter
@@ -15,9 +14,7 @@ import org.hibernate.annotations.GenericGenerator;
 @AllArgsConstructor
 @Entity
 @Table(name = "zone")
-public class Zone extends AbstractBaseAuditingEntity<UUID> implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+public class Zone extends AbstractBaseAuditingEntity<UUID> {
 
     @Id
     @GeneratedValue(generator = "uuid-hibernate-generator")

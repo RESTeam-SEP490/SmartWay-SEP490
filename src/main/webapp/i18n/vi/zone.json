@@ -2,7 +2,8 @@
   "zone": {
     "label": "Danh mục khu vực",
     "name": "Tên khu vực",
-    "description": "Mô tả"
+    "description": "Mô tả",
+    "entity": "Khu vực"
   },
   "smartWayApp": {
     "zone": {

@@ -2,6 +2,7 @@ package com.resteam.smartway.service.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.UUID;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -30,9 +31,11 @@ public class MenuItemDTO {
 
     private String imageUrl;
 
+    @Min(0)
     private Double basePrice = 0.0;
 
     @NotNull
+    @Min(0)
     private Double sellPrice;
 
     private Boolean isActive = true;

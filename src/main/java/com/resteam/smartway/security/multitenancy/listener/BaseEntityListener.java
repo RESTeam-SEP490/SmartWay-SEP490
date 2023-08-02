@@ -1,6 +1,6 @@
 package com.resteam.smartway.security.multitenancy.listener;
 
-import com.resteam.smartway.domain.AbstractBaseEntity;
+import com.resteam.smartway.domain.base.AbstractBaseEntity;
 import com.resteam.smartway.security.multitenancy.context.RestaurantContext;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
 import java.util.Objects;

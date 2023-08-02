@@ -27,29 +27,29 @@ export type AdministrationState = Readonly<typeof initialState>;
 
 // Actions
 
-export const getSystemHealth = createAsyncThunk('administration/fetch_health', async () => axios.get<any>('management/health'), {
+export const getSystemHealth = createAsyncThunk('administration/fetch_health', async () => axios.get<any>('api/management/health'), {
   serializeError: serializeAxiosError,
 });
 
-export const getSystemMetrics = createAsyncThunk('administration/fetch_metrics', async () => axios.get<any>('management/jhimetrics'), {
+export const getSystemMetrics = createAsyncThunk('administration/fetch_metrics', async () => axios.get<any>('api/management/jhimetrics'), {
   serializeError: serializeAxiosError,
 });
 
 export const getSystemThreadDump = createAsyncThunk(
   'administration/fetch_thread_dump',
-  async () => axios.get<any>('management/threaddump'),
+  async () => axios.get<any>('api/management/threaddump'),
   {
     serializeError: serializeAxiosError,
   }
 );
 
-export const getLoggers = createAsyncThunk('administration/fetch_logs', async () => axios.get<any>('management/loggers'), {
+export const getLoggers = createAsyncThunk('administration/fetch_logs', async () => axios.get<any>('api/management/loggers'), {
   serializeError: serializeAxiosError,
 });
 
 export const setLoggers = createAsyncThunk(
   'administration/fetch_logs_change_level',
-  async ({ name, configuredLevel }: any) => axios.post(`management/loggers/${name}`, { configuredLevel }),
+  async ({ name, configuredLevel }: any) => axios.post(`api/management/loggers/${name}`, { configuredLevel }),
   {
     serializeError: serializeAxiosError,
   }
@@ -62,13 +62,13 @@ export const changeLogLevel: (name, configuredLevel) => AppThunk = (name, config
 
 export const getConfigurations = createAsyncThunk(
   'administration/fetch_configurations',
-  async () => axios.get<any>('management/configprops'),
+  async () => axios.get<any>('api/management/configprops'),
   {
     serializeError: serializeAxiosError,
   }
 );
 
-export const getEnv = createAsyncThunk('administration/fetch_env', async () => axios.get<any>('management/env'), {
+export const getEnv = createAsyncThunk('administration/fetch_env', async () => axios.get<any>('api/management/env'), {
   serializeError: serializeAxiosError,
 });
 
