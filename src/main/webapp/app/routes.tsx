@@ -1,6 +1,6 @@
 import React from 'react';
 import Loadable from 'react-loadable';
-import { Navigate, Route, useLocation } from 'react-router-dom';
+import { Navigate, Route } from 'react-router-dom';
 
 import { AUTHORITIES } from 'app/config/constants';
 import Activate from 'app/modules/account/activate/activate';
@@ -16,7 +16,7 @@ import PageNotFound from 'app/shared/error/page-not-found';
 import AdminLogin from './modules/login/admin-login';
 import Order from 'app/pages/tenant/selling/routes';
 import { Spin } from 'antd';
-import { useAppSelector } from './config/store';
+import { TenantProfileForm } from 'app/pages/tenant/management/tenant-profile/tenant-profile-form';
 
 const loading = (
   <div className="flex items-center justify-center grow">
@@ -57,6 +57,7 @@ export const TenantAppRoutes = () => {
       <Route index element={<Navigate to={'login'} />} />
       <Route path="login" element={<Login />} />
       <Route path="logout" element={<Logout />} />
+      <Route path="profile" element={<TenantProfileForm />} />
       <Route path="account">
         <Route
           index

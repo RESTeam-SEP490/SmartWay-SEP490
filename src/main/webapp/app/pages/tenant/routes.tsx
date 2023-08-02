@@ -5,12 +5,9 @@ import MenuItem from './management/menu-item/menu-item';
 import { Staff } from './management/staff/staff';
 import Role from './management/role/role';
 import DiningTable from './management/dining-table';
-import PageNotFound from 'app/shared/error/page-not-found';
 import PrivateRoute from 'app/shared/auth/private-route';
 import { AUTHORITIES } from 'app/config/constants';
-import { TenantProfileForm } from 'app/pages/tenant/management/tenant-profile/tenant-profile-form';
 import { UserMenu } from 'app/shared/layout/menus/main-menu';
-import { useAppSelector } from 'app/config/store';
 
 export default () => {
   return (
@@ -50,14 +47,7 @@ export default () => {
               </PrivateRoute>
             }
           />
-          <Route
-            path="account/profile"
-            element={
-              <PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.USER]}>
-                <TenantProfileForm />
-              </PrivateRoute>
-            }
-          />
+
           {/* <Route path="*" element={<PageNotFound />} /> */}
         </ErrorBoundaryRoutes>
       </div>
