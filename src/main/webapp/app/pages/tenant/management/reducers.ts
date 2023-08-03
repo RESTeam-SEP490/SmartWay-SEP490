@@ -7,6 +7,7 @@ import diningTable from './dining-table/dining-table.reducer';
 import zone from './zone/zone.reducer';
 import order from '../selling/order/order.reducer';
 import kitchen from '../selling/kitchen/kitchen.reducer';
+import bankAccount from '../check-bank-account-tenant/check-bank-account-tenant.reducer';
 /* jhipster-needle-add-reducer-import - JHipster will add reducer here */
 
 const entitiesReducers = {
@@ -19,6 +20,7 @@ const entitiesReducers = {
   role,
   order,
   kitchen,
+  bankAccount,
   /* jhipster-needle-add-reducer-combine - JHipster will add reducer here */
 };
 

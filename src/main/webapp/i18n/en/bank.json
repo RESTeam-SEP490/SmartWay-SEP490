@@ -1,0 +1,11 @@
+{
+  "bank": {
+    "accountNumber": "Account number",
+    "bankName": "Bank name",
+    "title": "Bank Accounts",
+    "selectBank": "Select Bank",
+    "addNewBankAccount": "Add New Bank Account",
+    "createBankAccount": "Add new bank account",
+    "updateBankAccount": "Update bank account"
+  }
+}
