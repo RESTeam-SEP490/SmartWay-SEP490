@@ -24,11 +24,12 @@ public interface OrderService {
 
     OrderDTO addNoteToOrderDetail(DetailAddNoteDTO dto);
 
-    void groupTables(OrderDTO orderDTO, List<String> ids);
+    OrderDTO groupTables(OrderDTO orderDTO, List<String> ids);
 
     OrderDTO findById(UUID orderId);
 
     void ungroupTables(UUID orderId, List<String> tableIds);
+    OrderDTO splitOrder(UUID orderId, UUID targetTableId, List<UUID> orderDetailIds);
 
     OrderDTO changePriority(OrderDetailPriorityDTO orderDetailDTO);
 

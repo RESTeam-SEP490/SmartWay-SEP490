@@ -3,10 +3,7 @@ package com.resteam.smartway.web.rest;
 import com.resteam.smartway.domain.order.SwOrder;
 import com.resteam.smartway.service.OrderDetailService;
 import com.resteam.smartway.service.OrderService;
-import com.resteam.smartway.service.dto.order.DetailAddNoteDTO;
-import com.resteam.smartway.service.dto.order.OrderCreationDTO;
-import com.resteam.smartway.service.dto.order.OrderDTO;
-import com.resteam.smartway.service.dto.order.OrderDetailDTO;
+import com.resteam.smartway.service.dto.order.*;
 import com.resteam.smartway.service.dto.order.notification.ItemAdditionNotificationDTO;
 import com.resteam.smartway.service.dto.order.notification.OrderDetailPriorityDTO;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
@@ -55,11 +52,10 @@ public class OrderResource {
     }
 
     @PostMapping("/{orderId}/group-tables")
-    public ResponseEntity<Void> groupTables(@PathVariable UUID orderId, @RequestBody List<String> tableIds) {
+    public ResponseEntity<OrderDTO> groupOrders(@PathVariable UUID orderId, @RequestBody List<String> tableIds) {
         OrderDTO orderDTO = orderService.findById(orderId);
-        orderService.groupTables(orderDTO, tableIds);
-
-        return ResponseEntity.ok().build();
+        OrderDTO groupedOrderDTO = orderService.groupTables(orderDTO, tableIds);
+        return ResponseEntity.ok(groupedOrderDTO);
     }
 
     @PostMapping("/{orderId}/ungroup-tables")
@@ -75,5 +71,16 @@ public class OrderResource {
         orderDetailPriorityDTO.setOrderId(orderId);
         OrderDTO updatedOrder = orderService.changePriority(orderDetailPriorityDTO);
         return ResponseEntity.ok(updatedOrder);
+    }
+
+    @PostMapping("/{orderId}/split-order")
+    public ResponseEntity<OrderDTO> splitOrder(@PathVariable UUID orderId, @RequestBody SplitOrderDTO splitOrderDTO) {
+        OrderDTO orderDTO = orderService.findById(orderId);
+        OrderDTO newOrderDTO = orderService.splitOrder(
+            orderDTO.getId(),
+            splitOrderDTO.getTargetTableId(),
+            splitOrderDTO.getOrderDetailIds()
+        );
+        return ResponseEntity.ok(newOrderDTO);
     }
 }
