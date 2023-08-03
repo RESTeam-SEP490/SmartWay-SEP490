@@ -32,7 +32,7 @@ export const MenuItemList = () => {
       dispatch(orderActions.createOrder(selectedItem.id));
     } else {
       const matchedItem = currentOrder.orderDetailList.find(
-        (item: IOrderDetail) => item.menuItem.id === selectedItem.id && item.notifiedTime === null
+        (item: IOrderDetail) => item.menuItem.id === selectedItem.id && item.note === null
       );
       if (matchedItem) {
         dispatch(
@@ -53,7 +53,7 @@ export const MenuItemList = () => {
   };
 
   return (
-    <div className="p-2 bg-white h-[calc(100vh-60px)] flex flex-col rounded-se-lg rounded-b-lg">
+    <div className="p-2 bg-white h-[calc(100vh-66px)] flex flex-col rounded-se-lg rounded-b-lg">
       <div className="flex items-center justify-between px-2 py-4">
         <Segmented
           options={[{ label: 'All', value: '' }, ...categoryList.map(z => ({ label: z.name, value: z.id }))]}

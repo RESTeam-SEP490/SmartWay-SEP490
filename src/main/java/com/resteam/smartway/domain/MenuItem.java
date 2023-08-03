@@ -30,6 +30,9 @@ public class MenuItem extends AbstractBaseAuditingEntity<UUID> {
     @Column(name = "image_key")
     private String imageKey;
 
+    @Column(name = "image_url", updatable = false)
+    private String imageUrl;
+
     @Column(name = "base_price")
     private Double basePrice = 0.0;
 

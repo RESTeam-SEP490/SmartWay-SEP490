@@ -8,16 +8,17 @@ import com.resteam.smartway.domain.order.notifications.ItemAdditionNotification;
 import com.resteam.smartway.domain.order.notifications.KitchenNotificationHistory;
 import com.resteam.smartway.repository.DiningTableRepository;
 import com.resteam.smartway.repository.MenuItemRepository;
-import com.resteam.smartway.repository.order.ItemAdditionNotificationRepository;
 import com.resteam.smartway.repository.order.OrderDetailRepository;
 import com.resteam.smartway.repository.order.OrderRepository;
+import com.resteam.smartway.service.aws.S3Service;
 import com.resteam.smartway.service.dto.order.*;
-import com.resteam.smartway.service.dto.order.notification.ItemAdditionNotificationDTO;
-import com.resteam.smartway.service.dto.order.notification.OrderDetailPriorityDTO;
+import com.resteam.smartway.service.mapper.order.OrderDetailMapper;
 import com.resteam.smartway.service.mapper.order.OrderMapper;
-import com.resteam.smartway.service.mapper.order.notification.ItemAdditionNotificationMapper;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -34,9 +35,9 @@ public class OrderServiceImpl implements OrderService {
     private final OrderMapper orderMapper;
     private final DiningTableRepository diningTableRepository;
     private final MenuItemRepository menuItemRepository;
+    private final OrderDetailMapper orderDetailMapper;
     private final OrderDetailRepository orderDetailRepository;
-    private final ItemAdditionNotificationRepository itemAdditionNotificationRepository;
-    private final ItemAdditionNotificationMapper itemAdditionNotificationMapper;
+    private final S3Service s3Service;
 
     private static final String ORDER = "order";
     private static final String TABLE = "table";
@@ -70,6 +71,7 @@ public class OrderServiceImpl implements OrderService {
         orderDetail.setOrder(order);
         orderDetail.setQuantity(1);
         orderDetail.setUnnotifiedQuantity(1);
+        orderDetail.setServedQuantity(0);
 
         order.setOrderDetailList(List.of(orderDetail));
 
@@ -81,12 +83,14 @@ public class OrderServiceImpl implements OrderService {
         return orderMapper.toDto(savedOrder);
     }
 
-    private SwOrder sortOrderDetailsAndNotificationHistories(SwOrder order) {
-        List<OrderDetail> orderDetails = order.getOrderDetailList();
-        orderDetails.sort((o1, o2) -> {
-            if (o1.equals(o2)) return 1; else return -1;
-        });
-        order.setOrderDetailList(orderDetails);
+    private OrderDTO sortOrderDetailsAndNotificationHistories(SwOrder order) {
+        List<OrderDetail> orderDetails = order
+            .getOrderDetailList()
+            .stream()
+            .sorted((o1, o2) -> {
+                if (o1.equals(o2)) return 1; else return -1;
+            })
+            .collect(Collectors.toList());
 
         List<KitchenNotificationHistory> kitchenNotificationHistoryList = order.getKitchenNotificationHistoryList();
         kitchenNotificationHistoryList.sort((o1, o2) -> {
@@ -94,7 +98,23 @@ public class OrderServiceImpl implements OrderService {
         });
         order.setKitchenNotificationHistoryList(kitchenNotificationHistoryList);
 
-        return order;
+        OrderDTO result = orderMapper.toDto(order);
+        List<OrderDetailDTO> orderDetailDTOList = orderDetails
+            .stream()
+            .map(detail -> {
+                MenuItem menuItem = detail.getMenuItem();
+                if (menuItem.getImageKey() != null) {
+                    String imageUrl = s3Service.getDownloadUrl(menuItem.getImageKey());
+                    menuItem.setImageUrl(imageUrl);
+                } else menuItem.setImageUrl("");
+                detail.setMenuItem(menuItem);
+                return orderDetailMapper.toDto(detail);
+            })
+            .collect(Collectors.toList());
+
+        result.setOrderDetailList(orderDetailDTOList);
+
+        return result;
     }
 
     private String generateCode() {
@@ -129,8 +149,10 @@ public class OrderServiceImpl implements OrderService {
             "cannotAdjust"
         );
 
+        if (orderDetail.getUnnotifiedQuantity() == 0) orderDetail.setPriority(false);
+
         orderDetailRepository.saveAndFlush(orderDetail);
-        return orderMapper.toDto(sortOrderDetailsAndNotificationHistories(orderDetail.getOrder()));
+        return sortOrderDetailsAndNotificationHistories(orderDetail.getOrder());
     }
 
     @Override
@@ -148,7 +170,7 @@ public class OrderServiceImpl implements OrderService {
         }
         orderDetail.setNote(dto.getNote());
         orderDetailRepository.saveAndFlush(orderDetail);
-        return orderMapper.toDto(sortOrderDetailsAndNotificationHistories(orderDetail.getOrder()));
+        return sortOrderDetailsAndNotificationHistories(orderDetail.getOrder());
     }
 
     @Override
@@ -165,9 +187,10 @@ public class OrderServiceImpl implements OrderService {
         orderDetail.setMenuItem(menuItem);
         orderDetail.setQuantity(orderDetailDTO.getQuantity());
         orderDetail.setUnnotifiedQuantity(orderDetail.getQuantity());
+        orderDetail.setServedQuantity(0);
 
         OrderDetail savedOrderDetail = orderDetailRepository.saveAndFlush(orderDetail);
-        return orderMapper.toDto(sortOrderDetailsAndNotificationHistories(savedOrderDetail.getOrder()));
+        return sortOrderDetailsAndNotificationHistories(savedOrderDetail.getOrder());
     }
 
     @Override
@@ -196,6 +219,7 @@ public class OrderServiceImpl implements OrderService {
                     itemAdditionNotificationList.add(notification);
 
                     detail.setUnnotifiedQuantity(0);
+                    detail.setPriority(false);
                 }
             })
             .collect(Collectors.toList());
@@ -205,44 +229,23 @@ public class OrderServiceImpl implements OrderService {
         kitchenNotificationHistoryList.add(kitchenNotificationHistory);
         SwOrder savedOrder = orderRepository.saveAndFlush(order);
 
-        return orderMapper.toDto(sortOrderDetailsAndNotificationHistories(savedOrder));
+        return sortOrderDetailsAndNotificationHistories(savedOrder);
     }
 
     @Override
     public List<OrderDTO> getAllActiveOrders() {
-        List<SwOrder> orders = orderRepository
+        return orderRepository
             .findByIsPaidFalse()
             .stream()
-            .peek(order -> {
-                List<OrderDetail> orderDetails = order.getOrderDetailList();
-                orderDetails.sort((o1, o2) -> {
-                    if (o1.equals(o2)) return 1; else return -1;
-                });
-                order.setOrderDetailList(orderDetails);
-            })
+            .map(this::sortOrderDetailsAndNotificationHistories)
             .collect(Collectors.toList());
-        return orderMapper.toDto(orders);
     }
 
     @Override
     public OrderDTO findById(UUID id) {
         SwOrder order = orderRepository.findById(id).orElseThrow(() -> new BadRequestAlertException("Invalid ID", ORDER, "idnotfound"));
-        return orderMapper.toDto(order);
+        return sortOrderDetailsAndNotificationHistories(order);
     }
-
-    //    @Override
-    //    public void deleteMenuItem(List<String> ids) {
-    //        List<MenuItem> menuItemIdList = ids
-    //            .stream()
-    //            .map(id -> {
-    //                if (id == null) throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
-    //                return menuItemRepository
-    //                    .findById(UUID.fromString(id))
-    //                    .orElseThrow(() -> new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idnotfound"));
-    //            })
-    //            .collect(Collectors.toList());
-    //        menuItemRepository.deleteAll(menuItemIdList);
-    //    }
 
     @Override
     public OrderDTO deleteOrderDetail(UUID orderDetailId) {
@@ -260,24 +263,30 @@ public class OrderServiceImpl implements OrderService {
 
         order.getOrderDetailList().removeIf(detail -> detail.getId().equals(orderDetail.getId()));
 
-        return orderMapper.toDto(sortOrderDetailsAndNotificationHistories(order));
-    }
-
-    @Override
-    public List<ItemAdditionNotificationDTO> getAllOrderItemInKitchen() {
-        return itemAdditionNotificationMapper.toDto(itemAdditionNotificationRepository.findByIsCompleted(false));
+        return sortOrderDetailsAndNotificationHistories(order);
     }
 
     public OrderDTO changePriority(OrderDetailPriorityDTO orderDetailDTO) {
-        UUID orderDetailId = orderDetailDTO.getOrderDetailId();
         OrderDetail orderDetail = orderDetailRepository
-            .findById(orderDetailId)
+            .findById(orderDetailDTO.getOrderDetailId())
             .orElseThrow(() -> new BadRequestAlertException("Order detail was not found", ORDER_DETAIL, "idnotfound"));
-        orderDetail.setPriority(true);
-        orderDetailRepository.save(orderDetail);
-        SwOrder order = orderDetail.getOrder();
 
-        return orderMapper.toDto(order);
+        if (orderDetail.getOrder().isPaid()) throw new BadRequestAlertException(
+            "Order detail you want to edit is in a paid order",
+            ORDER,
+            "paidOrder"
+        );
+
+        if (orderDetail.getUnnotifiedQuantity() == 0) throw new BadRequestAlertException(
+            "Order detail you want to prioritize was notified to kitchen",
+            ORDER,
+            "notifiedOrderDetail"
+        );
+
+        orderDetail.setPriority(orderDetailDTO.isPriority());
+        OrderDetail savedDetail = orderDetailRepository.saveAndFlush(orderDetail);
+
+        return sortOrderDetailsAndNotificationHistories(savedDetail.getOrder());
     }
 
     @Override

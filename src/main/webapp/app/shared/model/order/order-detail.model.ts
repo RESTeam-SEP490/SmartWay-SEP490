@@ -6,7 +6,9 @@ export interface IOrderDetail {
   menuItem?: IMenuItem | null;
   quantity?: number | 0;
   unnotifiedQuantity?: number | 0;
-  isCooked?: boolean | null;
+  servedQuantity?: number | 0;
+  priority?: boolean | null;
+  hasReadyToServeItem?: boolean | null;
   notifiedTime?: Date | null;
   note?: string | null;
 }

@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = { ItemCancellationNotificationMapper.class })
 public interface ItemAdditionNotificationMapper extends EntityMapper<ItemAdditionNotificationDTO, ItemAdditionNotification> {
     ItemAdditionNotification toEntity(ItemAdditionNotificationDTO dto);
 

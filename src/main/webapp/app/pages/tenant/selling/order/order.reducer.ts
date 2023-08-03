@@ -1,8 +1,8 @@
-import { PayloadAction, createAsyncThunk, createSlice, current } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 
 import { IMenuItem } from 'app/shared/model/menu-item.model';
-import { IOrder, defaultValue } from 'app/shared/model/order/order.model';
+import { defaultValue, IOrder } from 'app/shared/model/order/order.model';
 import { serializeAxiosError } from 'app/shared/reducers/reducer.utils';
 
 const initialState = {
@@ -62,6 +62,9 @@ export const OrderSlice = createSlice({
     notifyKitchen(state, action: PayloadAction<string>) {
       return;
     },
+    changePriority(state, action: PayloadAction<{ orderDetailId: string; priority: boolean }>) {
+      return;
+    },
     deleteOrderDetail(state, action: PayloadAction<string>) {
       return;
     },
@@ -74,10 +77,10 @@ export const OrderSlice = createSlice({
         return order;
       });
 
-      if (state.currentOrder.id === toUpdateOrder.id) state.currentOrder = toUpdateOrder;
-
       if (isUpdate) state.activeOrders = nextOrderList;
       else state.activeOrders = [...nextOrderList, toUpdateOrder];
+
+      if (state.currentOrder.id === toUpdateOrder.id) state.currentOrder = toUpdateOrder;
     },
     selectOrderByTable(state, action) {
       const selectedTable = action.payload;
@@ -91,6 +94,9 @@ export const OrderSlice = createSlice({
     },
     setChangedDetailId(state, action) {
       state.changedDetailId = action.payload;
+    },
+    disconnectStomp(state) {
+      state.isConnected = false;
     },
   },
   extraReducers(builder) {

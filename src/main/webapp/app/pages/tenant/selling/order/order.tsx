@@ -46,6 +46,10 @@ export const OrderScreen = () => {
     dispatch(getTables());
     dispatch(getCategories({}));
     dispatch(getOrders());
+
+    return () => {
+      dispatch(orderActions.disconnectStomp());
+    };
   }, []);
 
   return (

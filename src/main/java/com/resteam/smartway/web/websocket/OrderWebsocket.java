@@ -1,120 +1,102 @@
 package com.resteam.smartway.web.websocket;
 
+import com.resteam.smartway.security.CustomUserDetails;
 import com.resteam.smartway.security.multitenancy.context.RestaurantContext;
-import com.resteam.smartway.service.OrderDetailService;
+import com.resteam.smartway.service.KitchenService;
 import com.resteam.smartway.service.OrderService;
 import com.resteam.smartway.service.dto.order.*;
-import com.resteam.smartway.service.dto.order.notification.OrderDetailPriorityDTO;
-import java.util.Objects;
+import java.security.Principal;
 import java.util.UUID;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
 
 @Controller
 @RequiredArgsConstructor
+@MessageMapping("/orders/{restaurantId}")
 @Slf4j
 public class OrderWebsocket {
 
     private final OrderService orderService;
-    private final OrderDetailService orderDetailService;
+    private final KitchenService kitchenService;
 
-    public static final String RESTAURANT_ID_HEADER = "X-restaurant-subdomain";
+    private final SimpMessagingTemplate simpMessagingTemplate;
+    public static final String RECEIVE_DESTINATION_FORMAT = "/orders/%s/receive-changed-order";
 
-    @MessageMapping("/topic/create-order/{restaurantId}")
-    @SendTo("/topic/receive-changed-order/{restaurantId}")
-    public OrderDTO createOrder(@Valid @Payload OrderCreationDTO dto, StompHeaderAccessor stompHeaderAccessor) {
-        setRestaurantContext(stompHeaderAccessor);
-        return orderService.createOrder(dto);
+    @MessageMapping("/create-order")
+    public void createOrder(@Valid @Payload OrderCreationDTO dto, @DestinationVariable String restaurantId, Principal principal) {
+        setRestaurantContext(principal);
+        simpMessagingTemplate.convertAndSend(String.format(RECEIVE_DESTINATION_FORMAT, restaurantId), orderService.createOrder(dto));
     }
 
-    @MessageMapping("/topic/adjust-detail-quantity/{restaurantId}")
-    @SendTo("/topic/receive-changed-order/{restaurantId}")
-    public OrderDTO adjustOrderDetailQuantity(@Valid @Payload OrderDetailAdjustQuantityDTO dto, StompHeaderAccessor stompHeaderAccessor) {
-        setRestaurantContext(stompHeaderAccessor);
-        return orderService.adjustDetailQuantity(dto);
+    @MessageMapping("/adjust-detail-quantity")
+    public void adjustOrderDetailQuantity(
+        @Valid @Payload OrderDetailAdjustQuantityDTO dto,
+        @DestinationVariable String restaurantId,
+        Principal principal
+    ) {
+        setRestaurantContext(principal);
+        OrderDTO orderDTO = orderService.adjustDetailQuantity(dto);
+        simpMessagingTemplate.convertAndSend(String.format(RECEIVE_DESTINATION_FORMAT, restaurantId), orderDTO);
     }
 
-    @MessageMapping("/topic/add-note/{restaurantId}")
-    @SendTo("/topic/receive-changed-order/{restaurantId}")
-    public OrderDTO addNoteToOrderDetail(@Valid @Payload DetailAddNoteDTO dto, StompHeaderAccessor stompHeaderAccessor) {
-        setRestaurantContext(stompHeaderAccessor);
-        return orderService.addNoteToOrderDetail(dto);
+    @MessageMapping("/add-note")
+    public void addNoteToOrderDetail(@Valid @Payload DetailAddNoteDTO dto, @DestinationVariable String restaurantId, Principal principal) {
+        setRestaurantContext(principal);
+        simpMessagingTemplate.convertAndSend(
+            String.format(RECEIVE_DESTINATION_FORMAT, restaurantId),
+            orderService.addNoteToOrderDetail(dto)
+        );
     }
 
-    @MessageMapping("/topic/add-order-detail/{restaurantId}")
-    @SendTo("/topic/receive-changed-order/{restaurantId}")
-    public OrderDTO addOrderDetail(@Payload OrderDetailAdditionDTO dto, StompHeaderAccessor stompHeaderAccessor) {
-        setRestaurantContext(stompHeaderAccessor);
-        return orderService.addOrderDetail(dto);
+    @MessageMapping("/add-order-detail")
+    public void addOrderDetail(@Payload OrderDetailAdditionDTO dto, @DestinationVariable String restaurantId, Principal principal) {
+        setRestaurantContext(principal);
+        simpMessagingTemplate.convertAndSend(String.format(RECEIVE_DESTINATION_FORMAT, restaurantId), orderService.addOrderDetail(dto));
     }
 
-    @MessageMapping("/topic/notify-kitchen/{restaurantId}")
-    @SendTo("/topic/receive-changed-order/{restaurantId}")
-    public OrderDTO notifyKitchen(@Payload UUID orderId, StompHeaderAccessor stompHeaderAccessor) {
-        setRestaurantContext(stompHeaderAccessor);
-        return orderService.notifyKitchen(orderId);
+    @MessageMapping("/notify-kitchen")
+    public void notifyKitchen(@Payload UUID orderId, @DestinationVariable String restaurantId, Principal principal) {
+        setRestaurantContext(principal);
+        OrderDTO orderDTO = orderService.notifyKitchen(orderId);
+
+        simpMessagingTemplate.convertAndSend(String.format(RECEIVE_DESTINATION_FORMAT, restaurantId), orderDTO);
+        simpMessagingTemplate.convertAndSend(
+            String.format("/kitchen/%s/receive-new-items", restaurantId),
+            kitchenService.getAllOrderItemInKitchen()
+        );
     }
 
-    @MessageMapping("/topic/delete-order-detail/{restaurantId}")
-    @SendTo("/topic/receive-changed-order/{restaurantId}")
-    public OrderDTO deleteOrderDetail(@Payload UUID orderId, StompHeaderAccessor stompHeaderAccessor) {
-        setRestaurantContext(stompHeaderAccessor);
-        return orderService.deleteOrderDetail(orderId);
+    @MessageMapping("/delete-order-detail")
+    public void deleteOrderDetail(@Payload UUID orderId, @DestinationVariable String restaurantId, Principal principal) {
+        setRestaurantContext(principal);
+        simpMessagingTemplate.convertAndSend(
+            String.format(RECEIVE_DESTINATION_FORMAT, restaurantId),
+            orderService.deleteOrderDetail(orderId)
+        );
     }
 
-    //    @MessageMapping("/topic/orders-event/{resSubdomain}")
-    //    @SendTo("/topic/orders/{resSubdomain}")
-    //    public OrderDTO createOrder(@Payload OrderEventDTO eventDTO, StompHeaderAccessor stompHeaderAccessor)
-    //        throws JsonProcessingException {
-    //        setRestaurantContext(stompHeaderAccessor);
-    //        switch (eventDTO.getType()) {
-    //            case CREATE_ORDER:
-    //                {
-    //                    OrderCreationDTO dto = mapper.readValue(eventDTO.getRawData(), OrderCreationDTO.class);
-    //                    return orderService.createOrder(dto);
-    //                }
-    ////            case ADD_ITEM:
-    ////                {
-    ////                    OrderDetailDTO dto = mapper.readValue(eventDTO.getRawData(), OrderDetailDTO.class);
-    ////                    orderService.addItemToOrder(dto);
-    ////                    break;
-    ////                }
-    ////            case ADJUST_ITEM_QUANTITY:
-    ////                {
-    ////                    OrderAdjustQuantityDTO dto = mapper.readValue(eventDTO.getRawData(), OrderAdjustQuantityDTO.class);
-    ////                    orderService.adjustItemQuantity(dto);
-    ////                    break;
-    ////                }
-    //            case NOTIFY_KITCHEN:
-    //                {
-    //                    UUID orderId = UUID.fromString(eventDTO.getRawData());
-    //                    orderService.notifyKitchen(orderId);
-    //                    break;
-    //                }
-    //            case DELETE_ITEM:
-    //                {
-    //                    UUID detailId = UUID.fromString(eventDTO.getRawData());
-    //                    orderDetailService.deleteOrderDetail(detailId);
-    //                }
-    //        }
-    //        return orderService.getOrderById(eventDTO.getOrderId());
-    //    }
-
-    private void setRestaurantContext(StompHeaderAccessor stompHeaderAccessor) {
-        String resId = Objects.requireNonNull(stompHeaderAccessor.getNativeHeader(RESTAURANT_ID_HEADER)).get(0);
-        RestaurantContext.setCurrentRestaurantById(resId);
+    @MessageMapping("/change-priority")
+    public void changePriority(
+        @Valid @Payload OrderDetailPriorityDTO orderDetailDTO,
+        @DestinationVariable String restaurantId,
+        Principal principal
+    ) {
+        setRestaurantContext(principal);
+        simpMessagingTemplate.convertAndSend(
+            String.format(RECEIVE_DESTINATION_FORMAT, restaurantId),
+            orderService.changePriority(orderDetailDTO)
+        );
     }
 
-    @MessageMapping("/topic/change-priority/{restaurantId}")
-    @SendTo("/topic/receive-changed-order/{restaurantId}")
-    public OrderDTO changePriority(@Valid @Payload OrderDetailPriorityDTO orderDetailDTO, StompHeaderAccessor stompHeaderAccessor) {
-        setRestaurantContext(stompHeaderAccessor);
-        return orderService.changePriority(orderDetailDTO);
+    private void setRestaurantContext(Principal principal) {
+        CustomUserDetails userDetails = (CustomUserDetails) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
+        RestaurantContext.setCurrentRestaurantById(userDetails.getRestaurantId());
     }
 }

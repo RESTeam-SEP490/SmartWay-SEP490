@@ -1,4 +1,4 @@
-package com.resteam.smartway.service.dto.order.notification;
+package com.resteam.smartway.service.dto.order;
 
 import java.util.UUID;
 import lombok.Data;

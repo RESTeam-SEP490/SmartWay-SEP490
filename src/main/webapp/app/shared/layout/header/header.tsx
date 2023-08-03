@@ -5,7 +5,6 @@ import { Translate } from 'react-jhipster';
 import LoadingBar from 'react-redux-loading-bar';
 import { Link, useLocation } from 'react-router-dom';
 import { AccountMenu, AuthenticatedAccountMenu, LocaleMenu } from '../menus';
-import { UserMenu } from '../menus/main-menu';
 import { Brand, BrandIcon } from './header-components';
 import { AppType } from 'app/app.constant';
 import { Button } from 'antd';
@@ -76,9 +75,11 @@ const TenantAppHeader = (props: IHeaderProps) => {
         <div className="flex items-center justify-between py-2 pl-4 pr-12">
           <BrandIcon />
           <div className="flex items-center gap-10">
-            <Button type="primary" icon={<DesktopOutlined rev={''} />}>
-              <Link to={'/pos/orders'}>POS Screen</Link>
-            </Button>
+            <Link to={'/pos/orders'}>
+              <Button type="primary" icon={<DesktopOutlined rev={''} />}>
+                POS Screen
+              </Button>
+            </Link>
             <LocaleMenu currentLocale={props.currentLocale} />
             <AuthenticatedAccountMenu name={props.username} />
           </div>
