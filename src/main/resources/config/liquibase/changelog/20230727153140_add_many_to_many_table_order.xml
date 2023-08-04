@@ -1,0 +1,25 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1690471911022-1">
+        <createTable tableName="order_table">
+            <column name="order_id" type="BINARY(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="table_id" type="BINARY(16)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1690471911022-2">
+        <addForeignKeyConstraint baseColumnNames="table_id" baseTableName="order_table" constraintName="FKjtjolnnicb6giiwj6auh0qqtk" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="dining_table" validate="true"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1690471911022-3">
+        <addForeignKeyConstraint baseColumnNames="order_id" baseTableName="order_table" constraintName="FKtg54qoeo0u27tsup0s3uql5t4" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="sw_order" validate="true"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1690471911022-4">
+        <dropForeignKeyConstraint baseTableName="sw_order" constraintName="FKn3lckv00dsghl53ij3wyrpd8o"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1690471911022-6">
+        <dropColumn columnName="table_id" tableName="sw_order"/>
+    </changeSet>
+</databaseChangeLog>

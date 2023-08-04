@@ -14,9 +14,11 @@ import com.resteam.smartway.service.mapper.DiningTableMapper;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +27,11 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -43,6 +50,12 @@ public class DiningTableServiceImpl implements DiningTableService {
     private final ZoneRepository zoneRepository;
 
     private final DiningTableMapper diningTableMapper;
+    private final ZoneService zoneService;
+    private final String NAME_SHEET_TABLE = "Table-Manage";
+    private final String CONTENT_KEY_COLUMN_EMPTY = "diningTable.columnEmpty";
+    private final String CONTENT_KEY_SEAT_INVALID = "diningTable.seatInvalid";
+    private final String CONTENT_KEY_SEAT_INTEGER_INVALID = "diningTable.seatIntegerInvalid";
+    private final String CONTENT_KEY_SHEET_NAME_INVALID = "diningTable.sheetInvalidName";
 
     @Override
     public Page<DiningTableDTO> loadDiningTablesWithSearch(Pageable pageable, String searchText, List<String> zoneIds, Boolean isActive) {
@@ -88,7 +101,7 @@ public class DiningTableServiceImpl implements DiningTableService {
                 .orElseThrow(() -> new BadRequestAlertException("Zone is not found", ENTITY_NAME, "idnotfound"));
             diningTable.setZone(zone);
         }
-        diningTable = diningTableMapper.toEntity(diningTableDTO);
+        diningTableMapper.partialUpdate(diningTable, diningTableDTO);
 
         DiningTable result = diningTableRepository.save(diningTable);
         return diningTableMapper.toDto(result);
@@ -123,6 +136,98 @@ public class DiningTableServiceImpl implements DiningTableService {
             })
             .collect(Collectors.toList());
         diningTableRepository.saveAll(diningTableList);
+    }
+
+    @Override
+    public Map<String, String> importDataTable(InputStream is) {
+        Map<String, String> errorMap = new HashMap<>();
+        List<DiningTable> diningTableList = new ArrayList<>();
+        boolean noUpload = false;
+        try {
+            XSSFWorkbook workbook = new XSSFWorkbook(is);
+            XSSFSheet sheet = workbook.getSheet(NAME_SHEET_TABLE);
+            if (workbook.getSheetAt(0) == null || !workbook.getSheetAt(0).getSheetName().equals(NAME_SHEET_TABLE)) {
+                errorMap.put("Sheet name", CONTENT_KEY_SHEET_NAME_INVALID);
+                return errorMap;
+            }
+            int rowNumber = 0;
+            Iterator<Row> iterator = sheet.iterator();
+            boolean os = true;
+            while (iterator.hasNext()) {
+                Row row = iterator.next();
+                if (rowNumber == 0) {
+                    rowNumber++;
+                    continue;
+                }
+                Iterator<Cell> cells = row.iterator();
+                DiningTable diningTable = new DiningTable();
+                while (cells.hasNext()) {
+                    Cell cell = cells.next();
+                    switch (cell.getColumnIndex()) {
+                        case 0:
+                            Optional<Zone> currentZone = zoneRepository.findOneByName(cell.getStringCellValue());
+                            if (currentZone.isPresent()) {
+                                diningTable.setZone(currentZone.get());
+                            } else {
+                                Zone newZone = new Zone(null, cell.getStringCellValue());
+                                zoneRepository.save(newZone);
+                                diningTable.setZone(newZone);
+                            }
+                            break;
+                        case 1:
+                            diningTable.setName(cell.getStringCellValue());
+                            break;
+                        case 2:
+                            if (cell.getCellType() == CellType.NUMERIC) {
+                                double numericValue = cell.getNumericCellValue();
+                                if (numericValue % 1 == 0) {
+                                    diningTable.setNumberOfSeats((int) numericValue);
+                                } else {
+                                    StringBuilder columnName = new StringBuilder(getColumnLabel(3));
+                                    errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), CONTENT_KEY_SEAT_INTEGER_INVALID);
+                                    noUpload = true;
+                                }
+                            } else {
+                                StringBuilder columnName = new StringBuilder(getColumnLabel(3));
+                                errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), CONTENT_KEY_SEAT_INVALID);
+                                noUpload = true;
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                if (diningTable.getName() == null) {
+                    StringBuilder columnName = new StringBuilder(getColumnLabel(2));
+                    errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), CONTENT_KEY_COLUMN_EMPTY);
+                    noUpload = true;
+                } else {
+                    diningTable.setIsFree(true);
+                    diningTable.setIsActive(true);
+                    diningTableList.add(diningTable);
+                }
+                rowNumber++;
+            }
+
+            if (!noUpload) {
+                diningTableRepository.saveAll(diningTableList);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return errorMap;
+    }
+
+    private String getColumnLabel(int column) {
+        StringBuilder label = new StringBuilder();
+        while (column > 0) {
+            column--;
+            label.insert(0, (char) ('A' + (column % 26)));
+            column /= 26;
+        }
+        return label.toString();
     }
 
     @Override

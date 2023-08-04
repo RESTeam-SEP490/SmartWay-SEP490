@@ -1,5 +1,7 @@
-package com.resteam.smartway.domain;
+package com.resteam.smartway.domain.order;
 
+import com.resteam.smartway.domain.MenuItem;
+import com.resteam.smartway.domain.base.AbstractBaseEntity;
 import java.time.Instant;
 import java.util.UUID;
 import javax.persistence.*;
@@ -15,16 +17,16 @@ import org.springframework.data.annotation.CreatedDate;
 @AllArgsConstructor
 @Entity
 @Table(name = "order_detail")
-public class OrderDetail {
+public class OrderDetail extends AbstractBaseEntity {
 
     @Id
     @GeneratedValue
     @Column(name = "id", columnDefinition = "BINARY(16)")
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "order_id", referencedColumnName = "id", columnDefinition = "BINARY(16)")
-    private SwOrder swOrder;
+    private SwOrder order;
 
     @ManyToOne
     @JoinColumn(name = "menu_item_id", referencedColumnName = "id", columnDefinition = "BINARY(16)")
@@ -32,17 +34,14 @@ public class OrderDetail {
 
     private int quantity;
 
-    @Column(name = "is_cooked", nullable = false)
-    private boolean isCooked;
+    @Column(name = "unnotified_quantity")
+    private int unnotifiedQuantity;
 
     @Column(name = "is_priority", nullable = false)
-    private boolean isPriority;
+    private boolean isPriority = false;
 
     @Column(name = "note")
     private String note;
-
-    @Column(name = "notified_time")
-    private Instant notifiedTime;
 
     @CreatedDate
     @Column(name = "created_date", nullable = false)

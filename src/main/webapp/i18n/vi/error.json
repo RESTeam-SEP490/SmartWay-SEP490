@@ -12,6 +12,7 @@
     "validation": "Dữ liệU không hợp lệ.",
     "existed": "{{ entityName }} này đã tồn tại",
     "constraintViolation": "Dữ liệu này đang được sử dụng. Không thể xoá!",
-    "notdeletable": "Dữ liệu này đang được sử dụng. Không thể xoá!"
+    "notdeletable": "Dữ liệu này đang được sử dụng. Không thể xoá!",
+    "Cannotaddnote": "Không thể ghi chú cho món này"
   }
 }
