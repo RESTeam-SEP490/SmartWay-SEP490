@@ -5,10 +5,14 @@ import com.resteam.smartway.domain.User;
 import com.resteam.smartway.repository.RestaurantRepository;
 import com.resteam.smartway.repository.UserRepository;
 import com.resteam.smartway.service.dto.RestaurantDTO;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +25,9 @@ public class RestaurantServiceImpl implements RestaurantService {
     private final RestaurantRepository restaurantRepository;
     private final UserRepository userRepository;
     private final UserService userService;
+
+    @Autowired
+    private EmailService emailService;
 
     @Override
     public List<RestaurantDTO> getAllRestaurantDTOs() {
@@ -47,5 +54,32 @@ public class RestaurantServiceImpl implements RestaurantService {
         }
 
         return dto;
+    }
+
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void schedulePlanExpiryEmails() {
+        checkPlanExpiryAndSendEmails();
+    }
+
+    public void checkPlanExpiryAndSendEmails() {
+        List<Restaurant> restaurants = restaurantRepository.findAll();
+        Instant today = Instant.now();
+
+        for (Restaurant restaurant : restaurants) {
+            if (!"system@".equals(restaurant.getId())) {
+                Instant planExpiry = restaurant.getPlanExpiry();
+                if (planExpiry != null && today.plus(Duration.ofDays(5)).isBefore(planExpiry)) {
+                    User user = userRepository.findUserByRestaurantId(restaurant.getId());
+                    if (user != null && user.getRole().getName().equals("ADMIN")) {
+                        String mailTo = user.getEmail();
+                        emailService.sendMail(
+                            mailTo,
+                            "Your plan is expiring soon!",
+                            "Your plan will expire in 5 days. Please renew your plan."
+                        );
+                    }
+                }
+            }
+        }
     }
 }

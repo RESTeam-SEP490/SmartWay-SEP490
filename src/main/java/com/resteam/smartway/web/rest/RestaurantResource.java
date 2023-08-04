@@ -3,6 +3,7 @@ package com.resteam.smartway.web.rest;
 import com.resteam.smartway.domain.Restaurant;
 import com.resteam.smartway.repository.RestaurantRepository;
 import com.resteam.smartway.service.RestaurantService;
+import com.resteam.smartway.service.RestaurantServiceImpl;
 import com.resteam.smartway.service.dto.RestaurantDTO;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
@@ -29,6 +30,8 @@ public class RestaurantResource {
 
     private final RestaurantService restaurantService;
 
+    private final RestaurantServiceImpl restaurantServiceImpl;
+
     private final Logger log = LoggerFactory.getLogger(RestaurantResource.class);
 
     private static final String ENTITY_NAME = "restaurant";
@@ -38,8 +41,13 @@ public class RestaurantResource {
 
     private final RestaurantRepository restaurantRepository;
 
-    public RestaurantResource(RestaurantService restaurantService, RestaurantRepository restaurantRepository) {
+    public RestaurantResource(
+        RestaurantService restaurantService,
+        RestaurantServiceImpl restaurantServiceImpl,
+        RestaurantRepository restaurantRepository
+    ) {
         this.restaurantService = restaurantService;
+        this.restaurantServiceImpl = restaurantServiceImpl;
         this.restaurantRepository = restaurantRepository;
     }
 
@@ -186,5 +194,11 @@ public class RestaurantResource {
     public ResponseEntity<List<RestaurantDTO>> getListRestaurants() {
         List<RestaurantDTO> restaurantDTOs = restaurantService.getAllRestaurantDTOs();
         return ResponseEntity.ok(restaurantDTOs);
+    }
+
+    @GetMapping("/check-plan-expiry")
+    public ResponseEntity<String> checkPlanExpiryAndSendEmailsNow() {
+        restaurantServiceImpl.checkPlanExpiryAndSendEmails();
+        return ResponseEntity.ok("Email check and sending triggered.");
     }
 }
