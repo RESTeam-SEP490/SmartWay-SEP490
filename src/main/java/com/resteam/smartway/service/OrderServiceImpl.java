@@ -81,6 +81,16 @@ public class OrderServiceImpl implements OrderService {
         return orderMapper.toDto(savedOrder);
     }
 
+    @Override
+    public OrderDTO createTakeAwayOrder() {
+        SwOrder order = new SwOrder();
+        String orderCode = generateCode();
+        order.setCode(orderCode);
+        order.setTakeAway(true);
+        SwOrder savedOrder = orderRepository.save(order);
+        return orderMapper.toDto(savedOrder);
+    }
+
     private SwOrder sortOrderDetailsAndNotificationHistories(SwOrder order) {
         List<OrderDetail> orderDetails = order.getOrderDetailList();
         orderDetails.sort((o1, o2) -> {

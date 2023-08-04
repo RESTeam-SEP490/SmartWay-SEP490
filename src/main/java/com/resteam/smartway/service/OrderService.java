@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 public interface OrderService {
     OrderDTO createOrder(OrderCreationDTO orderDTO);
+    OrderDTO createTakeAwayOrder();
 
     OrderDTO adjustDetailQuantity(OrderDetailAdjustQuantityDTO dto);
 

@@ -34,6 +34,12 @@ public class OrderResource {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
     }
 
+    @PostMapping("/take-away")
+    public ResponseEntity<OrderDTO> createTakeAwayOrder() {
+        OrderDTO createdOrder = orderService.createTakeAwayOrder();
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
+    }
+
     @GetMapping("/active-orders")
     public ResponseEntity<List<OrderDTO>> getAllActiveOrders() {
         List<OrderDTO> notPaidOrders = orderService.getAllActiveOrders();
