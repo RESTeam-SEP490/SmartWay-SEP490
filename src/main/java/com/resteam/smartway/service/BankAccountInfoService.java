@@ -1,12 +1,14 @@
 package com.resteam.smartway.service;
 
-import com.resteam.smartway.domain.BankAccountInfo;
+import com.resteam.smartway.service.dto.BankAccountInfoDTO;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 public interface BankAccountInfoService {
-    List<BankAccountInfo> bankAccountInfoList();
-    BankAccountInfo createBankAccountInfo(BankAccountInfo bankAccountInfo);
-    BankAccountInfo updateBankAccountInfo(BankAccountInfo bankAccountInfo);
+    List<BankAccountInfoDTO> bankAccountInfoList();
+    BankAccountInfoDTO createBankAccountInfo(BankAccountInfoDTO bankAccountInfoDTO);
+    BankAccountInfoDTO updateBankAccountInfo(BankAccountInfoDTO bankAccountInfoDTO);
+
+    void changeDefaultBankAccountInfo(String id);
+
+    void changeNotActiveBankAccountInfo(String id);
 }

@@ -18,6 +18,8 @@ export const SubmitButton = ({ form, isNew, updating }: { form: FormInstance; is
       }
     );
   }, [values]);
+
+  console.log(isNew, form.isFieldsTouched(), isValid);
   return (
     <Button
       icon={isNew ? <SaveOutlined rev={''} /> : <FormOutlined rev={''} />}

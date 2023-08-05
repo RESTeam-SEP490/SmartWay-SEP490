@@ -29,6 +29,26 @@ export const getEntity = createAsyncThunk(
   { serializeError: serializeAxiosError }
 );
 
+export const setDefaultBankAccountInfo = createAsyncThunk(
+  'bankAccountInfo/update_entity',
+  async (id: string, thunkAPI) => {
+    const result = await axios.put<IBankAccountInfo>(`${apiUrl}/setDefault/${id}`);
+    thunkAPI.dispatch(getEntities());
+    return result;
+  },
+  { serializeError: serializeAxiosError }
+);
+
+export const setActiveBankAccountInfo = createAsyncThunk(
+  'bankAccountInfo/update_entity',
+  async (id: string, thunkAPI) => {
+    const result = await axios.put<IBankAccountInfo>(`${apiUrl}/setActive/${id}`);
+    thunkAPI.dispatch(getEntities());
+    return result;
+  },
+  { serializeError: serializeAxiosError }
+);
+
 export const createEntity = createAsyncThunk(
   'bankAccountInfo/create_entity',
   async (entity: IBankAccountInfo, thunkAPI) => {
@@ -85,7 +105,7 @@ export const BankAccountSlice = createEntitySlice({
           entities: data,
         };
       })
-      .addMatcher(isFulfilled(createEntity, updateEntity), (state, action) => {
+      .addMatcher(isFulfilled(createEntity, updateEntity, setDefaultBankAccountInfo), (state, action) => {
         state.updating = false;
         state.loading = false;
         state.updateSuccess = true;
@@ -96,7 +116,7 @@ export const BankAccountSlice = createEntitySlice({
         state.updateSuccess = false;
         state.loading = true;
       })
-      .addMatcher(isPending(createEntity, updateEntity, deleteEntity), state => {
+      .addMatcher(isPending(createEntity, updateEntity, deleteEntity, setDefaultBankAccountInfo), state => {
         state.errorMessage = null;
         state.updateSuccess = false;
         state.updating = true;

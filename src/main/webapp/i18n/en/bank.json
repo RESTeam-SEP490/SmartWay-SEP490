@@ -6,6 +6,25 @@
     "selectBank": "Select Bank",
     "addNewBankAccount": "Add New Bank Account",
     "createBankAccount": "Add new bank account",
-    "updateBankAccount": "Update bank account"
+    "updateBankAccount": "Update bank account",
+    "fullNameBankAccount": "Full name",
+    "setDefault": "The bank account is set default",
+    "setActive": "The bank account is disabled",
+    "AccountNumberInValid": "Account number Invalid",
+    "BankNotSupport": "Bank not support",
+    "Something": "Oops, Something went wrong",
+    "Busy": "All provider busy",
+    "missing": "Missing param",
+    "acqId": "Invalid acqId",
+    "InvalidAccountNo": "Invalid accountNo",
+    "bankNameRequired": "Bank name is required",
+    "accountNumberRequired": "Account number is required"
+  },
+
+  "smartWayApp": {
+    "bankAccount": {
+      "created": "Add new bank account successfully",
+      "updated": "Update bank account successfully"
+    }
   }
 }

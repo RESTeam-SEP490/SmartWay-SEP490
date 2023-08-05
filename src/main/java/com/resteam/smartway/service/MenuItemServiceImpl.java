@@ -10,7 +10,6 @@ import com.resteam.smartway.service.aws.S3Service;
 import com.resteam.smartway.service.dto.IsActiveUpdateDTO;
 import com.resteam.smartway.service.dto.MenuItemDTO;
 import com.resteam.smartway.service.mapper.MenuItemMapper;
-import com.resteam.smartway.web.rest.MenuItemCategoryResource;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
 import java.util.List;
 import java.util.Optional;

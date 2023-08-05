@@ -307,3 +307,8 @@ th.ant-table-cell::before {
 .order-details .ant-spin-nested-loading {
   height: 100%;
 }
+
+.bankAccountDefault {
+  background-color: #4d81f1;
+  color: white;
+}

@@ -1,18 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { Avatar, Button, Card } from 'antd';
-import { CheckCircleTwoTone, DeleteTwoTone, EditTwoTone, PlusCircleTwoTone } from '@ant-design/icons';
+import { Avatar, Card } from 'antd';
+import { DeleteTwoTone, EditTwoTone, HomeTwoTone, PlusCircleTwoTone } from '@ant-design/icons';
 import Meta from 'antd/es/card/Meta';
 import { translate } from 'react-jhipster';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
-import { getEntities } from 'app/pages/tenant/check-bank-account-tenant/check-bank-account-tenant.reducer';
+import {
+  getEntities,
+  setActiveBankAccountInfo,
+  setDefaultBankAccountInfo,
+} from 'app/pages/tenant/check-bank-account-tenant/check-bank-account-tenant.reducer';
 import { IBankAccountInfo } from 'app/shared/model/bank-account-info';
 import { CheckBankAccountTenantForm } from 'app/pages/tenant/check-bank-account-tenant/check-bank-account-tenant-form';
 
 export const CheckBankAccountTenant = () => {
   const dispatch = useAppDispatch();
   const bankAccountList = useAppSelector(state => state.bankAccount.entities);
+  const defaultBank = bankAccountList?.find(bank => bank.default);
   const [isShowForm, setIsShowForm] = useState(false);
   const [updateBankAccountInfo, setUpdateBankAccountInfo] = useState<IBankAccountInfo>();
+  const [bankAccountDefault, setBankAccountDefault] = useState();
 
   useEffect(() => {
     dispatch(getEntities());
@@ -45,14 +51,12 @@ export const CheckBankAccountTenant = () => {
         <div className="w-4/5 p-4">
           <p className="font-medium">Bank Accounts</p>
           <div className="flex ">
-            <Card
-              className="w-1/4 flex justify-center items-center h-36 border-solid border-2 border-indigo-600"
-              actions={[<CheckCircleTwoTone twoToneColor="#52c41a" rev={undefined} />]}
-            >
+            <Card className="w-1/4 flex justify-center items-center h-36 bankAccountDefault">
               <Meta
-                avatar={<Avatar className="w-full" shape="square" src="https://api.vietqr.io/img/ACB.png" />}
-                title="TP Bank"
-                description="330 8989898989"
+                className="text-white"
+                avatar={<Avatar className="w-full" shape="square" src={defaultBank?.logoBank} />}
+                title={defaultBank?.bankName}
+                description={defaultBank?.accountNumber}
               />
             </Card>
 
@@ -64,26 +68,28 @@ export const CheckBankAccountTenant = () => {
             </Card>
           </div>
 
-          {splitIntoRows(bankAccountList, 3).map((row, rowIndex) => (
+          {splitIntoRows(bankAccountList, 2).map((row, rowIndex) => (
             <div className="flex mt-2.5" key={rowIndex}>
-              {row.map(bankAccount => (
-                <Card
-                  className="hover:shadow-md"
-                  key={bankAccount.id}
-                  style={{ width: 300, margin: '0 8px 8px 0' }}
-                  actions={[
-                    <CheckCircleTwoTone key="ellipsis" rev={undefined} />,
-                    <EditTwoTone key="edit" rev={undefined} />,
-                    <DeleteTwoTone key="setting" rev={undefined} />,
-                  ]}
-                >
-                  <Meta
-                    avatar={<Avatar className="w-full" shape="square" src="https://api.vietqr.io/img/ACB.png" />}
-                    title={bankAccount.bankName}
-                    description={bankAccount.accountNumber}
-                  />
-                </Card>
-              ))}
+              {row
+                .filter(bank => !bank.default && bank.active)
+                .map(bankAccount => (
+                  <Card
+                    className="hover:shadow-md border-solid border-2 border-indigo-600"
+                    key={bankAccount.id}
+                    style={{ width: 300, margin: '0 8px 8px 0' }}
+                    actions={[
+                      <HomeTwoTone key="ellipsis" rev={undefined} onClick={() => dispatch(setDefaultBankAccountInfo(bankAccount.id))} />,
+                      <EditTwoTone key="edit" rev={undefined} onClick={() => handleOpen(bankAccount)} />,
+                      <DeleteTwoTone key="setting" rev={undefined} onClick={() => dispatch(setActiveBankAccountInfo(bankAccount.id))} />,
+                    ]}
+                  >
+                    <Meta
+                      avatar={<Avatar className="w-full" shape="square" src={bankAccount.logoBank} />}
+                      title={bankAccount.bankName}
+                      description={bankAccount.accountNumber}
+                    />
+                  </Card>
+                ))}
             </div>
           ))}
         </div>

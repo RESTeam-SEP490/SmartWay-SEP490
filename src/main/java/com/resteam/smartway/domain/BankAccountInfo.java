@@ -27,11 +27,15 @@ public class BankAccountInfo extends AbstractBaseAuditingEntity<UUID> {
     @Column(name = "bank_name")
     private String bankName;
 
-    private boolean isChoose;
+    private boolean isDefault;
 
-    @ManyToOne
-    @JoinColumn(name = "tenant_id", referencedColumnName = "id", columnDefinition = "BINARY(16)")
-    private User user;
+    private String logoBank;
+
+    private String bin;
+
+    private String fullNameBankAccount;
+
+    private boolean isActive;
 
     @ManyToOne
     @JoinColumn(name = "restaurant_id", referencedColumnName = "id", columnDefinition = "BINARY(16)")
