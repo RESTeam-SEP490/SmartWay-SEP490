@@ -8,6 +8,7 @@ import com.resteam.smartway.domain.order.notifications.ItemAdditionNotification;
 import com.resteam.smartway.domain.order.notifications.KitchenNotificationHistory;
 import com.resteam.smartway.repository.DiningTableRepository;
 import com.resteam.smartway.repository.MenuItemRepository;
+import com.resteam.smartway.repository.order.KitchenNotificationHistoryRepository;
 import com.resteam.smartway.repository.order.OrderDetailRepository;
 import com.resteam.smartway.repository.order.OrderRepository;
 import com.resteam.smartway.service.aws.S3Service;
@@ -15,10 +16,7 @@ import com.resteam.smartway.service.dto.order.*;
 import com.resteam.smartway.service.mapper.order.OrderDetailMapper;
 import com.resteam.smartway.service.mapper.order.OrderMapper;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -37,6 +35,7 @@ public class OrderServiceImpl implements OrderService {
     private final MenuItemRepository menuItemRepository;
     private final OrderDetailMapper orderDetailMapper;
     private final OrderDetailRepository orderDetailRepository;
+    private final KitchenNotificationHistoryRepository kitchenNotificationHistoryRepository;
     private final S3Service s3Service;
 
     private static final String ORDER = "order";
@@ -355,54 +354,69 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.saveAndFlush(newOrder);
         orderRepository.saveAndFlush(order);
 
-        return orderMapper.toDto(sortOrderDetailsAndNotificationHistories(newOrder));
+        return sortOrderDetailsAndNotificationHistories(newOrder);
     }
 
     @Override
-    public OrderDTO groupTables(OrderDTO orderDTO, List<String> ids) {
+    public OrderDTO groupTables(UUID orderId, List<String> ids) {
         SwOrder order = orderRepository
-            .findByIdAndIsPaid(orderDTO.getId(), false)
+            .findByIdAndIsPaid(orderId, false)
             .orElseThrow(() -> new BadRequestAlertException("Order was not found or paid", ORDER, "idnotfound"));
 
-        List<DiningTable> tables = order.getTableList();
-        ids
-            .stream()
-            .forEach(id -> {
-                if (id == null) throw new BadRequestAlertException("Invalid id", TABLE, "idnull");
-                DiningTable table = diningTableRepository
-                    .findByIdAndIsActive(UUID.fromString(id), true)
-                    .orElseThrow(() -> new BadRequestAlertException("Invalid ID", TABLE, "idnotfound"));
-                table.setIsFree(false);
+        List<DiningTable> newTableList = new ArrayList<>();
+        List<DiningTable> tableList = order.getTableList();
 
-                tables.add(table);
-            });
+        ids.forEach(id -> {
+            if (id == null) throw new BadRequestAlertException("Invalid id", TABLE, "idnull");
+            DiningTable table = diningTableRepository
+                .findByIdAndIsActive(UUID.fromString(id), true)
+                .orElseThrow(() -> new BadRequestAlertException("Invalid ID", TABLE, "idnotfound"));
+            table.setIsFree(false);
 
-        order.setTableList(tables);
-        List<OrderDetail> oldOrders = new ArrayList<>();
+            newTableList.add(table);
+            if (!tableList.contains(table)) tableList.add(table);
+        });
+
+        List<DiningTable> toPopTables = order.getTableList();
+
+        tableList.removeIf(table -> {
+            if (!newTableList.contains(table)) {
+                table.setIsFree(true);
+                toPopTables.add(table);
+                return true;
+            }
+            return false;
+        });
+
+        List<OrderDetail> toAddOrderDetails = new ArrayList<>();
+        List<KitchenNotificationHistory> toAddKitchenNotificationHistories = new ArrayList<>();
 
         List<SwOrder> toDeleteOrder = orderRepository
-            .findDistinctByTableListInAndIsPaid(tables, false)
+            .findDistinctByTableListInAndIsPaid(tableList, false)
             .stream()
             .filter(o -> !o.getId().equals(order.getId()))
             .peek(o -> {
-                o
-                    .getOrderDetailList()
-                    .forEach(orderDetail -> {
-                        oldOrders.add(orderDetail);
-                    });
+                toAddOrderDetails.addAll(o.getOrderDetailList());
+                toAddKitchenNotificationHistories.addAll(o.getKitchenNotificationHistoryList());
             })
             .collect(Collectors.toList());
 
-        order.getOrderDetailList().addAll(oldOrders);
+        //        order.getOrderDetailList().addAll(toAddOrderDetails);
+        //        order.getKitchenNotificationHistoryList().addAll(toAddKitchenNotificationHistories);
 
-        for (OrderDetail orderDetail : oldOrders) {
+        for (OrderDetail orderDetail : toAddOrderDetails) {
             orderDetail.setOrder(order);
             orderDetailRepository.save(orderDetail);
+        }
+
+        for (KitchenNotificationHistory kitchenNotificationHistory : toAddKitchenNotificationHistories) {
+            kitchenNotificationHistory.setOrder(order);
+            kitchenNotificationHistoryRepository.save(kitchenNotificationHistory);
         }
 
         orderRepository.saveAndFlush(order);
         orderRepository.deleteAll(toDeleteOrder);
 
-        return orderMapper.toDto(sortOrderDetailsAndNotificationHistories(order));
+        return sortOrderDetailsAndNotificationHistories(order);
     }
 }

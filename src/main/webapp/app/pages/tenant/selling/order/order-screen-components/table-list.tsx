@@ -10,7 +10,7 @@ import React, { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { Translate } from 'react-jhipster';
 import { orderActions } from '../order.reducer';
-import { MdBlock, MdFastfood, MdLink } from 'react-icons/md';
+import { MdFastfood } from 'react-icons/md';
 
 export const TableList = () => {
   const dispatch = useAppDispatch();
@@ -27,8 +27,8 @@ export const TableList = () => {
   }, []);
 
   useEffect(() => {
-    if (tableList?.length > 0 && currentOrder.tableList.length === 0) dispatch(orderActions.selectOrderByTable(tableList[0]));
-    console.log(currentOrder.id);
+    if (tableList?.length > 0 && currentOrder.tableList.length === 0 && orders.length > 0)
+      dispatch(orderActions.selectOrderByTable(tableList[0]));
   }, [tableList, orders]);
 
   useEffect(() => {
@@ -126,10 +126,14 @@ const TableCard = ({ table, handleSelectTable, isSelected }: { table: IDiningTab
           </span>
         </span>
       )}
-      <div className="absolute h-2 translate-x-1/2 bg-blue-100 -top-1 right-1/2 w-9"></div>
-      <div className="absolute top-0 flex items-center justify-center p-1 text-blue-100 translate-x-1/2 -translate-y-1/2 bg-blue-700 rounded-full aspect-square right-1/2 table-badge">
-        <BlockOutlined rev="" className="text-lg" />
-      </div>
+      {orderOfThisTable?.tableList.length > 1 && isSelected && (
+        <>
+          <div className="absolute h-2 translate-x-1/2 bg-blue-100 -top-1 right-1/2 w-9"></div>
+          <div className="absolute top-0 flex items-center justify-center p-1 text-blue-100 translate-x-1/2 -translate-y-1/2 bg-blue-700 rounded-full aspect-square right-1/2 table-badge">
+            <BlockOutlined rev="" className="text-lg" />
+          </div>
+        </>
+      )}
     </div>
   );
 };

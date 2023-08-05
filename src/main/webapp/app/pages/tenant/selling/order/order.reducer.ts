@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, isFulfilled, isPending, isRejected, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 
 import { IMenuItem } from 'app/shared/model/menu-item.model';
@@ -28,6 +28,16 @@ export const addNote = createAsyncThunk(
   async (detailAddnoteDto: { orderDetailId: string; note: string }) => {
     const requestUrl = `${apiUrl}/add-note`;
     const result = axios.put<IOrder>(requestUrl, detailAddnoteDto);
+    return result;
+  },
+  { serializeError: serializeAxiosError }
+);
+
+export const groupTables = createAsyncThunk(
+  'orders/group_tables',
+  async (dto: { orderId: string; tableList: string[] }) => {
+    const requestUrl = `${apiUrl}/${dto.orderId}/group-tables`;
+    const result = axios.put<IOrder>(requestUrl, dto.tableList);
     return result;
   },
   { serializeError: serializeAxiosError }
@@ -78,7 +88,7 @@ export const OrderSlice = createSlice({
 
       const currentSelectedTable = state.currentOrder.tableList;
       const isUpdateCurrentOrder = currentSelectedTable.some(table => toUpdateOrder.tableList.some(t => t.id === table.id));
-      console.log(isUpdateCurrentOrder);
+
       if (isUpdateCurrentOrder) state.currentOrder = toUpdateOrder;
 
       if (isUpdate) state.activeOrders = nextOrderList;
@@ -110,10 +120,10 @@ export const OrderSlice = createSlice({
         state.loading = false;
         state.activeOrders = action.payload.data;
       })
-      .addCase(addNote.pending, (state, action) => {
+      .addMatcher(isPending(addNote, groupTables), (state, action) => {
         state.updating = true;
       })
-      .addCase(addNote.fulfilled, (state, action) => {
+      .addMatcher(isFulfilled(addNote, groupTables), (state, action) => {
         state.updateSuccess = true;
         state.updating = false;
 
@@ -131,7 +141,7 @@ export const OrderSlice = createSlice({
 
         if (state.currentOrder.id === toUpdateOrder.id) state.currentOrder = toUpdateOrder;
       })
-      .addCase(addNote.rejected, (state, action) => {
+      .addMatcher(isRejected(addNote, groupTables, getEntities), (state, action) => {
         state.updating = false;
       });
   },

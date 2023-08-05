@@ -5,7 +5,7 @@ import { SubmitButton } from 'app/shared/layout/form-shared-component';
 import { IOrderDetail } from 'app/shared/model/order/order-detail.model';
 import React, { useEffect } from 'react';
 import { Translate, translate } from 'react-jhipster';
-import { addNote } from '../order.reducer';
+import { addNote } from '../../order.reducer';
 
 export const AddNoteForm = ({ detail, isOpen, handleClose }: { detail: IOrderDetail; isOpen: boolean; handleClose: any }) => {
   const dispatch = useAppDispatch();

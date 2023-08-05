@@ -1,11 +1,11 @@
 import { MinusOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, InputNumber, Modal } from 'antd';
+import { Button, Modal } from 'antd';
 import { useAppDispatch } from 'app/config/store';
 import { IOrderDetail } from 'app/shared/model/order/order-detail.model';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Keyboard from 'react-simple-keyboard';
 import 'react-simple-keyboard/build/css/index.css';
-import { orderActions } from '../order.reducer';
+import { orderActions } from '../../order.reducer';
 
 export const NumbericKeyboard = ({ detail, isOpen, handleClose }: { detail: IOrderDetail; isOpen: boolean; handleClose: any }) => {
   const dispatch = useAppDispatch();

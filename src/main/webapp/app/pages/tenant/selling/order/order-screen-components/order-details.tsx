@@ -17,18 +17,12 @@ import dayjs from 'dayjs';
 import { motion } from 'framer-motion';
 import React, { useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
-import {
-  MdMonetizationOn,
-  MdOutlineCheck,
-  MdOutlineFastfood,
-  MdOutlineRamenDining,
-  MdRoomService,
-  MdTableRestaurant,
-} from 'react-icons/md';
+import { MdMonetizationOn, MdOutlineFastfood, MdOutlineRamenDining, MdRoomService, MdTableRestaurant } from 'react-icons/md';
 import { Translate } from 'react-jhipster';
 import { orderActions } from '../order.reducer';
-import { AddNoteForm } from './detail-note-modal';
-import { NumbericKeyboard } from './numberic-keyboard';
+import { AddNoteForm } from './modals/detail-note-modal';
+import { NumbericKeyboard } from './modals/numberic-keyboard';
+import { TablesOfOrderModal } from './modals/order-table-modal';
 
 export const OrderDetails = () => {
   const dispatch = useAppDispatch();
@@ -39,6 +33,7 @@ export const OrderDetails = () => {
 
   const [isOpenNoteForm, setIsOpenNoteForm] = useState(false);
   const [isOpenNumbericKeyboard, setIsOpenNumbericKeyboard] = useState(false);
+  const [isOpenTablesOfOrderModal, setIsOpenTablesOfOrderModal] = useState(false);
   const [adjustingDetail, setAdjustingDetail] = useState<IOrderDetail>({});
   const [isOpenNotificationHistory, setIsOpenNotificationHistory] = useState(false);
   const [selectedDetail, setSelectedDetail] = useState(null);
@@ -65,10 +60,10 @@ export const OrderDetails = () => {
     setIsOpenNumbericKeyboard(true);
   };
 
-  console.log(adjustingDetail);
-
   return (
     <>
+      <NumbericKeyboard detail={adjustingDetail} isOpen={isOpenNumbericKeyboard} handleClose={() => setIsOpenNumbericKeyboard(false)} />
+      <TablesOfOrderModal isOpen={isOpenTablesOfOrderModal} handleClose={() => setIsOpenTablesOfOrderModal(false)} />
       {currentOrder.id && (
         <Drawer
           width={480}
@@ -119,7 +114,10 @@ export const OrderDetails = () => {
             )}
           </div>
           <div className="flex">
-            <div className="relative flex items-center justify-center gap-2 px-6 py-2 text-sm font-semibold text-blue-700 bg-blue-100 border-2 border-blue-600 border-solid rounded-lg cursor-pointer table-tag-badge">
+            <div
+              className="relative flex items-center justify-center gap-2 px-6 py-2 text-sm font-semibold text-blue-700 bg-blue-100 border-2 border-blue-600 border-solid rounded-lg cursor-pointer table-tag-badge"
+              onClick={() => setIsOpenTablesOfOrderModal(true)}
+            >
               <div className="absolute left-0 z-10 flex items-center justify-center p-1 text-blue-100 -translate-x-1/2 -translate-y-1/2 bg-blue-600 rounded-full aspect-square top-1/2">
                 {currentOrder.tableList.length > 1 ? <BlockOutlined rev="" /> : <MdTableRestaurant size={16} />}
               </div>
@@ -205,7 +203,6 @@ export const OrderDetails = () => {
           </Button>
         </div>
       </div>
-      <NumbericKeyboard detail={adjustingDetail} isOpen={isOpenNumbericKeyboard} handleClose={() => setIsOpenNumbericKeyboard(false)} />
     </>
   );
 };

@@ -476,12 +476,24 @@
   height: 100vh;
 }
 
+.h-60 {
+  height: 15rem;
+}
+
 .min-h-full {
   min-height: 100%;
 }
 
 .min-h-screen {
   min-height: 100vh;
+}
+
+.min-h-\[200px\] {
+  min-height: 200px;
+}
+
+.min-h-\[240px\] {
+  min-height: 240px;
 }
 
 .\!w-12 {
@@ -631,6 +643,10 @@
 
 .w-full {
   width: 100%;
+}
+
+.w-\[400px\] {
+  width: 400px;
 }
 
 .min-w-\[40px\] {
@@ -1198,6 +1214,14 @@
 
 .pt-4 {
   padding-top: 1rem;
+}
+
+.pl-7 {
+  padding-left: 1.75rem;
+}
+
+.pr-6 {
+  padding-right: 1.5rem;
 }
 
 .text-left {

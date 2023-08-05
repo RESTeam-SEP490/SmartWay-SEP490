@@ -20,7 +20,7 @@ public interface OrderService {
 
     OrderDTO addNoteToOrderDetail(DetailAddNoteDTO dto);
 
-    OrderDTO groupTables(OrderDTO orderDTO, List<String> ids);
+    OrderDTO groupTables(UUID orderId, List<String> ids);
 
     OrderDTO findById(UUID orderId);
 
