@@ -1,5 +1,6 @@
 package com.resteam.smartway.service;
 
+import com.itextpdf.text.DocumentException;
 import com.resteam.smartway.service.dto.DiningTableDTO;
 import com.resteam.smartway.service.dto.order.*;
 import com.resteam.smartway.service.dto.order.notification.ItemAdditionNotificationDTO;
@@ -33,4 +34,8 @@ public interface OrderService {
     OrderDTO changePriority(OrderDetailPriorityDTO orderDetailDTO);
 
     List<ItemAdditionNotificationDTO> getAllOrderItemInKitchen();
+
+    byte[] generatePdfOrder(OrderDTO orderDTO) throws DocumentException;
+
+    byte[] generatePdfOrderForPay(OrderDTO orderDTO) throws DocumentException;
 }
