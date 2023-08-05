@@ -32,7 +32,10 @@ public class SwOrder extends AbstractBaseAuditingEntity<UUID> {
     @Column(name = "is_paid", nullable = false)
     private boolean isPaid;
 
-    @OneToMany(mappedBy = "order", cascade = { CascadeType.PERSIST, CascadeType.REMOVE }, orphanRemoval = true)
+    @Column(name = "is_take_away", nullable = false)
+    private boolean isTakeAway;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderDetail> orderDetailList = new ArrayList<>();
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -1,13 +1,20 @@
 package com.resteam.smartway.web.rest;
 
+import com.resteam.smartway.domain.order.SwOrder;
+import com.resteam.smartway.service.OrderDetailService;
 import com.resteam.smartway.service.OrderService;
+import com.resteam.smartway.service.dto.order.*;
 import com.resteam.smartway.service.dto.order.DetailAddNoteDTO;
 import com.resteam.smartway.service.dto.order.OrderCreationDTO;
 import com.resteam.smartway.service.dto.order.OrderDTO;
 import com.resteam.smartway.service.dto.order.OrderDetailPriorityDTO;
+import com.resteam.smartway.service.dto.order.notification.ItemAdditionNotificationDTO;
+import com.resteam.smartway.service.dto.order.notification.OrderDetailPriorityDTO;
+import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
 import com.resteam.smartway.web.websocket.OrderWebsocket;
 import java.util.List;
 import java.util.UUID;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -25,11 +32,16 @@ public class OrderResource {
     private static final String ENTITY_NAME = "order";
 
     private final OrderService orderService;
-    private final OrderWebsocket orderWebsocket;
 
     @PostMapping
     public ResponseEntity<OrderDTO> createOrder(@RequestBody OrderCreationDTO orderDTO) {
         OrderDTO createdOrder = orderService.createOrder(orderDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
+    }
+
+    @PostMapping("/take-away")
+    public ResponseEntity<OrderDTO> createTakeAwayOrder() {
+        OrderDTO createdOrder = orderService.createTakeAwayOrder();
         return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
     }
 
@@ -47,16 +59,17 @@ public class OrderResource {
     }
 
     @PostMapping("/{orderId}/group-tables")
-    public ResponseEntity<Void> groupTables(@PathVariable UUID orderId, @RequestBody List<String> tableIds) {
+    public ResponseEntity<OrderDTO> groupOrders(@PathVariable UUID orderId, @RequestBody List<String> tableIds) {
         OrderDTO orderDTO = orderService.findById(orderId);
-        orderService.groupTables(orderDTO, tableIds);
-        return ResponseEntity.ok().build();
+        OrderDTO groupedOrderDTO = orderService.groupTables(orderDTO, tableIds);
+        return ResponseEntity.ok(groupedOrderDTO);
     }
 
     @PostMapping("/{orderId}/ungroup-tables")
     public ResponseEntity<Void> ungroupTables(@PathVariable UUID orderId, @RequestBody List<String> tableIds) {
         OrderDTO orderDTO = orderService.findById(orderId);
         orderService.ungroupTables(orderId, tableIds);
+
         return ResponseEntity.ok().build();
     }
 
@@ -65,5 +78,16 @@ public class OrderResource {
         orderDetailPriorityDTO.setOrderId(orderId);
         OrderDTO updatedOrder = orderService.changePriority(orderDetailPriorityDTO);
         return ResponseEntity.ok(updatedOrder);
+    }
+
+    @PostMapping("/{orderId}/split-order")
+    public ResponseEntity<OrderDTO> splitOrder(@PathVariable UUID orderId, @RequestBody SplitOrderDTO splitOrderDTO) {
+        OrderDTO orderDTO = orderService.findById(orderId);
+        OrderDTO newOrderDTO = orderService.splitOrder(
+            orderDTO.getId(),
+            splitOrderDTO.getTargetTableId(),
+            splitOrderDTO.getOrderDetailIds()
+        );
+        return ResponseEntity.ok(newOrderDTO);
     }
 }

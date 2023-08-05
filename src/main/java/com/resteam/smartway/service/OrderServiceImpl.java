@@ -83,6 +83,16 @@ public class OrderServiceImpl implements OrderService {
         return orderMapper.toDto(savedOrder);
     }
 
+    @Override
+    public OrderDTO createTakeAwayOrder() {
+        SwOrder order = new SwOrder();
+        String orderCode = generateCode();
+        order.setCode(orderCode);
+        order.setTakeAway(true);
+        SwOrder savedOrder = orderRepository.save(order);
+        return orderMapper.toDto(savedOrder);
+    }
+
     private OrderDTO sortOrderDetailsAndNotificationHistories(SwOrder order) {
         List<OrderDetail> orderDetails = order
             .getOrderDetailList()
@@ -316,25 +326,83 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void groupTables(OrderDTO orderDTO, List<String> ids) {
+    public OrderDTO splitOrder(UUID orderId, UUID targetTableId, List<UUID> orderDetailIds) {
+        SwOrder order = orderRepository
+            .findByIdAndIsPaid(orderId, false)
+            .orElseThrow(() -> new BadRequestAlertException("Order was not found or paid", ORDER, "idnotfound"));
+
+        SwOrder newOrder = new SwOrder();
+
+        DiningTable targetTable = diningTableRepository
+            .findByIdAndIsFreeAndIsActive(targetTableId, true, true)
+            .orElseThrow(() -> new BadRequestAlertException("Target table not found or not suitable for splitting", TABLE, "idnotfound"));
+        newOrder.setTableList(Collections.singletonList(targetTable));
+        targetTable.setIsFree(false);
+        diningTableRepository.save(targetTable);
+
+        List<OrderDetail> orderDetailsToSplit = new ArrayList<>();
+        for (UUID orderDetailId : orderDetailIds) {
+            OrderDetail orderDetail = order
+                .getOrderDetailList()
+                .stream()
+                .filter(detail -> detail.getId().equals(orderDetailId))
+                .findFirst()
+                .orElseThrow(() -> new BadRequestAlertException("Order detail was not found", ORDER_DETAIL, "idnotfound"));
+            orderDetail.setOrder(newOrder);
+            orderDetailsToSplit.add(orderDetail);
+        }
+
+        orderRepository.saveAndFlush(newOrder);
+        orderRepository.saveAndFlush(order);
+
+        return orderMapper.toDto(sortOrderDetailsAndNotificationHistories(newOrder));
+    }
+
+    @Override
+    public OrderDTO groupTables(OrderDTO orderDTO, List<String> ids) {
         SwOrder order = orderRepository
             .findByIdAndIsPaid(orderDTO.getId(), false)
             .orElseThrow(() -> new BadRequestAlertException("Order was not found or paid", ORDER, "idnotfound"));
-        List<DiningTable> tables = ids
+
+        List<DiningTable> tables = order.getTableList();
+        ids
             .stream()
-            .map(id -> {
+            .forEach(id -> {
                 if (id == null) throw new BadRequestAlertException("Invalid id", TABLE, "idnull");
                 DiningTable table = diningTableRepository
-                    .findByIdAndIsFreeAndIsActive(UUID.fromString(id), true, true)
+                    .findByIdAndIsActive(UUID.fromString(id), true)
                     .orElseThrow(() -> new BadRequestAlertException("Invalid ID", TABLE, "idnotfound"));
                 table.setIsFree(false);
-                return table;
+
+                tables.add(table);
+            });
+
+        order.setTableList(tables);
+        List<OrderDetail> oldOrders = new ArrayList<>();
+
+        List<SwOrder> toDeleteOrder = orderRepository
+            .findDistinctByTableListInAndIsPaid(tables, false)
+            .stream()
+            .filter(o -> !o.getId().equals(order.getId()))
+            .peek(o -> {
+                o
+                    .getOrderDetailList()
+                    .forEach(orderDetail -> {
+                        oldOrders.add(orderDetail);
+                    });
             })
             .collect(Collectors.toList());
-        order.setTableList(tables);
+
+        order.getOrderDetailList().addAll(oldOrders);
+
+        for (OrderDetail orderDetail : oldOrders) {
+            orderDetail.setOrder(order);
+            orderDetailRepository.save(orderDetail);
+        }
+
+        orderRepository.saveAndFlush(order);
+        orderRepository.deleteAll(toDeleteOrder);
+
+        return orderMapper.toDto(sortOrderDetailsAndNotificationHistories(order));
     }
-    //    @Override
-    //    public List<ItemAdditionNotification> getAllOrderItemInKitchen(){
-    //        kitchenNotificationHistoryRepository
-    //    }
 }
