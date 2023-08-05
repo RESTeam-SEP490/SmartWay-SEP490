@@ -11,6 +11,6 @@ import org.mapstruct.Mapping;
 public interface OrderDetailMapper extends EntityMapper<OrderDetailDTO, OrderDetail> {
     OrderDetail toEntity(OrderDetailDTO dto);
 
-    @Mapping(target = "hasReadyToServeItem", source = "itemAdditionNotificationList")
+    @Mapping(target = "readyToServeQuantity", source = "itemAdditionNotificationList")
     OrderDetailDTO toDto(OrderDetail entity);
 }

@@ -16,6 +16,7 @@ public class ItemAdditionNotificationDTO {
     private String menuItemName;
     private List<DiningTableDTO> tableList;
     private List<ItemCancellationNotificationDTO> itemCancellationNotificationList;
+    private List<ReadyToServeNotificationInIANDTO> readyToServeNotificationList;
     private boolean isCompleted;
     private boolean isPriority;
     private String note;

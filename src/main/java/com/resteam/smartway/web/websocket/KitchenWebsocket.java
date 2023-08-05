@@ -38,7 +38,11 @@ public class KitchenWebsocket {
 
     @SneakyThrows
     @MessageMapping("/notify-ready-to-serve")
-    public void createOrder(@Valid @Payload NotifyReadyToServeDTO dto, @DestinationVariable String restaurantId, Principal principal) {
+    public void notifyReadyToServe(
+        @Valid @Payload NotifyReadyToServeDTO dto,
+        @DestinationVariable String restaurantId,
+        Principal principal
+    ) {
         setRestaurantContext(principal);
         ReadyToServeNotification readyToServeNotification = kitchenService.markReadyToServe(dto);
         simpMessagingTemplate.convertAndSend(
@@ -50,7 +54,7 @@ public class KitchenWebsocket {
     }
 
     @MessageMapping("/notify-served")
-    public void createOrder(@Valid @Payload NotifyServedDTO dto, @DestinationVariable String restaurantId, Principal principal) {
+    public void notifyServed(@Valid @Payload NotifyServedDTO dto, @DestinationVariable String restaurantId, Principal principal) {
         setRestaurantContext(principal);
         ReadyToServeNotification readyToServeNotification = kitchenService.markServed(dto);
         simpMessagingTemplate.convertAndSend(

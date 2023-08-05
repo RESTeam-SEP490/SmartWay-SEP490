@@ -9,6 +9,7 @@ import { IKitchenItems } from 'app/shared/model/dto/kitchen-items-dto';
 import { itemAdditionCompare } from 'app/app.constant';
 import { kitchenActions } from '../kitchen.reducer';
 import { AnimatePresence, motion } from 'framer-motion';
+import { IReadyToServeNotification } from 'app/shared/model/order/ready-to-serve-notfication.model';
 
 export const PreparingItems = () => {
   const dispatch = useAppDispatch();
@@ -34,7 +35,7 @@ export const PreparingItems = () => {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.3 }}
                 exit={{ opacity: 0, x: '50%' }}
-                className="flex justify-between py-6 pl-4 pr-2 mr-4 border-solid"
+                className="flex justify-between py-6 pl-4 pr-2 mr-4"
                 key={item.id}
               >
                 <div className="flex flex-col justify-between w-1/3">
@@ -57,7 +58,11 @@ export const PreparingItems = () => {
                   <div className="flex items-center justify-center w-6 h-6 text-lg text-yellow-600">
                     {item.priority && <StarFilled rev={''} />}
                   </div>
-                  <span>{item.quantity}</span>
+                  <span>
+                    {item.readyToServeNotificationList.reduce<number>((prev, value) => {
+                      return prev - value.quantity;
+                    }, item.quantity)}
+                  </span>
                 </div>
                 <div className="flex gap-2">
                   <Button

@@ -12,7 +12,6 @@ const initialState = {
   updating: false,
   updateSuccess: false,
   activeOrders: [],
-  selectedTable: [],
   currentOrder: defaultValue,
   changedDetailId: null,
 };
@@ -77,10 +76,13 @@ export const OrderSlice = createSlice({
         return order;
       });
 
+      const currentSelectedTable = state.currentOrder.tableList;
+      const isUpdateCurrentOrder = currentSelectedTable.some(table => toUpdateOrder.tableList.some(t => t.id === table.id));
+      console.log(isUpdateCurrentOrder);
+      if (isUpdateCurrentOrder) state.currentOrder = toUpdateOrder;
+
       if (isUpdate) state.activeOrders = nextOrderList;
       else state.activeOrders = [...nextOrderList, toUpdateOrder];
-
-      if (state.currentOrder.id === toUpdateOrder.id) state.currentOrder = toUpdateOrder;
     },
     selectOrderByTable(state, action) {
       const selectedTable = action.payload;

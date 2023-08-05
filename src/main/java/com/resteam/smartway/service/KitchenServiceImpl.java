@@ -14,6 +14,7 @@ import com.resteam.smartway.service.mapper.order.notification.ReadyToServeNotifi
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -47,7 +48,15 @@ public class KitchenServiceImpl implements KitchenService {
             .findByIdAndIsCompleted(dto.getItemAdditionNotificationId(), false)
             .orElseThrow(() -> new BadRequestAlertException("Order item was not found or completed", "kitchenItems", "notfound"));
 
-        if (itemAdditionNotification.getQuantity() < dto.getReadyToServeQuantity()) throw new BadRequestAlertException(
+        AtomicInteger preparingQuantity = new AtomicInteger(itemAdditionNotification.getQuantity());
+
+        itemAdditionNotification
+            .getReadyToServeNotificationList()
+            .forEach(rts -> {
+                preparingQuantity.addAndGet(-rts.getQuantity());
+            });
+
+        if (preparingQuantity.get() < dto.getReadyToServeQuantity()) throw new BadRequestAlertException(
             "Ready-to-serve quantity is more than ordered quantity",
             "kitchenItems",
             "quantityInvalid"
@@ -68,12 +77,10 @@ public class KitchenServiceImpl implements KitchenService {
             readyToServeNotification.setQuantity(dto.getReadyToServeQuantity());
         }
 
-        itemAdditionNotification.setQuantity(itemAdditionNotification.getQuantity() - dto.getReadyToServeQuantity());
-        if (itemAdditionNotification.getQuantity() == 0) {
+        if (preparingQuantity.get() - dto.getReadyToServeQuantity() == 0) {
             itemAdditionNotification.setCompleted(true);
+            itemAdditionNotificationRepository.save(itemAdditionNotification);
         }
-
-        itemAdditionNotificationRepository.save(itemAdditionNotification);
 
         return readyToServeNotificationRepository.saveAndFlush(readyToServeNotification);
     }

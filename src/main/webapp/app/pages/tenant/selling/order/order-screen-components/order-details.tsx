@@ -1,4 +1,12 @@
-import { ClockCircleFilled, DeleteFilled, HistoryOutlined, MinusOutlined, PlusOutlined, StarFilled } from '@ant-design/icons';
+import {
+  BlockOutlined,
+  ClockCircleFilled,
+  DeleteFilled,
+  HistoryOutlined,
+  MinusOutlined,
+  PlusOutlined,
+  StarFilled,
+} from '@ant-design/icons';
 import { Button, Drawer, Image, notification, Spin, Typography } from 'antd';
 import { currencyFormatter } from 'app/app.constant';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
@@ -20,6 +28,7 @@ import {
 import { Translate } from 'react-jhipster';
 import { orderActions } from '../order.reducer';
 import { AddNoteForm } from './detail-note-modal';
+import { NumbericKeyboard } from './numberic-keyboard';
 
 export const OrderDetails = () => {
   const dispatch = useAppDispatch();
@@ -29,6 +38,8 @@ export const OrderDetails = () => {
   const isDisableNotifyButton = currentOrder?.orderDetailList.every((detail: IOrderDetail) => detail.unnotifiedQuantity === 0);
 
   const [isOpenNoteForm, setIsOpenNoteForm] = useState(false);
+  const [isOpenNumbericKeyboard, setIsOpenNumbericKeyboard] = useState(false);
+  const [adjustingDetail, setAdjustingDetail] = useState<IOrderDetail>({});
   const [isOpenNotificationHistory, setIsOpenNotificationHistory] = useState(false);
   const [selectedDetail, setSelectedDetail] = useState(null);
 
@@ -48,6 +59,13 @@ export const OrderDetails = () => {
   const handleDeleteItem = (detail: IOrderDetail) => {
     if (detail.quantity === detail.unnotifiedQuantity) dispatch(orderActions.deleteOrderDetail(detail.id));
   };
+
+  const handleOpenNumbericKeyboard = (item: IOrderDetail) => {
+    setAdjustingDetail(item);
+    setIsOpenNumbericKeyboard(true);
+  };
+
+  console.log(adjustingDetail);
 
   return (
     <>
@@ -101,8 +119,10 @@ export const OrderDetails = () => {
             )}
           </div>
           <div className="flex">
-            <div className="flex items-center justify-center gap-2 px-3 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg cursor-pointer">
-              <MdTableRestaurant size={20} />
+            <div className="relative flex items-center justify-center gap-2 px-6 py-2 text-sm font-semibold text-blue-700 bg-blue-100 border-2 border-blue-600 border-solid rounded-lg cursor-pointer table-tag-badge">
+              <div className="absolute left-0 z-10 flex items-center justify-center p-1 text-blue-100 -translate-x-1/2 -translate-y-1/2 bg-blue-600 rounded-full aspect-square top-1/2">
+                {currentOrder.tableList.length > 1 ? <BlockOutlined rev="" /> : <MdTableRestaurant size={16} />}
+              </div>
               <div className="">{`${currentOrder.tableList.map(table => table.name)[0]}${
                 currentOrder.tableList.length > 1 ? ` + ${currentOrder.tableList.length - 1}` : ''
               }`}</div>
@@ -124,6 +144,7 @@ export const OrderDetails = () => {
                       handelAdjustQuantity={handelAdjustQuantity}
                       handleDuplicateItem={handleDuplicateItem}
                       handleDeleteItem={handleDeleteItem}
+                      openNumbericKeyboard={() => handleOpenNumbericKeyboard(item)}
                     />
                   ))}
                 </div>
@@ -184,6 +205,7 @@ export const OrderDetails = () => {
           </Button>
         </div>
       </div>
+      <NumbericKeyboard detail={adjustingDetail} isOpen={isOpenNumbericKeyboard} handleClose={() => setIsOpenNumbericKeyboard(false)} />
     </>
   );
 };
@@ -195,6 +217,7 @@ const OrderDetailCard = ({
   handelAdjustQuantity,
   handleDuplicateItem,
   handleDeleteItem,
+  openNumbericKeyboard,
 }: {
   detail: IOrderDetail;
   index: number;
@@ -202,6 +225,7 @@ const OrderDetailCard = ({
   handelAdjustQuantity: any;
   handleDuplicateItem: any;
   handleDeleteItem: any;
+  openNumbericKeyboard: any;
 }) => {
   const dispatch = useAppDispatch();
 
@@ -235,13 +259,18 @@ const OrderDetailCard = ({
             onClick={() => dispatch(orderActions.changePriority({ orderDetailId: detail.id, priority: !detail.priority }))}
           />
         )}
-        {detail.hasReadyToServeItem && (
+        {detail.readyToServeQuantity > 0 && (
           <span className="absolute flex w-5 h-5 -top-1 -right-1">
-            <span className="absolute inline-flex w-full h-full bg-green-500 rounded-full opacity-75 animate-ping"></span>
-            <span className="relative inline-flex items-center justify-center w-5 h-5 text-white bg-green-600 rounded-full">
-              <MdOutlineCheck size={12} />
+            <span className="absolute inline-flex w-full h-full bg-yellow-500 rounded-full opacity-75 animate-ping"></span>
+            <span className="relative inline-flex items-center justify-center w-5 h-5 text-xs text-white bg-yellow-600 rounded-full">
+              {detail.readyToServeQuantity}
             </span>
           </span>
+        )}
+        {detail.servedQuantity > 0 && (
+          <div className="absolute bottom-0 left-0 flex items-center justify-center w-4 h-4 bg-green-600 rounded-es-lg detail-badge">
+            <span className="mb-1 ml-1 text-xs text-white">{detail.servedQuantity}</span>
+          </div>
         )}
       </div>
 
@@ -275,13 +304,10 @@ const OrderDetailCard = ({
               className="!p-0 !w-6 !h-6 shadow-none flex justify-center items-center"
               icon={<MinusOutlined rev={''} />}
             />
-            <div className="min-w-[56px] flex gap-1.5 justify-center items-end">
-              {detail.servedQuantity > 0 && <span className="mb-2 text-sm text-green-600">{`${detail.servedQuantity}/`}</span>}
-              <Typography.Title
-                className={`!text-[1.15rem] !m-0 ${detail.unnotifiedQuantity > 0 ? '!text-blue-400 font-semibold' : '!text-gray-400'}`}
-              >
+            <div className="min-w-[40px] flex gap-1.5 justify-center items-end cursor-pointer" onClick={openNumbericKeyboard}>
+              <Typography.Text className={`!m-0 ${detail.unnotifiedQuantity > 0 ? '!text-blue-600 font-semibold' : ''}`}>
                 {detail.quantity}
-              </Typography.Title>
+              </Typography.Text>
             </div>
             <Button
               onClick={() => handelAdjustQuantity({ orderDetailId: detail.id, quantityAdjust: 1 })}

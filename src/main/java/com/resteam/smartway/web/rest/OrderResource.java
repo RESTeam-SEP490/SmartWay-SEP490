@@ -5,6 +5,7 @@ import com.resteam.smartway.service.dto.order.DetailAddNoteDTO;
 import com.resteam.smartway.service.dto.order.OrderCreationDTO;
 import com.resteam.smartway.service.dto.order.OrderDTO;
 import com.resteam.smartway.service.dto.order.OrderDetailPriorityDTO;
+import com.resteam.smartway.web.websocket.OrderWebsocket;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ public class OrderResource {
     private static final String ENTITY_NAME = "order";
 
     private final OrderService orderService;
+    private final OrderWebsocket orderWebsocket;
 
     @PostMapping
     public ResponseEntity<OrderDTO> createOrder(@RequestBody OrderCreationDTO orderDTO) {
@@ -39,15 +41,15 @@ public class OrderResource {
 
     @PutMapping("/add-note")
     public ResponseEntity<OrderDTO> addNoteToOrderDetail(@RequestBody DetailAddNoteDTO dto) {
-        OrderDTO updatedOrder = orderService.addNoteToOrderDetail(dto);
-        return ResponseEntity.ok(updatedOrder);
+        OrderDTO orderDTO = orderService.addNoteToOrderDetail(dto);
+        orderWebsocket.sendMessageAfterAddNote(orderDTO);
+        return ResponseEntity.ok(orderDTO);
     }
 
     @PostMapping("/{orderId}/group-tables")
     public ResponseEntity<Void> groupTables(@PathVariable UUID orderId, @RequestBody List<String> tableIds) {
         OrderDTO orderDTO = orderService.findById(orderId);
         orderService.groupTables(orderDTO, tableIds);
-
         return ResponseEntity.ok().build();
     }
 
@@ -55,7 +57,6 @@ public class OrderResource {
     public ResponseEntity<Void> ungroupTables(@PathVariable UUID orderId, @RequestBody List<String> tableIds) {
         OrderDTO orderDTO = orderService.findById(orderId);
         orderService.ungroupTables(orderId, tableIds);
-
         return ResponseEntity.ok().build();
     }
 

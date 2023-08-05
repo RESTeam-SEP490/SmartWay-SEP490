@@ -46,15 +46,6 @@ public class OrderWebsocket {
         simpMessagingTemplate.convertAndSend(String.format(RECEIVE_DESTINATION_FORMAT, restaurantId), orderDTO);
     }
 
-    @MessageMapping("/add-note")
-    public void addNoteToOrderDetail(@Valid @Payload DetailAddNoteDTO dto, @DestinationVariable String restaurantId, Principal principal) {
-        setRestaurantContext(principal);
-        simpMessagingTemplate.convertAndSend(
-            String.format(RECEIVE_DESTINATION_FORMAT, restaurantId),
-            orderService.addNoteToOrderDetail(dto)
-        );
-    }
-
     @MessageMapping("/add-order-detail")
     public void addOrderDetail(@Payload OrderDetailAdditionDTO dto, @DestinationVariable String restaurantId, Principal principal) {
         setRestaurantContext(principal);
@@ -92,6 +83,13 @@ public class OrderWebsocket {
         simpMessagingTemplate.convertAndSend(
             String.format(RECEIVE_DESTINATION_FORMAT, restaurantId),
             orderService.changePriority(orderDetailDTO)
+        );
+    }
+
+    public void sendMessageAfterAddNote(OrderDTO dto) {
+        simpMessagingTemplate.convertAndSend(
+            String.format(RECEIVE_DESTINATION_FORMAT, RestaurantContext.getCurrentRestaurant().getId()),
+            dto
         );
     }
 

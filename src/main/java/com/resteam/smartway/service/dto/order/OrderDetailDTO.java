@@ -22,5 +22,5 @@ public class OrderDetailDTO {
     private Instant notifiedTime;
     private String note;
     private boolean isPriority;
-    private boolean hasReadyToServeItem;
+    private int readyToServeQuantity;
 }
