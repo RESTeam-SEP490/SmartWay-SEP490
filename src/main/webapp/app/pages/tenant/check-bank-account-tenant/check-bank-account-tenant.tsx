@@ -51,14 +51,31 @@ export const CheckBankAccountTenant = () => {
         <div className="w-4/5 p-4">
           <p className="font-medium">Bank Accounts</p>
           <div className="flex ">
-            <Card className="w-1/4 flex justify-center items-center h-36 bankAccountDefault">
-              <Meta
-                className="text-white"
-                avatar={<Avatar className="w-full" shape="square" src={defaultBank?.logoBank} />}
-                title={defaultBank?.bankName}
-                description={defaultBank?.accountNumber}
-              />
-            </Card>
+            {defaultBank ? (
+              <Card className="w-1/4 flex justify-center items-center h-36 bankAccountDefault">
+                <Meta
+                  className="text-white"
+                  avatar={<Avatar className="w-full" shape="square" src={defaultBank?.logoBank} />}
+                  title={defaultBank?.bankName}
+                  description={defaultBank?.accountNumber}
+                />
+              </Card>
+            ) : (
+              <Card className="w-1/4 flex justify-center items-center h-36 bankAccountDefault">
+                <Meta
+                  className="text-white"
+                  avatar={
+                    <Avatar
+                      className="w-full"
+                      shape="square"
+                      src="https://www.clipartkey.com/mpngs/m/305-3050174_merchant-account-filled-icon-bank-account-icon-png.png"
+                    />
+                  }
+                  title="XXX"
+                  description="XX-XXXXX"
+                />
+              </Card>
+            )}
 
             <Card className="w-1/4 flex justify-center items-center h-36 pr-1 ml-2 cursor-pointer" onClick={() => setIsShowForm(true)}>
               <div className="flex justify-center">
