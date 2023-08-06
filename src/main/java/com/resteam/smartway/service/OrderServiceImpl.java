@@ -1,6 +1,7 @@
 package com.resteam.smartway.service;
 
 import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
@@ -12,12 +13,14 @@ import com.resteam.smartway.domain.order.notifications.ItemAdditionNotification;
 import com.resteam.smartway.domain.order.notifications.KitchenNotificationHistory;
 import com.resteam.smartway.repository.DiningTableRepository;
 import com.resteam.smartway.repository.MenuItemRepository;
+import com.resteam.smartway.repository.order.ItemAdditionNotificationRepository;
 import com.resteam.smartway.repository.order.KitchenNotificationHistoryRepository;
 import com.resteam.smartway.repository.order.OrderDetailRepository;
 import com.resteam.smartway.repository.order.OrderRepository;
 import com.resteam.smartway.service.aws.S3Service;
 import com.resteam.smartway.service.dto.DiningTableDTO;
 import com.resteam.smartway.service.dto.order.*;
+import com.resteam.smartway.service.dto.order.notification.ItemAdditionNotificationDTO;
 import com.resteam.smartway.service.mapper.order.OrderDetailMapper;
 import com.resteam.smartway.service.mapper.order.OrderMapper;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
@@ -34,6 +37,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,6 +55,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderDetailRepository orderDetailRepository;
     private final KitchenNotificationHistoryRepository kitchenNotificationHistoryRepository;
     private final S3Service s3Service;
+    private final ItemAdditionNotificationRepository itemAdditionNotificationRepository;
 
     private static final String ORDER = "order";
     private static final String TABLE = "table";
@@ -441,6 +446,14 @@ public class OrderServiceImpl implements OrderService {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         PdfWriter.getInstance(document, byteArrayOutputStream);
 
+        String fontPath = "src/main/resources/config/arial-unicode-ms.ttf";
+        Font arialUnicodeFont = null;
+        try {
+            BaseFont baseFont = BaseFont.createFont(fontPath, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+            arialUnicodeFont = new Font(baseFont, 8);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         // Customize PDF styles
         Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 8, BaseColor.BLACK);
         Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 8, BaseColor.DARK_GRAY);
@@ -463,7 +476,7 @@ public class OrderServiceImpl implements OrderService {
         for (DiningTableDTO tableDTO : tableDTOs) {
             tableNames.add(tableDTO.getName());
         }
-        Paragraph tableName = new Paragraph("Tables: " + String.join(", ", tableNames), headerFont);
+        Paragraph tableName = new Paragraph("Table: " + String.join(", ", tableNames), headerFont);
         //        Paragraph staff = new Paragraph("Staff: "+ orderDTO.get, headerFont);
         Paragraph code = new Paragraph("Order Code: " + orderDTO.getCode(), headerFont);
         nameRestaurant.setAlignment(Element.ALIGN_CENTER);
@@ -504,10 +517,10 @@ public class OrderServiceImpl implements OrderService {
         int stt = 1;
         double sumMoney = 0.0;
         for (OrderDetailDTO orderDetail : orderDetailList) {
-            addValueWithStyle(table, String.valueOf(stt), normalFont);
-            addValueWithStyle(table, orderDetail.getMenuItem().getName(), normalFont);
-            addValueWithStyle(table, String.valueOf(orderDetail.getQuantity()), normalFont);
-            addValueWithStyle(table, String.valueOf(orderDetail.getMenuItem().getSellPrice()), normalFont);
+            addValueWithStyle(table, String.valueOf(stt), arialUnicodeFont);
+            addValueWithStyle(table, orderDetail.getMenuItem().getName(), arialUnicodeFont);
+            addValueWithStyle(table, String.valueOf(orderDetail.getQuantity()), arialUnicodeFont);
+            addValueWithStyle(table, String.valueOf(orderDetail.getMenuItem().getSellPrice()), arialUnicodeFont);
             stt++;
             sumMoney += orderDetail.getQuantity() * orderDetail.getMenuItem().getSellPrice();
         }
@@ -566,6 +579,15 @@ public class OrderServiceImpl implements OrderService {
 
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         PdfWriter.getInstance(document, byteArrayOutputStream);
+
+        String fontPath = "src/main/resources/config/arial-unicode-ms.ttf";
+        Font arialUnicodeFont = null;
+        try {
+            BaseFont baseFont = BaseFont.createFont(fontPath, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+            arialUnicodeFont = new Font(baseFont, 8);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         // Customize PDF styles
         Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 8, BaseColor.BLACK);
@@ -630,10 +652,10 @@ public class OrderServiceImpl implements OrderService {
         int stt = 1;
         double sumMoney = 0.0;
         for (OrderDetailDTO orderDetail : orderDetailList) {
-            addValueWithStyle(table, String.valueOf(stt), normalFont);
-            addValueWithStyle(table, orderDetail.getMenuItem().getName(), normalFont);
-            addValueWithStyle(table, String.valueOf(orderDetail.getQuantity()), normalFont);
-            addValueWithStyle(table, String.valueOf(orderDetail.getMenuItem().getSellPrice()), normalFont);
+            addValueWithStyle(table, String.valueOf(stt), arialUnicodeFont);
+            addValueWithStyle(table, orderDetail.getMenuItem().getName(), arialUnicodeFont);
+            addValueWithStyle(table, String.valueOf(orderDetail.getQuantity()), arialUnicodeFont);
+            addValueWithStyle(table, String.valueOf(orderDetail.getMenuItem().getSellPrice()), arialUnicodeFont);
             stt++;
             sumMoney += orderDetail.getQuantity() * orderDetail.getMenuItem().getSellPrice();
         }
@@ -694,10 +716,113 @@ public class OrderServiceImpl implements OrderService {
         return byteArrayOutputStream.toByteArray();
     }
 
+    @Override
+    public byte[] generatePdfOrderForNotificationKitchen(List<UUID> ids) throws DocumentException {
+        Document document = new Document(PageSize.A7, 12, 12, 12, 12);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        PdfWriter.getInstance(document, byteArrayOutputStream);
+        String fontPath = "src/main/resources/config/arial-unicode-ms.ttf";
+        Font arialUnicodeFont = null;
+        try {
+            BaseFont baseFont = BaseFont.createFont(fontPath, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+            arialUnicodeFont = new Font(baseFont, 8);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Customize other PDF styles using different fonts as before
+        Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 8, BaseColor.BLACK);
+        Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 8, BaseColor.DARK_GRAY);
+        Font normalFont = FontFactory.getFont(FontFactory.HELVETICA, 8, BaseColor.GRAY);
+
+        document.open();
+
+        Paragraph title = new Paragraph("Order ticket", titleFont);
+        Optional<ItemAdditionNotification> itemAdditionNotification = itemAdditionNotificationRepository.findById(ids.get(0));
+        if (itemAdditionNotification.isPresent()) {
+            Optional<OrderDetail> orderDetail = orderDetailRepository.findById(itemAdditionNotification.get().getOrderDetail().getId());
+            if (orderDetail.isPresent()) {
+                String restaurantName = orderDetail.get().getRestaurant().getName();
+                Paragraph nameOfRestaurant = new Paragraph(restaurantName, headerFont);
+                nameOfRestaurant.setAlignment(Element.ALIGN_CENTER);
+                document.add(nameOfRestaurant);
+            }
+        }
+        Paragraph line = new Paragraph("----------------", titleFont);
+        Instant createdDateInstant = Instant.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
+        String formattedDate = formatter.format(createdDateInstant);
+        Paragraph timeIn = new Paragraph("Time In:  " + formattedDate, normalFont);
+
+        title.setAlignment(Element.ALIGN_CENTER);
+        line.setAlignment(Element.ALIGN_CENTER);
+        timeIn.setAlignment(Element.ALIGN_LEFT);
+
+        document.add(line);
+        document.add(title);
+        document.add(timeIn);
+
+        if (itemAdditionNotification.isPresent()) {
+            List<DiningTable> tableDTOs = itemAdditionNotification.get().getOrderDetail().getOrder().getTableList();
+            List<String> tableNames = new ArrayList<>();
+            for (DiningTable tableDTO : tableDTOs) {
+                tableNames.add(tableDTO.getName());
+            }
+            Paragraph tableName = new Paragraph("Table: " + String.join(", ", tableNames), normalFont);
+            document.add(tableName);
+            tableName.setAlignment(Element.ALIGN_LEFT);
+        }
+
+        document.add(Chunk.NEWLINE); // Add some space between title and table content
+
+        // Add table content with headers and values in separate rows
+        PdfPTable table = new PdfPTable(4);
+        table.setWidthPercentage(100);
+
+        // Header row with relative widths
+        float[] columnWidths = { 15f, 40f, 20f, 20f }; // Adjust the percentages here
+        table.setWidths(columnWidths);
+        // Header row
+        addHeaderWithStyle(table, "STT", headerFont);
+        addHeaderWithStyle(table, "Menu Item", headerFont);
+        addHeaderWithStyle(table, "Quantity", headerFont);
+        addHeaderWithStyle(table, "Note", headerFont);
+
+        // Data row
+        int stt = 1;
+        for (UUID id : ids) {
+            Optional<ItemAdditionNotification> itemAdditionNotificationDTO = itemAdditionNotificationRepository.findById(id);
+            if (itemAdditionNotificationDTO.isPresent()) {
+                ItemAdditionNotification itemNotification = itemAdditionNotificationDTO.get();
+                OrderDetail orderDetail = itemNotification.getOrderDetail();
+                if (orderDetail != null) {
+                    addValueWithStyle(table, String.valueOf(stt), arialUnicodeFont);
+                    PdfPCell menuItemCell = new PdfPCell(
+                        new Phrase(orderDetail.getMenuItem() != null ? orderDetail.getMenuItem().getName() : "", arialUnicodeFont)
+                    );
+                    addCellWithStyle(table, menuItemCell);
+                    addHeaderWithStyleCenter(table, String.valueOf(itemNotification.getQuantity()), arialUnicodeFont);
+                    String noteValue = itemNotification.getNote() != null ? itemNotification.getNote() : "";
+                    PdfPCell noteCell = new PdfPCell(new Phrase(noteValue, arialUnicodeFont));
+                    addCellWithStyle(table, noteCell);
+
+                    stt++;
+                }
+            }
+        }
+
+        document.add(table);
+        float spacingAfterTable = 10f; // Adjust the spacing as needed (in points)
+        table.setSpacingAfter(spacingAfterTable);
+        document.add(line);
+        document.close();
+        return byteArrayOutputStream.toByteArray();
+    }
+
     private static void addHeaderWithStyle(PdfPTable table, String text, Font font) {
         PdfPCell headerCell = new PdfPCell(new Phrase(text, font));
         headerCell.setBorder(Rectangle.BOTTOM); // Show only the bottom border
-        headerCell.setBorderColorBottom(BaseColor.DARK_GRAY);
+        headerCell.setBorderColorBottom(BaseColor.BLACK);
         headerCell.setBorderWidthBottom(1f); // Set the thickness of the bottom border
         headerCell.setBorderWidthLeft(0f); // Remove left border
         headerCell.setBorderWidthRight(0f); // Remove right border
@@ -706,13 +831,25 @@ public class OrderServiceImpl implements OrderService {
         table.addCell(headerCell);
     }
 
+    private static void addHeaderWithStyleCenter(PdfPTable table, String text, Font font) {
+        PdfPCell headerCell = new PdfPCell(new Phrase(text, font));
+        headerCell.setBorder(Rectangle.BOTTOM); // Show only the bottom border
+        headerCell.setBorderColorBottom(BaseColor.BLACK);
+        headerCell.setBorderWidthBottom(0.5f); // Set the thickness of the bottom border
+        headerCell.setBorderWidthLeft(0f); // Remove left border
+        headerCell.setBorderWidthRight(0f); // Remove right border
+        headerCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        headerCell.setPaddingBottom(5f);
+        table.addCell(headerCell);
+    }
+
     private static void addValueWithStyle(PdfPTable table, String text, Font font) {
         PdfPCell valueCell = new PdfPCell(new Phrase(text, font));
-        valueCell.setBorder(Rectangle.BOTTOM); // Show only the bottom border
+        valueCell.setBorder(Rectangle.BOTTOM);
         valueCell.setBorderColorBottom(BaseColor.BLACK);
-        valueCell.setBorderWidthBottom(1f); // Set the thickness of the bottom border
-        valueCell.setBorderWidthLeft(0f); // Remove left border
-        valueCell.setBorderWidthRight(0f); // Remove right border
+        valueCell.setBorderWidthBottom(0.5f);
+        valueCell.setBorderWidthLeft(0f);
+        valueCell.setBorderWidthRight(0f);
         valueCell.setHorizontalAlignment(Element.ALIGN_LEFT);
         valueCell.setPaddingTop(5f);
         valueCell.setPaddingBottom(8f);
@@ -723,5 +860,18 @@ public class OrderServiceImpl implements OrderService {
         Date now = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         return sdf.format(now);
+    }
+
+    private static void addCellWithStyle(PdfPTable table, PdfPCell cell) {
+        cell.setBorder(Rectangle.BOTTOM); // Show only the bottom border
+        cell.setBorderColorBottom(BaseColor.BLACK);
+        cell.setBorderWidthBottom(0.5f); // Set the thickness of the bottom border
+        cell.setBorderWidthLeft(0f); // Remove left border
+        cell.setBorderWidthRight(0f); // Remove right border
+        cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+        cell.setPaddingTop(5f);
+        cell.setPaddingBottom(8f);
+        cell.setNoWrap(false); // Allow content to wrap within the cell
+        table.addCell(cell);
     }
 }

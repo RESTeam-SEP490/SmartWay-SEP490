@@ -5,6 +5,7 @@ import com.resteam.smartway.service.OrderService;
 import com.resteam.smartway.service.dto.order.*;
 import com.resteam.smartway.web.websocket.OrderWebsocket;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -113,6 +114,24 @@ public class OrderResource {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_PDF);
             headers.setContentDispositionFormData("inline", "_order_" + id + ".pdf");
+
+            return new ResponseEntity<>(pdfContent, headers, HttpStatus.OK);
+        } catch (DocumentException e) {
+            // Handle exception appropriately
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/export-notificationKitchen")
+    public ResponseEntity<byte[]> exportPdfForNotificationKitchen(@RequestBody Map<String, List<UUID>> request) {
+        List<UUID> ids = request.get("ids");
+        try {
+            byte[] pdfContent = orderService.generatePdfOrderForNotificationKitchen(ids);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("inline", "_orderTicket_" + ".pdf");
 
             return new ResponseEntity<>(pdfContent, headers, HttpStatus.OK);
         } catch (DocumentException e) {
