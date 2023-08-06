@@ -1,21 +1,11 @@
 package com.resteam.smartway.web.rest;
 
 import com.itextpdf.text.DocumentException;
-import com.resteam.smartway.domain.order.SwOrder;
-import com.resteam.smartway.service.OrderDetailService;
 import com.resteam.smartway.service.OrderService;
-import com.resteam.smartway.service.dto.DiningTableDTO;
 import com.resteam.smartway.service.dto.order.*;
-import com.resteam.smartway.service.dto.order.DetailAddNoteDTO;
-import com.resteam.smartway.service.dto.order.OrderCreationDTO;
-import com.resteam.smartway.service.dto.order.OrderDTO;
-import com.resteam.smartway.service.dto.order.OrderDetailDTO;
-import com.resteam.smartway.service.dto.order.notification.ItemAdditionNotificationDTO;
-import com.resteam.smartway.service.dto.order.notification.OrderDetailPriorityDTO;
-import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
+import com.resteam.smartway.service.dto.order.notification.CancellationDTO;
 import com.resteam.smartway.web.websocket.OrderWebsocket;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -67,6 +57,7 @@ public class OrderResource {
     @PutMapping("/{orderId}/group-tables")
     public ResponseEntity<OrderDTO> groupOrders(@PathVariable UUID orderId, @RequestBody List<String> tableIds) {
         OrderDTO groupedOrderDTO = orderService.groupTables(orderId, tableIds);
+        orderWebsocket.sendMessageAfterAddNote(groupedOrderDTO);
         return ResponseEntity.ok(groupedOrderDTO);
     }
 

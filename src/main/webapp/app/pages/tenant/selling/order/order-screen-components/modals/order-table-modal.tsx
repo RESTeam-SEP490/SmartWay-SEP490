@@ -62,9 +62,23 @@ export const TablesOfOrderModal = ({ isOpen, handleClose }: { isOpen: boolean; h
     dispatch(groupTables({ orderId: currentOrder.id, tableList: values.tableList }));
   };
 
+  const isTableMerged = (tableId: string) => {
+    const order = orders.find(o => o.tableList.some(t => t.id === tableId));
+    if (order) return order.tableList.length > 1;
+    return false;
+  };
+
   return (
-    <Modal centered open={isOpen} destroyOnClose width={800} title={'#' + currentOrder.code} footer={[]} onCancel={handleClose}>
-      <Form {...DEFAULT_FORM_ITEM_LAYOUT} labelAlign="left" form={form} onFinish={handleSubmit} className="mt-4">
+    <Modal
+      centered
+      open={isOpen}
+      destroyOnClose
+      width={800}
+      title={currentOrder.id ? '#' + currentOrder.code : 'Current order'}
+      footer={[]}
+      onCancel={handleClose}
+    >
+      <Form {...DEFAULT_FORM_ITEM_LAYOUT} requiredMark={false} labelAlign="left" form={form} onFinish={handleSubmit} className="mt-4">
         <div className="w-[400px]">
           <Form.Item name={'takeAway'} label={'Loại đơn'}>
             <Radio.Group>
@@ -76,13 +90,15 @@ export const TablesOfOrderModal = ({ isOpen, handleClose }: { isOpen: boolean; h
               </Radio>
             </Radio.Group>
           </Form.Item>
-          <Form.Item name={'tableList'} label={'Bàn'}>
+          <Form.Item name={'tableList'} label={'Bàn'} rules={[{ required: true, message: 'Vui lòng chọn ít nhất 1 bàn' }]}>
             <Select mode="multiple" optionFilterProp="search" onChange={handleOnchangeTableList}>
-              {tableList.map(table => (
-                <Select.Option key={table.id} search={table.name}>
-                  {table.name}
-                </Select.Option>
-              ))}
+              {tableList
+                .filter(t => !isTableMerged(t.id) || currentOrder.tableList.some(x => x.id === t.id))
+                .map(table => (
+                  <Select.Option key={table.id} search={table.name}>
+                    {table.name}
+                  </Select.Option>
+                ))}
             </Select>
           </Form.Item>
         </div>

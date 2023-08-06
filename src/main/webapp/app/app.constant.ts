@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 import { IItemAdditionNotification } from './shared/model/order/item-addition-notfication.model';
 import { IQueryParams } from './shared/reducers/reducer.utils';
 import { IReadyToServeNotification } from './shared/model/order/ready-to-serve-notfication.model';
+import { IDiningTable } from './shared/model/dining-table.model';
 
 export const DEFAULT_PAGEABLE: IQueryParams = {
   search: null,
@@ -54,4 +55,14 @@ export const itemAdditionCompare = (a: IItemAdditionNotification, b: IItemAdditi
 export const readyToServeItemCompare = (a: IReadyToServeNotification, b: IReadyToServeNotification) => {
   if (dayjs(a.notifiedTime).isAfter(dayjs(b.notifiedTime))) return 1;
   if (dayjs(a.notifiedTime).isBefore(dayjs(b.notifiedTime))) return -1;
+};
+
+export const alphabetCompare = (a: IDiningTable, b: IDiningTable) => {
+  if (a.name < b.name) {
+    return -1;
+  }
+  if (a.name > b.name) {
+    return 1;
+  }
+  return 0;
 };

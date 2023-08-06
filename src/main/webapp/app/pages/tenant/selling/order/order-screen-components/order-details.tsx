@@ -8,7 +8,7 @@ import {
   StarFilled,
 } from '@ant-design/icons';
 import { Button, Drawer, Image, notification, Spin, Typography } from 'antd';
-import { currencyFormatter } from 'app/app.constant';
+import { alphabetCompare, currencyFormatter } from 'app/app.constant';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { IItemAdditionNotification } from 'app/shared/model/order/item-addition-notfication.model';
 import { IOrderDetail } from 'app/shared/model/order/order-detail.model';
@@ -23,6 +23,7 @@ import { orderActions } from '../order.reducer';
 import { AddNoteForm } from './modals/detail-note-modal';
 import { NumbericKeyboard } from './modals/numberic-keyboard';
 import { TablesOfOrderModal } from './modals/order-table-modal';
+import { ItemCancellationModal } from './modals/item-cancellation-modal';
 
 export const OrderDetails = () => {
   const dispatch = useAppDispatch();
@@ -34,6 +35,7 @@ export const OrderDetails = () => {
   const [isOpenNoteForm, setIsOpenNoteForm] = useState(false);
   const [isOpenNumbericKeyboard, setIsOpenNumbericKeyboard] = useState(false);
   const [isOpenTablesOfOrderModal, setIsOpenTablesOfOrderModal] = useState(false);
+  const [isOpenItemCancellationModal, setIsOpenItemCancellationModal] = useState(false);
   const [adjustingDetail, setAdjustingDetail] = useState<IOrderDetail>({});
   const [isOpenNotificationHistory, setIsOpenNotificationHistory] = useState(false);
   const [selectedDetail, setSelectedDetail] = useState(null);
@@ -43,8 +45,13 @@ export const OrderDetails = () => {
     setIsOpenNoteForm(true);
   };
 
-  const handelAdjustQuantity = action => {
-    dispatch(orderActions.adjustDetailQuantity(action));
+  const handelAdjustQuantity = ({ detail, quantityAdjust }: { detail: IOrderDetail; quantityAdjust: number }) => {
+    if (detail.unnotifiedQuantity + quantityAdjust >= 0)
+      dispatch(orderActions.adjustDetailQuantity({ orderDetailId: detail.id, quantityAdjust }));
+    else {
+      setAdjustingDetail(detail);
+      setIsOpenItemCancellationModal(true);
+    }
   };
 
   const handleDuplicateItem = action => {
@@ -53,10 +60,14 @@ export const OrderDetails = () => {
 
   const handleDeleteItem = (detail: IOrderDetail) => {
     if (detail.quantity === detail.unnotifiedQuantity) dispatch(orderActions.deleteOrderDetail(detail.id));
+    else {
+      setAdjustingDetail(detail);
+      setIsOpenItemCancellationModal(true);
+    }
   };
 
-  const handleOpenNumbericKeyboard = (item: IOrderDetail) => {
-    setAdjustingDetail(item);
+  const handleOpenNumbericKeyboard = (detail: IOrderDetail) => {
+    setAdjustingDetail(detail);
     setIsOpenNumbericKeyboard(true);
   };
 
@@ -64,6 +75,11 @@ export const OrderDetails = () => {
     <>
       <NumbericKeyboard detail={adjustingDetail} isOpen={isOpenNumbericKeyboard} handleClose={() => setIsOpenNumbericKeyboard(false)} />
       <TablesOfOrderModal isOpen={isOpenTablesOfOrderModal} handleClose={() => setIsOpenTablesOfOrderModal(false)} />
+      <ItemCancellationModal
+        detail={adjustingDetail}
+        isOpen={isOpenItemCancellationModal}
+        handleClose={() => setIsOpenItemCancellationModal(false)}
+      />
       {currentOrder.id && (
         <Drawer
           width={480}
@@ -115,15 +131,18 @@ export const OrderDetails = () => {
           </div>
           <div className="flex">
             <div
-              className="relative flex items-center justify-center gap-2 px-6 py-2 text-sm font-semibold text-blue-700 bg-blue-100 border-2 border-blue-600 border-solid rounded-lg cursor-pointer table-tag-badge"
+              className="relative flex items-center justify-center gap-2 py-2 pl-6 pr-4 text-sm font-semibold text-blue-700 duration-1000 bg-blue-100 border-2 border-blue-600 border-solid rounded-lg cursor-pointer table-tag-badge"
               onClick={() => setIsOpenTablesOfOrderModal(true)}
             >
-              <div className="absolute left-0 z-10 flex items-center justify-center p-1 text-blue-100 -translate-x-1/2 -translate-y-1/2 bg-blue-600 rounded-full aspect-square top-1/2">
+              <div className="absolute left-0 z-10 flex items-center justify-center p-1 text-blue-100 -translate-x-1/2 -translate-y-1/2 bg-blue-700 rounded-full aspect-square top-1/2">
                 {currentOrder.tableList.length > 1 ? <BlockOutlined rev="" /> : <MdTableRestaurant size={16} />}
               </div>
-              <div className="">{`${currentOrder.tableList.map(table => table.name)[0]}${
-                currentOrder.tableList.length > 1 ? ` + ${currentOrder.tableList.length - 1}` : ''
-              }`}</div>
+              <div className="flex items-center gap-2">
+                {currentOrder.tableList.length > 0 && [...currentOrder.tableList].sort(alphabetCompare)[0].name}
+                <span className="font-normal text-gray-400">
+                  {currentOrder.tableList.length > 1 ? ` (+${currentOrder.tableList.length - 1})` : ''}
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -133,16 +152,16 @@ export const OrderDetails = () => {
             <Spin tip={'Loading...'} spinning={loading} className="h-full grow">
               <Scrollbars className="w-full grow">
                 <div className="flex flex-col-reverse gap-2 pt-2 pr-4">
-                  {currentOrder.orderDetailList.map((item, index) => (
+                  {currentOrder.orderDetailList.map((detail, index) => (
                     <OrderDetailCard
-                      key={item.id}
-                      detail={item}
+                      key={detail.id}
+                      detail={detail}
                       index={index + 1}
-                      onAddNote={() => handleAddNote(item)}
+                      onAddNote={() => handleAddNote(detail)}
                       handelAdjustQuantity={handelAdjustQuantity}
                       handleDuplicateItem={handleDuplicateItem}
                       handleDeleteItem={handleDeleteItem}
-                      openNumbericKeyboard={() => handleOpenNumbericKeyboard(item)}
+                      openNumbericKeyboard={() => handleOpenNumbericKeyboard(detail)}
                     />
                   ))}
                 </div>
@@ -295,7 +314,7 @@ const OrderDetailCard = ({
           <div className="flex items-center text-blue-600 w-fit">
             <Button
               disabled={detail.quantity === 1}
-              onClick={() => handelAdjustQuantity({ orderDetailId: detail.id, quantityAdjust: -1 })}
+              onClick={() => handelAdjustQuantity({ detail, quantityAdjust: -1 })}
               type="primary"
               size="small"
               className="!p-0 !w-6 !h-6 shadow-none flex justify-center items-center"
@@ -307,7 +326,7 @@ const OrderDetailCard = ({
               </Typography.Text>
             </div>
             <Button
-              onClick={() => handelAdjustQuantity({ orderDetailId: detail.id, quantityAdjust: 1 })}
+              onClick={() => handelAdjustQuantity({ detail, quantityAdjust: 1 })}
               type="primary"
               size="small"
               className="!p-0 !w-6 !h-6 shadow-none flex justify-center items-center"

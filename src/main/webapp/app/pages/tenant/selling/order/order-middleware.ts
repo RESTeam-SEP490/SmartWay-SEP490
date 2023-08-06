@@ -4,11 +4,12 @@ import { Storage } from 'react-jhipster';
 import { Observable } from 'rxjs';
 import Stomp from 'webstomp-client';
 
+import { notification } from 'antd';
 import { receiveChangedTable } from 'app/pages/tenant/management/dining-table/dining-table.reducer';
 import OrderEvent from 'app/pages/tenant/selling/order/order-event';
 import { IOrder } from 'app/shared/model/order/order.model';
 import { orderActions } from './order.reducer';
-import { notification } from 'antd';
+import { isFulfilledAction } from 'app/shared/reducers/reducer.utils';
 
 let stompClient = null;
 let subscriber = null;
@@ -36,7 +37,6 @@ const subscribe = (topicPath: string) => {
         const itemInfo = data.headers.item;
         notification.info({ message: itemInfo + 'đang chờ phục vụ' });
         sound.play();
-        console.log('a');
       }
       listenerObserver.next(toUpdateOrder);
     });

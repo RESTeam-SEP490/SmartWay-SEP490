@@ -3,7 +3,11 @@ import axios from 'axios';
 
 import { IMenuItem } from 'app/shared/model/menu-item.model';
 import { defaultValue, IOrder } from 'app/shared/model/order/order.model';
+import { receiveChangedTable } from '../../management/dining-table/dining-table.reducer';
 import { serializeAxiosError } from 'app/shared/reducers/reducer.utils';
+import thunk from 'redux-thunk';
+import getStore from 'app/config/store';
+import { DiningTableSlice } from '../../management/dining-table/dining-table.reducer';
 
 const initialState = {
   isEstablishingConnection: false,
@@ -35,7 +39,7 @@ export const addNote = createAsyncThunk(
 
 export const groupTables = createAsyncThunk(
   'orders/group_tables',
-  async (dto: { orderId: string; tableList: string[] }) => {
+  async (dto: { orderId: string; tableList: string[] }, thunkAPI) => {
     const requestUrl = `${apiUrl}/${dto.orderId}/group-tables`;
     const result = axios.put<IOrder>(requestUrl, dto.tableList);
     return result;
@@ -121,6 +125,7 @@ export const OrderSlice = createSlice({
         state.activeOrders = action.payload.data;
       })
       .addMatcher(isPending(addNote, groupTables), (state, action) => {
+        state.updateSuccess = false;
         state.updating = true;
       })
       .addMatcher(isFulfilled(addNote, groupTables), (state, action) => {
@@ -128,6 +133,7 @@ export const OrderSlice = createSlice({
         state.updating = false;
 
         const toUpdateOrder = action.payload.data;
+
         let isNew = true;
         const nextActiveOrders = state.activeOrders.map(order => {
           if (order.id === toUpdateOrder.id) {
