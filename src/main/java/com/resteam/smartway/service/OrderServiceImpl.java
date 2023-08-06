@@ -262,7 +262,6 @@ public class OrderServiceImpl implements OrderService {
             .stream()
             .map(this::sortOrderDetailsAndNotificationHistories)
             .collect(Collectors.toList());
-        return orderMapper.toDto(orders);
     }
 
     @Override

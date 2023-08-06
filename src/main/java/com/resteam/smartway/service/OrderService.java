@@ -31,8 +31,6 @@ public interface OrderService {
 
     OrderDTO changePriority(OrderDetailPriorityDTO orderDetailDTO);
 
-    List<ItemAdditionNotificationDTO> getAllOrderItemInKitchen();
-
     byte[] generatePdfOrder(OrderDTO orderDTO) throws DocumentException;
 
     byte[] generatePdfOrderForPay(OrderDTO orderDTO) throws DocumentException;
