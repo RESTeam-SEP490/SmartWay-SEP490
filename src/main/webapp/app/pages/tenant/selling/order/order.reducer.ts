@@ -1,8 +1,8 @@
-import { PayloadAction, createAsyncThunk, createSlice, current } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, isFulfilled, isPending, isRejected, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 
 import { IMenuItem } from 'app/shared/model/menu-item.model';
-import { IOrder, defaultValue } from 'app/shared/model/order/order.model';
+import { defaultValue, IOrder } from 'app/shared/model/order/order.model';
 import { serializeAxiosError } from 'app/shared/reducers/reducer.utils';
 
 const initialState = {
@@ -12,7 +12,6 @@ const initialState = {
   updating: false,
   updateSuccess: false,
   activeOrders: [],
-  selectedTable: [],
   currentOrder: defaultValue,
   changedDetailId: null,
 };
@@ -29,6 +28,16 @@ export const addNote = createAsyncThunk(
   async (detailAddnoteDto: { orderDetailId: string; note: string }) => {
     const requestUrl = `${apiUrl}/add-note`;
     const result = axios.put<IOrder>(requestUrl, detailAddnoteDto);
+    return result;
+  },
+  { serializeError: serializeAxiosError }
+);
+
+export const groupTables = createAsyncThunk(
+  'orders/group_tables',
+  async (dto: { orderId: string; tableList: string[] }) => {
+    const requestUrl = `${apiUrl}/${dto.orderId}/group-tables`;
+    const result = axios.put<IOrder>(requestUrl, dto.tableList);
     return result;
   },
   { serializeError: serializeAxiosError }
@@ -62,6 +71,9 @@ export const OrderSlice = createSlice({
     notifyKitchen(state, action: PayloadAction<string>) {
       return;
     },
+    changePriority(state, action: PayloadAction<{ orderDetailId: string; priority: boolean }>) {
+      return;
+    },
     deleteOrderDetail(state, action: PayloadAction<string>) {
       return;
     },
@@ -74,7 +86,10 @@ export const OrderSlice = createSlice({
         return order;
       });
 
-      if (state.currentOrder.id === toUpdateOrder.id) state.currentOrder = toUpdateOrder;
+      const currentSelectedTable = state.currentOrder.tableList;
+      const isUpdateCurrentOrder = currentSelectedTable.some(table => toUpdateOrder.tableList.some(t => t.id === table.id));
+
+      if (isUpdateCurrentOrder) state.currentOrder = toUpdateOrder;
 
       if (isUpdate) state.activeOrders = nextOrderList;
       else state.activeOrders = [...nextOrderList, toUpdateOrder];
@@ -92,6 +107,9 @@ export const OrderSlice = createSlice({
     setChangedDetailId(state, action) {
       state.changedDetailId = action.payload;
     },
+    disconnectStomp(state) {
+      state.isConnected = false;
+    },
   },
   extraReducers(builder) {
     builder
@@ -102,10 +120,10 @@ export const OrderSlice = createSlice({
         state.loading = false;
         state.activeOrders = action.payload.data;
       })
-      .addCase(addNote.pending, (state, action) => {
+      .addMatcher(isPending(addNote, groupTables), (state, action) => {
         state.updating = true;
       })
-      .addCase(addNote.fulfilled, (state, action) => {
+      .addMatcher(isFulfilled(addNote, groupTables), (state, action) => {
         state.updateSuccess = true;
         state.updating = false;
 
@@ -123,7 +141,7 @@ export const OrderSlice = createSlice({
 
         if (state.currentOrder.id === toUpdateOrder.id) state.currentOrder = toUpdateOrder;
       })
-      .addCase(addNote.rejected, (state, action) => {
+      .addMatcher(isRejected(addNote, groupTables, getEntities), (state, action) => {
         state.updating = false;
       });
   },

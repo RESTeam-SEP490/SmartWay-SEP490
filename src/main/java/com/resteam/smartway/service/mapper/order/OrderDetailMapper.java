@@ -7,9 +7,10 @@ import com.resteam.smartway.service.mapper.base.EntityMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring", uses = { MenuItemMapper.class })
+@Mapper(componentModel = "spring", uses = { MenuItemMapper.class, HasReadyToServeItemMapper.class })
 public interface OrderDetailMapper extends EntityMapper<OrderDetailDTO, OrderDetail> {
     OrderDetail toEntity(OrderDetailDTO dto);
 
+    @Mapping(target = "readyToServeQuantity", source = "itemAdditionNotificationList")
     OrderDetailDTO toDto(OrderDetail entity);
 }

@@ -4,9 +4,11 @@ export interface IOrderDetail {
   id?: string;
   orderId?: string | null;
   menuItem?: IMenuItem | null;
-  quantity?: number | 0;
-  unnotifiedQuantity?: number | 0;
-  isCooked?: boolean | null;
+  quantity?: number;
+  unnotifiedQuantity?: number;
+  servedQuantity?: number;
+  priority?: boolean | null;
+  readyToServeQuantity?: number;
   notifiedTime?: Date | null;
   note?: string | null;
 }

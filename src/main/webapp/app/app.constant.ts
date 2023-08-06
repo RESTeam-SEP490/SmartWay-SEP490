@@ -1,4 +1,7 @@
+import dayjs from 'dayjs';
+import { IItemAdditionNotification } from './shared/model/order/item-addition-notfication.model';
 import { IQueryParams } from './shared/reducers/reducer.utils';
+import { IReadyToServeNotification } from './shared/model/order/ready-to-serve-notfication.model';
 
 export const DEFAULT_PAGEABLE: IQueryParams = {
   search: null,
@@ -39,3 +42,16 @@ export function toNonAccentVietnamese(str) {
   str = str.replace(/\u02C6|\u0306|\u031B/g, ''); // Â, Ê, Ă, Ơ, Ư
   return str;
 }
+
+export const itemAdditionCompare = (a: IItemAdditionNotification, b: IItemAdditionNotification) => {
+  if (dayjs(a.notifiedTime).isAfter(dayjs(b.notifiedTime))) return 1;
+  if (dayjs(a.notifiedTime).isBefore(dayjs(b.notifiedTime))) return -1;
+  if (JSON.stringify(b.tableList) === JSON.stringify(a.tableList)) {
+    if (a.priority) return -1;
+  }
+};
+
+export const readyToServeItemCompare = (a: IReadyToServeNotification, b: IReadyToServeNotification) => {
+  if (dayjs(a.notifiedTime).isAfter(dayjs(b.notifiedTime))) return 1;
+  if (dayjs(a.notifiedTime).isBefore(dayjs(b.notifiedTime))) return -1;
+};

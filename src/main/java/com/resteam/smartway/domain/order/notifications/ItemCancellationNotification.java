@@ -30,6 +30,10 @@ public class ItemCancellationNotification extends AbstractBaseEntity {
     private ItemAdditionNotification itemAdditionNotification;
 
     @ManyToOne
+    @JoinColumn(name = "ready_to_serve_notification_id", referencedColumnName = "id", columnDefinition = "BINARY(16)")
+    private ReadyToServeNotification readyToServeNotification;
+
+    @ManyToOne
     @JoinColumn(name = "kitchen_notification_history_id", referencedColumnName = "id", columnDefinition = "BINARY(16)")
     private KitchenNotificationHistory kitchenNotificationHistory;
 }

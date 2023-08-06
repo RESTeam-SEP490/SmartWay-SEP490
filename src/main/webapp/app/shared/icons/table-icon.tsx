@@ -1,4 +1,6 @@
+import { BlockOutlined } from '@ant-design/icons';
 import React from 'react';
+import { MdLink } from 'react-icons/md';
 
 type Status = 'available' | 'occupied' | 'booked' | 'selected';
 
@@ -22,11 +24,11 @@ export default function TableIcon({
       break;
     }
     case 'selected': {
-      fill = '#4D81F1';
+      fill = '#1152DE';
       break;
     }
     default:
-      fill = '#cbd5e1';
+      fill = '#9ca3af';
   }
   return (
     <div className="relative flex">

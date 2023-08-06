@@ -5,8 +5,8 @@ import '../content/css/app.css';
 import '../output.css';
 
 import React, { useEffect } from 'react';
-import { BrowserRouter, useLocation } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
+import { BrowserRouter } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
 
 import { ConfigProvider, notification } from 'antd';
 import { AUTHORITIES } from 'app/config/constants';
@@ -42,7 +42,7 @@ export const App = () => {
   const ribbonEnv = useAppSelector(state => state.applicationProfile.ribbonEnv);
   const isInProduction = useAppSelector(state => state.applicationProfile.inProduction);
   const isOpenAPIEnabled = useAppSelector(state => state.applicationProfile.isOpenAPIEnabled);
-  notification.config({ placement: 'bottomRight' });
+  notification.config({ placement: 'bottomLeft' });
   return (
     <BrowserRouter basename={baseHref}>
       <Scrollbars className="!w-screen !h-screen">
