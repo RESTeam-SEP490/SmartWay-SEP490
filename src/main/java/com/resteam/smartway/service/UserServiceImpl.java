@@ -146,7 +146,8 @@ public class UserServiceImpl implements UserService {
         Role waiter = new Role();
         waiter.setName(roleNames.get(0));
         Authority authority = authorityRepository.findById(AuthoritiesConstants.ORDER_WAITER).orElseThrow();
-        waiter.setAuthorities(List.of(authority));
+        Authority authorityUser = authorityRepository.findById(AuthoritiesConstants.ROLE_USER).orElseThrow();
+        waiter.setAuthorities(List.of(authority, authorityUser));
 
         Role cashier = new Role();
         cashier.setName(roleNames.get(1));
