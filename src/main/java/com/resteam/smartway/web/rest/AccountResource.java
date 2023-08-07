@@ -156,7 +156,7 @@ public class AccountResource {
         }
     }
 
-    private static boolean isPasswordLengthInvalid(String password) {
+    static boolean isPasswordLengthInvalid(String password) {
         return (
             StringUtils.isEmpty(password) ||
             password.length() < ManagedUserVM.PASSWORD_MIN_LENGTH ||
