@@ -11,6 +11,7 @@ public class ReadyToServeNotificationDTO {
     private UUID id;
 
     private int quantity;
+    private int servedQuantity;
 
     private ItemAdditionNotificationDTO itemAdditionNotification;
 

@@ -18,6 +18,7 @@ export const TableList = () => {
   const zoneList = useAppSelector(state => state.zone.entities);
   const currentOrder: IOrder = useAppSelector(state => state.order.currentOrder);
   const orders: IOrder[] = useAppSelector(state => state.order.activeOrders);
+  const loading = useAppSelector(state => state.order.loading);
 
   const [filteredTableList, setFilteredTableList] = useState([]);
   const [filter, setFilter] = useState({ zoneId: '', isFree: undefined });
@@ -27,8 +28,8 @@ export const TableList = () => {
   }, []);
 
   useEffect(() => {
-    if (tableList?.length > 0 && currentOrder.tableList.length === 0 && orders.length > 0)
-      dispatch(orderActions.selectOrderByTable(tableList[0]));
+    console.log(tableList, currentOrder, orders);
+    if (tableList?.length > 0 && currentOrder.tableList.length === 0 && !loading) dispatch(orderActions.selectOrderByTable(tableList[0]));
   }, [tableList, orders]);
 
   useEffect(() => {
@@ -97,7 +98,7 @@ export const TableList = () => {
 const TableCard = ({ table, handleSelectTable, isSelected }: { table: IDiningTable; handleSelectTable: any; isSelected: boolean }) => {
   const orders: IOrder[] = useAppSelector(state => state.order.activeOrders);
 
-  const orderOfThisTable: IOrder = orders?.find(o => o.tableList.map(t => t.id).includes(table.id));
+  const orderOfThisTable: IOrder = orders?.find(o => o.tableList.some(t => t.id === table.id));
 
   const hasReadyToServeItem = orderOfThisTable?.orderDetailList.some(detail => detail.readyToServeQuantity > 0);
 
@@ -109,7 +110,11 @@ const TableCard = ({ table, handleSelectTable, isSelected }: { table: IDiningTab
       }`}
     >
       <Typography.Text className={`pb-4 !mt-2 font-semibold ${isSelected ? '!text-blue-700' : ''}`}>{table.name}</Typography.Text>
-      <TableIcon size={80} status={isSelected ? 'selected' : table.isFree ? 'available' : 'occupied'} numberOfSeats={table.numberOfSeats} />
+      <TableIcon
+        size={80}
+        status={isSelected ? 'selected' : !orderOfThisTable ? 'available' : 'occupied'}
+        numberOfSeats={table.numberOfSeats}
+      />
       {orderOfThisTable ? (
         <div className={`flex gap-2 mt-4 px-3 py-1 rounded-full ${isSelected ? 'bg-white text-blue-700' : 'bg-gray-100 text-gray-600'}`}>
           <ClockCircleOutlined rev="" />

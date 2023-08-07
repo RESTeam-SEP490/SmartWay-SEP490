@@ -1,10 +1,14 @@
 package com.resteam.smartway.web.websocket;
 
+import com.resteam.smartway.domain.order.notifications.KitchenNotificationHistory;
 import com.resteam.smartway.domain.order.notifications.ReadyToServeNotification;
+import com.resteam.smartway.repository.order.KitchenNotificationHistoryRepository;
 import com.resteam.smartway.security.CustomUserDetails;
 import com.resteam.smartway.security.multitenancy.context.RestaurantContext;
 import com.resteam.smartway.service.KitchenService;
 import com.resteam.smartway.service.OrderService;
+import com.resteam.smartway.service.dto.order.KitchenItemsDTO;
+import com.resteam.smartway.service.dto.order.OrderDTO;
 import com.resteam.smartway.service.dto.order.notification.NotifyReadyToServeDTO;
 import com.resteam.smartway.service.dto.order.notification.NotifyServedDTO;
 import com.resteam.smartway.service.mapper.order.notification.ReadyToServeNotificationMapper;
@@ -32,7 +36,8 @@ public class KitchenWebsocket {
 
     private final KitchenService kitchenService;
     private final OrderService orderService;
-    private final ReadyToServeNotificationMapper readyToServeNotificationMapper;
+
+    private final KitchenNotificationHistoryRepository kitchenNotificationHistoryRepository;
     private final SimpMessagingTemplate simpMessagingTemplate;
     public static final String RECEIVE_DESTINATION_FORMAT = "/kitchen/%s/update-items";
 
@@ -50,7 +55,26 @@ public class KitchenWebsocket {
             kitchenService.getAllOrderItemInKitchen()
         );
 
-        sendAlertToOrders("has-ready-to-serve-item", readyToServeNotification);
+        if (readyToServeNotification != null) {
+            sendAlertToOrders("has-ready-to-serve-item", readyToServeNotification);
+        }
+    }
+
+    public void sendCancelMessageToKitchenScreen(OrderDTO dto) {
+        kitchenNotificationHistoryRepository
+            .findById(dto.getKitchenNotificationHistoryList().get(dto.getKitchenNotificationHistoryList().size() - 1).getId())
+            .ifPresent(kitchenNotificationHistory -> {
+                boolean isKitchenItemsChanged = kitchenNotificationHistory
+                    .getItemCancellationNotificationList()
+                    .stream()
+                    .anyMatch(icn -> icn.getOrderDetail() == null);
+                if (isKitchenItemsChanged) {
+                    simpMessagingTemplate.convertAndSend(
+                        String.format("/kitchen/%s/receive-order-cancellation", RestaurantContext.getCurrentRestaurant().getId()),
+                        kitchenService.getAllOrderItemInKitchen()
+                    );
+                }
+            });
     }
 
     @MessageMapping("/notify-served")

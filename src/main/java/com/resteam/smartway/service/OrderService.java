@@ -1,8 +1,8 @@
 package com.resteam.smartway.service;
 
 import com.itextpdf.text.DocumentException;
-import com.resteam.smartway.service.dto.DiningTableDTO;
 import com.resteam.smartway.service.dto.order.*;
+import com.resteam.smartway.service.dto.order.notification.CancellationDTO;
 import com.resteam.smartway.service.dto.order.notification.ItemAdditionNotificationDTO;
 import java.util.List;
 import java.util.UUID;
@@ -28,6 +28,7 @@ public interface OrderService {
     OrderDTO findById(UUID orderId);
 
     void ungroupTables(UUID orderId, List<String> tableIds);
+
     OrderDTO splitOrder(UUID orderId, UUID targetTableId, List<UUID> orderDetailIds);
 
     OrderDTO changePriority(OrderDetailPriorityDTO orderDetailDTO);

@@ -1,4 +1,4 @@
-import { notification } from 'antd';
+import { notification, message } from 'antd';
 import { isFulfilledAction, isRejectedAction } from 'app/shared/reducers/reducer.utils';
 import { translate } from 'react-jhipster';
 import { toast } from 'react-toastify';
@@ -9,9 +9,9 @@ const addErrorAlert = (message, key?, data?) => {
   notification.error({ message: translate(key, data) });
 };
 
+// eslint-disable-next-line complexity
 export default () => next => action => {
   const { error, payload } = action;
-
   /**
    *
    * The notification middleware serves to add success and error notifications
@@ -78,19 +78,22 @@ export default () => next => action => {
             } else if (typeof data === 'string' && data !== '') {
               addErrorAlert(data);
             } else {
-              notification.error(data?.message || data?.error || data?.title || 'Unknown error!');
+              notification.error({ message: data?.message || data?.error || data?.title || 'Unknown error!' });
             }
             break;
           }
           case 404:
             addErrorAlert('Not found', 'error.url.not.found');
             break;
-
+          case 500: {
+            notification.error({ message: data.message || 'Internal Sever error!' });
+            break;
+          }
           default:
             if (typeof data === 'string' && data !== '') {
               addErrorAlert(data);
             } else {
-              notification.error(data?.message || data?.error || data?.title || 'Unknown error!');
+              notification.error({ message: data?.message || data?.error || data?.title || 'Unknown error!' });
             }
         }
       }
@@ -98,10 +101,10 @@ export default () => next => action => {
       /* eslint-disable no-console */
       console.log('Authentication Error: Trying to access url api/account with GET.');
     } else {
-      notification.error(error.message || 'Unknown error!');
+      notification.error({ message: error.message || 'Unknown error!' });
     }
   } else if (error) {
-    notification.error(error.message || 'Unknown error!');
+    notification.error({ message: error.message || 'Unknown error!' });
   }
 
   return next(action);

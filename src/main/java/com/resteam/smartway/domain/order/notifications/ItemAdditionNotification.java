@@ -40,10 +40,10 @@ public class ItemAdditionNotification extends AbstractBaseEntity {
     @JoinColumn(name = "kitchen_notification_history_id", referencedColumnName = "id", columnDefinition = "BINARY(16)")
     private KitchenNotificationHistory kitchenNotificationHistory;
 
-    @OneToMany(mappedBy = "itemAdditionNotification")
+    @OneToMany(mappedBy = "itemAdditionNotification", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemCancellationNotification> itemCancellationNotificationList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "itemAdditionNotification")
+    @OneToMany(mappedBy = "itemAdditionNotification", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReadyToServeNotification> readyToServeNotificationList = new ArrayList<>();
 
     @Column(name = "is_completed", nullable = false)

@@ -30,6 +30,9 @@ public class ReadyToServeNotification extends AbstractBaseEntity {
 
     private int quantity;
 
+    @Column(name = "served_quantity", nullable = false)
+    private int servedQuantity;
+
     @ManyToOne
     @JoinColumn(name = "item_addition_notification_id", referencedColumnName = "id", columnDefinition = "BINARY(16)")
     private ItemAdditionNotification itemAdditionNotification;

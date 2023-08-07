@@ -1,14 +1,19 @@
 package com.resteam.smartway.web.rest;
 
 import com.itextpdf.text.DocumentException;
+import com.resteam.smartway.domain.order.notifications.KitchenNotificationHistory;
 import com.resteam.smartway.service.OrderService;
 import com.resteam.smartway.service.dto.order.*;
+import com.resteam.smartway.service.dto.order.notification.CancellationDTO;
+import com.resteam.smartway.web.websocket.KitchenWebsocket;
 import com.resteam.smartway.web.websocket.OrderWebsocket;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,7 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-@Log4j2
+@Slf4j
 @RestController
 @RequestMapping("/api/orders")
 @Transactional
@@ -27,9 +32,10 @@ public class OrderResource {
 
     private final OrderService orderService;
     private final OrderWebsocket orderWebsocket;
+    private final KitchenWebsocket kitchenWebsocket;
 
     @PostMapping
-    public ResponseEntity<OrderDTO> createOrder(@RequestBody OrderCreationDTO orderDTO) {
+    public ResponseEntity<OrderDTO> createOrder(@Valid @RequestBody OrderCreationDTO orderDTO) {
         OrderDTO createdOrder = orderService.createOrder(orderDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
     }
@@ -114,24 +120,6 @@ public class OrderResource {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_PDF);
             headers.setContentDispositionFormData("inline", "_order_" + id + ".pdf");
-
-            return new ResponseEntity<>(pdfContent, headers, HttpStatus.OK);
-        } catch (DocumentException e) {
-            // Handle exception appropriately
-            e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping("/export-notificationKitchen")
-    public ResponseEntity<byte[]> exportPdfForNotificationKitchen(@RequestBody Map<String, List<UUID>> request) {
-        List<UUID> ids = request.get("ids");
-        try {
-            byte[] pdfContent = orderService.generatePdfOrderForNotificationKitchen(ids);
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_PDF);
-            headers.setContentDispositionFormData("inline", "_orderTicket_" + ".pdf");
 
             return new ResponseEntity<>(pdfContent, headers, HttpStatus.OK);
         } catch (DocumentException e) {

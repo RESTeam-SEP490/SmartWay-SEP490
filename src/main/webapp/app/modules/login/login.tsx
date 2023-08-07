@@ -43,7 +43,7 @@ export const Login = () => {
         <div className="flex flex-col items-center w-full p-4 lg:w-6/12 xl:w-5/12 ">
           <div className="flex items-center justify-between w-full px-8 py-6 ">
             <BrandIcon />
-            <LocaleMenu currentLocale={currentLocale} />
+            <LocaleMenu />
           </div>
           <div className="flex flex-col justify-center -translate-y-8 lg:w-80 grow">
             <Typography.Title className="!mb-1" level={2}>

@@ -9,6 +9,7 @@ public class ItemCancellationNotificationDTO {
 
     private UUID id;
     private int quantity;
+    private String menuItemName;
     private String createdBy;
     private Instant notifiedTime;
 }

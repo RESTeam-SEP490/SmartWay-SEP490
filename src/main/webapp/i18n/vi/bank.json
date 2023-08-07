@@ -1,0 +1,8 @@
+{
+  "bank": {
+    "accountNumber": "Số tài khoản",
+    "bankName": "Tên ngân hàng",
+    "title": "Thiết lập tài khoản ngân hàng",
+    "selectBank": "Lựa chọn ngân hàng"
+  }
+}
