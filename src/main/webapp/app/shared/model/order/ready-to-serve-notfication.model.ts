@@ -6,6 +6,7 @@ export interface IReadyToServeNotification {
   createdBy?: string | null;
   notifiedTime?: string;
   quantity?: number;
+  servedQuantity?: number;
   isCompleted?: boolean;
   itemAdditionNotification?: IItemAdditionNotification;
   itemCancellationNotificationList?: IItemCancellationNotification[];

@@ -11,6 +11,6 @@ public class NotifyServedDTO {
     @NotNull
     private UUID readyToServeNotificationId;
 
-    @Min(1)
+    @Min(0)
     private int servedQuantity;
 }

@@ -1,9 +1,30 @@
 {
   "order": {
-    "addNote.title": "Add note",
-    "form": {
-      "note.placeholder": "Enter note for this item"
+    "current.label": "Current order",
+    "empty": {
+      "title": "No items ordered yet",
+      "subtitle": "Please order in the <b>Menu</b> tab"
     },
+    "addNote.title": "Add note",
+    "addNote.empty": "No notes",
+    "form": {
+      "note.placeholder": "Enter note for this item",
+      "label": {
+        "type": "Type of order",
+        "table": "Table",
+        "toMergeOrder": "Orders will be merged"
+      },
+      "type": {
+        "takeaway": "Take away",
+        "atTable": "At table"
+      },
+      "table": {
+        "code": "Order code",
+        "quantity": "Total quantity",
+        "price": "Total price"
+      }
+    },
+
     "tableList": {
       "status": {
         "available": "Available",
@@ -11,13 +32,36 @@
       }
     },
     "orderDetails": {
-      "ordering.label": "Ordering items",
-      "ordered.label": "Ordered items",
-      "ordering.total": "Ordering total",
-      "ordered.total": "Ordered total",
       "total": "Total",
       "charge": "Charge",
       "notify": "Notify kitchen"
+    },
+    "history": {
+      "title": "Kitchen notification history"
+    },
+    "notification": {
+      "ready-to-serve": "is ready to serve",
+      "served": "was served"
+    },
+    "charge": {
+      "label": "Charge",
+      "itemList": "Item list",
+      "quantity": "Quantity",
+      "subtotal": "Subtotal",
+      "discount": "Discount",
+      "total": "Total"
+    },
+    "cancel": {
+      "title": "Confirm items cancellation",
+      "confirm": "Are you sure to cancel <b>{{ name }}</b> ?",
+      "form": {
+        "order": "Order of cancellations",
+        "order.served": "Cancel served items first",
+        "order.unserved": "Cancel unserved items first",
+        "quantity": "Quantity",
+        "totalQ": "Ordered quantity",
+        "reason": "Reason"
+      }
     }
   }
 }

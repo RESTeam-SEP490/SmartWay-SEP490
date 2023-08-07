@@ -35,9 +35,7 @@ export const App = () => {
   const isInProd = useAppSelector(state => state.applicationProfile.inProduction);
   if (appType == null) window.location.replace(getAppUrl(isInProd, 'www', domain, '/page-not-found'));
 
-  const currentLocale = useAppSelector(state => state.locale.currentLocale);
   const isAuthenticated = useAppSelector(state => state.authentication.isAuthenticated);
-  const username = useAppSelector(state => state.authentication.account.username);
   const isAdmin = useAppSelector(state => hasAnyAuthority(state.authentication.account.authorities, [AUTHORITIES.SYSTEM_ADMIN]));
   const ribbonEnv = useAppSelector(state => state.applicationProfile.ribbonEnv);
   const isInProduction = useAppSelector(state => state.applicationProfile.inProduction);
@@ -54,11 +52,9 @@ export const App = () => {
                 appType={appType}
                 isAuthenticated={isAuthenticated}
                 isAdmin={isAdmin}
-                currentLocale={currentLocale}
                 ribbonEnv={ribbonEnv}
                 isInProduction={isInProduction}
                 isOpenAPIEnabled={isOpenAPIEnabled}
-                username={username}
               />
             </ErrorBoundary>
             <div className="flex flex-col grow">

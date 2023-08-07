@@ -24,12 +24,14 @@ const createListener = (): Observable<any> =>
     listenerObserver = observer;
   });
 
-const sound = new Audio('/content/sound/notification.mp3');
+const newItemsound = new Audio('/content/sound/new-item-sound.mp3');
+const cancellationSound = new Audio('/content/sound/cancellation-sound.mp3');
 
 const subscribe = (topicPath: string) => {
   connection.then(() => {
     subscriber = stompClient.subscribe(`/kitchen/${subdomain}/${topicPath}`, data => {
-      if (topicPath === KitchenEvent.ReceiveNewItem) sound.play();
+      if (topicPath === KitchenEvent.ReceiveNewItem) newItemsound.play();
+      if (topicPath === KitchenEvent.ReceiveOrderCancellation) cancellationSound.play();
       listenerObserver.next(JSON.parse(data.body));
     });
   });
@@ -112,8 +114,8 @@ export default store => next => action => {
       store.dispatch(kitchenActions.connectionEstablished());
 
       subscribe(KitchenEvent.ReceiveNewItem);
-
       subscribe(KitchenEvent.UpdateItems);
+      subscribe(KitchenEvent.ReceiveOrderCancellation);
       receive().subscribe((kitchenItems: IKitchenItems) => {
         store.dispatch(kitchenActions.receiveNewItem(kitchenItems));
       });

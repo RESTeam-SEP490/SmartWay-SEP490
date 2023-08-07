@@ -12,4 +12,5 @@ public class KitchenNotificationHistoryDTO {
     private Instant notifiedTime;
     private String createdBy;
     private List<ItemAdditionNotificationDTO> itemAdditionNotificationList;
+    private List<ItemCancellationNotificationDTO> itemCancellationNotificationList;
 }

@@ -9,6 +9,7 @@ import Scrollbars from 'react-custom-scrollbars-2';
 import { MdOutlineFastfood } from 'react-icons/md';
 import { currencyFormatter } from '../../../../../app.constant';
 import { orderActions } from '../order.reducer';
+import { translate } from 'react-jhipster';
 
 export const MenuItemList = () => {
   const dispatch = useAppDispatch();
@@ -56,7 +57,7 @@ export const MenuItemList = () => {
     <div className="p-2 bg-white h-[calc(100vh-66px)] flex flex-col rounded-se-lg rounded-b-lg">
       <div className="flex items-center justify-between px-2 py-4">
         <Segmented
-          options={[{ label: 'All', value: '' }, ...categoryList.map(z => ({ label: z.name, value: z.id }))]}
+          options={[{ label: translate('entity.label.all'), value: '' }, ...categoryList.map(z => ({ label: z.name, value: z.id }))]}
           onChange={value => setFilter(prev => ({ ...prev, zoneId: value.toString() }))}
         />
         <Button

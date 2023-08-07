@@ -10,7 +10,6 @@ export const Logout = () => {
   const navigate = useNavigate();
 
   useLayoutEffect(() => {
-    Storage.session.set('isCollapsed', false);
     dispatch(logout());
     navigate('/');
   });

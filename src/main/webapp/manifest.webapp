@@ -7,7 +7,15 @@
       "type": "image/png"
     },
     {
-      "src": "./content/images/SW_logo_white",
+      "src": "./content/images/SW_logo_white.svg",
+      "type": "image/png"
+    },
+    {
+      "src": "./content/images/wall.jpeg",
+      "type": "image/png"
+    },
+    {
+      "src": "./content/images/-2.jpeg",
       "type": "image/png"
     }
   ],

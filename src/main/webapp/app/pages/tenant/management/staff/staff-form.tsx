@@ -2,11 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { Translate, translate } from 'react-jhipster';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { StopOutlined } from '@ant-design/icons';
-import { Button, Checkbox, Form, Input, Modal, Tabs } from 'antd';
+import { Button, Checkbox, Form, Input, Modal } from 'antd';
 import { DEFAULT_FORM_ITEM_LAYOUT } from 'app/app.constant';
 import { SubmitButton } from 'app/shared/layout/form-shared-component';
 import { IStaff } from 'app/shared/model/staff.model';
-import { createEntity, updateEntity, validateEmail, validatePhone } from 'app/pages/tenant/management/staff/staff.reducer';
+import {
+  createEntity,
+  updateEntity,
+  validateEmail,
+  validateFullName,
+  validatePhone,
+} from 'app/pages/tenant/management/staff/staff.reducer';
 import RoleSelect from 'app/pages/tenant/management/role/role-component';
 
 export const StaffForm = ({ staff, isOpen, handleClose }: { staff?: IStaff; isOpen: boolean; handleClose: any }) => {
@@ -41,6 +47,9 @@ export const StaffForm = ({ staff, isOpen, handleClose }: { staff?: IStaff; isOp
     };
 
     if (isNew) {
+      if (entity.phone == '') {
+        entity.phone = undefined;
+      }
       dispatch(createEntity(entity));
     } else {
       dispatch(updateEntity(entity));
@@ -85,6 +94,7 @@ export const StaffForm = ({ staff, isOpen, handleClose }: { staff?: IStaff; isOp
                 label={translate('staff.fullName.label')}
                 name={'fullName'}
                 rules={[
+                  { validator: validateFullName },
                   { required: true, message: translate('entity.validation.required') },
                   { max: 100, message: translate('entity.validation.max', { max: 100 }) },
                 ]}
@@ -101,7 +111,7 @@ export const StaffForm = ({ staff, isOpen, handleClose }: { staff?: IStaff; isOp
                 name={'email'}
                 rules={[
                   { validator: validateEmail },
-                  { required: true, message: translate('entity.validation.required') },
+                  // { required: true, message: translate('entity.validation.required') },
                   { max: 50, message: translate('entity.validation.max', { max: 100 }) },
                 ]}
               >
@@ -112,7 +122,7 @@ export const StaffForm = ({ staff, isOpen, handleClose }: { staff?: IStaff; isOp
                 name={'phone'}
                 rules={[
                   { validator: validatePhone },
-                  { required: true, message: translate('entity.validation.required') },
+                  // { required: true, message: translate('entity.validation.required') },
                   { max: 20, message: translate('entity.validation.max', { max: 20 }) },
                 ]}
               >

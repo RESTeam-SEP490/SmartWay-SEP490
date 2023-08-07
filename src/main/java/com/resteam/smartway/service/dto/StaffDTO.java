@@ -5,6 +5,7 @@ import static com.resteam.smartway.service.dto.TenantRegistrationDTO.PASSWORD_MI
 
 import com.resteam.smartway.config.Constants;
 import java.util.UUID;
+import javax.annotation.Nullable;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
@@ -34,7 +35,8 @@ public class StaffDTO {
     @Pattern(regexp = "^[p{L}\\D]+$")
     private String fullName;
 
-    @Pattern(regexp = "^\\d+$")
+    @Nullable
+    @Pattern(regexp = "^\\d{5,15}$")
     private String phone;
 
     @Email

@@ -49,15 +49,15 @@ export const RegisterPage = () => {
     <div>
       <div className="flex">
         <div className="hidden min-h-screen p-6 lg:block lg:w-3/12 xl:w-5/12 ">
-          <div className="w-full h-full  relative">
+          <div className="relative w-full h-full">
             <div className="absolute top-0 bottom-0 w-full rounded-lg bg-center bg-cover bg-wall-primary bg-[url('content/images/wall.jpeg')]"></div>
-            <div className="absolute top-0 bottom-0 w-full rounded-lg bg-gradient-to-l from-40 to-90  from-blue-600/60 to-blue-300/60"></div>
+            <div className="absolute top-0 bottom-0 w-full rounded-lg bg-gradient-to-l from-40 to-90 from-blue-600/60 to-blue-300/60"></div>
           </div>
         </div>
         <div className="flex flex-col items-center w-full min-h-screen p-4 lg:w-9/12 xl:w-7/12">
           <div className="flex items-center justify-between w-full px-8 py-6 ">
             <Brand />
-            <LocaleMenu currentLocale={currentLocale} />
+            <LocaleMenu />
           </div>
           {successSubdomain ? (
             <div className="flex items-center justify-center grow">
@@ -248,7 +248,7 @@ export const RegisterPage = () => {
                       rules={[
                         { required: true, message: translate('global.messages.validate.newpassword.required') },
                         { min: 4, message: translate('global.messages.validate.newpassword.minlength') },
-                        { max: 50, message: translate('global.messages.validate.newpassword.maxlength') },
+                        { max: 100, message: translate('global.messages.validate.newpassword.maxlength') },
                       ]}
                     >
                       <Password placeholder={translate('global.form.password.placeholder')} />
