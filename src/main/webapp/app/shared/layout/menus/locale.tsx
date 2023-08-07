@@ -1,16 +1,17 @@
 import { DownOutlined, GlobalOutlined } from '@ant-design/icons';
 import { Button, Dropdown, MenuProps, Typography } from 'antd';
-import { useAppDispatch } from 'app/config/store';
+import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { languages } from 'app/config/translation';
 import { setLocale } from 'app/shared/reducers/locale';
 import React from 'react';
 import { Storage } from 'react-jhipster';
 
-export const LocaleMenu = ({ currentLocale }: { currentLocale: string }) => {
+export const LocaleMenu = () => {
   const dispatch = useAppDispatch();
+  const currentLocale = useAppSelector(state => state.locale.currentLocale);
 
   const handleLocaleChange = langKey => {
-    Storage.local.set('locale', langKey);
+    Storage.session.set('locale', langKey);
     dispatch(setLocale(langKey));
   };
 

@@ -1,11 +1,14 @@
 import { DownOutlined, FileTextOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons';
-import { Avatar, Button, Dropdown, MenuProps, Space, Typography } from 'antd';
+import { Avatar, Button, Dropdown, MenuProps } from 'antd';
+import { useAppSelector } from 'app/config/store';
 import { RedirectLoginModal } from 'app/modules/login/redirect-login-modal';
 import React, { useState } from 'react';
 import { Translate } from 'react-jhipster';
 import { Link, useNavigate } from 'react-router-dom';
 
-export const AuthenticatedAccountMenu = ({ name }: { name: string }) => {
+export const AuthenticatedAccountMenu = () => {
+  const username = useAppSelector(state => state.authentication.account.username);
+
   const items: MenuProps['items'] = [
     {
       key: 'profile',
@@ -19,7 +22,7 @@ export const AuthenticatedAccountMenu = ({ name }: { name: string }) => {
     {
       key: 'logout',
       label: (
-        <Link to="logout">
+        <Link to="/logout">
           <Translate contentKey="global.menu.account.logout" />
         </Link>
       ),
@@ -27,15 +30,13 @@ export const AuthenticatedAccountMenu = ({ name }: { name: string }) => {
     },
   ];
   return (
-    <div className="flex items-center">
-      <Typography.Text className="mr-4">{name}</Typography.Text>
-      <Dropdown menu={{ items }} placement="bottomRight">
-        <Space className="">
-          <Avatar shape="square" size="default" className="!bg-blue-600" icon={<UserOutlined rev={UserOutlined} />} />
-          <DownOutlined rev={DownOutlined} className="text-xs ml-0.5" />
-        </Space>
-      </Dropdown>
-    </div>
+    <Dropdown menu={{ items }} placement="bottomRight">
+      <div className="flex items-center p-2 text-base cursor-pointer">
+        <span className="mr-4 ">{username}</span>
+        <Avatar shape="square" size="default" className="!bg-blue-600" icon={<UserOutlined rev={UserOutlined} />} />
+        <DownOutlined rev={DownOutlined} className="ml-1 text-xs" />
+      </div>
+    </Dropdown>
   );
 };
 

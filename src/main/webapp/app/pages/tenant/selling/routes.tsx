@@ -49,22 +49,17 @@ export default () => {
               inlineCollapsed={isCollapse}
             >
               <Menu.Item icon={<MdOutlineRoomService size={24} />} key={'/pos/orders'}>
-                {/* <Translate contentKey="menu.staff.submenu.staffs" /> */}
-                Gọi món
+                <Translate contentKey="menu.order.label" />
                 <Link to="/pos/orders" />
               </Menu.Item>
               <Menu.Item icon={<MdOutlineRestaurantMenu size={24} />} key={'/pos/kitchen'}>
-                Bếp
-                {/* <Translate contentKey="menu.staff.submenu.staffs" /> */}
+                <Translate contentKey="menu.kitchen.label" />
                 <Link to="/pos/kitchen" />
               </Menu.Item>
             </Menu>
           </div>
           <div className="">
             <div className="h-16 mx-4 border-0 border-t border-solid border-slate-200 ">
-              <Button type="primary" icon={<MdDisplaySettings size={24} />} className="!shadow-none px-1 float-right mr-2 my-4">
-                <Link to={'/managing'} />
-              </Button>
               <Button
                 onClick={handleCollapse}
                 icon={<MdOutlineTune size={24} />}

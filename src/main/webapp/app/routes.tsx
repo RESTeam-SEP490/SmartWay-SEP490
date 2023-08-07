@@ -13,7 +13,6 @@ import Logout from 'app/modules/login/logout';
 import PrivateRoute from 'app/shared/auth/private-route';
 import ErrorBoundaryRoutes from 'app/shared/error/error-boundary-routes';
 import PageNotFound from 'app/shared/error/page-not-found';
-import AdminLogin from './modules/login/admin-login';
 import Order from 'app/pages/tenant/selling/routes';
 import { Spin } from 'antd';
 import { TenantProfileForm } from 'app/pages/tenant/management/tenant-profile/tenant-profile-form';
@@ -98,7 +97,7 @@ export const TenantAppRoutes = () => {
 export const AdminAppRoutes = () => {
   return (
     <ErrorBoundaryRoutes>
-      <Route path="login" element={<AdminLogin />} />
+      <Route path="login" element={<Login />} />
       <Route path="logout" element={<Logout />} />
       <Route
         path="account"

@@ -11,6 +11,7 @@ import { getEntities as getOrders, orderActions } from '../../selling/order/orde
 import { MenuItemList } from './order-screen-components/menu-item-list';
 import { OrderDetails } from './order-screen-components/order-details';
 import TableList from './order-screen-components/table-list';
+import { PrinterFilled } from '@ant-design/icons';
 
 const items: TabsProps['items'] = [
   {
@@ -46,6 +47,10 @@ export const OrderScreen = () => {
     dispatch(getTables());
     dispatch(getCategories({}));
     dispatch(getOrders());
+
+    return () => {
+      dispatch(orderActions.disconnectStomp());
+    };
   }, []);
 
   return (

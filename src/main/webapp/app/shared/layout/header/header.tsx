@@ -5,20 +5,17 @@ import { Translate } from 'react-jhipster';
 import LoadingBar from 'react-redux-loading-bar';
 import { Link, useLocation } from 'react-router-dom';
 import { AccountMenu, AuthenticatedAccountMenu, LocaleMenu } from '../menus';
-import { UserMenu } from '../menus/main-menu';
 import { Brand, BrandIcon } from './header-components';
 import { AppType } from 'app/app.constant';
 import { Button } from 'antd';
 import { DesktopOutlined } from '@ant-design/icons';
 
 export interface IHeaderProps {
-  username?: string;
   isAuthenticated: boolean;
   isAdmin: boolean;
   ribbonEnv: string;
   isInProduction: boolean;
   isOpenAPIEnabled: boolean;
-  currentLocale: string;
   appType: AppType;
 }
 
@@ -53,7 +50,7 @@ const MainAppHeader = (props: IHeaderProps) => {
       <div className="flex items-center justify-between pt-4 pb-2 mx-auto transition-all duration-300 ease-linear lg:max-w-7xl">
         <Brand />
         <div className="flex items-center gap-10">
-          <LocaleMenu currentLocale={props.currentLocale} />
+          <LocaleMenu />
           <AccountMenu />
         </div>
       </div>
@@ -76,11 +73,13 @@ const TenantAppHeader = (props: IHeaderProps) => {
         <div className="flex items-center justify-between py-2 pl-4 pr-12">
           <BrandIcon />
           <div className="flex items-center gap-10">
-            <Button type="primary" icon={<DesktopOutlined rev={''} />}>
-              <Link to={'/pos/orders'}>POS Screen</Link>
-            </Button>
-            <LocaleMenu currentLocale={props.currentLocale} />
-            <AuthenticatedAccountMenu name={props.username} />
+            <Link to={'/pos/orders'}>
+              <Button type="primary" icon={<DesktopOutlined rev={''} />}>
+                POS Screen
+              </Button>
+            </Link>
+            <LocaleMenu />
+            <AuthenticatedAccountMenu />
           </div>
         </div>
       </div>

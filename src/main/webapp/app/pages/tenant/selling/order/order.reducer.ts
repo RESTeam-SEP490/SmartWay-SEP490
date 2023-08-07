@@ -1,9 +1,15 @@
-import { PayloadAction, createAsyncThunk, createSlice, current } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, isFulfilled, isPending, isRejected, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 
 import { IMenuItem } from 'app/shared/model/menu-item.model';
-import { IOrder, defaultValue } from 'app/shared/model/order/order.model';
+import { defaultValue, IOrder } from 'app/shared/model/order/order.model';
+import { receiveChangedTable } from '../../management/dining-table/dining-table.reducer';
 import { serializeAxiosError } from 'app/shared/reducers/reducer.utils';
+import thunk from 'redux-thunk';
+import getStore from 'app/config/store';
+import { DiningTableSlice } from '../../management/dining-table/dining-table.reducer';
+import TableList from './order-screen-components/table-list';
+import { act } from 'react-dom/test-utils';
 
 const initialState = {
   isEstablishingConnection: false,
@@ -12,7 +18,6 @@ const initialState = {
   updating: false,
   updateSuccess: false,
   activeOrders: [],
-  selectedTable: [],
   currentOrder: defaultValue,
   changedDetailId: null,
 };
@@ -21,7 +26,16 @@ const apiUrl = 'api/orders';
 
 export const getEntities = createAsyncThunk('orders/fetch_entity_list', async () => {
   const requestUrl = `${apiUrl}/active-orders?cacheBuster=${new Date().getTime()}`;
-  return axios.get<IOrder[]>(requestUrl);
+  return await axios.get<IOrder[]>(requestUrl);
+});
+
+export const printBill = createAsyncThunk('orders/print_bill', async (id: string) => {
+  const requestUrl = `${apiUrl}/${id}/print-bill?cacheBuster=${new Date().getTime()}`;
+  const headers = {
+    'Content-Type': 'application/json',
+    Accept: 'application/pdf',
+  };
+  return await axios.get<ArrayBuffer>(requestUrl, { responseType: 'arraybuffer', headers });
 });
 
 export const addNote = createAsyncThunk(
@@ -29,6 +43,36 @@ export const addNote = createAsyncThunk(
   async (detailAddnoteDto: { orderDetailId: string; note: string }) => {
     const requestUrl = `${apiUrl}/add-note`;
     const result = axios.put<IOrder>(requestUrl, detailAddnoteDto);
+    return result;
+  },
+  { serializeError: serializeAxiosError }
+);
+
+export const groupTables = createAsyncThunk(
+  'orders/group_tables',
+  async (dto: { orderId: string; tableList: string[] }, thunkAPI) => {
+    const requestUrl = `${apiUrl}/${dto.orderId}/group-tables`;
+    const result = axios.put<IOrder>(requestUrl, dto.tableList);
+    return result;
+  },
+  { serializeError: serializeAxiosError }
+);
+
+export const cancelOrderDetail = createAsyncThunk(
+  'orders/cancel_order_detail',
+  async (dto: { isCancelServedItemFirst: boolean; orderDetailId: string; cancelledQuantity: number }, thunkAPI) => {
+    const requestUrl = `${apiUrl}/cancel-order-detail`;
+    const result = axios.post<IOrder>(requestUrl, dto);
+    return result;
+  },
+  { serializeError: serializeAxiosError }
+);
+
+export const pay = createAsyncThunk(
+  'orders/cancel_order_detail',
+  async (id: string, thunkAPI) => {
+    const requestUrl = `${apiUrl}/${id}/pay`;
+    const result = axios.post<ArrayBuffer>(requestUrl);
     return result;
   },
   { serializeError: serializeAxiosError }
@@ -62,22 +106,28 @@ export const OrderSlice = createSlice({
     notifyKitchen(state, action: PayloadAction<string>) {
       return;
     },
+    changePriority(state, action: PayloadAction<{ orderDetailId: string; priority: boolean }>) {
+      return;
+    },
     deleteOrderDetail(state, action: PayloadAction<string>) {
       return;
     },
     receiveChangedOrder(state, action) {
       const toUpdateOrder: IOrder = action.payload;
-      const isUpdate = state.activeOrders.map(order => order.id).includes(toUpdateOrder.id);
 
-      const nextOrderList = state.activeOrders.map((order: IOrder) => {
-        if (order.id === toUpdateOrder.id) return toUpdateOrder;
-        return order;
-      });
+      const nextOrderList = state.activeOrders
+        .map((order: IOrder) => {
+          if (order.id === toUpdateOrder.id) return toUpdateOrder;
+          return order;
+        })
+        .filter(order => order.tableList.length > 1 || toUpdateOrder.tableList.every(t => t.id !== order.tableList[0].id));
 
-      if (state.currentOrder.id === toUpdateOrder.id) state.currentOrder = toUpdateOrder;
+      const currentSelectedTable = state.currentOrder.tableList;
+      const isUpdateCurrentOrder = currentSelectedTable.some(table => toUpdateOrder.tableList.some(t => t.id === table.id));
 
-      if (isUpdate) state.activeOrders = nextOrderList;
-      else state.activeOrders = [...nextOrderList, toUpdateOrder];
+      if (isUpdateCurrentOrder) state.currentOrder = toUpdateOrder;
+
+      state.activeOrders = [...nextOrderList, toUpdateOrder];
     },
     selectOrderByTable(state, action) {
       const selectedTable = action.payload;
@@ -92,6 +142,9 @@ export const OrderSlice = createSlice({
     setChangedDetailId(state, action) {
       state.changedDetailId = action.payload;
     },
+    disconnectStomp(state) {
+      state.isConnected = false;
+    },
   },
   extraReducers(builder) {
     builder
@@ -102,28 +155,25 @@ export const OrderSlice = createSlice({
         state.loading = false;
         state.activeOrders = action.payload.data;
       })
-      .addCase(addNote.pending, (state, action) => {
+      .addMatcher(isFulfilled(printBill, pay), (state, action) => {
+        const pdfUrl = window.URL.createObjectURL(new Blob([action.payload.data], { type: 'application/pdf' }));
+        const iframe = document.createElement('iframe');
+        iframe.src = pdfUrl;
+        iframe.style.display = 'none';
+
+        document.body.appendChild(iframe);
+
+        iframe.contentWindow.print();
+      })
+      .addMatcher(isPending(addNote, groupTables, cancelOrderDetail), (state, action) => {
+        state.updateSuccess = false;
         state.updating = true;
       })
-      .addCase(addNote.fulfilled, (state, action) => {
+      .addMatcher(isFulfilled(addNote, groupTables, cancelOrderDetail), (state, action) => {
         state.updateSuccess = true;
         state.updating = false;
-
-        const toUpdateOrder = action.payload.data;
-        let isNew = true;
-        const nextActiveOrders = state.activeOrders.map(order => {
-          if (order.id === toUpdateOrder.id) {
-            isNew = false;
-            return toUpdateOrder;
-          } else return order;
-        });
-
-        if (isNew) state.activeOrders = [...nextActiveOrders, toUpdateOrder];
-        else state.activeOrders = nextActiveOrders;
-
-        if (state.currentOrder.id === toUpdateOrder.id) state.currentOrder = toUpdateOrder;
       })
-      .addCase(addNote.rejected, (state, action) => {
+      .addMatcher(isRejected(addNote, groupTables, getEntities), (state, action) => {
         state.updating = false;
       });
   },

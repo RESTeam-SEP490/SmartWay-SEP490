@@ -2,7 +2,10 @@ package com.resteam.smartway.domain.order;
 
 import com.resteam.smartway.domain.MenuItem;
 import com.resteam.smartway.domain.base.AbstractBaseEntity;
+import com.resteam.smartway.domain.order.notifications.ItemAdditionNotification;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import javax.persistence.*;
 import lombok.AllArgsConstructor;
@@ -36,6 +39,12 @@ public class OrderDetail extends AbstractBaseEntity {
 
     @Column(name = "unnotified_quantity")
     private int unnotifiedQuantity;
+
+    @OneToMany(mappedBy = "orderDetail")
+    private List<ItemAdditionNotification> itemAdditionNotificationList = new ArrayList<>();
+
+    @Column(name = "served_quantity")
+    private int servedQuantity;
 
     @Column(name = "is_priority", nullable = false)
     private boolean isPriority = false;

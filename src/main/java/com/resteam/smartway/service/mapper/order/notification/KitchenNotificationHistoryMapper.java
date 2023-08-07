@@ -5,5 +5,5 @@ import com.resteam.smartway.service.dto.order.notification.KitchenNotificationHi
 import com.resteam.smartway.service.mapper.base.EntityMapper;
 import org.mapstruct.Mapper;
 
-@Mapper(componentModel = "spring", uses = { ItemAdditionNotificationMapper.class })
+@Mapper(componentModel = "spring", uses = { ItemAdditionNotificationMapper.class, ItemCancellationNotificationMapper.class })
 public interface KitchenNotificationHistoryMapper extends EntityMapper<KitchenNotificationHistoryDTO, KitchenNotificationHistory> {}

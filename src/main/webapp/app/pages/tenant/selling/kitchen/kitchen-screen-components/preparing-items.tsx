@@ -1,59 +1,159 @@
 import { Button, Typography } from 'antd';
-import { useAppSelector } from 'app/config/store';
+import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { IItemAdditionNotification } from 'app/shared/model/order/item-addition-notfication.model';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import dayjs from 'dayjs';
-import { DoubleRightOutlined, RightOutlined, StarFilled } from '@ant-design/icons';
+import { DeleteFilled, DoubleRightOutlined, RightOutlined, StarFilled } from '@ant-design/icons';
+import { IKitchenItems } from 'app/shared/model/dto/kitchen-items-dto';
+import { alphabetCompare, itemAdditionCompare } from 'app/app.constant';
+import { kitchenActions } from '../kitchen.reducer';
+import { AnimatePresence, motion } from 'framer-motion';
+import { IReadyToServeNotification } from 'app/shared/model/order/ready-to-serve-notfication.model';
+import { MdOutlineSoupKitchen, MdRestaurant, MdSoupKitchen } from 'react-icons/md';
+import { translate } from 'react-jhipster';
 
 export const PreparingItems = () => {
-  const preparingItems: IItemAdditionNotification[] = useAppSelector(state => state.kitchen.preparingItems);
+  const dispatch = useAppDispatch();
+
+  const kitchenItems: IKitchenItems = useAppSelector(state => state.kitchen.kitchenItems);
+  const preparingItems = [...kitchenItems.itemAdditionNotificationList].sort(itemAdditionCompare);
+  const [now, setNow] = useState(dayjs());
+
+  useEffect(() => {
+    const interval = setInterval(() => setNow(dayjs()), 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
-    <div className="flex flex-col pl-4 py-4 bg-white rounded-b-lg rounded-se-lg h-[calc(100vh-60px)] ">
-      <Scrollbars className="w-full grow">
-        <div className="shadow-inner shadow-white">
-          {preparingItems.map(item => (
-            <div className="flex justify-between py-5 pl-4 pr-2 mr-4" key={item.id}>
-              <div className="flex flex-col justify-between w-5/12">
-                <Typography.Title className="!m-0 !leading-none w-full" level={5} ellipsis={{ tooltip: item.menuItemName }}>
-                  {item.menuItemName}
-                </Typography.Title>
-                <div className="text-xs text-gray-600">{item.note ? item.note : 'Không có ghi chú'}</div>
+    <div className="flex flex-col pl-4 py-4 bg-white rounded-b-lg rounded-se-lg h-[calc(100vh-80px)] ">
+      {preparingItems.length === 0 ? (
+        <>
+          <div className="flex items-center justify-center w-full grow">
+            <div className="flex flex-col items-center">
+              <div className="flex items-center justify-center text-blue-600 bg-blue-100 rounded-full w-44 h-44">
+                <MdOutlineSoupKitchen size={80} />
               </div>
-              <div className="flex flex-col justify-between">
-                <div className="">{`${item.tableList.map(table => table.name)[0]}${
-                  item.tableList.length > 1 ? ` + ${item.tableList.length - 1}` : ''
-                }`}</div>
-                <div className="text-xs text-gray-600">
-                  <span className="text-blue-600">{item.createdBy}</span>
-                  {` ${'đã thêm'} ${dayjs(item.notifiedTime).fromNow()}`}
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="flex items-center justify-center w-6 h-6 text-lg text-yellow-600">
-                  {item.priority && <StarFilled rev={''} />}
-                </div>
-                <span>{item.quantity}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  type="primary"
-                  ghost
-                  className="hover:!bg-blue-600 !w-12 hover:!text-white"
-                  icon={<RightOutlined rev="" />}
-                ></Button>
-                <Button
-                  type="primary"
-                  ghost
-                  className="hover:!bg-blue-600 !w-12 hover:!text-white"
-                  icon={<DoubleRightOutlined rev="" />}
-                ></Button>
-              </div>
+              <Typography.Title level={4} className="!text-gray-500 !mt-4">
+                {translate('kitchen.preparingItems.empty')}
+              </Typography.Title>
             </div>
-          ))}{' '}
-        </div>
-      </Scrollbars>
+          </div>
+        </>
+      ) : (
+        <Scrollbars className="w-full grow">
+          <div className="">
+            <AnimatePresence>
+              {preparingItems.map(item => (
+                <motion.div
+                  layout
+                  initial={{ opacity: 0, x: '-50%' }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3 }}
+                  exit={{ opacity: 0, x: '50%' }}
+                  className="flex justify-between py-6 pl-4 pr-2 mr-4"
+                  key={item.id}
+                >
+                  <div className="flex flex-col w-1/3">
+                    <Typography.Title className="!m-0 !leading-none w-full" level={5} ellipsis={{ tooltip: item.menuItemName }}>
+                      {item.menuItemName}
+                    </Typography.Title>
+                    {item.note && <div className="text-sm text-yellow-600">{item.note}</div>}
+                    <div className="mt-1 text-xs text-gray-500">
+                      {dayjs(item.notifiedTime).format('L LT') + ` - ${translate('entity.label.by')} `}
+                      <span className="text-blue-600">{item.createdBy}</span>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="flex items-center justify-center w-6 h-6 text-lg text-yellow-600">
+                      {item.priority && <StarFilled rev={''} />}
+                    </div>
+                    <span>
+                      {[
+                        ...item.readyToServeNotificationList.map(rts => rts.quantity),
+                        ...item.itemCancellationNotificationList.map(icn => icn.quantity),
+                      ].reduce<number>((prev, value) => {
+                        return prev - value;
+                      }, item.quantity)}
+                    </span>
+                  </div>
+                  <div className="flex flex-col justify-between w-1/6 overflow-visible">
+                    <div className="">
+                      {`${[...item.tableList].sort(alphabetCompare).map(table => table.name)[0]}`}
+                      {item.tableList.length > 1 && <span className="ml-2 text-blue-500">{`(+${item.tableList.length - 1})`}</span>}
+                    </div>
+                    <div className="text-xs text-gray-600">{dayjs(item.notifiedTime).from(now)}</div>
+                    {item.itemCancellationNotificationList.length > 0 && (
+                      <div className="mt-2 ">
+                        {[...item.itemCancellationNotificationList]
+                          .sort((a, b) => (dayjs(a.notifiedTime).isBefore(dayjs(b.notifiedTime)) ? -1 : 1))
+                          .map(addition => (
+                            <div key={addition.id} className="text-xs whitespace-nowrap">
+                              {translate('entity.label.cancelled')}
+                              <span className="text-base font-semibold text-red-600 mx-1.5">{addition.quantity}</span>
+                              {translate('entity.label.by').toLowerCase()}
+                              <span className="mx-1 text-sm text-blue-600">{addition.createdBy}</span>
+                              {' ' + dayjs(addition.notifiedTime).from(now)}
+                            </div>
+                          ))}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex justify-end gap-2 w-28">
+                    {[
+                      ...item.readyToServeNotificationList.map(rts => rts.quantity),
+                      ...item.itemCancellationNotificationList.map(icn => icn.quantity),
+                    ].reduce<number>((prev, value) => {
+                      return prev - value;
+                    }, item.quantity) === 0 ? (
+                      <Button
+                        type="primary"
+                        danger
+                        ghost
+                        className="!aspect-square !bg-red-100"
+                        icon={<DeleteFilled rev="" />}
+                        onClick={() =>
+                          dispatch(kitchenActions.notifyReadyToServe({ itemAdditionNotificationId: item.id, readyToServeQuantity: 0 }))
+                        }
+                      />
+                    ) : (
+                      <>
+                        <Button
+                          type="primary"
+                          ghost
+                          className="!w-12"
+                          icon={<RightOutlined rev="" />}
+                          onClick={() =>
+                            dispatch(kitchenActions.notifyReadyToServe({ itemAdditionNotificationId: item.id, readyToServeQuantity: 1 }))
+                          }
+                        />
+                        <Button
+                          type="primary"
+                          className="!w-12"
+                          icon={<DoubleRightOutlined rev="" />}
+                          onClick={() =>
+                            dispatch(
+                              kitchenActions.notifyReadyToServe({
+                                itemAdditionNotificationId: item.id,
+                                readyToServeQuantity: [
+                                  ...item.readyToServeNotificationList.map(rts => rts.quantity),
+                                  ...item.itemCancellationNotificationList.map(icn => icn.quantity),
+                                ].reduce<number>((prev, value) => {
+                                  return prev - value;
+                                }, item.quantity),
+                              })
+                            )
+                          }
+                        />
+                      </>
+                    )}
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        </Scrollbars>
+      )}
     </div>
   );
 };
