@@ -2,6 +2,7 @@ package com.resteam.smartway.service;
 
 import com.resteam.smartway.domain.order.OrderDetail;
 import com.resteam.smartway.domain.order.notifications.ItemAdditionNotification;
+import com.resteam.smartway.domain.order.notifications.ItemCancellationNotification;
 import com.resteam.smartway.domain.order.notifications.ReadyToServeNotification;
 import com.resteam.smartway.repository.order.ItemAdditionNotificationRepository;
 import com.resteam.smartway.repository.order.OrderDetailRepository;
@@ -48,15 +49,15 @@ public class KitchenServiceImpl implements KitchenService {
             .findByIdAndIsCompleted(dto.getItemAdditionNotificationId(), false)
             .orElseThrow(() -> new BadRequestAlertException("Order item was not found or completed", "kitchenItems", "notfound"));
 
-        AtomicInteger preparingQuantity = new AtomicInteger(itemAdditionNotification.getQuantity());
+        int preparingQuantity = itemAdditionNotification.getQuantity();
+        for (ReadyToServeNotification rts : itemAdditionNotification.getReadyToServeNotificationList()) {
+            preparingQuantity -= rts.getQuantity();
+        }
+        for (ItemCancellationNotification icn : itemAdditionNotification.getItemCancellationNotificationList()) {
+            preparingQuantity -= icn.getQuantity();
+        }
 
-        itemAdditionNotification
-            .getReadyToServeNotificationList()
-            .forEach(rts -> {
-                preparingQuantity.addAndGet(-rts.getQuantity());
-            });
-
-        if (preparingQuantity.get() < dto.getReadyToServeQuantity()) throw new BadRequestAlertException(
+        if (preparingQuantity < dto.getReadyToServeQuantity()) throw new BadRequestAlertException(
             "Ready-to-serve quantity is more than ordered quantity",
             "kitchenItems",
             "quantityInvalid"
@@ -67,6 +68,12 @@ public class KitchenServiceImpl implements KitchenService {
             false
         );
 
+        if (preparingQuantity == 0 || dto.getReadyToServeQuantity() == 0) {
+            itemAdditionNotification.setCompleted(true);
+            itemAdditionNotificationRepository.saveAndFlush(itemAdditionNotification);
+            return null;
+        }
+
         ReadyToServeNotification readyToServeNotification;
         if (readyToServeNotificationOptional.isPresent()) {
             readyToServeNotification = readyToServeNotificationOptional.get();
@@ -75,14 +82,16 @@ public class KitchenServiceImpl implements KitchenService {
             readyToServeNotification = new ReadyToServeNotification();
             readyToServeNotification.setItemAdditionNotification(itemAdditionNotification);
             readyToServeNotification.setQuantity(dto.getReadyToServeQuantity());
+            readyToServeNotification.setServedQuantity(0);
+            itemAdditionNotification.getReadyToServeNotificationList().add(readyToServeNotification);
         }
 
-        if (preparingQuantity.get() - dto.getReadyToServeQuantity() == 0) {
+        if (preparingQuantity - dto.getReadyToServeQuantity() == 0) {
             itemAdditionNotification.setCompleted(true);
-            itemAdditionNotificationRepository.save(itemAdditionNotification);
         }
 
-        return readyToServeNotificationRepository.saveAndFlush(readyToServeNotification);
+        itemAdditionNotificationRepository.saveAndFlush(itemAdditionNotification);
+        return readyToServeNotification;
     }
 
     @Override
@@ -96,21 +105,28 @@ public class KitchenServiceImpl implements KitchenService {
                     "notfound"
                 )
             );
-
-        if (readyToServeNotification.getQuantity() < dto.getServedQuantity()) throw new BadRequestAlertException(
+        int notServedQuantity = readyToServeNotification.getQuantity() - readyToServeNotification.getServedQuantity();
+        for (ItemCancellationNotification icn : readyToServeNotification.getItemCancellationNotificationList()) {
+            notServedQuantity -= icn.getQuantity();
+        }
+        if (notServedQuantity < dto.getServedQuantity()) throw new BadRequestAlertException(
             "Served quantity is more than ready-to-serve quantity",
             "kitchenItems",
             "quantityInvalid"
         );
 
+        if (notServedQuantity == 0 && dto.getServedQuantity() == 0) {
+            readyToServeNotification.setCompleted(true);
+            return readyToServeNotificationRepository.save(readyToServeNotification);
+        }
+
         OrderDetail orderDetail = readyToServeNotification.getItemAdditionNotification().getOrderDetail();
         orderDetail.setServedQuantity(orderDetail.getServedQuantity() + dto.getServedQuantity());
         orderDetailRepository.save(orderDetail);
 
-        if (readyToServeNotification.getQuantity() == dto.getServedQuantity()) {
+        readyToServeNotification.setServedQuantity(readyToServeNotification.getServedQuantity() + dto.getServedQuantity());
+        if (notServedQuantity == dto.getServedQuantity()) {
             readyToServeNotification.setCompleted(true);
-        } else {
-            readyToServeNotification.setQuantity(readyToServeNotification.getQuantity() - dto.getServedQuantity());
         }
 
         return readyToServeNotificationRepository.saveAndFlush(readyToServeNotification);

@@ -17,6 +17,8 @@
     "bill": {
       "label": "Bill Management"
     },
-    "dashboard.label": "Dashboard"
+    "dashboard.label": "Dashboard",
+    "order.label": "Order",
+    "kitchen.label": "Kitchen"
   }
 }

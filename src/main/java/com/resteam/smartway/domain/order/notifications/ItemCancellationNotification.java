@@ -1,6 +1,7 @@
 package com.resteam.smartway.domain.order.notifications;
 
 import com.resteam.smartway.domain.base.AbstractBaseEntity;
+import com.resteam.smartway.domain.order.OrderDetail;
 import java.util.UUID;
 import javax.persistence.*;
 import lombok.AllArgsConstructor;
@@ -32,6 +33,10 @@ public class ItemCancellationNotification extends AbstractBaseEntity {
     @ManyToOne
     @JoinColumn(name = "ready_to_serve_notification_id", referencedColumnName = "id", columnDefinition = "BINARY(16)")
     private ReadyToServeNotification readyToServeNotification;
+
+    @ManyToOne
+    @JoinColumn(name = "order_detail_id", referencedColumnName = "id", columnDefinition = "BINARY(16)")
+    private OrderDetail orderDetail;
 
     @ManyToOne
     @JoinColumn(name = "kitchen_notification_history_id", referencedColumnName = "id", columnDefinition = "BINARY(16)")

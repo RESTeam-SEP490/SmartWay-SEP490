@@ -9,7 +9,7 @@ import lombok.Data;
 public class CancellationDTO {
 
     @NotNull
-    private boolean isCancelServedItemFirst;
+    private boolean isCancelServedItemsFirst;
 
     @NotNull
     private UUID orderDetailId;

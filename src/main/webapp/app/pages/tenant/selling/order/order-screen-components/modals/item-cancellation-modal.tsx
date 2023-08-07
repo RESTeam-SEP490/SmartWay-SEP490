@@ -6,6 +6,7 @@ import { SubmitButton } from 'app/shared/layout/form-shared-component';
 import { IOrderDetail } from 'app/shared/model/order/order-detail.model';
 import React, { useEffect, useState } from 'react';
 import { Translate, translate } from 'react-jhipster';
+import { cancelOrderDetail } from '../../order.reducer';
 
 export const ItemCancellationModal = ({ detail, isOpen, handleClose }: { detail: IOrderDetail; isOpen: boolean; handleClose: any }) => {
   const dispatch = useAppDispatch();
@@ -17,33 +18,41 @@ export const ItemCancellationModal = ({ detail, isOpen, handleClose }: { detail:
   const updateSuccess = useAppSelector(state => state.order.updateSuccess);
 
   useEffect(() => {
-    form.setFieldValue('isCancelServedItemsFirst', false);
+    form.setFieldValue('cancelServedItemsFirst', false);
     form.setFieldValue('reason', 2);
-  }, []);
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (updateSuccess) {
+      handleClose();
+    }
+  }, [updateSuccess]);
 
   useEffect(() => {
     if (detail) setCancelQuantity(detail.quantity);
   }, [detail]);
 
-  const handleSubmit = () => {};
+  const handleSubmit = values => {
+    dispatch(cancelOrderDetail({ ...values, orderDetailId: detail.id, cancelledQuantity }));
+  };
   return (
     <>
-      <Modal centered open={isOpen} destroyOnClose width={500} title={'Xác nhận huỷ món'} footer={[]} onCancel={handleClose}>
+      <Modal centered open={isOpen} destroyOnClose width={500} title={translate('order.cancel.title')} footer={[]} onCancel={handleClose}>
         <Form {...DEFAULT_FORM_ITEM_LAYOUT} labelAlign="left" form={form} onFinish={handleSubmit} className="mt-4">
           <Typography.Text className="!block !mb-4 italic">
-            Xác nhận xoá món<span className="font-semibold">{' ' + detail?.menuItem?.name}</span>
+            {translate('order.cancel.confirm', { name: detail?.menuItem?.name || '' })}
           </Typography.Text>
-          <Form.Item name={'isCancelServedItemsFirst'} label={'Thứ tự huỷ'}>
+          <Form.Item name={'cancelServedItemsFirst'} label={translate('order.cancel.form.order')}>
             <Select>
               <Select.Option className="font-normal" value={false}>
-                Huỷ phần chưa phục vụ trước
+                <Translate contentKey="order.cancel.form.order.unserved" />
               </Select.Option>
               <Select.Option className="font-normal" value={true}>
-                Huỷ phần đã phục vụ trước
+                <Translate contentKey="order.cancel.form.order.served" />
               </Select.Option>
             </Select>
           </Form.Item>
-          <Form.Item label={'Số lượng huỷ'}>
+          <Form.Item label={translate('order.cancel.form.quantity')}>
             <div className="flex items-center text-blue-600 w-fit">
               <Button
                 disabled={cancelledQuantity === 1}
@@ -64,10 +73,10 @@ export const ItemCancellationModal = ({ detail, isOpen, handleClose }: { detail:
                 className="!p-0 !w-6 !h-6 shadow-none flex justify-center items-center"
                 icon={<PlusOutlined rev={''} />}
               />
-              <div className="ml-4 text-gray-400">{`(Tổng số: ${detail?.quantity})`}</div>
+              <div className="ml-4 text-gray-400">{`(${translate('order.cancel.form.totalQ')}: ${detail?.quantity})`}</div>
             </div>
           </Form.Item>
-          <Form.Item name={'reason'} label={'Lí do'}>
+          <Form.Item name={'reason'} label={translate('order.cancel.form.reason')}>
             <Select
               onChange={value => {
                 if (value === 1) setIsShowReasonNote(true);

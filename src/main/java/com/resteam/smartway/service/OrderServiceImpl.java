@@ -14,10 +14,7 @@ import com.resteam.smartway.domain.order.notifications.KitchenNotificationHistor
 import com.resteam.smartway.domain.order.notifications.ReadyToServeNotification;
 import com.resteam.smartway.repository.DiningTableRepository;
 import com.resteam.smartway.repository.MenuItemRepository;
-import com.resteam.smartway.repository.order.ItemCancellationNotificationRepository;
-import com.resteam.smartway.repository.order.KitchenNotificationHistoryRepository;
-import com.resteam.smartway.repository.order.OrderDetailRepository;
-import com.resteam.smartway.repository.order.OrderRepository;
+import com.resteam.smartway.repository.order.*;
 import com.resteam.smartway.service.aws.S3Service;
 import com.resteam.smartway.service.dto.DiningTableDTO;
 import com.resteam.smartway.service.dto.order.*;
@@ -55,7 +52,9 @@ public class OrderServiceImpl implements OrderService {
     private final OrderDetailMapper orderDetailMapper;
     private final OrderDetailRepository orderDetailRepository;
     private final KitchenNotificationHistoryRepository kitchenNotificationHistoryRepository;
+    private final ItemAdditionNotificationRepository itemAdditionNotificationRepository;
     private final ItemCancellationNotificationRepository itemCancellationNotificationRepository;
+    private final ReadyToServeNotificationRepository readyToServeNotificationRepository;
     private final S3Service s3Service;
 
     private static final String ORDER = "order";
@@ -68,11 +67,15 @@ public class OrderServiceImpl implements OrderService {
         List<DiningTable> tableList = orderDTO
             .getTableIdList()
             .stream()
-            .map(id ->
-                diningTableRepository
+            .map(id -> {
+                DiningTable table = diningTableRepository
                     .findByIdAndIsFreeAndIsActive(id, true, true)
-                    .orElseThrow(() -> new BadRequestAlertException("Table was not found or not free", TABLE, "notFreeOrNotExisted"))
-            )
+                    .orElseThrow(() ->
+                        new BadRequestAlertException("Table id: '" + id + "' was not found or not free", TABLE, "notFreeOrNotExisted")
+                    );
+                table.setIsFree(false);
+                return table;
+            })
             .collect(Collectors.toList());
 
         MenuItem menuItem = menuItemRepository
@@ -97,7 +100,7 @@ public class OrderServiceImpl implements OrderService {
         SwOrder savedOrder = orderRepository.save(order);
         orderDetailRepository.save(orderDetail);
 
-        diningTableRepository.saveAll(tableList.stream().peek(table -> table.setIsFree(false)).collect(Collectors.toList()));
+        diningTableRepository.saveAll(tableList);
 
         return orderMapper.toDto(savedOrder);
     }
@@ -232,26 +235,23 @@ public class OrderServiceImpl implements OrderService {
         kitchenNotificationHistory.setOrder(order);
 
         List<ItemAdditionNotification> itemAdditionNotificationList = new ArrayList<>();
-        List<OrderDetail> orderDetails = order
-            .getOrderDetailList()
-            .stream()
-            .peek(detail -> {
-                if (detail.getUnnotifiedQuantity() > 0) {
-                    ItemAdditionNotification notification = new ItemAdditionNotification();
-                    notification.setKitchenNotificationHistory(kitchenNotificationHistory);
-                    notification.setNote(detail.getNote());
-                    notification.setOrderDetail(detail);
-                    notification.setPriority(detail.isPriority());
-                    notification.setQuantity(detail.getUnnotifiedQuantity());
-                    notification.setCompleted(false);
+        List<OrderDetail> orderDetails = order.getOrderDetailList();
+        orderDetails.forEach(detail -> {
+            if (detail.getUnnotifiedQuantity() > 0) {
+                ItemAdditionNotification notification = new ItemAdditionNotification();
+                notification.setKitchenNotificationHistory(kitchenNotificationHistory);
+                notification.setNote(detail.getNote());
+                notification.setOrderDetail(detail);
+                notification.setPriority(detail.isPriority());
+                notification.setQuantity(detail.getUnnotifiedQuantity());
+                notification.setCompleted(false);
 
-                    itemAdditionNotificationList.add(notification);
+                itemAdditionNotificationList.add(notification);
 
-                    detail.setUnnotifiedQuantity(0);
-                    detail.setPriority(false);
-                }
-            })
-            .collect(Collectors.toList());
+                detail.setUnnotifiedQuantity(0);
+                detail.setPriority(false);
+            }
+        });
 
         kitchenNotificationHistory.setItemAdditionNotificationList(itemAdditionNotificationList);
         List<KitchenNotificationHistory> kitchenNotificationHistoryList = order.getKitchenNotificationHistoryList();
@@ -290,7 +290,7 @@ public class OrderServiceImpl implements OrderService {
         SwOrder order = orderDetail.getOrder();
         if (order.isPaid()) throw new BadRequestAlertException("Order detail you want to adjust is in a paid order", ORDER, "paidOrder");
 
-        order.getOrderDetailList().removeIf(detail -> detail.getId().equals(orderDetail.getId()));
+        order.getOrderDetailList().removeIf(od -> od.getId().equals(orderDetailId));
 
         return sortOrderDetailsAndNotificationHistories(order);
     }
@@ -436,14 +436,14 @@ public class OrderServiceImpl implements OrderService {
             kitchenNotificationHistoryRepository.save(kitchenNotificationHistory);
         }
 
-        orderRepository.saveAndFlush(order);
-
         currentTableList.forEach(table -> {
             if (!newTableList.contains(table)) {
                 table.setIsFree(true);
             }
         });
 
+        diningTableRepository.saveAll(currentTableList);
+        orderRepository.saveAndFlush(order);
         orderRepository.deleteAll(toDeleteOrder);
 
         return sortOrderDetailsAndNotificationHistories(order);
@@ -740,7 +740,8 @@ public class OrderServiceImpl implements OrderService {
         return sdf.format(now);
     }
 
-    public void cancelOrderDetail(CancellationDTO dto) {
+    @Override
+    public OrderDTO cancelOrderDetail(CancellationDTO dto) {
         OrderDetail orderDetail = orderDetailRepository
             .findById(dto.getOrderDetailId())
             .orElseThrow(() -> new BadRequestAlertException("Entity not found", ORDER_DETAIL, "idnotfound")); //check order detail tồn tại
@@ -750,51 +751,145 @@ public class OrderServiceImpl implements OrderService {
             "invalidQuantity"
         );
 
-        if (dto.isCancelServedItemFirst()) { //trường hợp xoá món đã phục vụ trước
-            orderDetail.setQuantity(orderDetail.getServedQuantity() - dto.getCancelledQuantity()); //giảm quantity của od
+        SwOrder order = orderDetail.getOrder();
+
+        orderDetail.setQuantity(orderDetail.getQuantity() - dto.getCancelledQuantity()); //giảm quantity của od
+
+        if (dto.isCancelServedItemsFirst()) { //trường hợp xoá món đã phục vụ trước
+            KitchenNotificationHistory knh = new KitchenNotificationHistory(); //tạo lịch sử báo bếp mới
+            knh.setOrder(order);
+            KitchenNotificationHistory savedKnh = kitchenNotificationHistoryRepository.save(knh);
+
             if (orderDetail.getServedQuantity() >= dto.getCancelledQuantity()) {
                 orderDetail.setServedQuantity(orderDetail.getServedQuantity() - dto.getCancelledQuantity());
                 // nếu số lượng đã phục vụ lơn hơn hoặc bằng số lượgn cần huỷ -> trừ trực tiếp vào số lượng đã phục vụ
+                ItemCancellationNotification icn = new ItemCancellationNotification();
+                icn.setQuantity(dto.getCancelledQuantity());
+                icn.setOrderDetail(orderDetail);
+                icn.setKitchenNotificationHistory(savedKnh);
 
+                savedKnh.getItemCancellationNotificationList().add(icn);
             } else {
-                //nếu số lượng đã phục vụ nhỏ hơn -> chuyển sl đã phục vụ thành 0 -> huỷ sl còn lại vào phần chưa phục vụ
-                AtomicInteger toCancelQuantity = new AtomicInteger(dto.getCancelledQuantity() - orderDetail.getServedQuantity());
+                ItemCancellationNotification icn = new ItemCancellationNotification();
+                icn.setQuantity(orderDetail.getServedQuantity());
+                icn.setOrderDetail(orderDetail);
+
+                savedKnh.getItemCancellationNotificationList().add(icn);
+
+                int toAdjustUnnotfiedItemQuantity = cancelNotServedItem(
+                    dto.getCancelledQuantity() - orderDetail.getServedQuantity(),
+                    orderDetail,
+                    savedKnh
+                );
                 orderDetail.setServedQuantity(0);
 
-                //get list thông báo thêm item sort theo thời gian
-                List<ItemAdditionNotification> itemAdditionNotificationList = orderDetail
-                    .getItemAdditionNotificationList()
-                    .stream()
-                    .sorted((a, b) -> a.equals(b) ? -1 : 1)
-                    .collect(Collectors.toList());
-
-                KitchenNotificationHistory knh = new KitchenNotificationHistory(); //tạo lịch sử báo bếp mới
-                knh.setOrder(orderDetail.getOrder());
-                KitchenNotificationHistory savedKnh = kitchenNotificationHistoryRepository.save(knh);
-
-                //với mỗi thông báo thêm mới
-                for (ItemAdditionNotification itemAdditionNotification : itemAdditionNotificationList) {
-                    if (toCancelQuantity.get() == 0) break;
-
-                    List<ReadyToServeNotification> readyToServeNotificationList = itemAdditionNotification.getReadyToServeNotificationList();
-                    int notReadyToServeQuantity = itemAdditionNotification.getQuantity();
-                    for (ReadyToServeNotification rts : readyToServeNotificationList) {
-                        notReadyToServeQuantity -= rts.getQuantity();
+                if (orderDetail.getUnnotifiedQuantity() > 0 && toAdjustUnnotfiedItemQuantity > 0) {
+                    if (orderDetail.getUnnotifiedQuantity() > toAdjustUnnotfiedItemQuantity) adjustDetailQuantity(
+                        new OrderDetailAdjustQuantityDTO(orderDetail.getId(), toAdjustUnnotfiedItemQuantity)
+                    ); else {
+                        orderDetail.setUnnotifiedQuantity(0);
                     }
+                }
+            }
+        } else { //trường hợp xoá món chưa phục vụ trước
+            if (orderDetail.getUnnotifiedQuantity() > 0) {
+                if (orderDetail.getUnnotifiedQuantity() > dto.getCancelledQuantity()) adjustDetailQuantity(
+                    new OrderDetailAdjustQuantityDTO(orderDetail.getId(), dto.getCancelledQuantity())
+                ); else {
+                    dto.setCancelledQuantity(dto.getCancelledQuantity() - orderDetail.getUnnotifiedQuantity());
+                    orderDetail.setUnnotifiedQuantity(0);
+                    if (dto.getCancelledQuantity() > 0) {
+                        KitchenNotificationHistory knh = new KitchenNotificationHistory(); //tạo lịch sử báo bếp mới
+                        knh.setOrder(order);
+                        KitchenNotificationHistory savedKnh = kitchenNotificationHistoryRepository.save(knh);
 
-                    if (notReadyToServeQuantity > 0) { //check số lượng chưa hoàn thành món, nếu lớn hơn không -> huỷ vào món chưa hoàn thành
-                        ItemCancellationNotification icn = new ItemCancellationNotification();
-                        icn.setItemAdditionNotification(itemAdditionNotification);
-                        icn.setKitchenNotificationHistory(savedKnh);
-                        if (notReadyToServeQuantity >= toCancelQuantity.get()) icn.setQuantity(
-                            toCancelQuantity.get()
-                        ); else icn.setQuantity(notReadyToServeQuantity);
-                        itemCancellationNotificationRepository.save(icn);
+                        int toCancelSeredItemQuantity = cancelNotServedItem(dto.getCancelledQuantity(), orderDetail, savedKnh);
 
-                        toCancelQuantity.addAndGet(-icn.getQuantity()); //trừ số lượng cần huỷ còn lại
+                        if (toCancelSeredItemQuantity > 0) {
+                            orderDetail.setServedQuantity(orderDetail.getServedQuantity() - toCancelSeredItemQuantity);
+
+                            ItemCancellationNotification icn = new ItemCancellationNotification();
+                            icn.setQuantity(toCancelSeredItemQuantity);
+                            icn.setKitchenNotificationHistory(savedKnh);
+                            icn.setOrderDetail(orderDetail);
+
+                            savedKnh.getItemCancellationNotificationList().add(icn);
+                        }
                     }
                 }
             }
         }
+
+        orderDetailRepository.saveAndFlush(orderDetail);
+        return sortOrderDetailsAndNotificationHistories(orderDetail.getOrder());
+    }
+
+    private int cancelNotServedItem(int toCancelQuantity, OrderDetail orderDetail, KitchenNotificationHistory kitchenNotificationHistory) {
+        List<ItemCancellationNotification> itemCancellationNotifications = new ArrayList<>();
+
+        //nếu số lượng đã phục vụ nhỏ hơn -> chuyển sl đã phục vụ thành 0 -> huỷ sl còn lại vào phần chưa phục vụ
+        AtomicInteger toCancelQuantityWrapper = new AtomicInteger(toCancelQuantity);
+
+        //get list thông báo thêm item sort theo thời gian
+        List<ItemAdditionNotification> itemAdditionNotificationList = orderDetail.getItemAdditionNotificationList();
+
+        itemAdditionNotificationList.sort((a, b) ->
+            a.getKitchenNotificationHistory().getNotifiedTime().isBefore(b.getKitchenNotificationHistory().getNotifiedTime()) ? 1 : -1
+        );
+        itemAdditionNotificationList.forEach(itemAdditionNotification -> { //với mỗi thông báo thêm mới
+            if (itemAdditionNotification.isCompleted()) return;
+            if (toCancelQuantityWrapper.get() == 0) return;
+
+            int notReadyToServeQuantity = itemAdditionNotification.getQuantity();
+            for (ReadyToServeNotification rts : itemAdditionNotification.getReadyToServeNotificationList()) {
+                notReadyToServeQuantity -= rts.getQuantity();
+            }
+            for (ItemCancellationNotification icn : itemAdditionNotification.getItemCancellationNotificationList()) {
+                notReadyToServeQuantity -= icn.getQuantity();
+            }
+
+            if (notReadyToServeQuantity > 0) { //check số lượng chưa hoàn thành món, nếu lớn hơn 0 -> huỷ vào món chưa hoàn thành
+                ItemCancellationNotification icn = new ItemCancellationNotification();
+                icn.setItemAdditionNotification(itemAdditionNotification);
+                icn.setKitchenNotificationHistory(kitchenNotificationHistory);
+                if (notReadyToServeQuantity >= toCancelQuantityWrapper.get()) icn.setQuantity(
+                    toCancelQuantityWrapper.get()
+                ); else icn.setQuantity(notReadyToServeQuantity);
+
+                ItemCancellationNotification savedIcn = itemCancellationNotificationRepository.save(icn);
+                itemAdditionNotification.getItemCancellationNotificationList().add(savedIcn);
+                itemCancellationNotifications.add(savedIcn);
+
+                toCancelQuantityWrapper.addAndGet(-savedIcn.getQuantity()); //trừ số lượng cần huỷ còn lại
+            }
+        });
+
+        if (toCancelQuantityWrapper.get() > 0) {
+            itemAdditionNotificationList.forEach(itemAdditionNotification -> {
+                List<ReadyToServeNotification> readyToServeNotificationList = itemAdditionNotification.getReadyToServeNotificationList();
+                readyToServeNotificationList.sort((a, b) -> a.getNotifiedTime().isBefore(b.getNotifiedTime()) ? 1 : -1);
+                readyToServeNotificationList.forEach(rts -> {
+                    if (toCancelQuantityWrapper.get() == 0) return;
+                    if (rts.isCompleted()) return;
+
+                    ItemCancellationNotification icn = new ItemCancellationNotification();
+                    icn.setReadyToServeNotification(rts);
+                    icn.setKitchenNotificationHistory(kitchenNotificationHistory);
+                    if (rts.getQuantity() >= toCancelQuantityWrapper.get()) icn.setQuantity(
+                        toCancelQuantityWrapper.get()
+                    ); else icn.setQuantity(rts.getQuantity());
+
+                    ItemCancellationNotification savedIcn = itemCancellationNotificationRepository.save(icn);
+                    rts.getItemCancellationNotificationList().add(savedIcn);
+                    itemCancellationNotifications.add(savedIcn);
+
+                    toCancelQuantityWrapper.addAndGet(-savedIcn.getQuantity()); //trừ số lượng cần huỷ còn lại
+                });
+            });
+        }
+        orderDetailRepository.saveAndFlush(orderDetail);
+        kitchenNotificationHistory.getItemCancellationNotificationList().addAll(itemCancellationNotifications);
+
+        return toCancelQuantityWrapper.get();
     }
 }

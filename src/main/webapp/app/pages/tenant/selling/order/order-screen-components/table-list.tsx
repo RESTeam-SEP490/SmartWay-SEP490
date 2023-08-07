@@ -18,6 +18,7 @@ export const TableList = () => {
   const zoneList = useAppSelector(state => state.zone.entities);
   const currentOrder: IOrder = useAppSelector(state => state.order.currentOrder);
   const orders: IOrder[] = useAppSelector(state => state.order.activeOrders);
+  const loading = useAppSelector(state => state.order.loading);
 
   const [filteredTableList, setFilteredTableList] = useState([]);
   const [filter, setFilter] = useState({ zoneId: '', isFree: undefined });
@@ -27,8 +28,8 @@ export const TableList = () => {
   }, []);
 
   useEffect(() => {
-    if (tableList?.length > 0 && currentOrder.tableList.length === 0 && orders.length > 0)
-      dispatch(orderActions.selectOrderByTable(tableList[0]));
+    console.log(tableList, currentOrder, orders);
+    if (tableList?.length > 0 && currentOrder.tableList.length === 0 && !loading) dispatch(orderActions.selectOrderByTable(tableList[0]));
   }, [tableList, orders]);
 
   useEffect(() => {

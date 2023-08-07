@@ -4,22 +4,22 @@ import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { SubmitButton } from 'app/shared/layout/form-shared-component';
 import { IOrderDetail } from 'app/shared/model/order/order-detail.model';
 import React, { useEffect, useState } from 'react';
-import { Translate } from 'react-jhipster';
-import { groupTables } from '../../order.reducer';
+import { Translate, translate } from 'react-jhipster';
+import { groupTables, orderActions } from '../../order.reducer';
 import { IOrder } from 'app/shared/model/order/order.model';
 import { IDiningTable } from 'app/shared/model/dining-table.model';
 
 const columns = [
-  { title: 'Mã đơn', dataIndex: 'code', key: 'code' },
+  { title: <Translate contentKey="order.form.table.code" />, dataIndex: 'code', key: 'code' },
   {
-    title: 'Tổng số lượng món',
+    title: <Translate contentKey="order.form.table.quantity" />,
     dataIndex: 'orderDetailList',
     key: 'totalQuantity',
     align: 'right' as const,
     render: (odList: IOrderDetail[]) => odList.reduce((prev: number, current: IOrderDetail) => prev + current.quantity, 0),
   },
   {
-    title: 'Tổng tiền ',
+    title: <Translate contentKey="order.form.table.price" />,
     dataIndex: 'orderDetailList',
     key: 'total',
     align: 'right' as const,
@@ -41,8 +41,12 @@ export const TablesOfOrderModal = ({ isOpen, handleClose }: { isOpen: boolean; h
   const [selectedOrders, setSelectedOrders] = useState([]);
 
   useEffect(() => {
-    form.setFieldsValue({ ...currentOrder, tableList: currentOrder.tableList.map(t => t.id) });
-  }, [currentOrder]);
+    if (isOpen) form.setFieldsValue({ ...currentOrder, tableList: currentOrder.tableList.map(t => t.id) });
+  }, [currentOrder, isOpen]);
+
+  useEffect(() => {
+    if (isOpen) handleOnchangeTableList();
+  }, [orders]);
 
   useEffect(() => {
     if (updateSuccess) {
@@ -58,6 +62,7 @@ export const TablesOfOrderModal = ({ isOpen, handleClose }: { isOpen: boolean; h
       setSelectedOrders(nextSelectedOrders);
     }
   };
+
   const handleSubmit = values => {
     dispatch(groupTables({ orderId: currentOrder.id, tableList: values.tableList }));
   };
@@ -69,28 +74,24 @@ export const TablesOfOrderModal = ({ isOpen, handleClose }: { isOpen: boolean; h
   };
 
   return (
-    <Modal
-      centered
-      open={isOpen}
-      destroyOnClose
-      width={800}
-      title={currentOrder.id ? '#' + currentOrder.code : 'Current order'}
-      footer={[]}
-      onCancel={handleClose}
-    >
+    <Modal centered open={isOpen} destroyOnClose width={700} title={'#' + currentOrder.code} footer={[]} onCancel={handleClose}>
       <Form {...DEFAULT_FORM_ITEM_LAYOUT} requiredMark={false} labelAlign="left" form={form} onFinish={handleSubmit} className="mt-4">
         <div className="w-[400px]">
-          <Form.Item name={'takeAway'} label={'Loại đơn'}>
+          <Form.Item name={'takeAway'} label={translate('order.form.label.type')}>
             <Radio.Group>
               <Radio className="!font-normal" value={false}>
-                Ngồi tại bàn
+                <Translate contentKey="order.form.type.atTable" />
               </Radio>
               <Radio className="!font-normal" value={true}>
-                Đơn mang đi
+                <Translate contentKey="order.form.type.takeaway" />
               </Radio>
             </Radio.Group>
           </Form.Item>
-          <Form.Item name={'tableList'} label={'Bàn'} rules={[{ required: true, message: 'Vui lòng chọn ít nhất 1 bàn' }]}>
+          <Form.Item
+            name={'tableList'}
+            label={translate('order.form.label.table')}
+            rules={[{ required: true, message: 'Vui lòng chọn ít nhất 1 bàn' }]}
+          >
             <Select mode="multiple" optionFilterProp="search" onChange={handleOnchangeTableList}>
               {tableList
                 .filter(t => !isTableMerged(t.id) || currentOrder.tableList.some(x => x.id === t.id))
@@ -102,8 +103,10 @@ export const TablesOfOrderModal = ({ isOpen, handleClose }: { isOpen: boolean; h
             </Select>
           </Form.Item>
         </div>
+        <div className="mb-2 border-0 border-t border-solid border-slate-200"></div>
+        <Form.Item label={translate('order.form.label.toMergeOrder')} className="!mb-2"></Form.Item>
         <Table
-          className="min-h-[240px]"
+          className="min-h-[240px] block w-full"
           scroll={{ y: 200 }}
           columns={columns}
           dataSource={selectedOrders}

@@ -1,6 +1,6 @@
 import SockJS from 'sockjs-client';
 
-import { Storage } from 'react-jhipster';
+import { Storage, translate } from 'react-jhipster';
 import { Observable } from 'rxjs';
 import Stomp from 'webstomp-client';
 
@@ -27,7 +27,7 @@ const createListener = (): Observable<any> =>
     listenerObserver = observer;
   });
 
-const sound = new Audio('/content/sound/notification.mp3');
+const sound = new Audio('/content/sound/new-item-sound.mp3');
 
 const subscribe = (topicPath: string) => {
   connection.then(() => {
@@ -35,8 +35,17 @@ const subscribe = (topicPath: string) => {
       const toUpdateOrder = JSON.parse(data.body);
       if (topicPath === OrderEvent.HasReadyToServeItem || topicPath === OrderEvent.HasServedItem) {
         const itemInfo = data.headers.item;
-        notification.info({ message: itemInfo + 'đang chờ phục vụ' });
-        sound.play();
+
+        if (topicPath === OrderEvent.HasReadyToServeItem) {
+          notification.info({
+            message: itemInfo + ' ' + translate('order.notification.ready-to-serve'),
+          });
+          sound.play();
+        } else {
+          notification.success({
+            message: itemInfo + ' ' + translate('order.notification.served'),
+          });
+        }
       }
       listenerObserver.next(toUpdateOrder);
     });

@@ -13,10 +13,9 @@ export const DEFAULT_PAGEABLE: IQueryParams = {
 
 export type FormType = 'edit' | 'delete';
 export type AppType = 'main' | 'tenant' | 'admin';
-
 export const DEFAULT_FORM_ITEM_LAYOUT = {
-  labelCol: { span: 6 },
-  wrapperCol: { span: 20 },
+  labelCol: { span: 8 },
+  wrapperCol: { span: 18 },
 };
 
 export const DOMAIN_DEV = 'localhost:9000';
