@@ -129,7 +129,7 @@ export const MenuItemForm = ({ menuItem, isOpen, handleClose }: { menuItem?: IMe
                 label={translate('global.table.description')}
                 name={'description'}
                 className="h-full"
-                rules={[{ max: 255, message: translate('entity.validation.max', { max: 30 }) }]}
+                rules={[{ max: 255, message: translate('entity.validation.max', { max: 255 }) }]}
               >
                 <Input.TextArea showCount style={{ resize: 'none', height: 120 }} maxLength={255} />
               </Form.Item>

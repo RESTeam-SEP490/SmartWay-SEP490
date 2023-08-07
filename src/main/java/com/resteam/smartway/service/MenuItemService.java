@@ -2,14 +2,12 @@ package com.resteam.smartway.service;
 
 import com.resteam.smartway.service.dto.IsActiveUpdateDTO;
 import com.resteam.smartway.service.dto.MenuItemDTO;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 import lombok.SneakyThrows;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface MenuItemService {
@@ -24,7 +22,5 @@ public interface MenuItemService {
 
     void updateIsActiveMenuItems(IsActiveUpdateDTO isActiveUpdateDTO);
 
-    ResponseEntity<?> convertExcelToListOfMenuItem(InputStream is);
-
-    ByteArrayInputStream getListMenuItemsForExcel() throws IOException;
+    public Map<String, String> importMenuItems(InputStream is);
 }

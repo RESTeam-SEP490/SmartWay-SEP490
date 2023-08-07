@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Translate, translate } from 'react-jhipster';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 
-import { BarsOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
-import { Button, Card, Dropdown, Empty, Input, MenuProps, Radio, Table, Tag, Typography } from 'antd';
+import { BarsOutlined, DownloadOutlined, PlusOutlined, UploadOutlined, WarningOutlined } from '@ant-design/icons';
+import { Button, Card, Dropdown, Empty, Input, MenuProps, message, Modal, Radio, Table, Tag, Typography } from 'antd';
 import { CheckboxValueType } from 'antd/es/checkbox/Group';
 import { IMenuItem } from 'app/shared/model/menu-item.model';
 
@@ -15,6 +15,7 @@ import { getEntities, setPageable } from './menu-item.reducer';
 import { currencyFormatter } from 'app/app.constant';
 import { DEFAULT_PAGINATION_CONFIG } from '../../../../shared/util/pagination.constants';
 import { MenuItemCategoryCheckBoxes } from '../menu-item-category/menu-item-category';
+import axios from 'axios';
 
 export const MenuItem = () => {
   const dispatch = useAppDispatch();
@@ -109,44 +110,57 @@ export const MenuItem = () => {
   const resetUpload = () => {
     setSelectedFile(null);
     fileInputRef.current.value = null;
-    setError(null);
   };
 
   const handleFileSelect = event => {
     const file = event.target.files[0];
-    setSelectedFile(file);
-    setError(null);
+    if (file && file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+      setSelectedFile(file);
+    } else {
+      setSelectedFile(null);
+      setError(
+        <span style={{ color: 'red' }}>
+          <Translate contentKey={'menuItem.fileInvalid'}></Translate>
+        </span>
+      );
+    }
   };
 
   const [uploadMessage, setUploadMessage] = useState('');
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
     if (selectedFile) {
-      console.log('Đã chọn tệp:', selectedFile);
-
       const formData = new FormData();
       fileInputRef.current.value = null;
       formData.append('file', selectedFile);
-
-      fetch('http://localhost:8080/downloadTemplate/upload', {
-        method: 'POST',
-        body: formData,
-      }).then(response => {
-        if (response.ok) {
-          setIsPopupVisible(false);
-          setTimeout(() => {
-            message.success('Upload successful');
-          }, 2000);
-          refreshMenuItems();
-          resetUpload();
-          setError(null);
-        } else {
-          return response.text().then(errorMessage => {
-            const formattedErrorMessage = errorMessage.replace('. ', '.\n');
-            setError(<span style={{ whiteSpace: 'pre-line' }}>{formattedErrorMessage}</span>);
-          });
+      try {
+        const response = await axios.post('/api/menu-items/import-menu-item', formData);
+        setIsPopupVisible(false);
+        setTimeout(() => {
+          message.success(translate('diningTable.uploadSuccess'));
+        }, 2000);
+        refreshMenuItems();
+        resetUpload();
+        setError(null);
+      } catch (error) {
+        const errorList = error.response.data;
+        let displayMessage = '';
+        for (let i = 0; i < errorList.length; i++) {
+          const error = errorList[i];
+          const errorKey = error.errorKey;
+          if (errorKey == 'menuItem.nullSecretKey') {
+            displayMessage = `${translate(errorKey)}`;
+          } else {
+            if (errorKey == 'menuItem.invalidSecretKey') {
+              displayMessage = `${translate(errorKey)}`;
+            } else {
+              const contentKey = translate(error.contentKey);
+              displayMessage += `${errorKey}: ${contentKey}\n`;
+            }
+          }
         }
-      });
+        setError(<span style={{ whiteSpace: 'pre-line' }}>{displayMessage}</span>);
+      }
     }
   };
 
@@ -248,6 +262,34 @@ export const MenuItem = () => {
     setSelectedRowKeys([]);
   };
 
+  const downloadTemplate = () => {
+    const apiUrl = '/api/menu-items/download-template';
+    axios({
+      url: apiUrl,
+      method: 'GET',
+      responseType: 'blob',
+    })
+      .then(response => {
+        const contentDisposition = response.headers['content-disposition'];
+        const fileNameMatch = contentDisposition?.match(/filename="(.+?)"/);
+        const fileName = fileNameMatch ? fileNameMatch[1] : 'Menu-Item.xlsx';
+        const blob = new Blob([response.data], {
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      })
+      .catch(error => {
+        console.error('Error during template download:', error);
+      });
+  };
+
   return (
     <>
       <MenuItemForm menuItem={updatingItem} handleClose={handleClose} isOpen={isShowForm} />
@@ -255,32 +297,36 @@ export const MenuItem = () => {
 
       <Modal visible={isPopupVisible} onCancel={handleCancelPopup} footer={null}>
         <p>
-          Import Menu Items from Data File. Process Data (Download Sample File:{' '}
-          <a href="http://localhost:8080/downloadTemplate" download>
-            Excel File
-          </a>
-          ).
+          <div className="font-bold">
+            <Translate contentKey={'menuItem.titleModalUpload'}></Translate>
+          </div>
+          <div>
+            <Translate contentKey={'menuItem.contentDownload'}></Translate>
+            <a onClick={downloadTemplate} download className="underline">
+              <Translate contentKey={'menuItem.excelFile'}></Translate>
+            </a>
+            ).
+          </div>
         </p>
         <div style={{ backgroundColor: '#f9f9e0', padding: '10px' }}>
           <p style={{ marginTop: '10px', fontStyle: 'italic', color: '#7b5e2a' }}>
             <span style={{ fontWeight: 'bold' }}>
               <WarningOutlined style={{ marginRight: '0.5rem' }} rev={''} />
-              Note:
+              <Translate contentKey={'menuItem.note'}></Translate>
             </span>
             <br />
-            The system allows a maximum of 100 menu items to be imported from a file at a time.
+            <Translate contentKey={'menuItem.dataValid'}></Translate>
             <br />
             <br />
-            Menu item codes should not contain special characters (@, #, $, *, /, -, _,...) or accented letters, as they may cause
-            difficulties when printing and using barcodes.
+            <Translate contentKey={'menuItem.specialCharacters'}></Translate>
           </p>
         </div>
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
           <div style={{ position: 'relative', marginRight: '10px' }}>
-            <input type="file" onChange={handleFileSelect} style={{ display: 'none' }} ref={fileInputRef} />
+            <input type="file" onChange={handleFileSelect} style={{ display: 'none' }} ref={fileInputRef} accept=".xlsx" />
             <div>
               <Button type="primary" onClick={() => fileInputRef.current.click()}>
-                Select Data File
+                <Translate contentKey={'menuItem.selectFile'}></Translate>
               </Button>
             </div>
             {selectedFile && (
@@ -290,7 +336,7 @@ export const MenuItem = () => {
                 </div>
                 <div>
                   <Button type="primary" style={{ float: 'right' }} onClick={handleUpload}>
-                    Upload
+                    <Translate contentKey={'menuItem.upload'}></Translate>
                   </Button>
                 </div>
               </div>
@@ -298,7 +344,6 @@ export const MenuItem = () => {
           </div>
         </div>
         {error && <div style={{ color: 'red', marginTop: '1rem' }}>{error}</div>}
-        {uploadMessage && <div style={{ marginTop: '1rem' }}>{uploadMessage}</div>}
       </Modal>
 
       <div className="flex h-full p-2">
