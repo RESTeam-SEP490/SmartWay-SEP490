@@ -104,12 +104,12 @@ public class OrderResource {
         }
     }
 
-    @PostMapping("/{id}/export-pdf")
-    public ResponseEntity<byte[]> exportPdfForOrderForPay(@PathVariable UUID id) {
+    @PostMapping("/{id}/export-pdf/{isPayByCash}")
+    public ResponseEntity<byte[]> exportPdfForOrderForPay(@PathVariable UUID id, @PathVariable boolean isPayByCash) {
         OrderDTO orderDTO = orderService.findById(id);
 
         try {
-            byte[] pdfContent = orderService.generatePdfOrderForPay(orderDTO);
+            byte[] pdfContent = orderService.generatePdfOrderForPay(orderDTO, isPayByCash);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_PDF);

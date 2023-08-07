@@ -574,7 +574,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public byte[] generatePdfOrderForPay(OrderDTO orderDTO) throws DocumentException {
+    public byte[] generatePdfOrderForPay(OrderDTO orderDTO, boolean isPayByCash) throws DocumentException {
         Document document = new Document(PageSize.A7, 12, 12, 12, 12);
 
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -708,6 +708,7 @@ public class OrderServiceImpl implements OrderService {
             swOrder.setPaid(true);
             Instant payDate = Instant.now();
             swOrder.setPayDate(payDate);
+            swOrder.setPayByCash(isPayByCash);
             orderRepository.save(swOrder);
         }
 

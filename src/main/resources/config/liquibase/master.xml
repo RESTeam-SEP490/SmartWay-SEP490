@@ -29,6 +29,7 @@
     <include file="config/liquibase/changelog/20230802080500_add_audit_fields_to_ready_to_serve_notification.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20230803065230_add_served_quantity_for_deatail.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20230804085649_add_isActive_for_order.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230807183246_addSWOder.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
     <!-- jhipster-needle-liquibase-add-incremental-changelog - JHipster will add incremental liquibase changelogs here -->

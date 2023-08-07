@@ -34,7 +34,7 @@ public interface OrderService {
 
     byte[] generatePdfOrder(OrderDTO orderDTO) throws DocumentException;
 
-    byte[] generatePdfOrderForPay(OrderDTO orderDTO) throws DocumentException;
+    byte[] generatePdfOrderForPay(OrderDTO orderDTO, boolean isPayByCash) throws DocumentException;
 
     byte[] generatePdfOrderForNotificationKitchen(List<UUID> ids) throws DocumentException;
 }
