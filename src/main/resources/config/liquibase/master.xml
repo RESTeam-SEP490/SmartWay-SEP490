@@ -32,6 +32,7 @@
     <include file="config/liquibase/changelog/20230806105336_mapping_cancellation_notification_with_order_detail.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20230806163807_add_served_quantity_for_ready_to_serve_notification.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20230802151217_add_bank_account_info.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230719165000_add_column_address_gender_birthday.xml.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
     <!-- jhipster-needle-liquibase-add-incremental-changelog - JHipster will add incremental liquibase changelogs here -->

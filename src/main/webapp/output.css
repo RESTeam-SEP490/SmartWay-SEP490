@@ -1404,3 +1404,18 @@
     width: 58.333333%;
   }
 }
+
+.form-wrapper {
+  width: 50%;
+  display: flex;
+  justify-content: center;
+  margin-left: 20%;
+}
+
+.flex-auto {
+  flex: 1;
+}
+
+.form-wrapper .ant-form {
+  width: 100%;
+}

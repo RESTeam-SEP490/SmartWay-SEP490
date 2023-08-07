@@ -5,6 +5,8 @@ import staff from './staff/staff.reducer';
 import role from './role/role.reducer';
 import diningTable from './dining-table/dining-table.reducer';
 import zone from './zone/zone.reducer';
+import tenant from './tenant-profile/tenant-profile.reducer';
+import changePassword from './tenant-profile/tenant-change-password.reducer';
 import order from '../selling/order/order.reducer';
 import kitchen from '../selling/kitchen/kitchen.reducer';
 import bankAccount from '../check-bank-account-tenant/check-bank-account-tenant.reducer';
@@ -18,6 +20,8 @@ const entitiesReducers = {
   diningTable,
   zone,
   role,
+  tenant,
+  changePassword,
   order,
   kitchen,
   bankAccount,

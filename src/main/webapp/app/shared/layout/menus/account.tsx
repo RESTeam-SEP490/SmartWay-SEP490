@@ -13,7 +13,7 @@ export const AuthenticatedAccountMenu = () => {
     {
       key: 'profile',
       label: (
-        <Link to="/account/profile">
+        <Link to="profile">
           <Translate contentKey="global.menu.account.profile" />
         </Link>
       ),

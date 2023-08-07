@@ -15,6 +15,7 @@ import ErrorBoundaryRoutes from 'app/shared/error/error-boundary-routes';
 import PageNotFound from 'app/shared/error/page-not-found';
 import Order from 'app/pages/tenant/selling/routes';
 import { Spin } from 'antd';
+import { TenantProfileForm } from 'app/pages/tenant/management/tenant-profile/tenant-profile-form';
 import { CheckBankAccountTenantForm } from 'app/pages/tenant/check-bank-account-tenant/check-bank-account-tenant-form';
 import { CheckBankAccountTenant } from 'app/pages/tenant/check-bank-account-tenant/check-bank-account-tenant';
 
@@ -57,6 +58,7 @@ export const TenantAppRoutes = () => {
       <Route index element={<Navigate to={'login'} />} />
       <Route path="login" element={<Login />} />
       <Route path="logout" element={<Logout />} />
+      <Route path="profile" element={<TenantProfileForm />} />
       <Route path="bankAcount" element={<CheckBankAccountTenant />} />
       <Route path="account">
         <Route
