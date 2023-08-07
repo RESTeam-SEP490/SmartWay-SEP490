@@ -27,7 +27,7 @@ springdoc:
 management:
   endpoints:
     web:
-      base-path: /management
+      base-path: /api/management
       exposure:
         include:
           [
@@ -209,4 +209,5 @@ jhipster:
 # https://www.jhipster.tech/common-application-properties/
 # ===================================================================
 
-# application:
+#application:
+

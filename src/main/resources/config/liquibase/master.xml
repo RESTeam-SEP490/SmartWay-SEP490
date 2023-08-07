@@ -14,9 +14,21 @@
     <include file="config/liquibase/changelog/20230610170610_initial_changelog.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20230618152850_modify_user_and_restaurant.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20230624084216_add_audit_to_role.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230629200417_add_table_and_zone.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20230630020542_add_menu_item_and_menu_item_category.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20230703115952_add_is_system_admin_into_user.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20230703115952_load_data_for_system_admin.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230708100734_change_dining_table.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230719121820_update_dining_table.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230712025933_add_order_and_order_detail.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230721040107_add_createdDate_and_isCooked_into_OrderDetail.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230723084415_add_isPriority_note_notifiedTime_in_orderDetail.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230727102154_add_order_notification_entities.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230727153140_add_many_to_many_table_order.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230801051830_mapping_cancellation_notification.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230802080500_add_audit_fields_to_ready_to_serve_notification.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230803065230_add_served_quantity_for_deatail.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230804085649_add_isActive_for_order.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
     <!-- jhipster-needle-liquibase-add-incremental-changelog - JHipster will add incremental liquibase changelogs here -->

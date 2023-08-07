@@ -1,50 +1,118 @@
 import {
   ApartmentOutlined,
-  BarsOutlined,
-  FullscreenOutlined,
+  AppstoreOutlined,
+  ControlOutlined,
+  FileTextOutlined,
+  ProfileOutlined,
   TeamOutlined,
   UserOutlined,
-  VerticalAlignBottomOutlined,
-  VerticalAlignTopOutlined,
 } from '@ant-design/icons';
-import { Button, Menu, MenuItemProps, MenuProps } from 'antd';
-import { ItemType, MenuItemType } from 'antd/es/menu/hooks/useItems';
-import { IconType } from 'antd/es/notification/interface';
-import React from 'react';
-import { Translate, translate } from 'react-jhipster';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Button, Menu } from 'antd';
+import { AUTHORITIES } from 'app/config/constants';
+import { useAppSelector } from 'app/config/store';
+import React, { useState } from 'react';
+import { Storage, Translate, translate } from 'react-jhipster';
+import { Link, useLocation } from 'react-router-dom';
+import {
+  MdOutlineManageAccounts,
+  MdOutlineGroups,
+  MdOutlineFastfood,
+  MdOutlineTableRestaurant,
+  MdOutlineReceiptLong,
+  MdOutlineGroup,
+  MdOutlineTune,
+  MdOutlineDashboard,
+} from 'react-icons/md';
 
-export const UserMenu = ({ onCollapse, isCollapsed }) => {
+export const UserMenu = () => {
   const location = useLocation();
+  const { authorities } = useAppSelector(state => state.authentication.account);
+  const [isCollapse, setIsCollapse] = useState(Storage.local.get('isCollapse', true));
+
+  const isHiddenWithAuthority = (requiredAuthorities: string[]) => {
+    if (authorities && authorities.length !== 0) {
+      if (requiredAuthorities.length === 0) {
+        return false;
+      }
+      return !requiredAuthorities.some(auth => authorities.includes(auth));
+    }
+    return true;
+  };
+
+  const handleCollapse = () => {
+    Storage.local.set('isCollapse', !isCollapse);
+    setIsCollapse(!isCollapse);
+  };
 
   return (
-    <>
-      <div className="border-b border-blue-600 border-solid"></div>
-      <div className="relative">
-        <Button
-          type="primary"
-          ghost
-          icon={isCollapsed ? <VerticalAlignBottomOutlined rev={''} /> : <VerticalAlignTopOutlined rev={''} />}
-          className="right-2 absolute top-[50%] -translate-y-[50%]"
-          onClick={() => onCollapse()}
-        />
-        <Menu selectedKeys={[location.pathname.split('/').pop()]} mode="horizontal" className="justify-center py-1 shadow-sm">
-          <Menu.SubMenu title={translate('menu.usermanagement.label')} icon={<TeamOutlined rev={TeamOutlined} />}>
-            <Menu.Item key="users" icon={<UserOutlined rev={UserOutlined} />}>
-              <Translate contentKey="menu.usermanagement.submenu.users" />
-              <Link to="/users" />
-            </Menu.Item>
-            <Menu.Item key="roles" icon={<ApartmentOutlined rev={ApartmentOutlined} />}>
-              <Translate contentKey="menu.usermanagement.submenu.roles" />
-              <Link to="/roles" />
-            </Menu.Item>
-          </Menu.SubMenu>
-          <Menu.Item key="menu-items" icon={<BarsOutlined rev={ApartmentOutlined} />}>
-            <Translate contentKey="menu.menumanagement.label" />
-            <Link to="/menu-items" />
+    <div
+      className={`border-0 border-solid border-r border-slate-200 flex flex-col justify-between transition-all duration-300 ease-in-collapse ${
+        isCollapse ? 'w-20' : '!w-56'
+      }`}
+    >
+      {/* <div className="border-b border-blue-300 border-solid"></div> */}
+
+      <Menu selectedKeys={[location.pathname.split('/').pop()]} mode="inline" className="justify-center py-4" inlineCollapsed={isCollapse}>
+        <Menu.Item
+          key="dashboard"
+          icon={<MdOutlineDashboard size={24} />}
+          hidden={isHiddenWithAuthority([AUTHORITIES.ADMIN, AUTHORITIES.STAFF_VIEW])}
+        >
+          <Translate contentKey="menu.dashboard.label" />
+          <Link to="/managing/dashboard" />
+        </Menu.Item>
+        <Menu.SubMenu
+          title={translate('menu.staff.label')}
+          icon={<MdOutlineGroups size={24} />}
+          className={isHiddenWithAuthority([AUTHORITIES.ADMIN, AUTHORITIES.STAFF_VIEW, AUTHORITIES.STAFFROLE_VIEW]) && 'hidden'}
+        >
+          <Menu.Item
+            key="staff"
+            icon={<MdOutlineGroup size={24} />}
+            hidden={isHiddenWithAuthority([AUTHORITIES.ADMIN, AUTHORITIES.STAFF_VIEW])}
+          >
+            <Translate contentKey="menu.staff.submenu.staffs" />
+            <Link to="/managing/staff" />
           </Menu.Item>
-        </Menu>
+          <Menu.Item
+            key="roles"
+            icon={<MdOutlineManageAccounts size={24} />}
+            hidden={isHiddenWithAuthority([AUTHORITIES.ADMIN, AUTHORITIES.STAFFROLE_VIEW])}
+          >
+            <Translate contentKey="menu.staff.submenu.roles" />
+            <Link to="/managing/roles" />
+          </Menu.Item>
+        </Menu.SubMenu>
+        <Menu.Item
+          key="menu-items"
+          icon={<MdOutlineFastfood size={24} />}
+          hidden={isHiddenWithAuthority([AUTHORITIES.ADMIN, AUTHORITIES.MENUITEM_VIEW])}
+        >
+          <Translate contentKey="menu.foodMenu.label" />
+          <Link to="/managing/menu-items" />
+        </Menu.Item>
+        <Menu.Item
+          key="tables"
+          icon={<MdOutlineTableRestaurant size={24} />}
+          hidden={isHiddenWithAuthority([AUTHORITIES.ADMIN, AUTHORITIES.TABLE_VIEW])}
+        >
+          <Translate contentKey="menu.table.label" />
+          <Link to="/managing/tables" />
+        </Menu.Item>
+        <Menu.Item
+          key="bills"
+          icon={<MdOutlineReceiptLong size={24} />}
+          hidden={isHiddenWithAuthority([AUTHORITIES.ADMIN, AUTHORITIES.BILL_VIEW])}
+        >
+          <Translate contentKey="menu.bill.label" />
+          <Link to="/managing/bills" />
+        </Menu.Item>
+      </Menu>
+      <div className="mx-4 h-16 border-t border-solid border-0 border-slate-200 ">
+        <Button onClick={handleCollapse} className="!shadow-none px-1 float-right mr-2 my-4 text-slate-400">
+          <MdOutlineTune size={24} />
+        </Button>
       </div>
-    </>
+    </div>
   );
 };

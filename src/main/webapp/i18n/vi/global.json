@@ -14,6 +14,9 @@
         "restaurant": "Restaurant",
         "menuItem": "Món",
         "menuItemCategory": "Danh mục",
+        "staff": "nhân viên",
+        "table": "Bàn",
+        "menu": "Thực đơn",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
       },
       "account": {
@@ -42,7 +45,7 @@
       "language": "Ngôn ngữ"
     },
     "form": {
-      "username.label": "Tên tài khoản",
+      "username.label": "Tên đăng nhập",
       "username.placeholder": "Nhập tên tài khoản",
       "password.label": "Mật khẩu",
       "password.placeholder": "Nhập mật khẩu",
@@ -52,8 +55,8 @@
       "confirmpassword.placeholder": "Nhập lại mật khẩu mới",
       "email.label": "Email",
       "email.placeholder": "Nhập email của bạn",
-      "restaurantName.label": "Tên nhà hàng",
-      "restaurantName.placeholder": "Nhập tên nhà hàng",
+      "restaurantName.label": "Tên truy cập nhà hàng",
+      "restaurantName.placeholder": "Nhập tên truy cập nhà hàng",
       "fullName.label": "Họ tên",
       "fullName.placeholder": "Nhập họ tên",
       "phone.label": "Số điện thoại",
@@ -74,29 +77,44 @@
         },
         "register": {
           "noaccount": "Bạn vẫn chưa có tài khoản?",
-          "link": "Đăng ký tài khoản mới"
+          "link": "Đăng ký tài khoản mới",
+          "restaurantNameTooltip": "Tên truy cập đến trang quản lý nhà hàng của bạn. <br/>Chỉ bao gồm chữ cái và số."
         }
       },
       "error": {
         "dontmatch": "Xác nhận mật khẩu không khớp!"
       },
       "validate": {
+        "fullName": {
+          "required": "Vui lòng nhập họ tên",
+          "pattern": "Họ tên chỉ bao gồm chữ cái và khoảng trắng",
+          "max": "Họ tên chỉ chưa tối đa 50 ký tự"
+        },
+        "phone": {
+          "required": "Vui lòng nhập số điện thoại",
+          "invalid": "Số điện thoại không hợp lệ"
+        },
         "newpassword": {
-          "required": "Bạn phải nhập mật khẩu.",
-          "minlength": "Mật khẩu phải có ít nhất 4 ký tự.",
-          "maxlength": "Mật khẩu không được vượt quá 50 ký tự.",
+          "required": "Vui lòng nhập mật khẩu",
+          "minlength": "Mật khẩu phải có ít nhất 4 ký tự",
+          "maxlength": "Mật khẩu chỉ chưa tối đa 50 ký tự",
           "strength": "Độ mạnh của mật khẩu:"
         },
         "confirmpassword": {
-          "required": "Bạn phải nhập lại mật khẩu để xác nhận.",
-          "minlength": "Mật khẩu phải có ít nhất 4 ký tự.",
-          "maxlength": "Mật khẩu không được vượt quá 50 ký tự."
+          "required": "Vui lòng nhập lại mật khẩu để xác nhận",
+          "minlength": "Mật khẩu phải có ít nhất 4 ký tự",
+          "maxlength": "Mật khẩu chỉ chưa tối đa 50 ký tự"
         },
         "email": {
-          "required": "Bạn phải nhập email.",
-          "invalid": "Email bạn nhập không hợp lệ.",
-          "minlength": "Email phải có ít nhất 5 ký tự.",
-          "maxlength": "Email không được vượt quá 50 ký tự."
+          "required": "Vui lòng nhập email",
+          "invalid": "Email không hợp lệ",
+          "minlength": "Email phải có ít nhất 5 ký tự",
+          "maxlength": "Email chỉ chưa tối đa 50 ký tự"
+        },
+        "restaurantName": {
+          "required": "Vui lòng nhập tên nhà hàng",
+          "pattern": "Tên nhà hàng chỉ bao gồm chữ cái và số",
+          "max": "Tên nhà hàng chỉ chưa tối đa 50 ký tự"
         }
       }
     },
@@ -120,7 +138,7 @@
     "action": {
       "addblob": "Thêm nội dung",
       "addimage": "Thêm ảnh",
-      "import": "Tải lên dữ liệu",
+      "import": "Nhập liệu",
       "back": "Quay lại",
       "cancel": "Hủy",
       "delete": "Xóa",
@@ -150,7 +168,9 @@
       "maxbytes": "Dung lượng trường này phải nhỏ hơn {{ max }} bytes.",
       "pattern": "Trường này phải theo định dạng {{ pattern }}.",
       "number": "Trường này phải là một số.",
-      "datetimelocal": "Trường này phải là định dạng thời gian."
+      "datetimelocal": "Trường này phải là định dạng thời gian.",
+      "email": "Định dạng email không hợp lệ.",
+      "phoneRegexCS": "Định dạng số điện thoại không hợp lệ."
     },
     "filters": {
       "set": "Following filters are set",
@@ -177,6 +197,5 @@
       "could.not.extract": "Could not extract file",
       "not.image": "File was expected to be an image but was found to be \"{{ fileType }}\""
     }
-  },
-  "footer": "Đây là chân trang của bạn"
+  }
 }

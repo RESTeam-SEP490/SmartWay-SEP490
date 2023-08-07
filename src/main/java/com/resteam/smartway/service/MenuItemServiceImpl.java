@@ -1,9 +1,12 @@
 package com.resteam.smartway.service;
 
+import com.amazonaws.services.kms.model.NotFoundException;
 import com.resteam.smartway.domain.MenuItem;
+import com.resteam.smartway.domain.MenuItemCategory;
 import com.resteam.smartway.domain.MenuItemCategory;
 import com.resteam.smartway.domain.Restaurant;
 import com.resteam.smartway.helper.Helper;
+import com.resteam.smartway.repository.MenuItemCategoryRepository;
 import com.resteam.smartway.repository.MenuItemCategoryRepository;
 import com.resteam.smartway.repository.MenuItemRepository;
 import com.resteam.smartway.security.SecurityUtils;
@@ -47,11 +50,13 @@ public class MenuItemServiceImpl implements MenuItemService {
 
     private final MenuItemRepository menuItemRepository;
 
-    private final MenuItemCategoryRepository menuItemCategoryRepository;
-
     private final S3Service s3Service;
 
     private final MenuItemMapper menuItemMapper;
+
+    private final MenuItemCategoryRepository menuItemCategoryRepository;
+
+    private final int COUNT_ROW_IMPORT = 0;
 
     @Override
     public Page<MenuItemDTO> loadMenuItemsWithSearch(Pageable pageable, String searchText, List<String> categoryIds, Boolean isActive) {
@@ -64,7 +69,7 @@ public class MenuItemServiceImpl implements MenuItemService {
         return menuItemPage.map(item -> {
             MenuItemDTO menuItem = menuItemMapper.toDto(item);
             if (item.getImageKey() != null) {
-                String imageUrl = s3Service.getUploadUrl(item.getImageKey());
+                String imageUrl = s3Service.getDownloadUrl(item.getImageKey());
                 menuItem.setImageUrl(imageUrl);
             } else menuItem.setImageUrl("");
             return menuItem;
@@ -81,6 +86,13 @@ public class MenuItemServiceImpl implements MenuItemService {
             String path = String.format("%s/menu-items/%s", RestaurantContext.getCurrentRestaurant().getId(), menuItemCode);
             s3Service.uploadImage(imageSource, path);
             menuItem.setImageKey(path);
+        }
+        if (menuItemDTO.getMenuItemCategory() != null) {
+            UUID menuItemCategoryId = menuItemDTO.getMenuItemCategory().getId();
+            MenuItemCategory menuItemCategory = menuItemCategoryRepository
+                .findById(menuItemCategoryId)
+                .orElseThrow(() -> new BadRequestAlertException("Category is not found", ENTITY_NAME, "idnotfound"));
+            menuItem.setMenuItemCategory(menuItemCategory);
         }
         menuItem.setCode(menuItemCode);
 
@@ -238,12 +250,18 @@ public class MenuItemServiceImpl implements MenuItemService {
                 menuItem.setImageKey(path);
             }
         }
-
+        if (menuItemDTO.getMenuItemCategory() != null) {
+            UUID menuItemCategoryId = menuItemDTO.getMenuItemCategory().getId();
+            MenuItemCategory menuItemCategory = menuItemCategoryRepository
+                .findById(menuItemCategoryId)
+                .orElseThrow(() -> new BadRequestAlertException("Category is not found", ENTITY_NAME, "idnotfound"));
+            menuItem.setMenuItemCategory(menuItemCategory);
+        }
         menuItemMapper.partialUpdate(menuItem, menuItemDTO);
         if (menuItemDTO.getImageUrl() == null || menuItemDTO.getImageUrl().isEmpty()) {
             s3Service.deleteFile(menuItem.getImageKey());
             menuItem.setImageKey(null);
-        }
+        } else menuItem.setImageUrl(null);
 
         MenuItem result = menuItemRepository.save(menuItem);
         return menuItemMapper.toDto(result);
@@ -278,5 +296,13 @@ public class MenuItemServiceImpl implements MenuItemService {
             })
             .collect(Collectors.toList());
         menuItemRepository.saveAll(menuItemList);
+    }
+
+    public MenuItemDTO getMenuItemById(UUID menuItemId) {
+        MenuItem menuItem = menuItemRepository
+            .findById(menuItemId)
+            .orElseThrow(() -> new NotFoundException("Menu item not found with ID: " + menuItemId));
+
+        return menuItemMapper.toDto(menuItem);
     }
 }

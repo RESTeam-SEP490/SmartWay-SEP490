@@ -1,12 +1,19 @@
 package com.resteam.smartway.service.dto;
 
-import com.resteam.smartway.domain.User;
+import static com.resteam.smartway.service.dto.TenantRegistrationDTO.PASSWORD_MAX_LENGTH;
+import static com.resteam.smartway.service.dto.TenantRegistrationDTO.PASSWORD_MIN_LENGTH;
+
+import com.resteam.smartway.config.Constants;
 import java.util.UUID;
+import javax.annotation.Nullable;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -14,11 +21,10 @@ import lombok.*;
 @NoArgsConstructor
 public class StaffDTO {
 
-    public static final int PASSWORD_MIN_LENGTH = 4;
-
-    public static final int PASSWORD_MAX_LENGTH = 100;
+    private UUID id;
 
     @NotBlank
+    @Pattern(regexp = Constants.LOGIN_REGEX)
     @Size(min = 1, max = 50)
     private String username;
 
@@ -29,26 +35,18 @@ public class StaffDTO {
     @Pattern(regexp = "^[p{L}\\D]+$")
     private String fullName;
 
-    @Pattern(regexp = "^\\d+$")
+    @Nullable
+    @Pattern(regexp = "^\\d{5,15}$")
     private String phone;
 
     @Email
     private String email;
 
-    @NotBlank
     @Size(max = 50)
     private String restaurantId;
 
     @Size(min = 2, max = 10)
     private String langKey;
 
-    public StaffDTO(User user) {
-        this.username = user.getUsername();
-        this.password = user.getPassword();
-        this.fullName = user.getFullName();
-        this.phone = user.getPhone();
-        this.email = user.getEmail();
-        this.restaurantId = user.getRestaurant().getId();
-        this.langKey = user.getLangKey();
-    }
+    private RoleDTO role;
 }

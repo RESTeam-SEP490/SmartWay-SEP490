@@ -1,22 +1,29 @@
 import React from 'react';
-import { Translate } from 'react-jhipster';
 
-import { NavItem } from 'reactstrap';
+import { Typography } from 'antd';
 import { Link } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-export const BrandIcon = props => (
-  <div {...props} className="brand-icon">
-    <img src="content/images/SW_logo.svg" alt="Logo" width={55} />
+export const BrandIcon = ({ type = 'primary', isHiddenText = false, ...props }) => (
+  <div {...props}>
+    <div className=" flex items-center gap-2 ">
+      <div className="translate-y-1">
+        <img
+          className="none-draggable"
+          src={type === 'primary' ? 'content/images/SW_logo.svg' : 'content/images/SW_logo_white.svg'}
+          alt="Logo"
+          width={48}
+        />
+      </div>
+      <Typography.Title level={3} className="!m-0 overflow-hidden transition-all duration-300 ease-in-collapse whitespace-nowrap">
+        <span className={type === 'primary' ? ' text-slate-400' : 'text-white'}>Smart</span>
+        <span className={type === 'primary' ? ' text-blue-600' : 'text-white'}>Way</span>
+      </Typography.Title>
+    </div>
   </div>
 );
 
 export const Brand = () => (
-  <Link to="/" className="flex justify-center items-center gap-2 cursor-pointer no-underline">
+  <Link to="/" className="no-underline cursor-pointer">
     <BrandIcon />
-    <span className="-translate-y-1">
-      <span className="text-slate-400 font-semibold text-2xl">Smart</span>
-      <span className="text-blue-600 font-semibold text-2xl">Way</span>
-    </span>
   </Link>
 );

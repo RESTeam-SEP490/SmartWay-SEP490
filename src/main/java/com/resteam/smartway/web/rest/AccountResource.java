@@ -8,16 +8,18 @@ import com.resteam.smartway.service.UserService;
 import com.resteam.smartway.service.dto.AdminUserDTO;
 import com.resteam.smartway.service.dto.PasswordChangeDTO;
 import com.resteam.smartway.service.dto.TenantRegistrationDTO;
-import com.resteam.smartway.web.rest.errors.*;
+import com.resteam.smartway.web.rest.errors.EmailAlreadyUsedException;
+import com.resteam.smartway.web.rest.errors.InvalidPasswordException;
 import com.resteam.smartway.web.rest.vm.KeyAndPasswordVM;
 import com.resteam.smartway.web.rest.vm.ManagedUserVM;
-import java.util.*;
-import javax.servlet.http.HttpServletRequest;
+import java.net.URI;
+import java.util.Optional;
 import javax.validation.Valid;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -49,12 +51,12 @@ public class AccountResource {
     }
 
     @PostMapping("/register")
-    @ResponseStatus(HttpStatus.CREATED)
-    public void registerAccount(@Valid @RequestBody TenantRegistrationDTO tenantRegistrationDTO) {
+    public ResponseEntity<Void> registerAccount(@Valid @RequestBody TenantRegistrationDTO tenantRegistrationDTO) {
         if (isPasswordLengthInvalid(tenantRegistrationDTO.getPassword())) {
             throw new InvalidPasswordException();
         }
-        userService.registerUser(tenantRegistrationDTO);
+        String restaurantId = userService.registerUser(tenantRegistrationDTO);
+        return ResponseEntity.created(URI.create(restaurantId)).build();
     }
 
     /**

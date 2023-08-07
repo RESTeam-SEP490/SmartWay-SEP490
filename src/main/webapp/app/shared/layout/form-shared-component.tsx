@@ -18,6 +18,7 @@ export const SubmitButton = ({ form, isNew, updating }: { form: FormInstance; is
       }
     );
   }, [values]);
+
   return (
     <Button
       icon={isNew ? <SaveOutlined rev={''} /> : <FormOutlined rev={''} />}
@@ -26,7 +27,7 @@ export const SubmitButton = ({ form, isNew, updating }: { form: FormInstance; is
       htmlType="submit"
       disabled={!isNew && (!form.isFieldsTouched() || !isValid)}
     >
-      <Translate contentKey={isNew ? 'entity.action.save' : 'entity.action.update'}></Translate>
+      <Translate contentKey={isNew ? 'entity.action.save' : 'entity.action.update'} />
     </Button>
   );
 };

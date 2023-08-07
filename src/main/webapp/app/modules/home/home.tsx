@@ -1,18 +1,14 @@
-import './home.scss';
-
 import React from 'react';
 
-import { useAppSelector } from 'app/config/store';
 import { Button, Image, Typography } from 'antd';
+import { useAppSelector } from 'app/config/store';
 import { Translate } from 'react-jhipster';
 import { Link } from 'react-router-dom';
 
 export const Home = () => {
-  const account = useAppSelector(state => state.authentication.account);
-
   return (
     <>
-      <div className="h-[calc(100vh-80px)] flex flex-col items-center">
+      <div className="h-[calc(100vh-80px)] flex flex-col items-center bg-gray-100">
         <div className="flex flex-col items-center justify-center grow">
           <Typography.Title className="text-center !text-blue-600">
             <Translate contentKey="global.landing.title" />

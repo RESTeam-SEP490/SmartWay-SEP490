@@ -7,7 +7,9 @@
       "password": "Password",
       "password.placeholder": "Your password",
       "rememberme": "Remember me",
-      "button": "Sign in"
+      "button": "Sign in",
+      "modal.title": "Sign in to your restaurant management",
+      "modal.placeholder": "Enter your restaurant subdomain"
     },
     "messages": {
       "error": {

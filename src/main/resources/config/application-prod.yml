@@ -123,14 +123,17 @@ jhipster:
 # https://www.jhipster.tech/common-application-properties/
 # ===================================================================
 
-# application:
+application:
+  header:
+    subdomain: x-restaurant-subdomain
+
 aws:
   region: ap-southeast-1
   credentials:
-    access-key: E4malSLJ1riSfs5Y
-    secret-key: 0rtERGng3EGHMe05fLAmE9XHfL7BNuLO
+    access-key: AKIA23JEJJD5ACDPAUGD
+    secret-key: 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
   s3:
-    bucket-name: smart-way
+    bucket-name: smart-way-dev
     presigned-url:
       get: 43200
       post: 120

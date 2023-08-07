@@ -8,7 +8,7 @@ const initialState = {
   registrationSuccess: false,
   registrationFailure: false,
   errorMessage: null,
-  successMessage: null,
+  restaurantLink: null,
 };
 
 export type RegisterState = Readonly<typeof initialState>;
@@ -47,10 +47,11 @@ export const RegisterSlice = createSlice({
         registrationFailure: true,
         errorMessage: action.error.message,
       }))
-      .addCase(handleRegister.fulfilled, () => ({
+      .addCase(handleRegister.fulfilled, (state, action) => ({
         ...initialState,
         registrationSuccess: true,
-        successMessage: 'register.messages.success',
+
+        restaurantLink: action.payload.headers['location'],
       }));
   },
 });

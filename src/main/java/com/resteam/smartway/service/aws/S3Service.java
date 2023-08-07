@@ -38,18 +38,6 @@ public class S3Service {
         }
     }
 
-    public String getDownloadUrl(String filePath) {
-        var bucketName = awsProperties.getS3().getBucketName();
-        var presignedUrlGetDurationInSeconds = awsProperties.getS3().getPresignedUrl().getGet();
-        var expiration = new Date(new Date().getTime() + presignedUrlGetDurationInSeconds * 1000);
-        var generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucketName, filePath)
-            .withMethod(HttpMethod.GET)
-            .withExpiration(expiration);
-        var url = s3Client.generatePresignedUrl(generatePresignedUrlRequest);
-
-        return url.toString();
-    }
-
     public void uploadImage(MultipartFile multipartFile, String path) throws IOException {
         var bucketName = awsProperties.getS3().getBucketName();
 
@@ -83,9 +71,9 @@ public class S3Service {
     //        return "" + BASE_PATH + filePath;
     //    }
 
-    public String getUploadUrl(String filePath) {
+    public String getDownloadUrl(String filePath) {
         var bucketName = awsProperties.getS3().getBucketName();
-        var presignedUrlPostDurationInSeconds = awsProperties.getS3().getPresignedUrl().getPost();
+        var presignedUrlPostDurationInSeconds = awsProperties.getS3().getPresignedUrl().getGet();
         var expiration = new Date(new Date().getTime() + presignedUrlPostDurationInSeconds * 1000);
         var generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucketName, filePath)
             .withMethod(HttpMethod.GET)

@@ -1,0 +1,59 @@
+{
+  "diningTable": {
+    "title": "Dining tables",
+    "addNewLabel": "Add new table",
+    "infoTabs": {
+      "information": "Information",
+      "sold": "Sold",
+      "ingredients": "Ingredients"
+    },
+    "numberOfSeat.label": "Number of seat",
+    "numberOfSeat": "Number of seat",
+    "code.label": "Code",
+    "code.placeholder": "Auto-generated code",
+    "name.label": "Table name",
+    "name.placeholder": "Table name",
+    "status.label": "Status",
+    "status.trueValue": "Enable",
+    "status.falseValue": "Disable",
+    "search.placeholder": "Search by name",
+    "zone.name": "Name",
+    "zone.label": "Zone",
+    "zone.placeholder": "--- Choose zone ---",
+    "isActive.false": "Disable table",
+    "message": "This table has not been selected for a zone",
+    "message.seat": "Number of seat is not set",
+    "columnEmpty": "Empty data",
+    "fileInvalid": "Please select a valid Excel file (.xlsx)",
+    "fileInvalidName": "Please select file name is Table.xlsx",
+    "sheetInvalidName": "Invalid",
+    "titleModalUpload": "Import Table from Data File.",
+    "contentDownload": " Process Data ( Download Sample File: ",
+    "uploadSuccess": "Upload Success",
+    "excelFile": "Excel File",
+    "note": "Note",
+    "dataValid": "The Table only allows import data type valid",
+    "specialCharacters": "The name table or zone should limit special characters (@, #, $, *, /, -, _,...), as they may cause\n    difficulties when printing and using barcodes.",
+    "selectFile": "Select File",
+    "upload": "Upload",
+    "seatInvalid": "Number of seat is number",
+    "seatIntegerInvalid": "Number of seat is integer",
+    "action": {
+      "delete.question": "Are you sure to delete table <b>{{ name }}</b>?",
+      "allowSell": "Mark as use table",
+      "allowSell.question": "Are you sure to mark <b>{{ number }}</b> selected table(s) as enable table?",
+      "allowSellOne.question": "Are you sure to mark table <b>{{ name }}</b> as enable table?",
+      "stopSell": "Mark as disable table",
+      "stopSell.question": "Are you sure to mark <b>{{ number }}</b> selected table(s) as discontinued table?",
+      "stopSellOne.question": "Are you sure to mark table <b>{{ name }}</b> as discontinued table?"
+    }
+  },
+  "smartWayApp": {
+    "diningTable": {
+      "created": "Add new table successfully",
+      "updated": "Update table successfully",
+      "deleted": "Delete table successfully"
+    }
+  },
+  "Sheet name": "Sheet name"
+}
