@@ -9,6 +9,7 @@ import tenant from './tenant-profile/tenant-profile.reducer';
 import changePassword from './tenant-profile/tenant-change-password.reducer';
 import order from '../selling/order/order.reducer';
 import kitchen from '../selling/kitchen/kitchen.reducer';
+import bankAccount from '../check-bank-account-tenant/check-bank-account-tenant.reducer';
 /* jhipster-needle-add-reducer-import - JHipster will add reducer here */
 
 const entitiesReducers = {
@@ -23,6 +24,7 @@ const entitiesReducers = {
   changePassword,
   order,
   kitchen,
+  bankAccount,
   /* jhipster-needle-add-reducer-combine - JHipster will add reducer here */
 };
 
