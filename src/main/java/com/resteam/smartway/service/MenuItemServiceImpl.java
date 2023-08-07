@@ -41,6 +41,8 @@ public class MenuItemServiceImpl implements MenuItemService {
 
     private final MenuItemCategoryRepository menuItemCategoryRepository;
 
+    private final int COUNT_ROW_IMPORT = 0;
+
     @Override
     public Page<MenuItemDTO> loadMenuItemsWithSearch(Pageable pageable, String searchText, List<String> categoryIds, Boolean isActive) {
         if (searchText != null) searchText = searchText.toLowerCase();

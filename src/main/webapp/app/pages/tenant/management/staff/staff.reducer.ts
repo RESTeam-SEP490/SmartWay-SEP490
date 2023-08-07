@@ -130,9 +130,17 @@ export const validateEmail = (_, value) => {
 };
 
 export const validatePhone = (_, value) => {
-  const phoneRegex = /^\d+$/;
+  const phoneRegex = /^\d{5,15}$/;
   if (!phoneRegex.test(value) && value) {
-    return Promise.reject(new Error(translate('entity.validation..phoneRegexCS')));
+    return Promise.reject(new Error(translate('entity.validation.phoneRegexCS')));
+  }
+  return Promise.resolve();
+};
+
+export const validateFullName = (_, value) => {
+  const fullNameRegex = /^[p{L}\D]+$/;
+  if (!fullNameRegex.test(value) && value) {
+    return Promise.reject(new Error(translate('entity.validation.fullName')));
   }
   return Promise.resolve();
 };

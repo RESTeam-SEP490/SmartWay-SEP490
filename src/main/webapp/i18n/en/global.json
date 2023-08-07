@@ -97,18 +97,18 @@
         "newpassword": {
           "required": "Password is required",
           "minlength": "Password is must be at least 4 characters",
-          "maxlength": "Password cannot be more than 50 characters"
+          "maxlength": "Password cannot be more than 100 characters"
         },
         "confirmpassword": {
           "required": "Your confirmation password is required",
           "minlength": "Your confirmation password is required to be at least 4 characters",
-          "maxlength": "Your confirmation password cannot be more than 50 characters"
+          "maxlength": "Your confirmation password cannot be more than 100 characters"
         },
         "email": {
           "required": "Your email is required",
           "invalid": "Your email is invalid",
           "minlength": "Your email is required to be at least 5 characters",
-          "maxlength": "Your email cannot be more than 50 characters"
+          "maxlength": "Your email cannot be more than 100 characters"
         },
         "phone": {
           "required": "Phone number is required",
@@ -177,7 +177,8 @@
       "datetimelocal": "This field should be a date and time.",
       "patternLogin": "This field can only contain letters, digits and e-mail addresses.",
       "email": "Invalid email format.",
-      "phoneRegexCS": "Invalid phone number format."
+      "phoneRegexCS": "Invalid phone number format.",
+      "fullName": "Invalid full name format."
     },
     "filters": {
       "all": "Select all",
