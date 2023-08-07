@@ -248,7 +248,7 @@ export const RegisterPage = () => {
                       rules={[
                         { required: true, message: translate('global.messages.validate.newpassword.required') },
                         { min: 4, message: translate('global.messages.validate.newpassword.minlength') },
-                        { max: 50, message: translate('global.messages.validate.newpassword.maxlength') },
+                        { max: 100, message: translate('global.messages.validate.newpassword.maxlength') },
                       ]}
                     >
                       <Password placeholder={translate('global.form.password.placeholder')} />
