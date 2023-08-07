@@ -6,11 +6,14 @@ import javax.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class NotifyReadyToServeDTO {
+public class CancellationDTO {
 
     @NotNull
-    private UUID itemAdditionNotificationId;
+    private boolean isCancelServedItemsFirst;
 
-    @Min(0)
-    private int readyToServeQuantity;
+    @NotNull
+    private UUID orderDetailId;
+
+    @Min(1)
+    private int cancelledQuantity;
 }

@@ -133,7 +133,9 @@
       "operations": "Thao tác",
       "confirm": "Xác nhận",
       "status": "Lựa chọn trạng thái",
-      "all": "Tất cả"
+      "all": "Tất cả",
+      "by": "Bởi",
+      "cancelled": "Đã huỷ"
     },
     "action": {
       "addblob": "Thêm nội dung",

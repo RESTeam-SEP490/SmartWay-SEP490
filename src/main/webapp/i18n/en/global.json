@@ -136,7 +136,9 @@
       "operations": "Operate",
       "confirm": "Confirm",
       "status": "Select status",
-      "all": "All"
+      "all": "All",
+      "by": "By",
+      "cancelled": "Cancelled"
     },
     "action": {
       "addblob": "Add blob",

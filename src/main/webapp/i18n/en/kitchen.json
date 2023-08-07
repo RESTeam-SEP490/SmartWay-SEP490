@@ -1,0 +1,13 @@
+{
+  "kitchen": {
+    "preparingItems": {
+      "label": "Preparing items",
+      "empty": "There are no items ordered yet"
+    },
+    "rtsItems": {
+      "label": "Ready-to-serve items",
+      "empty": "There are no ready-to-serve items yet",
+      "done": "done"
+    }
+  }
+}
