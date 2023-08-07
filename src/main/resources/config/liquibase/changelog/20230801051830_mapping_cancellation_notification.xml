@@ -1,0 +1,11 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1690867137075-1">
+        <addColumn tableName="item_cancellation_notification">
+            <column name="ready_to_serve_notification_id" type="BINARY(16)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1690867137075-2">
+        <addForeignKeyConstraint baseColumnNames="ready_to_serve_notification_id" baseTableName="item_cancellation_notification" constraintName="FKcvgk760otcidwesxmqqasx8lg" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="ready_to_serve_notification" validate="true"/>
+    </changeSet>
+</databaseChangeLog>

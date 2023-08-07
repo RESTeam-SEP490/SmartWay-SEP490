@@ -1,19 +1,18 @@
-import { ThemeConfig, MenuProps } from 'antd';
-import MenuItem from 'antd/es/menu/MenuItem';
+import { ThemeConfig } from 'antd';
 
-const colors = {
+export const colors = {
   green: {
-    50: '#EEF7F0',
-    100: '#E0F0E4',
-    200: '#BEDFC5',
-    300: '#9FD0AA',
-    400: '#7DBF8B',
-    500: '#5DB06F',
-    600: '#469056',
-    700: '#366E42',
-    800: '#23482B',
-    900: '#122617',
-    950: '#08110A',
+    50: '#F1F8F3',
+    100: '#E4F2E7',
+    200: '#C8E4CE',
+    300: '#ADD7B6',
+    400: '#91C99D',
+    500: '#79BE88',
+    600: '#5DB06F',
+    700: '#438952',
+    800: '#2B5935',
+    900: '#162D1B',
+    950: '#0C180E',
   },
   blue: {
     50: '#F1F5FE',

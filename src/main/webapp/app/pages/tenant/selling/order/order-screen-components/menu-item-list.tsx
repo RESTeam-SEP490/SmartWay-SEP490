@@ -1,19 +1,21 @@
 import { SyncOutlined } from '@ant-design/icons';
 import { Button, Image, Segmented, Typography } from 'antd';
-import { useAppSelector } from 'app/config/store';
-import { IOrderEvent } from 'app/shared/model/dto/order-event.model';
+import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { IMenuItem } from 'app/shared/model/menu-item.model';
-import { IOrderDetail } from 'app/shared/model/order-detail.model';
-import { IOrder } from 'app/shared/model/order.model';
+import { IOrderDetail } from 'app/shared/model/order/order-detail.model';
+import { IOrder } from 'app/shared/model/order/order.model';
 import React, { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { MdOutlineFastfood } from 'react-icons/md';
 import { currencyFormatter } from '../../../../../app.constant';
-import { addItem, adjustItemQuantity, sendEvent } from '../order.websocket';
+import { orderActions } from '../order.reducer';
 
-export const MenuItemList = ({ currentOrder }: { currentOrder: IOrder }) => {
+export const MenuItemList = () => {
+  const dispatch = useAppDispatch();
+
   const menuItemList = useAppSelector(state => state.menuItem.entities);
   const categoryList = useAppSelector(state => state.menuItemCategory.entities);
+  const currentOrder: IOrder = useAppSelector(state => state.order.currentOrder);
 
   const [filteredMenuItemList, setFilteredMenuItemList] = useState([]);
   const [filter, setFilter] = useState({ zoneId: '' });
@@ -27,39 +29,31 @@ export const MenuItemList = ({ currentOrder }: { currentOrder: IOrder }) => {
 
   const handleSelectMenuItem = selectedItem => {
     if (!currentOrder.id) {
-      const event: IOrderEvent = {
-        type: 'CREATE_ORDER',
-        orderId: currentOrder.id,
-        rawData: JSON.stringify({ menuItemId: selectedItem.id, tableId: currentOrder.table.id }),
-      };
-      sendEvent(event);
+      dispatch(orderActions.createOrder(selectedItem.id));
     } else {
-      const matchedItem = currentOrder.items.find(
-        (item: IOrderDetail) => item.menuItem.id === selectedItem.id && item.notifiedTime === null
+      const matchedItem = currentOrder.orderDetailList.find(
+        (item: IOrderDetail) => item.menuItem.id === selectedItem.id && item.note === null
       );
       if (matchedItem) {
-        adjustItemQuantity(
-          {
+        dispatch(
+          orderActions.adjustDetailQuantity({
             orderDetailId: matchedItem.id,
             quantityAdjust: 1,
-          },
-          currentOrder.id
+          })
         );
       } else {
-        addItem(
-          {
+        dispatch(
+          orderActions.addOrderDetail({
             menuItem: selectedItem,
-            orderId: currentOrder.id,
             quantity: 1,
-          },
-          currentOrder.id
+          })
         );
       }
     }
   };
 
   return (
-    <div className="p-2 bg-white h-[calc(100vh-60px)] flex flex-col rounded-se-lg rounded-b-lg">
+    <div className="p-2 bg-white h-[calc(100vh-66px)] flex flex-col rounded-se-lg rounded-b-lg">
       <div className="flex items-center justify-between px-2 py-4">
         <Segmented
           options={[{ label: 'All', value: '' }, ...categoryList.map(z => ({ label: z.name, value: z.id }))]}

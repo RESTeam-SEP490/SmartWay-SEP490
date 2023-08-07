@@ -27,5 +27,6 @@ public interface DiningTableRepository extends BaseRepository<DiningTable> {
         Pageable pageable
     );
 
-    Optional<DiningTable> findByIdAndRestaurant(UUID uuid, Restaurant restaurant);
+    Optional<DiningTable> findByIdAndIsFreeAndIsActive(UUID uuid, boolean isFree, boolean isActive);
+    Optional<DiningTable> findByIdAndIsActive(UUID id, boolean isActive);
 }

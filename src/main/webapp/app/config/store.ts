@@ -6,6 +6,8 @@ import sharedReducers from 'app/shared/reducers';
 import errorMiddleware from './error-middleware';
 import notificationMiddleware from './notification-middleware';
 import loggerMiddleware from './logger-middleware';
+import orderMiddleware from 'app/pages/tenant/selling/order/order-middleware';
+import kitchenMiddleware from 'app/pages/tenant/selling/kitchen/kitchen-middleware';
 
 const store = configureStore({
   reducer: sharedReducers,
@@ -15,7 +17,7 @@ const store = configureStore({
         // Ignore these field paths in all actions
         ignoredActionPaths: ['payload.config', 'payload.request', 'error', 'meta.arg'],
       },
-    }).concat(errorMiddleware, notificationMiddleware, loadingBarMiddleware(), loggerMiddleware),
+    }).concat(errorMiddleware, notificationMiddleware, orderMiddleware, kitchenMiddleware, loadingBarMiddleware(), loggerMiddleware),
 });
 
 const getStore = () => store;

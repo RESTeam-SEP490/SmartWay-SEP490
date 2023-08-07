@@ -6,8 +6,4 @@ import com.resteam.smartway.service.mapper.base.EntityMapper;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring", uses = { ZoneMapper.class })
-public interface DiningTableMapper extends EntityMapper<DiningTableDTO, DiningTable> {
-    DiningTable toEntity(DiningTableDTO dto);
-
-    DiningTableDTO toDto(DiningTable entity);
-}
+public interface DiningTableMapper extends EntityMapper<DiningTableDTO, DiningTable> {}
