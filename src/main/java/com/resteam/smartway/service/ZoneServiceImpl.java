@@ -25,7 +25,7 @@ public class ZoneServiceImpl implements ZoneService {
 
     private final ZoneMapper zoneMapper;
 
-    private static final String ENTITY_NAME = "menuItemCategory";
+    private static final String ENTITY_NAME = "zone";
 
     @Value("${jhipster.clientApp.name}")
     private String applicationName;

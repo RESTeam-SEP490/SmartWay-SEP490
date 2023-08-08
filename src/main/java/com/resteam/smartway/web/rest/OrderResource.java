@@ -8,6 +8,7 @@ import com.resteam.smartway.service.dto.order.notification.CancellationDTO;
 import com.resteam.smartway.web.websocket.KitchenWebsocket;
 import com.resteam.smartway.web.websocket.OrderWebsocket;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
@@ -110,16 +111,34 @@ public class OrderResource {
         }
     }
 
-    @PostMapping("/{id}/pay")
-    public ResponseEntity<byte[]> exportPdfForOrderForPay(@PathVariable UUID id) {
+    @PostMapping("/{id}/export-pdf/{isPayByCash}")
+    public ResponseEntity<byte[]> exportPdfForOrderForPay(@PathVariable UUID id, @PathVariable boolean isPayByCash) {
         OrderDTO orderDTO = orderService.findById(id);
 
         try {
-            byte[] pdfContent = orderService.generatePdfOrderForPay(orderDTO);
+            byte[] pdfContent = orderService.generatePdfOrderForPay(orderDTO, isPayByCash);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_PDF);
             headers.setContentDispositionFormData("inline", "_order_" + id + ".pdf");
+
+            return new ResponseEntity<>(pdfContent, headers, HttpStatus.OK);
+        } catch (DocumentException e) {
+            // Handle exception appropriately
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/export-notificationKitchen")
+    public ResponseEntity<byte[]> exportPdfForNotificationKitchen(@RequestBody Map<String, List<UUID>> request) {
+        List<UUID> ids = request.get("ids");
+        try {
+            byte[] pdfContent = orderService.generatePdfOrderForNotificationKitchen(ids);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("inline", "_orderTicket_" + ".pdf");
 
             return new ResponseEntity<>(pdfContent, headers, HttpStatus.OK);
         } catch (DocumentException e) {
