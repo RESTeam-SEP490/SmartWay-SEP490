@@ -11,6 +11,4 @@ import org.springframework.stereotype.Repository;
 public interface ItemAdditionNotificationRepository extends BaseRepository<ItemAdditionNotification> {
     List<ItemAdditionNotification> findByIsCompleted(boolean isCompleted);
     Optional<ItemAdditionNotification> findByIdAndIsCompleted(UUID id, boolean isCompleted);
-
-    Optional<ItemAdditionNotification> findById(UUID uuid);
 }

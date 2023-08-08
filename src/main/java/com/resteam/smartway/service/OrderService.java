@@ -3,7 +3,6 @@ package com.resteam.smartway.service;
 import com.itextpdf.text.DocumentException;
 import com.resteam.smartway.service.dto.order.*;
 import com.resteam.smartway.service.dto.order.notification.CancellationDTO;
-import com.resteam.smartway.service.dto.order.notification.ItemAdditionNotificationDTO;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,7 +34,7 @@ public interface OrderService {
 
     byte[] generatePdfOrder(OrderDTO orderDTO) throws DocumentException;
 
-    byte[] generatePdfOrderForPay(OrderDTO orderDTO, boolean isPayByCash) throws DocumentException;
+    byte[] generatePdfOrderForPay(OrderDTO orderDTO) throws DocumentException;
 
-    byte[] generatePdfOrderForNotificationKitchen(List<UUID> ids) throws DocumentException;
+    OrderDTO cancelOrderDetail(CancellationDTO dto);
 }

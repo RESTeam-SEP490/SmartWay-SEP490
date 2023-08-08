@@ -1,7 +1,6 @@
 package com.resteam.smartway.service;
 
 import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
@@ -16,15 +15,10 @@ import com.resteam.smartway.domain.order.notifications.ReadyToServeNotification;
 import com.resteam.smartway.repository.DiningTableRepository;
 import com.resteam.smartway.repository.MenuItemRepository;
 import com.resteam.smartway.repository.order.*;
-import com.resteam.smartway.repository.order.ItemAdditionNotificationRepository;
-import com.resteam.smartway.repository.order.KitchenNotificationHistoryRepository;
-import com.resteam.smartway.repository.order.OrderDetailRepository;
-import com.resteam.smartway.repository.order.OrderRepository;
 import com.resteam.smartway.service.aws.S3Service;
 import com.resteam.smartway.service.dto.DiningTableDTO;
 import com.resteam.smartway.service.dto.order.*;
 import com.resteam.smartway.service.dto.order.notification.CancellationDTO;
-import com.resteam.smartway.service.dto.order.notification.ItemAdditionNotificationDTO;
 import com.resteam.smartway.service.mapper.order.OrderDetailMapper;
 import com.resteam.smartway.service.mapper.order.OrderMapper;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
@@ -38,6 +32,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -57,6 +52,9 @@ public class OrderServiceImpl implements OrderService {
     private final OrderDetailMapper orderDetailMapper;
     private final OrderDetailRepository orderDetailRepository;
     private final KitchenNotificationHistoryRepository kitchenNotificationHistoryRepository;
+    private final ItemAdditionNotificationRepository itemAdditionNotificationRepository;
+    private final ItemCancellationNotificationRepository itemCancellationNotificationRepository;
+    private final ReadyToServeNotificationRepository readyToServeNotificationRepository;
     private final S3Service s3Service;
 
     private static final String ORDER = "order";
@@ -69,11 +67,15 @@ public class OrderServiceImpl implements OrderService {
         List<DiningTable> tableList = orderDTO
             .getTableIdList()
             .stream()
-            .map(id ->
-                diningTableRepository
+            .map(id -> {
+                DiningTable table = diningTableRepository
                     .findByIdAndIsFreeAndIsActive(id, true, true)
-                    .orElseThrow(() -> new BadRequestAlertException("Table was not found or not free", TABLE, "notFreeOrNotExisted"))
-            )
+                    .orElseThrow(() ->
+                        new BadRequestAlertException("Table id: '" + id + "' was not found or not free", TABLE, "notFreeOrNotExisted")
+                    );
+                table.setIsFree(false);
+                return table;
+            })
             .collect(Collectors.toList());
 
         MenuItem menuItem = menuItemRepository
@@ -98,7 +100,7 @@ public class OrderServiceImpl implements OrderService {
         SwOrder savedOrder = orderRepository.save(order);
         orderDetailRepository.save(orderDetail);
 
-        diningTableRepository.saveAll(tableList.stream().peek(table -> table.setIsFree(false)).collect(Collectors.toList()));
+        diningTableRepository.saveAll(tableList);
 
         return orderMapper.toDto(savedOrder);
     }
@@ -233,26 +235,23 @@ public class OrderServiceImpl implements OrderService {
         kitchenNotificationHistory.setOrder(order);
 
         List<ItemAdditionNotification> itemAdditionNotificationList = new ArrayList<>();
-        List<OrderDetail> orderDetails = order
-            .getOrderDetailList()
-            .stream()
-            .peek(detail -> {
-                if (detail.getUnnotifiedQuantity() > 0) {
-                    ItemAdditionNotification notification = new ItemAdditionNotification();
-                    notification.setKitchenNotificationHistory(kitchenNotificationHistory);
-                    notification.setNote(detail.getNote());
-                    notification.setOrderDetail(detail);
-                    notification.setPriority(detail.isPriority());
-                    notification.setQuantity(detail.getUnnotifiedQuantity());
-                    notification.setCompleted(false);
+        List<OrderDetail> orderDetails = order.getOrderDetailList();
+        orderDetails.forEach(detail -> {
+            if (detail.getUnnotifiedQuantity() > 0) {
+                ItemAdditionNotification notification = new ItemAdditionNotification();
+                notification.setKitchenNotificationHistory(kitchenNotificationHistory);
+                notification.setNote(detail.getNote());
+                notification.setOrderDetail(detail);
+                notification.setPriority(detail.isPriority());
+                notification.setQuantity(detail.getUnnotifiedQuantity());
+                notification.setCompleted(false);
 
-                    itemAdditionNotificationList.add(notification);
+                itemAdditionNotificationList.add(notification);
 
-                    detail.setUnnotifiedQuantity(0);
-                    detail.setPriority(false);
-                }
-            })
-            .collect(Collectors.toList());
+                detail.setUnnotifiedQuantity(0);
+                detail.setPriority(false);
+            }
+        });
 
         kitchenNotificationHistory.setItemAdditionNotificationList(itemAdditionNotificationList);
         List<KitchenNotificationHistory> kitchenNotificationHistoryList = order.getKitchenNotificationHistoryList();
@@ -291,7 +290,7 @@ public class OrderServiceImpl implements OrderService {
         SwOrder order = orderDetail.getOrder();
         if (order.isPaid()) throw new BadRequestAlertException("Order detail you want to adjust is in a paid order", ORDER, "paidOrder");
 
-        order.getOrderDetailList().removeIf(detail -> detail.getId().equals(orderDetail.getId()));
+        order.getOrderDetailList().removeIf(od -> od.getId().equals(orderDetailId));
 
         return sortOrderDetailsAndNotificationHistories(order);
     }
@@ -380,45 +379,50 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDTO groupTables(UUID orderId, List<String> ids) {
+        //Get order
         SwOrder order = orderRepository
             .findByIdAndIsPaid(orderId, false)
             .orElseThrow(() -> new BadRequestAlertException("Order was not found or paid", ORDER, "idnotfound"));
 
+        //list table moi
         List<DiningTable> newTableList = new ArrayList<>();
-        List<DiningTable> tableList = order.getTableList();
+        //list table hien tai
+        List<DiningTable> currentTableList = order.getTableList();
 
         ids.forEach(id -> {
             if (id == null) throw new BadRequestAlertException("Invalid id", TABLE, "idnull");
             DiningTable table = diningTableRepository
                 .findByIdAndIsActive(UUID.fromString(id), true)
-                .orElseThrow(() -> new BadRequestAlertException("Invalid ID", TABLE, "idnotfound"));
-            table.setIsFree(false);
+                .orElseThrow(() -> new BadRequestAlertException("Invalid ID", TABLE, "idnotfound")); //check ban ton tai va dang kinh doanh
 
-            newTableList.add(table);
-            if (!tableList.contains(table)) tableList.add(table);
+            orderRepository
+                .findOneByTableAndIsPaid(table, false)
+                .ifPresent(o -> {
+                    if (o.getTableList().size() > 1 && !o.getId().equals(order.getId())) throw new BadRequestAlertException(
+                        "Cannot merge the table is merged",
+                        ORDER,
+                        "tableMerged"
+                    );
+                }); // check ban chua duoc merge (chi merge voi ban chua duoc merge)
+
+            table.setIsFree(false); //chuyen trang thai ban
+
+            newTableList.add(table); //them vao ds ban moi
+            if (!currentTableList.contains(table)) currentTableList.add(table); //them vao ds ban hien tai
         });
 
-        List<DiningTable> toPopTables = order.getTableList();
+        order.setTableList(newTableList); //set danh sach ban moi vao order
 
-        tableList.removeIf(table -> {
-            if (!newTableList.contains(table)) {
-                table.setIsFree(true);
-                toPopTables.add(table);
-                return true;
-            }
-            return false;
-        });
-
-        List<OrderDetail> toAddOrderDetails = new ArrayList<>();
-        List<KitchenNotificationHistory> toAddKitchenNotificationHistories = new ArrayList<>();
+        List<OrderDetail> toMergeOrderDetails = new ArrayList<>(); //ds các order detail cần merge
+        List<KitchenNotificationHistory> toMergeKitchenNotificationHistories = new ArrayList<>(); //ds các thông báo bếp cần merge
 
         List<SwOrder> toDeleteOrder = orderRepository
-            .findDistinctByTableListInAndIsPaid(tableList, false)
+            .findDistinctByTableListAndIsPaid(newTableList, false) // tìm những order có ds bàn chứa một trong các bàn trong newTable (các order cần merge)
             .stream()
-            .filter(o -> !o.getId().equals(order.getId()))
+            .filter(o -> !o.getId().equals(order.getId())) // loại order đích -> còn lại những order cần được merge và xoá sau khi merge
             .peek(o -> {
-                toAddOrderDetails.addAll(o.getOrderDetailList());
-                toAddKitchenNotificationHistories.addAll(o.getKitchenNotificationHistoryList());
+                toMergeOrderDetails.addAll(o.getOrderDetailList());
+                toMergeKitchenNotificationHistories.addAll(o.getKitchenNotificationHistoryList());
             })
             .collect(Collectors.toList());
 
@@ -452,14 +456,6 @@ public class OrderServiceImpl implements OrderService {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         PdfWriter.getInstance(document, byteArrayOutputStream);
 
-        String fontPath = "src/main/resources/config/arial-unicode-ms.ttf";
-        Font arialUnicodeFont = null;
-        try {
-            BaseFont baseFont = BaseFont.createFont(fontPath, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
-            arialUnicodeFont = new Font(baseFont, 8);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         // Customize PDF styles
         Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 8, BaseColor.BLACK);
         Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 8, BaseColor.DARK_GRAY);
@@ -482,7 +478,7 @@ public class OrderServiceImpl implements OrderService {
         for (DiningTableDTO tableDTO : tableDTOs) {
             tableNames.add(tableDTO.getName());
         }
-        Paragraph tableName = new Paragraph("Table: " + String.join(", ", tableNames), headerFont);
+        Paragraph tableName = new Paragraph("Tables: " + String.join(", ", tableNames), headerFont);
         //        Paragraph staff = new Paragraph("Staff: "+ orderDTO.get, headerFont);
         Paragraph code = new Paragraph("Order Code: " + orderDTO.getCode(), headerFont);
         nameRestaurant.setAlignment(Element.ALIGN_CENTER);
@@ -523,10 +519,10 @@ public class OrderServiceImpl implements OrderService {
         int stt = 1;
         double sumMoney = 0.0;
         for (OrderDetailDTO orderDetail : orderDetailList) {
-            addValueWithStyle(table, String.valueOf(stt), arialUnicodeFont);
-            addValueWithStyle(table, orderDetail.getMenuItem().getName(), arialUnicodeFont);
-            addValueWithStyle(table, String.valueOf(orderDetail.getQuantity()), arialUnicodeFont);
-            addValueWithStyle(table, String.valueOf(orderDetail.getMenuItem().getSellPrice()), arialUnicodeFont);
+            addValueWithStyle(table, String.valueOf(stt), normalFont);
+            addValueWithStyle(table, orderDetail.getMenuItem().getName(), normalFont);
+            addValueWithStyle(table, String.valueOf(orderDetail.getQuantity()), normalFont);
+            addValueWithStyle(table, String.valueOf(orderDetail.getMenuItem().getSellPrice()), normalFont);
             stt++;
             sumMoney += orderDetail.getQuantity() * orderDetail.getMenuItem().getSellPrice();
         }
@@ -580,20 +576,11 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public byte[] generatePdfOrderForPay(OrderDTO orderDTO, boolean isPayByCash) throws DocumentException {
+    public byte[] generatePdfOrderForPay(OrderDTO orderDTO) throws DocumentException {
         Document document = new Document(PageSize.A7, 12, 12, 12, 12);
 
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         PdfWriter.getInstance(document, byteArrayOutputStream);
-
-        String fontPath = "src/main/resources/config/arial-unicode-ms.ttf";
-        Font arialUnicodeFont = null;
-        try {
-            BaseFont baseFont = BaseFont.createFont(fontPath, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
-            arialUnicodeFont = new Font(baseFont, 8);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
         // Customize PDF styles
         Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 8, BaseColor.BLACK);
@@ -658,10 +645,10 @@ public class OrderServiceImpl implements OrderService {
         int stt = 1;
         double sumMoney = 0.0;
         for (OrderDetailDTO orderDetail : orderDetailList) {
-            addValueWithStyle(table, String.valueOf(stt), arialUnicodeFont);
-            addValueWithStyle(table, orderDetail.getMenuItem().getName(), arialUnicodeFont);
-            addValueWithStyle(table, String.valueOf(orderDetail.getQuantity()), arialUnicodeFont);
-            addValueWithStyle(table, String.valueOf(orderDetail.getMenuItem().getSellPrice()), arialUnicodeFont);
+            addValueWithStyle(table, String.valueOf(stt), normalFont);
+            addValueWithStyle(table, orderDetail.getMenuItem().getName(), normalFont);
+            addValueWithStyle(table, String.valueOf(orderDetail.getQuantity()), normalFont);
+            addValueWithStyle(table, String.valueOf(orderDetail.getMenuItem().getSellPrice()), normalFont);
             stt++;
             sumMoney += orderDetail.getQuantity() * orderDetail.getMenuItem().getSellPrice();
         }
@@ -714,7 +701,6 @@ public class OrderServiceImpl implements OrderService {
             swOrder.setPaid(true);
             Instant payDate = Instant.now();
             swOrder.setPayDate(payDate);
-            swOrder.setPayByCash(isPayByCash);
             orderRepository.save(swOrder);
         }
 
@@ -723,113 +709,10 @@ public class OrderServiceImpl implements OrderService {
         return byteArrayOutputStream.toByteArray();
     }
 
-    @Override
-    public byte[] generatePdfOrderForNotificationKitchen(List<UUID> ids) throws DocumentException {
-        Document document = new Document(PageSize.A7, 12, 12, 12, 12);
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        PdfWriter.getInstance(document, byteArrayOutputStream);
-        String fontPath = "src/main/resources/config/arial-unicode-ms.ttf";
-        Font arialUnicodeFont = null;
-        try {
-            BaseFont baseFont = BaseFont.createFont(fontPath, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
-            arialUnicodeFont = new Font(baseFont, 8);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        // Customize other PDF styles using different fonts as before
-        Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 8, BaseColor.BLACK);
-        Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 8, BaseColor.DARK_GRAY);
-        Font normalFont = FontFactory.getFont(FontFactory.HELVETICA, 8, BaseColor.GRAY);
-
-        document.open();
-
-        Paragraph title = new Paragraph("Order ticket", titleFont);
-        Optional<ItemAdditionNotification> itemAdditionNotification = itemAdditionNotificationRepository.findById(ids.get(0));
-        if (itemAdditionNotification.isPresent()) {
-            Optional<OrderDetail> orderDetail = orderDetailRepository.findById(itemAdditionNotification.get().getOrderDetail().getId());
-            if (orderDetail.isPresent()) {
-                String restaurantName = orderDetail.get().getRestaurant().getName();
-                Paragraph nameOfRestaurant = new Paragraph(restaurantName, headerFont);
-                nameOfRestaurant.setAlignment(Element.ALIGN_CENTER);
-                document.add(nameOfRestaurant);
-            }
-        }
-        Paragraph line = new Paragraph("----------------", titleFont);
-        Instant createdDateInstant = Instant.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
-        String formattedDate = formatter.format(createdDateInstant);
-        Paragraph timeIn = new Paragraph("Time In:  " + formattedDate, normalFont);
-
-        title.setAlignment(Element.ALIGN_CENTER);
-        line.setAlignment(Element.ALIGN_CENTER);
-        timeIn.setAlignment(Element.ALIGN_LEFT);
-
-        document.add(line);
-        document.add(title);
-        document.add(timeIn);
-
-        if (itemAdditionNotification.isPresent()) {
-            List<DiningTable> tableDTOs = itemAdditionNotification.get().getOrderDetail().getOrder().getTableList();
-            List<String> tableNames = new ArrayList<>();
-            for (DiningTable tableDTO : tableDTOs) {
-                tableNames.add(tableDTO.getName());
-            }
-            Paragraph tableName = new Paragraph("Table: " + String.join(", ", tableNames), normalFont);
-            document.add(tableName);
-            tableName.setAlignment(Element.ALIGN_LEFT);
-        }
-
-        document.add(Chunk.NEWLINE); // Add some space between title and table content
-
-        // Add table content with headers and values in separate rows
-        PdfPTable table = new PdfPTable(4);
-        table.setWidthPercentage(100);
-
-        // Header row with relative widths
-        float[] columnWidths = { 15f, 40f, 20f, 20f }; // Adjust the percentages here
-        table.setWidths(columnWidths);
-        // Header row
-        addHeaderWithStyle(table, "STT", headerFont);
-        addHeaderWithStyle(table, "Menu Item", headerFont);
-        addHeaderWithStyle(table, "Quantity", headerFont);
-        addHeaderWithStyle(table, "Note", headerFont);
-
-        // Data row
-        int stt = 1;
-        for (UUID id : ids) {
-            Optional<ItemAdditionNotification> itemAdditionNotificationDTO = itemAdditionNotificationRepository.findById(id);
-            if (itemAdditionNotificationDTO.isPresent()) {
-                ItemAdditionNotification itemNotification = itemAdditionNotificationDTO.get();
-                OrderDetail orderDetail = itemNotification.getOrderDetail();
-                if (orderDetail != null) {
-                    addValueWithStyle(table, String.valueOf(stt), arialUnicodeFont);
-                    PdfPCell menuItemCell = new PdfPCell(
-                        new Phrase(orderDetail.getMenuItem() != null ? orderDetail.getMenuItem().getName() : "", arialUnicodeFont)
-                    );
-                    addCellWithStyle(table, menuItemCell);
-                    addHeaderWithStyleCenter(table, String.valueOf(itemNotification.getQuantity()), arialUnicodeFont);
-                    String noteValue = itemNotification.getNote() != null ? itemNotification.getNote() : "";
-                    PdfPCell noteCell = new PdfPCell(new Phrase(noteValue, arialUnicodeFont));
-                    addCellWithStyle(table, noteCell);
-
-                    stt++;
-                }
-            }
-        }
-
-        document.add(table);
-        float spacingAfterTable = 10f; // Adjust the spacing as needed (in points)
-        table.setSpacingAfter(spacingAfterTable);
-        document.add(line);
-        document.close();
-        return byteArrayOutputStream.toByteArray();
-    }
-
     private static void addHeaderWithStyle(PdfPTable table, String text, Font font) {
         PdfPCell headerCell = new PdfPCell(new Phrase(text, font));
         headerCell.setBorder(Rectangle.BOTTOM); // Show only the bottom border
-        headerCell.setBorderColorBottom(BaseColor.BLACK);
+        headerCell.setBorderColorBottom(BaseColor.DARK_GRAY);
         headerCell.setBorderWidthBottom(1f); // Set the thickness of the bottom border
         headerCell.setBorderWidthLeft(0f); // Remove left border
         headerCell.setBorderWidthRight(0f); // Remove right border
@@ -838,25 +721,13 @@ public class OrderServiceImpl implements OrderService {
         table.addCell(headerCell);
     }
 
-    private static void addHeaderWithStyleCenter(PdfPTable table, String text, Font font) {
-        PdfPCell headerCell = new PdfPCell(new Phrase(text, font));
-        headerCell.setBorder(Rectangle.BOTTOM); // Show only the bottom border
-        headerCell.setBorderColorBottom(BaseColor.BLACK);
-        headerCell.setBorderWidthBottom(0.5f); // Set the thickness of the bottom border
-        headerCell.setBorderWidthLeft(0f); // Remove left border
-        headerCell.setBorderWidthRight(0f); // Remove right border
-        headerCell.setHorizontalAlignment(Element.ALIGN_CENTER);
-        headerCell.setPaddingBottom(5f);
-        table.addCell(headerCell);
-    }
-
     private static void addValueWithStyle(PdfPTable table, String text, Font font) {
         PdfPCell valueCell = new PdfPCell(new Phrase(text, font));
-        valueCell.setBorder(Rectangle.BOTTOM);
+        valueCell.setBorder(Rectangle.BOTTOM); // Show only the bottom border
         valueCell.setBorderColorBottom(BaseColor.BLACK);
-        valueCell.setBorderWidthBottom(0.5f);
-        valueCell.setBorderWidthLeft(0f);
-        valueCell.setBorderWidthRight(0f);
+        valueCell.setBorderWidthBottom(1f); // Set the thickness of the bottom border
+        valueCell.setBorderWidthLeft(0f); // Remove left border
+        valueCell.setBorderWidthRight(0f); // Remove right border
         valueCell.setHorizontalAlignment(Element.ALIGN_LEFT);
         valueCell.setPaddingTop(5f);
         valueCell.setPaddingBottom(8f);
@@ -867,19 +738,6 @@ public class OrderServiceImpl implements OrderService {
         Date now = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         return sdf.format(now);
-    }
-
-    private static void addCellWithStyle(PdfPTable table, PdfPCell cell) {
-        cell.setBorder(Rectangle.BOTTOM); // Show only the bottom border
-        cell.setBorderColorBottom(BaseColor.BLACK);
-        cell.setBorderWidthBottom(0.5f); // Set the thickness of the bottom border
-        cell.setBorderWidthLeft(0f); // Remove left border
-        cell.setBorderWidthRight(0f); // Remove right border
-        cell.setHorizontalAlignment(Element.ALIGN_LEFT);
-        cell.setPaddingTop(5f);
-        cell.setPaddingBottom(8f);
-        cell.setNoWrap(false); // Allow content to wrap within the cell
-        table.addCell(cell);
     }
 
     @Override

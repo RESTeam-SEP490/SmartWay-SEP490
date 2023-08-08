@@ -8,7 +8,6 @@ import com.resteam.smartway.service.dto.order.notification.CancellationDTO;
 import com.resteam.smartway.web.websocket.KitchenWebsocket;
 import com.resteam.smartway.web.websocket.OrderWebsocket;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
@@ -53,15 +52,16 @@ public class OrderResource {
     }
 
     @PutMapping("/add-note")
-    public ResponseEntity<OrderDTO> addNoteToOrderDetail(@RequestBody DetailAddNoteDTO dto) {
+    public ResponseEntity<OrderDTO> addNoteToOrderDetail(@Valid @RequestBody DetailAddNoteDTO dto) {
         OrderDTO orderDTO = orderService.addNoteToOrderDetail(dto);
         orderWebsocket.sendMessageAfterAddNote(orderDTO);
         return ResponseEntity.ok(orderDTO);
     }
 
     @PutMapping("/{orderId}/group-tables")
-    public ResponseEntity<OrderDTO> groupOrders(@PathVariable UUID orderId, @RequestBody List<String> tableIds) {
+    public ResponseEntity<OrderDTO> groupOrders(@PathVariable UUID orderId, @NotEmpty @RequestBody List<String> tableIds) {
         OrderDTO groupedOrderDTO = orderService.groupTables(orderId, tableIds);
+        orderWebsocket.sendMessageAfterAddNote(groupedOrderDTO);
         return ResponseEntity.ok(groupedOrderDTO);
     }
 
@@ -91,7 +91,7 @@ public class OrderResource {
         return ResponseEntity.ok(newOrderDTO);
     }
 
-    @GetMapping("/{id}/export-pdf")
+    @GetMapping("/{id}/print-bill")
     public ResponseEntity<byte[]> exportPdfForOrder(@PathVariable UUID id) {
         OrderDTO orderDTO = orderService.findById(id);
 
@@ -110,12 +110,12 @@ public class OrderResource {
         }
     }
 
-    @PostMapping("/{id}/export-pdf/{isPayByCash}")
-    public ResponseEntity<byte[]> exportPdfForOrderForPay(@PathVariable UUID id, @PathVariable boolean isPayByCash) {
+    @PostMapping("/{id}/pay")
+    public ResponseEntity<byte[]> exportPdfForOrderForPay(@PathVariable UUID id) {
         OrderDTO orderDTO = orderService.findById(id);
 
         try {
-            byte[] pdfContent = orderService.generatePdfOrderForPay(orderDTO, isPayByCash);
+            byte[] pdfContent = orderService.generatePdfOrderForPay(orderDTO);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_PDF);
@@ -127,5 +127,14 @@ public class OrderResource {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @PostMapping("/cancel-order-detail")
+    public ResponseEntity<OrderDTO> changePriority(@RequestBody CancellationDTO dto) {
+        OrderDTO updatedOrder = orderService.cancelOrderDetail(dto);
+        orderWebsocket.sendMessageAfterAddNote(updatedOrder);
+
+        kitchenWebsocket.sendCancelMessageToKitchenScreen(updatedOrder);
+        return ResponseEntity.ok(updatedOrder);
     }
 }
