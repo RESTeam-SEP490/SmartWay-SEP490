@@ -145,6 +145,9 @@ export const OrderSlice = createSlice({
     disconnectStomp(state) {
       state.isConnected = false;
     },
+    reset(state) {
+      state = initialState;
+    },
   },
   extraReducers(builder) {
     builder
@@ -154,6 +157,11 @@ export const OrderSlice = createSlice({
       .addCase(getEntities.fulfilled, (state, action) => {
         state.loading = false;
         state.activeOrders = action.payload.data;
+
+        if (state.currentOrder.id !== null) {
+          const nextCurrentOrder = state.activeOrders.find(o => o.id === state.currentOrder.id);
+          if (nextCurrentOrder) state.currentOrder = nextCurrentOrder;
+        }
       })
       .addMatcher(isFulfilled(printBill, pay), (state, action) => {
         const pdfUrl = window.URL.createObjectURL(new Blob([action.payload.data], { type: 'application/pdf' }));
