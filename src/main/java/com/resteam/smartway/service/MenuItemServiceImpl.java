@@ -54,10 +54,6 @@ public class MenuItemServiceImpl implements MenuItemService {
     private final String MESSAGE_ITEM_NAME = "menuItem.regexItemName";
     private final String REGEX_DES = "^.{1,255}$";
     private final String MESSAGE_DES = "menuItem.regexDes";
-    private final String REGEX_BASE_PRICE = "^([0-9].[0-9]){1,255}$";
-    private final String MESSAGE_BASE_PRICE = "menuItem.basePrice";
-    private final String REGEX_SELLING_PRICE = "^[0-9]{255}$";
-    private final String MESSAGE_SELLING_PRICE = "menuItem.sellingPrice";
     private final String INVALID_PRICE = "menuItem.invalidPrice";
     private final String CONTENT_KEY_COLUMN_EMPTY = "menuItem.columnEmpty";
     private static final String SECRET_KEY_ENCRYPT = "lUcV6iYbiEtmXQze5RQf92eJLeJe6LPOFwgP0YRBwJc=";
@@ -155,6 +151,8 @@ public class MenuItemServiceImpl implements MenuItemService {
                     boolean isRoleEmpty = false;
                     DecimalFormat decimalFormat = new DecimalFormat("#");
                     boolean isCheckAllEmptyOrNull = false;
+                    boolean isCheckBasePrice = false;
+                    boolean isCheckSellingPrice = false;
                     List<String> keysToRemove = new ArrayList<>();
                     while (cells.hasNext()) {
                         Cell cell = cells.next();
@@ -185,22 +183,29 @@ public class MenuItemServiceImpl implements MenuItemService {
                                         menuItem.setMenuItemCategory(newMenuItemCategory);
                                     }
                                 } else {
-                                    if (!Pattern.matches(REGEX_CATEGORY_NAME, cell.getStringCellValue())) {
-                                        noUpload = true;
+                                    if (cell.getStringCellValue() == null || cell.getStringCellValue().equals("")) {
                                         StringBuilder columnName = new StringBuilder(getColumnLabel(1));
-                                        errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), MESSAGE_CATEGORY_NAME);
+                                        errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), CONTENT_KEY_COLUMN_EMPTY);
                                         keysToRemove.add(getColumnLabel(1) + (rowNumber + 1));
-                                    }
-                                    Optional<MenuItemCategory> menuItemCategoryCurrent = menuItemCategoryRepository.findOneByName(
-                                        cell.getStringCellValue()
-                                    );
-                                    if (menuItemCategoryCurrent.isPresent()) {
-                                        MenuItemCategory menuItemCategory = menuItemCategoryCurrent.get();
-                                        menuItem.setMenuItemCategory(menuItemCategory);
+                                        noUpload = true;
                                     } else {
-                                        MenuItemCategory newMenuItemCategory = new MenuItemCategory(null, cell.getStringCellValue());
-                                        menuItemCategoryRepository.save(newMenuItemCategory);
-                                        menuItem.setMenuItemCategory(newMenuItemCategory);
+                                        if (!Pattern.matches(REGEX_CATEGORY_NAME, cell.getStringCellValue())) {
+                                            noUpload = true;
+                                            StringBuilder columnName = new StringBuilder(getColumnLabel(1));
+                                            errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), MESSAGE_CATEGORY_NAME);
+                                            keysToRemove.add(getColumnLabel(1) + (rowNumber + 1));
+                                        }
+                                        Optional<MenuItemCategory> menuItemCategoryCurrent = menuItemCategoryRepository.findOneByName(
+                                            cell.getStringCellValue()
+                                        );
+                                        if (menuItemCategoryCurrent.isPresent()) {
+                                            MenuItemCategory menuItemCategory = menuItemCategoryCurrent.get();
+                                            menuItem.setMenuItemCategory(menuItemCategory);
+                                        } else {
+                                            MenuItemCategory newMenuItemCategory = new MenuItemCategory(null, cell.getStringCellValue());
+                                            menuItemCategoryRepository.save(newMenuItemCategory);
+                                            menuItem.setMenuItemCategory(newMenuItemCategory);
+                                        }
                                     }
                                 }
                                 break;
@@ -247,33 +252,23 @@ public class MenuItemServiceImpl implements MenuItemService {
                                 }
                                 break;
                             case 3:
+                                isCheckBasePrice = true;
                                 if (cell.getCellType() != CellType.NUMERIC) {
                                     StringBuilder columnName = new StringBuilder(getColumnLabel(4));
                                     errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), INVALID_PRICE);
                                     keysToRemove.add(getColumnLabel(4) + (rowNumber + 1));
                                 } else {
-                                    if (!Pattern.matches(REGEX_BASE_PRICE, String.valueOf(cell.getNumericCellValue()))) {
-                                        noUpload = true;
-                                        StringBuilder columnName = new StringBuilder(getColumnLabel(4));
-                                        errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), MESSAGE_BASE_PRICE);
-                                        keysToRemove.add(getColumnLabel(4) + (rowNumber + 1));
-                                    }
                                     menuItem.setBasePrice(cell.getNumericCellValue());
                                 }
                                 break;
                             case 4:
+                                isCheckSellingPrice = true;
                                 if (cell.getCellType() != CellType.NUMERIC) {
                                     StringBuilder columnName = new StringBuilder(getColumnLabel(5));
                                     errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), INVALID_PRICE);
                                     keysToRemove.add(getColumnLabel(5) + (rowNumber + 1));
                                 } else {
-                                    if (!Pattern.matches(REGEX_SELLING_PRICE, String.valueOf(cell.getNumericCellValue()))) {
-                                        noUpload = true;
-                                        StringBuilder columnName = new StringBuilder(getColumnLabel(5));
-                                        errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), MESSAGE_SELLING_PRICE);
-                                        keysToRemove.add(getColumnLabel(5) + (rowNumber + 1));
-                                    }
-                                    menuItem.setBasePrice(cell.getNumericCellValue());
+                                    menuItem.setSellPrice(cell.getNumericCellValue());
                                 }
                                 break;
                             default:
@@ -307,7 +302,7 @@ public class MenuItemServiceImpl implements MenuItemService {
                         noUpload = true;
                     }
 
-                    if (menuItem.getBasePrice() == null) {
+                    if (menuItem.getBasePrice() == null && !isCheckBasePrice) {
                         isValidated = false;
                         StringBuilder columnName = new StringBuilder(getColumnLabel(4));
                         errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), CONTENT_KEY_COLUMN_EMPTY);
@@ -315,7 +310,7 @@ public class MenuItemServiceImpl implements MenuItemService {
                         noUpload = true;
                     }
 
-                    if (menuItem.getSellPrice() == null) {
+                    if (menuItem.getSellPrice() == null && !isCheckSellingPrice) {
                         isValidated = false;
                         StringBuilder columnName = new StringBuilder(getColumnLabel(5));
                         errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), CONTENT_KEY_COLUMN_EMPTY);

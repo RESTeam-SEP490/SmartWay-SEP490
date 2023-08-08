@@ -34,6 +34,10 @@
     "specialCharacters": "The username, full name of staff should limit special characters (@, #, $, *, /, -, _,...), as they may easier\n     when printing and using barcodes.",
     "selectFile": "Select File",
     "upload": "Upload",
+    "columnEmpty": "Data is empty",
+    "emptyFileName": "Data is empty",
+    "basePrice": "Cost price must be decimal",
+    "invalidPrice": "Price cannot be a letter or special character",
 
     "action": {
       "delete.question": "Are you sure to delete menu item <b>{{ code }}</b>?",

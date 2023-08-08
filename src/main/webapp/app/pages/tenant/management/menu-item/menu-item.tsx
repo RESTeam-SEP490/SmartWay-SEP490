@@ -394,43 +394,11 @@ export const MenuItem = () => {
                 <Button type="primary" icon={<PlusOutlined rev={''} />} onClick={() => setIsShowForm(true)}>
                   <Translate contentKey="menuItem.addNewLabel" />
                 </Button>
-                <Button type="primary" icon={<UploadOutlined rev={''} />}>
-                  <Translate contentKey="entity.action.import" />
-                </Button>
-              </div>
-            </div>
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-4">
-                <Typography.Title level={3} className="!mb-0">
-                  <Translate contentKey="menuItem.title" />
-                </Typography.Title>
-                {selectedRowKeys.length > 0 && (
-                  <Tag className="px-4 py-1" closable color="blue" onClose={handleResetSelectedRowKey}>
-                    <Translate contentKey="entity.action.select" interpolate={{ number: selectedRowKeys.length }} />
-                  </Tag>
-                )}
-              </div>
-              <div className="flex gap-2">
-                <Dropdown menu={{ items }} disabled={selectedRowKeys.length === 0} className="!w-32">
-                  <Button type="primary" icon={<BarsOutlined rev={''} />}>
-                    <Translate contentKey="entity.label.operations" />
-                  </Button>
-                </Dropdown>
-                <Button type="primary" icon={<PlusOutlined rev={''} />} onClick={() => setIsShowForm(true)}>
-                  <Translate contentKey="menuItem.addNewLabel" />
-                </Button>
                 <Button type="primary" icon={<UploadOutlined rev={''} />} onClick={handleOpenPopup}>
                   <Translate contentKey="entity.action.import" />
                 </Button>
-                <a href="http://localhost:8080/downloadTemplate/export" download>
-                  <Button type="primary" icon={<DownloadOutlined rev={''} />}>
-                    {/*<Translate contentKey="entity.action.export" />*/}
-                    Export
-                  </Button>
-                </a>
               </div>
             </div>
-
             <Table
               columns={columns.map(c => ({ ...c, ellipsis: true }))}
               dataSource={menuItemList}

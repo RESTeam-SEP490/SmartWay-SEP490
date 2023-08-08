@@ -36,6 +36,10 @@
     "specialCharacters": "Tên bàn hoặc khu vực thì nên hạn chế các ký tự như (@, #, $, *, /, -, _,...), như vậy thì nó sẽ\n    khó khăn trong việc in và sử dụng mã vạch.",
     "selectFile": "Chọn tệp",
     "upload": "Tải lên",
+    "emptyFileName": "Dữ liệu trống",
+    "columnEmpty": "Dữ liệu trống",
+    "basePrice": "Giá gốc phải là số thập phân",
+    "invalidPrice": "Giá không được là chữ hoặc kí tự đặc biệt",
 
     "action": {
       "delete.question": "Xoá dữ liệu của món <b>{{ code }}</b>?",
