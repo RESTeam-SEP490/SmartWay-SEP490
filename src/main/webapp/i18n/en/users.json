@@ -8,6 +8,41 @@
         "staffCode": "Staff code",
         "Status": "Status"
       }
+    },
+    "addNewLabel": "Add new user",
+    "username.label": "Username",
+    "password.label": "Password",
+    "newPassword.label": "New password",
+    "confirmPassword.label": "Confirm password",
+    "currentPassword.label": "Current password",
+    "fullName.label": "Full name",
+    "phone.label": "Phone",
+    "email.label": "Email",
+    "address.label": "Address",
+    "restaurantId.label": "Restaurant",
+    "birthday.label": "Birthday",
+    "gender.label": "Gender",
+    "role.label": "Role",
+    "langkey.label": "en",
+    "role.placeholder": "Choose role",
+    "search.placeholder": "Search",
+    "information.label": "Information",
+    "resetPassword.label": "Reset password",
+    "infoTabs": {
+      "information": "Information",
+      "changePassword": "Change Password"
+    },
+    "savePassword": "Save password",
+    "save": "Save"
+  },
+  "smartWayApp": {
+    "tenant": {
+      "created": "Add new tenant successfully",
+      "updated": "Update tenant successfully",
+      "deleted": "Delete tenant successfully"
     }
+  },
+  "error": {
+    "id": "Tenant Id not found"
   }
 }

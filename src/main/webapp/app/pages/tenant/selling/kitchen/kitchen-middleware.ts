@@ -1,20 +1,14 @@
 import SockJS from 'sockjs-client';
 
-import Stomp from 'webstomp-client';
-import { Observable } from 'rxjs';
 import { Storage } from 'react-jhipster';
+import { Observable } from 'rxjs';
+import Stomp from 'webstomp-client';
 
-import { websocketActivityMessage } from 'app/modules/administration/administration.reducer';
-import { getAccount, logoutSession } from 'app/shared/reducers/authentication';
-import getStore from 'app/config/store';
-import { IOrderEvent } from 'app/shared/model/dto/order-event.model';
-import { orderActions } from '../pages/tenant/selling/order/order.reducer';
-import OrderEvent from 'app/pages/tenant/selling/order/order-event';
-import { receiveChangedTable } from 'app/pages/tenant/management/dining-table/dining-table.reducer';
-import { IOrder } from 'app/shared/model/order/order.model';
+import { kitchenActions } from 'app/pages/tenant/selling/kitchen/kitchen.reducer';
+import { IKitchenItems } from '../../../../shared/model/dto/kitchen-items-dto';
+import KitchenEvent from './kitchen-event';
 
 let stompClient = null;
-
 let subscriber = null;
 let connection: Promise<any>;
 let connectedPromise: any = null;
@@ -30,9 +24,14 @@ const createListener = (): Observable<any> =>
     listenerObserver = observer;
   });
 
+const newItemsound = new Audio('/content/sound/new-item-sound.mp3');
+const cancellationSound = new Audio('/content/sound/cancellation-sound.mp3');
+
 const subscribe = (topicPath: string) => {
   connection.then(() => {
-    subscriber = stompClient.subscribe(`/topic/${topicPath}/${subdomain}`, data => {
+    subscriber = stompClient.subscribe(`/kitchen/${subdomain}/${topicPath}`, data => {
+      if (topicPath === KitchenEvent.ReceiveNewItem) newItemsound.play();
+      if (topicPath === KitchenEvent.ReceiveOrderCancellation) cancellationSound.play();
       listenerObserver.next(JSON.parse(data.body));
     });
   });
@@ -108,48 +107,39 @@ const onConnectFailed = error => {
 };
 
 export default store => next => action => {
-  if (orderActions.startConnecting.match(action)) {
+  if (kitchenActions.startConnecting.match(action)) {
     connect();
 
     if (stompClient !== null) {
-      store.dispatch(orderActions.connectionEstablished());
+      store.dispatch(kitchenActions.connectionEstablished());
 
-      subscribe(OrderEvent.ReceiveChangedOrder);
-      receive().subscribe((order: IOrder) => {
-        store.dispatch(orderActions.receiveChangedOrder(order));
-        store.dispatch(receiveChangedTable(order.tableList));
+      subscribe(KitchenEvent.ReceiveNewItem);
+      subscribe(KitchenEvent.UpdateItems);
+      subscribe(KitchenEvent.ReceiveOrderCancellation);
+      receive().subscribe((kitchenItems: IKitchenItems) => {
+        store.dispatch(kitchenActions.receiveNewItem(kitchenItems));
       });
     }
   }
 
-  if (orderActions.createOrder.match(action) && alreadyConnectedOnce) {
-    const currentTablelist = store.getState().order.currentOrder.tableList;
-    send(OrderEvent.CreateOrder, { menuItemId: action.payload, tableIdList: currentTablelist.map(table => table.id) });
+  if (kitchenActions.notifyReadyToServe.match(action) && alreadyConnectedOnce) {
+    send(KitchenEvent.NotifyReadyToServe, action.payload);
+  }
+  if (kitchenActions.notifyServed.match(action) && alreadyConnectedOnce) {
+    send(KitchenEvent.NotifyServed, action.payload);
   }
 
-  if (orderActions.adjustDetailQuantity.match(action) && alreadyConnectedOnce) {
-    send(OrderEvent.AjustDetailQuantity, action.payload);
-  }
-
-  if (orderActions.addOrderDetail.match(action) && alreadyConnectedOnce) {
-    send(OrderEvent.AddOrderDetail, { ...action.payload, orderId: store.getState().order.currentOrder.id });
-  }
-
-  if (orderActions.deleteOrderDetail.match(action) && alreadyConnectedOnce) {
-    send(OrderEvent.DeleteOrderDetail, action.payload);
-  }
-
-  if (orderActions.notifyKitchen.match(action) && alreadyConnectedOnce) {
-    send(OrderEvent.NotifyKitchen, action.payload);
+  if (kitchenActions.disconnectStomp.match(action) && alreadyConnectedOnce) {
+    disconnect();
   }
 
   next(action);
 };
 
-const send = (orderEvent: OrderEvent, body?: {}) => {
+const send = (orderEvent: KitchenEvent, body?: any) => {
   connection?.then(() => {
     stompClient?.send(
-      `/topic/${orderEvent}/${subdomain}`, // destination
+      `/kitchen/${subdomain}/${orderEvent}`, // destination
       body ? JSON.stringify(body) : null, // body
       getHeader() // header
     );

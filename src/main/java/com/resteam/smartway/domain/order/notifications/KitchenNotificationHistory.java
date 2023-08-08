@@ -44,7 +44,7 @@ public class KitchenNotificationHistory extends AbstractBaseEntity {
     @OneToMany(mappedBy = "kitchenNotificationHistory", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemAdditionNotification> itemAdditionNotificationList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "kitchenNotificationHistory")
+    @OneToMany(mappedBy = "kitchenNotificationHistory", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemCancellationNotification> itemCancellationNotificationList = new ArrayList<>();
 
     @Override

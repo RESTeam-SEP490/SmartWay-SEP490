@@ -25,6 +25,14 @@
     <include file="config/liquibase/changelog/20230723084415_add_isPriority_note_notifiedTime_in_orderDetail.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20230727102154_add_order_notification_entities.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20230727153140_add_many_to_many_table_order.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230801051830_mapping_cancellation_notification.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230802080500_add_audit_fields_to_ready_to_serve_notification.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230803065230_add_served_quantity_for_deatail.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230804085649_add_isActive_for_order.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230806105336_mapping_cancellation_notification_with_order_detail.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230806163807_add_served_quantity_for_ready_to_serve_notification.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230802151217_add_bank_account_info.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230719165000_add_column_address_gender_birthday.xml.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20230727140220_addRestaurant.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->

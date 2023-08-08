@@ -3,6 +3,7 @@ package com.resteam.smartway.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.resteam.smartway.domain.base.AbstractBaseAuditingEntity;
 import java.time.Instant;
+import java.util.Date;
 import java.util.UUID;
 import javax.persistence.*;
 import lombok.*;
@@ -40,6 +41,13 @@ public class User extends AbstractBaseAuditingEntity<UUID> {
 
     @Column(length = 20)
     private String phone;
+
+    private Date birthday;
+
+    private String gender;
+
+    @Column(length = 100)
+    private String address;
 
     @Column(name = "lang_key", length = 10)
     private String langKey;

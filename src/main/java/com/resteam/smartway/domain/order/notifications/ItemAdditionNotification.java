@@ -2,6 +2,8 @@ package com.resteam.smartway.domain.order.notifications;
 
 import com.resteam.smartway.domain.base.AbstractBaseEntity;
 import com.resteam.smartway.domain.order.OrderDetail;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import javax.persistence.*;
 import lombok.AllArgsConstructor;
@@ -37,6 +39,12 @@ public class ItemAdditionNotification extends AbstractBaseEntity {
     @ManyToOne
     @JoinColumn(name = "kitchen_notification_history_id", referencedColumnName = "id", columnDefinition = "BINARY(16)")
     private KitchenNotificationHistory kitchenNotificationHistory;
+
+    @OneToMany(mappedBy = "itemAdditionNotification", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ItemCancellationNotification> itemCancellationNotificationList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "itemAdditionNotification", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReadyToServeNotification> readyToServeNotificationList = new ArrayList<>();
 
     @Column(name = "is_completed", nullable = false)
     private boolean isCompleted = false;

@@ -1,9 +1,30 @@
 {
   "order": {
-    "addNote.title": "Thêm ghi chú",
-    "form": {
-      "note.placeholder": "Nhập ghi chú"
+    "current.label": "Đơn hiện tại",
+    "empty": {
+      "title": "Chưa gọi món",
+      "subtitle": "Vui lòng chọn món ở thẻ <b>Thực đơn</b>"
     },
+    "addNote.title": "Nhập ghi chú",
+    "addNote.empty": "Không có ghi chú",
+    "form": {
+      "note.placeholder": "Nhập ghi chú cho món này",
+      "label": {
+        "type": "Loại đơn",
+        "table": "Bàn",
+        "toMergeOrder": "Đơn sẽ được gộp"
+      },
+      "type": {
+        "takeaway": "Mang về",
+        "atTable": "Tại bàn"
+      },
+      "table": {
+        "code": "Mã đơn",
+        "quantity": "Tổng số lượng",
+        "price": "Tổng tiền"
+      }
+    },
+
     "tableList": {
       "status": {
         "available": "Trống",
@@ -11,13 +32,36 @@
       }
     },
     "orderDetails": {
-      "ordering.label": "Đang order",
-      "ordered.label": "Đã order",
-      "ordering.total": "Tổng đang order",
-      "ordered.total": "Tổng đã order",
       "total": "Tổng",
       "charge": "Thanh toán",
       "notify": "Báo bếp"
+    },
+    "history": {
+      "title": "Lịch sử báo bếp"
+    },
+    "notification": {
+      "ready-to-serve": "đã sẵn sàng để phục vụ",
+      "served": "đã được phục vụ cho khách"
+    },
+    "charge": {
+      "label": "Thanh toán",
+      "itemList": "Danh sách món",
+      "quantity": "Số lượng",
+      "subtotal": "Thành tiền",
+      "discount": "Giảm giá",
+      "total": "Khách cần trả"
+    },
+    "cancel": {
+      "title": "Xác nhận huỷ món",
+      "confirm": "Chắc chắn muốn huỷ món <b>{{ name }}</b> ?",
+      "form": {
+        "order": "Thứ tự huỷ",
+        "order.served": "Huỷ phần đã phục vụ trước",
+        "order.unserved": "Huỷ phần chưa phục vụ trước",
+        "quantity": "Số lượng huỷ",
+        "totalQ": "Trong tổng",
+        "reason": "Lí do"
+      }
     }
   }
 }

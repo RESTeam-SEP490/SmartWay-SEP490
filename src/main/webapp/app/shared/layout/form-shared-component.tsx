@@ -18,6 +18,7 @@ export const SubmitButton = ({ form, isNew, updating }: { form: FormInstance; is
       }
     );
   }, [values]);
+
   return (
     <Button
       icon={isNew ? <SaveOutlined rev={''} /> : <FormOutlined rev={''} />}

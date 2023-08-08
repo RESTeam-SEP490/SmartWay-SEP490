@@ -5,7 +5,7 @@ import { SubmitButton } from 'app/shared/layout/form-shared-component';
 import { IOrderDetail } from 'app/shared/model/order/order-detail.model';
 import React, { useEffect } from 'react';
 import { Translate, translate } from 'react-jhipster';
-import { addNote } from '../order.reducer';
+import { addNote } from '../../order.reducer';
 
 export const AddNoteForm = ({ detail, isOpen, handleClose }: { detail: IOrderDetail; isOpen: boolean; handleClose: any }) => {
   const dispatch = useAppDispatch();
@@ -39,8 +39,8 @@ export const AddNoteForm = ({ detail, isOpen, handleClose }: { detail: IOrderDet
       onCancel={handleClose}
     >
       <Form onFinish={handleSubmit}>
-        <div className="flex items-center justify-between p-2 px-4 mt-4 mb-2 bg-gray-100 rounded-md ">
-          <Typography.Title level={5} className="!m-0">
+        <div className="flex items-center justify-between p-2 px-4 mt-6 bg-blue-100 rounded-t-md ">
+          <Typography.Title level={5} className="!m-0" ellipsis={{ expandable: false, tooltip: detail?.menuItem.name }}>
             {detail?.menuItem.name}
           </Typography.Title>
           <div className="flex items-center gap-2">
@@ -50,7 +50,10 @@ export const AddNoteForm = ({ detail, isOpen, handleClose }: { detail: IOrderDet
           </div>
         </div>
         <Form.Item name={'note'} initialValue={detail?.note} required>
-          <Input.TextArea placeholder={translate('order.form.note.placeholder')} className="!resize-none !h-24" />
+          <Input.TextArea
+            placeholder={translate('order.form.note.placeholder')}
+            className="!resize-none !h-24 rounded-none !rounded-b-md"
+          />
         </Form.Item>
         <div className="flex justify-end gap-2">
           <Button type="default" htmlType="reset" onClick={handleClose}>

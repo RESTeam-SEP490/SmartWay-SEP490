@@ -10,7 +10,6 @@ import com.resteam.smartway.service.aws.S3Service;
 import com.resteam.smartway.service.dto.IsActiveUpdateDTO;
 import com.resteam.smartway.service.dto.MenuItemDTO;
 import com.resteam.smartway.service.mapper.MenuItemMapper;
-import com.resteam.smartway.web.rest.MenuItemCategoryResource;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
 import java.util.List;
 import java.util.Optional;
@@ -42,6 +41,8 @@ public class MenuItemServiceImpl implements MenuItemService {
 
     private final MenuItemCategoryRepository menuItemCategoryRepository;
 
+    private final int COUNT_ROW_IMPORT = 0;
+
     @Override
     public Page<MenuItemDTO> loadMenuItemsWithSearch(Pageable pageable, String searchText, List<String> categoryIds, Boolean isActive) {
         if (searchText != null) searchText = searchText.toLowerCase();
@@ -53,7 +54,7 @@ public class MenuItemServiceImpl implements MenuItemService {
         return menuItemPage.map(item -> {
             MenuItemDTO menuItem = menuItemMapper.toDto(item);
             if (item.getImageKey() != null) {
-                String imageUrl = s3Service.getUploadUrl(item.getImageKey());
+                String imageUrl = s3Service.getDownloadUrl(item.getImageKey());
                 menuItem.setImageUrl(imageUrl);
             } else menuItem.setImageUrl("");
             return menuItem;
@@ -121,7 +122,7 @@ public class MenuItemServiceImpl implements MenuItemService {
         if (menuItemDTO.getImageUrl() == null || menuItemDTO.getImageUrl().isEmpty()) {
             s3Service.deleteFile(menuItem.getImageKey());
             menuItem.setImageKey(null);
-        }
+        } else menuItem.setImageUrl(null);
 
         MenuItem result = menuItemRepository.save(menuItem);
         return menuItemMapper.toDto(result);

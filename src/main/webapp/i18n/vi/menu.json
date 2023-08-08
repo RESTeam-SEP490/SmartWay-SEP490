@@ -17,6 +17,8 @@
     "bill": {
       "label": "Quản lý hoá đơn"
     },
-    "dashboard.label": "Tổng quan"
+    "dashboard.label": "Tổng quan",
+    "order.label": "Gọi món",
+    "kitchen.label": "Bếp"
   }
 }
