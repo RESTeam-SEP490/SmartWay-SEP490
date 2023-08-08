@@ -136,7 +136,9 @@
       "operations": "Operate",
       "confirm": "Confirm",
       "status": "Select status",
-      "all": "All"
+      "all": "All",
+      "by": "By",
+      "cancelled": "Cancelled"
     },
     "action": {
       "addblob": "Add blob",
@@ -200,6 +202,7 @@
     "idnull": "Invalid ID",
     "idinvalid": "Invalid ID",
     "idnotfound": "ID cannot be found",
+    "id": "ID not found",
     "file": {
       "could.not.extract": "Could not extract file",
       "not.image": "File was expected to be an image but was found to be \"{{ fileType }}\""

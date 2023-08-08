@@ -11,8 +11,10 @@ import com.resteam.smartway.repository.UserRepository;
 import com.resteam.smartway.security.AuthoritiesConstants;
 import com.resteam.smartway.security.SecurityUtils;
 import com.resteam.smartway.security.multitenancy.context.RestaurantContext;
+import com.resteam.smartway.service.dto.ProfileDTO;
 import com.resteam.smartway.service.dto.StaffDTO;
 import com.resteam.smartway.service.dto.TenantRegistrationDTO;
+import com.resteam.smartway.service.mapper.ProfileMapper;
 import com.resteam.smartway.service.mapper.StaffMapper;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
 import com.resteam.smartway.web.rest.errors.SubdomainAlreadyUsedException;
@@ -22,6 +24,10 @@ import java.text.DecimalFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -61,6 +67,8 @@ public class UserServiceImpl implements UserService {
 
     private final StaffMapper staffMapper;
 
+    private final ProfileMapper profileMapper;
+
     private final String ENTITY_NAME_STAFF = "username";
     private final String NAME_SHEET_STAFF = "Staff-Manage";
     private final String NAME_SHEET_SECRET_KEY = "Secret_Key";
@@ -78,6 +86,8 @@ public class UserServiceImpl implements UserService {
     private final String MESSAGE_USERNAME = "staff.messageUsername";
     private final String CONTENT_ROLE_NOT_EXIST = "staff.roleNotExist";
     private static final String SECRET_KEY_ENCRYPT = "lUcV6iYbiEtmXQze5RQf92eJLeJe6LPOFwgP0YRBwJc=";
+
+    private final String ENTITY_USERNAME_PROFILE = "username";
 
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
@@ -146,7 +156,8 @@ public class UserServiceImpl implements UserService {
         Role waiter = new Role();
         waiter.setName(roleNames.get(0));
         Authority authority = authorityRepository.findById(AuthoritiesConstants.ORDER_WAITER).orElseThrow();
-        waiter.setAuthorities(List.of(authority));
+        Authority authorityUser = authorityRepository.findById(AuthoritiesConstants.ROLE_USER).orElseThrow();
+        waiter.setAuthorities(List.of(authority, authorityUser));
 
         Role cashier = new Role();
         cashier.setName(roleNames.get(1));
@@ -190,6 +201,18 @@ public class UserServiceImpl implements UserService {
         String username = SecurityUtils.getCurrentUsername().orElseThrow(() -> new UsernameNotFoundException(("Username must be provide")));
 
         return userRepository.findOneWithAuthoritiesByUsername(username);
+    }
+
+    @Override
+    public ProfileDTO getUserProfile() {
+        String username = SecurityUtils.getCurrentUsername().orElseThrow(() -> new UsernameNotFoundException(("Username must be provide")));
+        User userOptional = userRepository
+            .findOneByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException(("Username not fond")));
+        //        userOptional.setPassword(null);
+        ProfileDTO profileDTO = profileMapper.toDto(userOptional);
+        profileDTO.setBirthday(userOptional.getBirthday());
+        return profileDTO;
     }
 
     @Transactional(readOnly = true)
@@ -268,6 +291,26 @@ public class UserServiceImpl implements UserService {
                 user.setLangKey(langKey);
                 log.debug("Changed Information for User: {}", user);
             });
+    }
+
+    public ProfileDTO updateProfile(ProfileDTO profileDTO) {
+        User profile = userRepository
+            .findById(profileDTO.getId())
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_USERNAME_PROFILE, " id not found"));
+        Optional<User> existingUser = userRepository.findOneByUsername(profileDTO.getUsername());
+        if (existingUser.isPresent() && !existingUser.get().getId().equals(profileDTO.getId())) {
+            throw new BadRequestAlertException(applicationName, ENTITY_USERNAME_PROFILE, "existed");
+        }
+        profile.setBirthday(profileDTO.getBirthday());
+        profileMapper.partialUpdate(profile, profileDTO);
+        if (profileDTO.getResetPassword() != null && profileDTO.getPassword() != null) {
+            if (Objects.equals(profileDTO.getPassword(), profile.getPassword())) {
+                String encryptedPassword = passwordEncoder.encode(profileDTO.getResetPassword());
+                profile.setPassword(encryptedPassword);
+            }
+        }
+        User result = userRepository.save(profile);
+        return profileMapper.toDto(result);
     }
 
     @Override

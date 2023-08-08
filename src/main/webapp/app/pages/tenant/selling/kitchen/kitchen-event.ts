@@ -5,6 +5,7 @@ enum KitchenEvent {
   NotifyReadyToServe = 'notify-ready-to-serve',
   NotifyServed = 'notify-served',
   NotifyOutOfStock = 'notify-out-of-stock',
+  ReceiveOrderCancellation = 'receive-order-cancellation',
 }
 
 export default KitchenEvent;

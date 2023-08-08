@@ -11,13 +11,11 @@ import { Button } from 'antd';
 import { DesktopOutlined } from '@ant-design/icons';
 
 export interface IHeaderProps {
-  username?: string;
   isAuthenticated: boolean;
   isAdmin: boolean;
   ribbonEnv: string;
   isInProduction: boolean;
   isOpenAPIEnabled: boolean;
-  currentLocale: string;
   appType: AppType;
 }
 
@@ -52,7 +50,7 @@ const MainAppHeader = (props: IHeaderProps) => {
       <div className="flex items-center justify-between pt-4 pb-2 mx-auto transition-all duration-300 ease-linear lg:max-w-7xl">
         <Brand />
         <div className="flex items-center gap-10">
-          <LocaleMenu currentLocale={props.currentLocale} />
+          <LocaleMenu />
           <AccountMenu />
         </div>
       </div>
@@ -80,8 +78,8 @@ const TenantAppHeader = (props: IHeaderProps) => {
                 POS Screen
               </Button>
             </Link>
-            <LocaleMenu currentLocale={props.currentLocale} />
-            <AuthenticatedAccountMenu name={props.username} />
+            <LocaleMenu />
+            <AuthenticatedAccountMenu />
           </div>
         </div>
       </div>

@@ -14,7 +14,8 @@ public class HasReadyToServeItemMapper {
             addition
                 .getReadyToServeNotificationList()
                 .forEach(rts -> {
-                    if (!rts.isCompleted()) readyToServeQuantity.addAndGet(rts.getQuantity());
+                    if (!rts.isCompleted()) readyToServeQuantity.addAndGet(rts.getQuantity() - rts.getServedQuantity());
+                    rts.getItemCancellationNotificationList().forEach(icn -> readyToServeQuantity.addAndGet(-icn.getQuantity()));
                 })
         );
         return readyToServeQuantity.get();
