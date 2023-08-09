@@ -31,13 +31,14 @@
     "excelFile": "Excel File",
     "note": "Note",
     "dataValid": "The Menu Item only allows import data type valid",
-    "specialCharacters": "The username, full name of staff should limit special characters (@, #, $, *, /, -, _,...), as they may easier\n     when printing and using barcodes.",
+    "specialCharacters": "Data entry always starts from the first line and leaves no blank lines between rows with data.",
     "selectFile": "Select File",
     "upload": "Upload",
     "columnEmpty": "Data is empty",
     "emptyFileName": "Data is empty",
     "basePrice": "Cost price must be decimal",
     "invalidPrice": "Price cannot be a letter or special character",
+    "menuItemExist": "MenuItem name is exist",
 
     "action": {
       "delete.question": "Are you sure to delete menu item <b>{{ code }}</b>?",
