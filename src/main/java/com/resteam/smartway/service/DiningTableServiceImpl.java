@@ -17,12 +17,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.Date;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -56,6 +55,15 @@ public class DiningTableServiceImpl implements DiningTableService {
     private final String CONTENT_KEY_SEAT_INVALID = "diningTable.seatInvalid";
     private final String CONTENT_KEY_SEAT_INTEGER_INVALID = "diningTable.seatIntegerInvalid";
     private final String CONTENT_KEY_SHEET_NAME_INVALID = "diningTable.sheetInvalidName";
+    private final String NAME_SHEET_SECRET_KEY = "Secret_Key";
+    private static final String SECRET_KEY_ENCRYPT = "lUcV6iYbiEtmXQze5RQf92eJLeJe6LPOFwgP0YRBwJc=";
+    private final String REGEX_ZONE = "^.{1,50}$";
+    private final String MESSAGE_ZONE = "diningTable.regexZone";
+    private final String REGEX_TABLE_NAME = "^.{1,50}$";
+    private final String MESSAGE_TABLE_NAME = "diningTable.regexTableName";
+    private final String REGEX_NUMBER_OF_SEAT = "^[1-9][0-9]*$";
+    private final String MESSAGE_NUMBER_OF_SEAT = "diningTable.regexNumberOfSeat";
+    private final String CONTENT_TABLE_NAME_EXIST = "diningTable.regexTableNameExist";
 
     @Override
     public Page<DiningTableDTO> loadDiningTablesWithSearch(Pageable pageable, String searchText, List<String> zoneIds, Boolean isActive) {
@@ -64,7 +72,6 @@ public class DiningTableServiceImpl implements DiningTableService {
         if (zoneIds != null && zoneIds.size() > 0) zoneUuidList =
             zoneIds.stream().map(c -> UUID.fromString(c)).collect(Collectors.toList());
         Page<DiningTable> diningTablePage = diningTableRepository.findWithFilterParams(searchText, zoneUuidList, isActive, pageable);
-
         return diningTablePage.map(item -> {
             DiningTableDTO diningTable = diningTableMapper.toDto(item);
             return diningTable;
@@ -144,80 +151,187 @@ public class DiningTableServiceImpl implements DiningTableService {
         List<DiningTable> diningTableList = new ArrayList<>();
         boolean noUpload = false;
         try {
+            String secretKeyInFile = null;
             XSSFWorkbook workbook = new XSSFWorkbook(is);
-            XSSFSheet sheet = workbook.getSheet(NAME_SHEET_TABLE);
-            if (workbook.getSheetAt(0) == null || !workbook.getSheetAt(0).getSheetName().equals(NAME_SHEET_TABLE)) {
-                errorMap.put("Sheet name", CONTENT_KEY_SHEET_NAME_INVALID);
-                return errorMap;
-            }
-            int rowNumber = 0;
-            Iterator<Row> iterator = sheet.iterator();
-            boolean os = true;
-            while (iterator.hasNext()) {
-                Row row = iterator.next();
-                if (rowNumber == 0) {
-                    rowNumber++;
-                    continue;
-                }
-                Iterator<Cell> cells = row.iterator();
-                DiningTable diningTable = new DiningTable();
-                while (cells.hasNext()) {
-                    Cell cell = cells.next();
-                    switch (cell.getColumnIndex()) {
-                        case 0:
-                            Optional<Zone> currentZone = zoneRepository.findOneByName(cell.getStringCellValue());
-                            if (currentZone.isPresent()) {
-                                diningTable.setZone(currentZone.get());
-                            } else {
-                                Zone newZone = new Zone(null, cell.getStringCellValue());
-                                zoneRepository.save(newZone);
-                                diningTable.setZone(newZone);
-                            }
-                            break;
-                        case 1:
-                            diningTable.setName(cell.getStringCellValue());
-                            break;
-                        case 2:
-                            if (cell.getCellType() == CellType.NUMERIC) {
-                                double numericValue = cell.getNumericCellValue();
-                                if (numericValue % 1 == 0) {
-                                    diningTable.setNumberOfSeats((int) numericValue);
-                                } else {
-                                    StringBuilder columnName = new StringBuilder(getColumnLabel(3));
-                                    errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), CONTENT_KEY_SEAT_INTEGER_INVALID);
-                                    noUpload = true;
-                                }
-                            } else {
-                                StringBuilder columnName = new StringBuilder(getColumnLabel(3));
-                                errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), CONTENT_KEY_SEAT_INVALID);
-                                noUpload = true;
-                            }
-                            break;
-                        default:
-                            break;
+            XSSFSheet sheetSecretKey = workbook.getSheet(NAME_SHEET_SECRET_KEY);
+            if (sheetSecretKey != null) {
+                Row row = sheetSecretKey.getRow(0);
+                if (row != null) {
+                    Cell cell = row.getCell(0);
+                    if (cell != null && cell.getCellType() == CellType.STRING) {
+                        secretKeyInFile = cell.getStringCellValue();
                     }
                 }
-
-                if (diningTable.getName() == null) {
-                    StringBuilder columnName = new StringBuilder(getColumnLabel(2));
-                    errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), CONTENT_KEY_COLUMN_EMPTY);
-                    noUpload = true;
-                } else {
-                    diningTable.setIsFree(true);
-                    diningTable.setIsActive(true);
-                    diningTableList.add(diningTable);
-                }
-                rowNumber++;
+            }
+            if (secretKeyInFile == null) {
+                errorMap.put("staff.nullSecretKey", "");
+                return errorMap;
             }
 
-            if (!noUpload) {
-                diningTableRepository.saveAll(diningTableList);
+            if (checkSecretKey(secretKeyInFile)) {
+                XSSFSheet sheet = workbook.getSheet(NAME_SHEET_TABLE);
+                int rowNumber = 0;
+                Iterator<Row> iterator = sheet.iterator();
+                boolean os = true;
+                while (iterator.hasNext()) {
+                    Row row = iterator.next();
+                    if (rowNumber == 0) {
+                        rowNumber++;
+                        continue;
+                    }
+                    Iterator<Cell> cells = row.iterator();
+                    DiningTable diningTable = new DiningTable();
+                    boolean isCheckAllEmptyOrNull = false;
+                    boolean isNumberOfSeatRun = false;
+                    boolean isTableNameChecked = false;
+                    List<String> keysToRemove = new ArrayList<>();
+                    DecimalFormat decimalFormat = new DecimalFormat("#");
+                    while (cells.hasNext()) {
+                        Cell cell = cells.next();
+                        switch (cell.getColumnIndex()) {
+                            case 0:
+                                Optional<Zone> currentZone = zoneRepository.findOneByName(cell.getStringCellValue());
+                                if (currentZone.isPresent()) {
+                                    diningTable.setZone(currentZone.get());
+                                } else {
+                                    Zone newZone = new Zone(null, cell.getStringCellValue());
+                                    zoneRepository.save(newZone);
+                                    diningTable.setZone(newZone);
+                                }
+                                break;
+                            case 1:
+                                Optional<DiningTable> diningTableOptional = diningTableRepository.findOneByName(cell.getStringCellValue());
+                                if (diningTableOptional.isPresent()) {
+                                    noUpload = true;
+                                    isTableNameChecked = true;
+                                    StringBuilder columnName = new StringBuilder(getColumnLabel(2));
+                                    errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), CONTENT_TABLE_NAME_EXIST);
+                                    keysToRemove.add(getColumnLabel(2) + (rowNumber + 1));
+                                } else {
+                                    isTableNameChecked = true;
+                                    diningTable.setName(cell.getStringCellValue());
+                                }
+                                diningTable.setName(cell.getStringCellValue());
+                                break;
+                            case 2:
+                                diningTable.setNumberOfSeats((int) cell.getNumericCellValue());
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+
+                    boolean isValidated = true;
+
+                    if (
+                        (diningTable.getName() == null || diningTable.getName().equals("")) &&
+                        (diningTable.getZone() == null) &&
+                        (diningTable.getNumberOfSeats() == null || diningTable.getNumberOfSeats().equals(0))
+                    ) {
+                        if (diningTableList.isEmpty()) {
+                            if (errorMap.isEmpty()) {
+                                errorMap.put("Table.xlsx ", "diningTable.emptyFileName");
+                            }
+
+                            if (rowNumber == 2) {
+                                for (String key : keysToRemove) {
+                                    errorMap.remove(key);
+                                }
+                            }
+                        } else {
+                            for (String key : keysToRemove) {
+                                errorMap.remove(key);
+                            }
+                        }
+                        break;
+                    }
+
+                    if (diningTable.getZone() != null) {
+                        if (!Pattern.matches(REGEX_ZONE, diningTable.getZone().getName())) {
+                            isValidated = false;
+                            noUpload = true;
+                            StringBuilder columnName = new StringBuilder(getColumnLabel(1));
+                            errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), MESSAGE_ZONE);
+                            keysToRemove.add(getColumnLabel(1) + (rowNumber + 1));
+                        }
+                    }
+
+                    if (diningTable.getName() == null) {
+                        if (!isTableNameChecked) {
+                            isValidated = false;
+                            StringBuilder columnName = new StringBuilder(getColumnLabel(2));
+                            errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), CONTENT_KEY_COLUMN_EMPTY);
+                            keysToRemove.add(getColumnLabel(2) + (rowNumber + 1));
+                            noUpload = true;
+                        }
+                    } else {
+                        if (!Pattern.matches(REGEX_TABLE_NAME, diningTable.getName())) {
+                            isValidated = false;
+                            noUpload = true;
+                            StringBuilder columnName = new StringBuilder(getColumnLabel(2));
+                            errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), MESSAGE_TABLE_NAME);
+                            keysToRemove.add(getColumnLabel(2) + (rowNumber + 1));
+                        }
+                        if (diningTable.getName().equals("")) {
+                            isValidated = false;
+                            noUpload = true;
+                            StringBuilder columnName = new StringBuilder(getColumnLabel(2));
+                            errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), CONTENT_KEY_COLUMN_EMPTY);
+                            keysToRemove.add(getColumnLabel(2) + (rowNumber + 1));
+                        }
+                    }
+
+                    if (diningTable.getNumberOfSeats() == null) {
+                        isValidated = false;
+                        StringBuilder columnName = new StringBuilder(getColumnLabel(3));
+                        errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), CONTENT_KEY_COLUMN_EMPTY);
+                        keysToRemove.add(getColumnLabel(3) + (rowNumber + 1));
+                        noUpload = true;
+                    } else {
+                        if (!Pattern.matches(REGEX_NUMBER_OF_SEAT, String.valueOf(diningTable.getNumberOfSeats()))) {
+                            isValidated = false;
+                            noUpload = true;
+                            StringBuilder columnName = new StringBuilder(getColumnLabel(3));
+                            errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), MESSAGE_NUMBER_OF_SEAT);
+                            keysToRemove.add(getColumnLabel(3) + (rowNumber + 1));
+                        }
+                        if (diningTable.getNumberOfSeats().equals(0)) {
+                            isValidated = false;
+                            noUpload = true;
+                            StringBuilder columnName = new StringBuilder(getColumnLabel(3));
+                            errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), CONTENT_KEY_COLUMN_EMPTY);
+                            keysToRemove.add(getColumnLabel(3) + (rowNumber + 1));
+                        }
+                    }
+
+                    if (isValidated) {
+                        diningTable.setIsFree(true);
+                        diningTable.setIsActive(true);
+                        diningTableList.add(diningTable);
+                    }
+                    rowNumber++;
+                }
+
+                if (!noUpload) {
+                    if (diningTableList.isEmpty()) {
+                        errorMap.put("Table.xlsx ", "diningTable.emptyFileName");
+                    } else {
+                        diningTableRepository.saveAll(diningTableList);
+                    }
+                }
+            } else {
+                errorMap.put("diningTable.invalidSecretKey", "");
+                return errorMap;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         return errorMap;
+    }
+
+    private boolean checkSecretKey(String secretKey) {
+        return secretKey.equals(SECRET_KEY_ENCRYPT);
     }
 
     private String getColumnLabel(int column) {

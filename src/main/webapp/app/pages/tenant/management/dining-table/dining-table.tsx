@@ -295,11 +295,18 @@ export const DiningTable = () => {
 
       <Modal visible={isPopupVisible} onCancel={handleCancelPopup} footer={null}>
         <p>
-          <Translate contentKey={'diningTable.titleModalUpload'}></Translate>
-          <a onClick={downloadTemplate} download>
-            <Translate contentKey={'diningTable.excelFile'}></Translate>
-          </a>
-          ).
+          <p>
+            <div className="font-bold">
+              <Translate contentKey={'diningTable.titleModalUpload'}></Translate>
+            </div>
+            <div>
+              <Translate contentKey={'diningTable.contentDownload'}></Translate>
+              <a onClick={downloadTemplate} download className="underline">
+                <Translate contentKey={'diningTable.excelFile'}></Translate>
+              </a>
+              ).
+            </div>
+          </p>
         </p>
         <div style={{ backgroundColor: '#f9f9e0', padding: '10px' }}>
           <p style={{ marginTop: '10px', fontStyle: 'italic', color: '#7b5e2a' }}>
