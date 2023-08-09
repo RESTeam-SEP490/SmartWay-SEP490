@@ -18,16 +18,11 @@ import com.resteam.smartway.service.mapper.ProfileMapper;
 import com.resteam.smartway.service.mapper.StaffMapper;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
 import com.resteam.smartway.web.rest.errors.SubdomainAlreadyUsedException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -80,13 +75,13 @@ public class UserServiceImpl implements UserService {
     private final String MESSAGE_FULL_NAME = "staff.messageFullName";
     private final String REGEX_EMAIL = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
     private final String MESSAGE_EMAIL = "staff.messageEmail";
-    private final String REGEX_PASSWORD = "^[A-za-z0-9]{1,100}$";
+    private final String REGEX_PASSWORD = "^[A-za-z0-9]{4,100}$";
     private final String MESSAGE_PASSWORD = "staff.messagePassword";
     private final String REGEX_USERNAME = "^(?=[a-zA-Z0-9._]{4,20}$)(?!.*[_.]{2})[^_.].*[^_.]$";
     private final String MESSAGE_USERNAME = "staff.messageUsername";
     private final String CONTENT_ROLE_NOT_EXIST = "staff.roleNotExist";
     private static final String SECRET_KEY_ENCRYPT = "lUcV6iYbiEtmXQze5RQf92eJLeJe6LPOFwgP0YRBwJc=";
-
+    private final String CONTENT_USERNAME_EXIST = "staff.usernameExist";
     private final String ENTITY_USERNAME_PROFILE = "username";
 
     @Value("${jhipster.clientApp.name}")
@@ -341,7 +336,6 @@ public class UserServiceImpl implements UserService {
                 XSSFSheet sheet = workbook.getSheet(NAME_SHEET_STAFF);
                 int rowNumber = 0;
                 Iterator<Row> iterator = sheet.iterator();
-                boolean os = true;
                 while (iterator.hasNext()) {
                     Row row = iterator.next();
                     if (rowNumber == 0) {
@@ -351,87 +345,48 @@ public class UserServiceImpl implements UserService {
 
                     Iterator<Cell> cells = row.iterator();
                     User staff = new User();
-                    boolean isRoleEmpty = false;
+                    boolean isRoleChecked = false;
+                    boolean isUsernameChecked = false;
                     DecimalFormat decimalFormat = new DecimalFormat("#");
-                    boolean isCheckAllEmptyOrNull = false;
                     List<String> keysToRemove = new ArrayList<>();
                     while (cells.hasNext()) {
                         Cell cell = cells.next();
                         switch (cell.getColumnIndex()) {
                             case 0:
-                                staff.setUsername(cell.getStringCellValue());
+                                Optional<User> optionalUser = userRepository.findOneByUsername(cell.getStringCellValue());
+                                if (optionalUser.isPresent()) {
+                                    noUpload = true;
+                                    isUsernameChecked = true;
+                                    StringBuilder columnName = new StringBuilder(getColumnLabel(1));
+                                    errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), CONTENT_USERNAME_EXIST);
+                                    keysToRemove.add(getColumnLabel(1) + (rowNumber + 1));
+                                } else {
+                                    isUsernameChecked = true;
+                                    staff.setUsername(cell.getStringCellValue());
+                                }
                                 break;
                             case 1:
-                                if (cell.getCellType() == CellType.NUMERIC) {
-                                    double passwordNumeric = cell.getNumericCellValue();
-                                    String passwordString = decimalFormat.format(passwordNumeric);
-                                    staff.setPassword(passwordString);
-                                } else {
-                                    staff.setPassword(cell.getStringCellValue());
-                                }
+                                staff.setPassword(cell.getStringCellValue());
                                 break;
                             case 2:
-                                if (cell.getCellType() == CellType.NUMERIC) {
-                                    String fullNameString = String.valueOf(cell.getNumericCellValue());
-                                    staff.setFullName(fullNameString);
-                                } else {
-                                    staff.setFullName(cell.getStringCellValue());
-                                }
+                                staff.setFullName(cell.getStringCellValue());
                                 break;
                             case 3:
-                                if (cell.getCellType() == CellType.NUMERIC) {
-                                    String emailString = String.valueOf(cell.getNumericCellValue());
-                                    staff.setEmail(emailString);
-                                } else {
-                                    staff.setEmail(cell.getStringCellValue());
-                                }
+                                staff.setEmail(cell.getStringCellValue());
                                 break;
                             case 4:
-                                if (cell.getCellType() == CellType.NUMERIC) {
-                                    double phoneNumeric = cell.getNumericCellValue();
-                                    String phoneString = decimalFormat.format(phoneNumeric);
-                                    if (!Pattern.matches(REGEX_PHONE, phoneString)) {
-                                        noUpload = true;
-                                        StringBuilder columnName = new StringBuilder(getColumnLabel(5));
-                                        errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), MESSAGE_PHONE);
-                                        keysToRemove.add(getColumnLabel(5) + (rowNumber + 1));
-                                    }
-                                    staff.setPhone(phoneString);
-                                } else {
-                                    if (!Pattern.matches(REGEX_PHONE, cell.getStringCellValue())) {
-                                        noUpload = true;
-                                        StringBuilder columnName = new StringBuilder(getColumnLabel(5));
-                                        errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), MESSAGE_PHONE);
-                                        keysToRemove.add(getColumnLabel(5) + (rowNumber + 1));
-                                    }
-                                    staff.setPhone(cell.getStringCellValue());
-                                }
+                                staff.setPhone(cell.getStringCellValue());
                                 break;
                             case 5:
-                                if (cell.getCellType() == CellType.NUMERIC) {
-                                    double roleNumeric = cell.getNumericCellValue();
-                                    String roleString = decimalFormat.format(roleNumeric);
-                                    Optional<Role> currentRole = roleRepository.findOneByName(roleString);
-                                    if (currentRole.isPresent()) {
-                                        staff.setRole(currentRole.get());
-                                    } else {
-                                        isRoleEmpty = true;
-                                        noUpload = true;
-                                        StringBuilder columnName = new StringBuilder(getColumnLabel(6));
-                                        errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), CONTENT_ROLE_NOT_EXIST);
-                                        keysToRemove.add(getColumnLabel(6) + (rowNumber + 1));
-                                    }
+                                Optional<Role> currentRole = roleRepository.findOneByName(cell.getStringCellValue());
+                                if (currentRole.isPresent()) {
+                                    staff.setRole(currentRole.get());
                                 } else {
-                                    Optional<Role> currentRole = roleRepository.findOneByName(cell.getStringCellValue());
-                                    if (currentRole.isPresent()) {
-                                        staff.setRole(currentRole.get());
-                                    } else {
-                                        isRoleEmpty = true;
-                                        noUpload = true;
-                                        StringBuilder columnName = new StringBuilder(getColumnLabel(6));
-                                        errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), CONTENT_ROLE_NOT_EXIST);
-                                        keysToRemove.add(getColumnLabel(6) + (rowNumber + 1));
-                                    }
+                                    isRoleChecked = true;
+                                    noUpload = true;
+                                    StringBuilder columnName = new StringBuilder(getColumnLabel(6));
+                                    errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), CONTENT_ROLE_NOT_EXIST);
+                                    keysToRemove.add(getColumnLabel(6) + (rowNumber + 1));
                                 }
                                 break;
                             default:
@@ -440,18 +395,54 @@ public class UserServiceImpl implements UserService {
                     }
                     boolean isValidated = true;
 
+                    if (
+                        (staff.getUsername() == null || staff.getUsername().equals("")) &&
+                        (staff.getPassword() == null || staff.getPassword().equals("")) &&
+                        (staff.getFullName() == null || staff.getFullName().equals("")) &&
+                        (staff.getEmail() == null || staff.getEmail().equals("")) &&
+                        (staff.getPhone() == null || staff.getPhone().equals("")) &&
+                        (staff.getRole() == null || staff.getRole().getName().equals(""))
+                    ) {
+                        if (staffList.isEmpty()) {
+                            if (errorMap.isEmpty()) {
+                                errorMap.put("Staff.xlsx ", "staff.emptyFileName");
+                            }
+                            if (rowNumber == 2) {
+                                for (String key : keysToRemove) {
+                                    errorMap.remove(key);
+                                }
+                            }
+                        } else {
+                            for (String key : keysToRemove) {
+                                errorMap.remove(key);
+                            }
+                        }
+                        break;
+                    }
+
                     if (staff.getUsername() == null) {
-                        isValidated = false;
-                        StringBuilder columnName = new StringBuilder(getColumnLabel(1));
-                        errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), CONTENT_KEY_COLUMN_EMPTY);
-                        keysToRemove.add(getColumnLabel(1) + (rowNumber + 1));
-                        noUpload = true;
+                        if (!isUsernameChecked) {
+                            isValidated = false;
+                            StringBuilder columnName = new StringBuilder(getColumnLabel(1));
+                            errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), CONTENT_KEY_COLUMN_EMPTY);
+                            keysToRemove.add(getColumnLabel(1) + (rowNumber + 1));
+                            noUpload = true;
+                        }
                     } else {
                         if (!Pattern.matches(REGEX_USERNAME, staff.getUsername())) {
+                            isValidated = false;
                             noUpload = true;
                             StringBuilder columnName = new StringBuilder(getColumnLabel(1));
                             errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), MESSAGE_USERNAME);
                             keysToRemove.add(getColumnLabel(1) + (rowNumber + 1));
+                        }
+
+                        if (staff.getUsername().equals("")) {
+                            isValidated = false;
+                            StringBuilder columnName = new StringBuilder(getColumnLabel(1));
+                            errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), CONTENT_KEY_COLUMN_EMPTY);
+                            keysToRemove.add(getColumnLabel(1) + (rowNumber + 1));
+                            noUpload = true;
                         }
                     }
 
@@ -463,10 +454,19 @@ public class UserServiceImpl implements UserService {
                         noUpload = true;
                     } else {
                         if (!Pattern.matches(REGEX_PASSWORD, staff.getPassword())) {
+                            isValidated = false;
                             noUpload = true;
                             StringBuilder columnName = new StringBuilder(getColumnLabel(2));
                             errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), MESSAGE_PASSWORD);
                             keysToRemove.add(getColumnLabel(2) + (rowNumber + 1));
+                        }
+
+                        if (staff.getPassword().equals("")) {
+                            isValidated = false;
+                            StringBuilder columnName = new StringBuilder(getColumnLabel(2));
+                            errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), CONTENT_KEY_COLUMN_EMPTY);
+                            keysToRemove.add(getColumnLabel(2) + (rowNumber + 1));
+                            noUpload = true;
                         }
                     }
 
@@ -478,16 +478,25 @@ public class UserServiceImpl implements UserService {
                         noUpload = true;
                     } else {
                         if (!Pattern.matches(REGEX_FULL_NAME, staff.getFullName())) {
+                            isValidated = false;
                             noUpload = true;
                             StringBuilder columnName = new StringBuilder(getColumnLabel(3));
                             errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), MESSAGE_FULL_NAME);
                             keysToRemove.add(getColumnLabel(3) + (rowNumber + 1));
+                        }
+                        if (staff.getFullName().equals("")) {
+                            isValidated = false;
+                            StringBuilder columnName = new StringBuilder(getColumnLabel(3));
+                            errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), CONTENT_KEY_COLUMN_EMPTY);
+                            keysToRemove.add(getColumnLabel(3) + (rowNumber + 1));
+                            noUpload = true;
                         }
                     }
 
                     if (staff.getEmail() != null) {
                         if (!staff.getEmail().equals("")) {
                             if (!Pattern.matches(REGEX_EMAIL, staff.getEmail())) {
+                                isValidated = false;
                                 noUpload = true;
                                 StringBuilder columnName = new StringBuilder(getColumnLabel(4));
                                 errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), MESSAGE_EMAIL);
@@ -496,35 +505,26 @@ public class UserServiceImpl implements UserService {
                         }
                     }
 
-                    if (!isRoleEmpty) {
-                        if (staff.getRole() == null) {
+                    if (staff.getPhone() != null) {
+                        if (!staff.getPhone().equals("")) {
+                            if (!Pattern.matches(REGEX_PHONE, staff.getPhone())) {
+                                isValidated = false;
+                                noUpload = true;
+                                StringBuilder columnName = new StringBuilder(getColumnLabel(5));
+                                errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), MESSAGE_PHONE);
+                                keysToRemove.add(getColumnLabel(5) + (rowNumber + 1));
+                            }
+                        }
+                    }
+
+                    if (staff.getRole() == null) {
+                        if (!isRoleChecked) {
                             isValidated = false;
+                            noUpload = true;
                             StringBuilder columnName = new StringBuilder(getColumnLabel(6));
                             errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), CONTENT_KEY_COLUMN_EMPTY);
                             keysToRemove.add(getColumnLabel(6) + (rowNumber + 1));
-                            noUpload = true;
                         }
-                    }
-
-                    if (
-                        (staff.getUsername() == null || staff.getUsername().equals("")) &&
-                        (staff.getPassword() == null || staff.getPassword().equals("")) &&
-                        (staff.getFullName() == null || staff.getFullName().equals("")) &&
-                        (staff.getEmail() == null || staff.getEmail().equals("")) &&
-                        (staff.getPhone() == null || staff.getPhone().equals("")) &&
-                        (staff.getRole() == null || staff.getRole().getName().equals(""))
-                    ) {
-                        for (String key : keysToRemove) {
-                            errorMap.remove(key);
-                        }
-                        isCheckAllEmptyOrNull = true;
-                    }
-
-                    if (isCheckAllEmptyOrNull) {
-                        if (errorMap.isEmpty()) {
-                            errorMap.put("Staff.xlsx ", "staff.emptyFileName");
-                        }
-                        break;
                     }
 
                     if (isValidated) {
@@ -559,24 +559,6 @@ public class UserServiceImpl implements UserService {
             column /= 26;
         }
         return label.toString();
-    }
-
-    private String readSecretKeyFromExcel(InputStream is) {
-        try (XSSFWorkbook workbook = new XSSFWorkbook(is)) {
-            XSSFSheet sheet = workbook.getSheet(NAME_SHEET_SECRET_KEY);
-            if (sheet != null) {
-                Row row = sheet.getRow(0);
-                if (row != null) {
-                    Cell cell = row.getCell(0);
-                    if (cell != null && cell.getCellType() == CellType.STRING) {
-                        return cell.getStringCellValue();
-                    }
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 
     private boolean checkSecretKey(String secretKey) {
