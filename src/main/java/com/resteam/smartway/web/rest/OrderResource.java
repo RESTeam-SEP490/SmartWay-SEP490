@@ -1,8 +1,8 @@
 package com.resteam.smartway.web.rest;
 
 import com.itextpdf.text.DocumentException;
-import com.resteam.smartway.domain.order.notifications.KitchenNotificationHistory;
 import com.resteam.smartway.service.OrderService;
+import com.resteam.smartway.service.PaymentDTO;
 import com.resteam.smartway.service.dto.order.*;
 import com.resteam.smartway.service.dto.order.notification.CancellationDTO;
 import com.resteam.smartway.web.websocket.KitchenWebsocket;
@@ -94,10 +94,8 @@ public class OrderResource {
 
     @GetMapping("/{id}/print-bill")
     public ResponseEntity<byte[]> exportPdfForOrder(@PathVariable UUID id) {
-        OrderDTO orderDTO = orderService.findById(id);
-
         try {
-            byte[] pdfContent = orderService.generatePdfOrder(orderDTO);
+            byte[] pdfContent = orderService.generatePdfOrder(id);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_PDF);
@@ -111,23 +109,17 @@ public class OrderResource {
         }
     }
 
-    @PostMapping("/{id}/export-pdf/{isPayByCash}")
-    public ResponseEntity<byte[]> exportPdfForOrderForPay(@PathVariable UUID id, @PathVariable boolean isPayByCash) {
-        OrderDTO orderDTO = orderService.findById(id);
+    @PostMapping("/pay")
+    public ResponseEntity<byte[]> exportPdfForOrderForPay(@RequestBody PaymentDTO paymentDTO) {
+        byte[] pdfContent = orderService.generatePdfOrderForPay(paymentDTO);
 
-        try {
-            byte[] pdfContent = orderService.generatePdfOrderForPay(orderDTO, isPayByCash);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("inline", "_order_" + paymentDTO.getOrderId() + ".pdf");
+        headers.add("paid-order-id", paymentDTO.getOrderId().toString());
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_PDF);
-            headers.setContentDispositionFormData("inline", "_order_" + id + ".pdf");
-
-            return new ResponseEntity<>(pdfContent, headers, HttpStatus.OK);
-        } catch (DocumentException e) {
-            // Handle exception appropriately
-            e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        orderWebsocket.sendMessageAfterPayment(paymentDTO.getOrderId());
+        return new ResponseEntity<>(pdfContent, headers, HttpStatus.OK);
     }
 
     @GetMapping("/export-notificationKitchen")

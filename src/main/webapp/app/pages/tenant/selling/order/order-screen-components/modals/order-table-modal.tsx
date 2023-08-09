@@ -5,7 +5,7 @@ import { SubmitButton } from 'app/shared/layout/form-shared-component';
 import { IOrderDetail } from 'app/shared/model/order/order-detail.model';
 import React, { useEffect, useState } from 'react';
 import { Translate, translate } from 'react-jhipster';
-import { groupTables, orderActions } from '../../order.reducer';
+import { groupTables } from '../../order.reducer';
 import { IOrder } from 'app/shared/model/order/order.model';
 import { IDiningTable } from 'app/shared/model/dining-table.model';
 
@@ -68,7 +68,7 @@ export const TablesOfOrderModal = ({ isOpen, handleClose }: { isOpen: boolean; h
   };
 
   const isTableMerged = (tableId: string) => {
-    const order = orders.find(o => o.tableList.some(t => t.id === tableId));
+    const order = orders.filter(o => !o.takeAway).find(o => o.tableList.some(t => t.id === tableId));
     if (order) return order.tableList.length > 1;
     return false;
   };

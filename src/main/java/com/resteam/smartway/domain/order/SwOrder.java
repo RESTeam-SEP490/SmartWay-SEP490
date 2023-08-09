@@ -1,7 +1,9 @@
 package com.resteam.smartway.domain.order;
 
+import com.resteam.smartway.domain.BankAccountInfo;
 import com.resteam.smartway.domain.DiningTable;
 import com.resteam.smartway.domain.base.AbstractBaseAuditingEntity;
+import com.resteam.smartway.domain.enumeration.CurrencyUnit;
 import com.resteam.smartway.domain.order.notifications.KitchenNotificationHistory;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -32,11 +34,21 @@ public class SwOrder extends AbstractBaseAuditingEntity<UUID> {
     @Column(name = "is_paid", nullable = false)
     private boolean isPaid;
 
-    @Column(name = "is_pay_by_cash", nullable = false)
-    private boolean isPayByCash;
+    @Column(name = "is_pay_by_cash")
+    private Boolean isPayByCash;
 
     @Column(name = "is_take_away", nullable = false)
     private boolean isTakeAway;
+
+    @Column(name = "currency_unit")
+    private CurrencyUnit currencyUnit;
+
+    @Column(name = "discount")
+    private Double discount;
+
+    @ManyToOne
+    @JoinColumn(name = "bank_account_info_id", referencedColumnName = "id")
+    private BankAccountInfo bankAccountInfo;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderDetail> orderDetailList = new ArrayList<>();

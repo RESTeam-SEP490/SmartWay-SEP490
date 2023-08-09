@@ -3,13 +3,9 @@ import axios from 'axios';
 
 import { IMenuItem } from 'app/shared/model/menu-item.model';
 import { defaultValue, IOrder } from 'app/shared/model/order/order.model';
-import { receiveChangedTable } from '../../management/dining-table/dining-table.reducer';
 import { serializeAxiosError } from 'app/shared/reducers/reducer.utils';
-import thunk from 'redux-thunk';
-import getStore from 'app/config/store';
-import { DiningTableSlice } from '../../management/dining-table/dining-table.reducer';
-import TableList from './order-screen-components/table-list';
-import { act } from 'react-dom/test-utils';
+import { notification } from 'antd';
+import { translate } from 'react-jhipster';
 
 const initialState = {
   isEstablishingConnection: false,
@@ -69,10 +65,10 @@ export const cancelOrderDetail = createAsyncThunk(
 );
 
 export const pay = createAsyncThunk(
-  'orders/cancel_order_detail',
-  async (id: string, thunkAPI) => {
-    const requestUrl = `${apiUrl}/${id}/pay`;
-    const result = axios.post<ArrayBuffer>(requestUrl);
+  'orders/pay',
+  async (dto: { orderId: string; isPayByCash: boolean; bankAccountId: string | null; discount: number }, thunkAPI) => {
+    const requestUrl = `${apiUrl}/pay`;
+    const result = axios.post<ArrayBuffer>(requestUrl, dto);
     return result;
   },
   { serializeError: serializeAxiosError }
@@ -94,7 +90,7 @@ export const OrderSlice = createSlice({
     receiveAllActiveOrders(state, action: PayloadAction<IOrder[]>) {
       state.activeOrders = action.payload;
     },
-    createOrder(state, action: PayloadAction<string>) {
+    createOrder(state, action: PayloadAction<{ menuItemId: string; tableIdList: string[] }>) {
       return;
     },
     adjustDetailQuantity(state, action: PayloadAction<{ orderDetailId: string; quantityAdjust: number }>) {
@@ -115,24 +111,40 @@ export const OrderSlice = createSlice({
     receiveChangedOrder(state, action) {
       const toUpdateOrder: IOrder = action.payload;
 
-      const nextOrderList = state.activeOrders
-        .map((order: IOrder) => {
-          if (order.id === toUpdateOrder.id) return toUpdateOrder;
-          return order;
-        })
-        .filter(order => order.tableList.length > 1 || toUpdateOrder.tableList.every(t => t.id !== order.tableList[0].id));
+      let isNewOrder = true;
+      let nextOrderList = state.activeOrders.map((order: IOrder) => {
+        if (order.id === toUpdateOrder.id) {
+          isNewOrder = false;
+          return toUpdateOrder;
+        }
+        return order;
+      });
 
-      const currentSelectedTable = state.currentOrder.tableList;
-      const isUpdateCurrentOrder = currentSelectedTable.some(table => toUpdateOrder.tableList.some(t => t.id === table.id));
+      if (toUpdateOrder.takeAway) {
+        if (isNewOrder) state.activeOrders = [...nextOrderList, toUpdateOrder];
+        else state.activeOrders = nextOrderList;
 
-      if (isUpdateCurrentOrder) state.currentOrder = toUpdateOrder;
-
-      state.activeOrders = [...nextOrderList, toUpdateOrder];
+        if (state.currentOrder.id === toUpdateOrder.id) state.currentOrder = toUpdateOrder;
+      } else {
+        nextOrderList = nextOrderList.filter(
+          order => order.takeAway || order.tableList.length > 1 || toUpdateOrder.tableList.every(t => t.id !== order.tableList[0].id)
+        );
+        const currentSelectedTable = state.currentOrder.tableList;
+        const isUpdateCurrentOrder = currentSelectedTable.some(table => toUpdateOrder.tableList.some(t => t.id === table.id));
+        if (isUpdateCurrentOrder) state.currentOrder = toUpdateOrder;
+        state.activeOrders = [...nextOrderList, toUpdateOrder];
+      }
     },
     selectOrderByTable(state, action) {
       const selectedTable = action.payload;
       const selectedOrder = state.activeOrders.find((order: IOrder) => order.tableList.map(table => table.id).includes(selectedTable.id));
       state.currentOrder = selectedOrder ? selectedOrder : { ...defaultValue, tableList: [selectedTable] };
+    },
+    selectOrderById(state, action) {
+      const orderId = action.payload;
+      const selectedOrder = [...state.activeOrders].find((order: IOrder) => order.id === orderId);
+      console.log(selectedOrder);
+      if (selectedOrder) state.currentOrder = selectedOrder;
     },
     selectTab(state, action) {
       const selectedTableId = action.payload;
@@ -141,6 +153,11 @@ export const OrderSlice = createSlice({
     },
     setChangedDetailId(state, action) {
       state.changedDetailId = action.payload;
+    },
+    receiveNewPayment(state, action) {
+      const paidOrderId = action.payload;
+      state.activeOrders = state.activeOrders.filter(o => o.id !== paidOrderId);
+      if (state.currentOrder.id === paidOrderId) state.currentOrder = { ...defaultValue, tableList: [state.currentOrder.tableList[0]] };
     },
     disconnectStomp(state) {
       state.isConnected = false;
@@ -163,7 +180,14 @@ export const OrderSlice = createSlice({
           if (nextCurrentOrder) state.currentOrder = nextCurrentOrder;
         }
       })
-      .addMatcher(isFulfilled(printBill, pay), (state, action) => {
+      .addCase(pay.fulfilled, (state, action) => {
+        state.updateSuccess = true;
+        state.updating = false;
+        notification.success({ message: translate('order.checkout.success') });
+      })
+      .addMatcher(isFulfilled(printBill), (state, action) => {
+        state.updateSuccess = true;
+        state.updating = false;
         const pdfUrl = window.URL.createObjectURL(new Blob([action.payload.data], { type: 'application/pdf' }));
         const iframe = document.createElement('iframe');
         iframe.src = pdfUrl;
@@ -173,7 +197,7 @@ export const OrderSlice = createSlice({
 
         iframe.contentWindow.print();
       })
-      .addMatcher(isPending(addNote, groupTables, cancelOrderDetail), (state, action) => {
+      .addMatcher(isPending(addNote, groupTables, cancelOrderDetail, pay, printBill), (state, action) => {
         state.updateSuccess = false;
         state.updating = true;
       })
