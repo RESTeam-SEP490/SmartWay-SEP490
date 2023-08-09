@@ -2,7 +2,9 @@ package com.resteam.smartway.service;
 
 import com.resteam.smartway.service.dto.IsActiveUpdateDTO;
 import com.resteam.smartway.service.dto.MenuItemDTO;
+import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 import lombok.SneakyThrows;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,4 +21,6 @@ public interface MenuItemService {
     void deleteMenuItem(List<String> ids);
 
     void updateIsActiveMenuItems(IsActiveUpdateDTO isActiveUpdateDTO);
+
+    public Map<String, String> importMenuItems(InputStream is);
 }
