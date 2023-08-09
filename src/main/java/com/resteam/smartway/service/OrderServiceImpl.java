@@ -773,6 +773,7 @@ public class OrderServiceImpl implements OrderService {
                 ItemCancellationNotification icn = new ItemCancellationNotification();
                 icn.setQuantity(orderDetail.getServedQuantity());
                 icn.setOrderDetail(orderDetail);
+                icn.setKitchenNotificationHistory(savedKnh);
 
                 savedKnh.getItemCancellationNotificationList().add(icn);
 
