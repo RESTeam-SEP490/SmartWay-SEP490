@@ -10,6 +10,7 @@ import DiningTableDetail from './dining-table-detail';
 import { DiningTableDialog } from './dining-table-dialog';
 import DiningTableForm from './dining-table-form';
 import { getEntities, setPageable } from './dining-table.reducer';
+import { getEntities as getZone } from '../zone/zone.reducer';
 import { DEFAULT_PAGINATION_CONFIG } from '../../../../shared/util/pagination.constants';
 import axios from 'axios';
 
@@ -221,6 +222,10 @@ export const DiningTable = () => {
     dispatch(getEntities());
   };
 
+  const refreshZone = () => {
+    dispatch(getZone({}));
+  };
+
   const handleUpload = async () => {
     if (selectedFile) {
       console.log('Đã chọn tệp:', selectedFile);
@@ -234,6 +239,7 @@ export const DiningTable = () => {
           message.success(translate('diningTable.uploadSuccess'));
         }, 2000);
         refreshMenuItems();
+        refreshZone();
         resetUpload();
         setError(null);
       } catch (error) {

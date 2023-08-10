@@ -323,9 +323,16 @@ public class DiningTableServiceImpl implements DiningTableService {
                         errorMap.put("Table.xlsx ", "diningTable.emptyFileName");
                     } else {
                         for (DiningTable newTable : diningTableList) {
-                            zoneRepository.save(newTable.getZone());
+                            Zone zone = newTable.getZone();
+                            Optional<Zone> optionalZone = zoneRepository.findOneByName(zone.getName());
+                            if (optionalZone.isEmpty()) {
+                                zoneRepository.save(zone);
+                                diningTableRepository.save(newTable);
+                            } else {
+                                newTable.setZone(optionalZone.get());
+                                diningTableRepository.save(newTable);
+                            }
                         }
-                        diningTableRepository.saveAll(diningTableList);
                     }
                 }
             } else {
