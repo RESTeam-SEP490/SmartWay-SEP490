@@ -11,15 +11,17 @@ import { login } from 'app/shared/reducers/authentication';
 import { Translate, translate } from 'react-jhipster';
 import { hasAnyAuthority } from 'app/shared/auth/private-route';
 import { AUTHORITIES } from 'app/config/constants';
+import { getAppUrl } from 'app/shared/util/subdomain/helpers';
 
 export const Login = () => {
   const dispatch = useAppDispatch();
   const isAuthenticated = useAppSelector(state => state.authentication.isAuthenticated);
-  const currentLocale = useAppSelector(state => state.locale.currentLocale);
   const loginError = useAppSelector(state => state.authentication.loginError);
-  const location = useLocation();
   const loading = useAppSelector(state => state.authentication.loading);
   const authorities = useAppSelector(state => state.authentication.account.authorities);
+
+  const domain = useAppSelector(state => state.applicationProfile.domain);
+  const isInProd = useAppSelector(state => state.applicationProfile.inProduction);
 
   const handleLogin = ({ username, password, rememberMe }) => {
     dispatch(login(username, password, rememberMe));
@@ -42,7 +44,9 @@ export const Login = () => {
       <div className="flex">
         <div className="flex flex-col items-center w-full p-4 lg:w-6/12 xl:w-5/12 ">
           <div className="flex items-center justify-between w-full px-8 py-6 ">
-            <BrandIcon />
+            <div className="inline-block" onClick={() => window.location.replace(getAppUrl(isInProd, 'www', domain, ''))}>
+              <BrandIcon />
+            </div>
             <LocaleMenu />
           </div>
           <div className="flex flex-col justify-center -translate-y-8 lg:w-80 grow">
