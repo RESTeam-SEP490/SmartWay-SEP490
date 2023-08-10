@@ -1,5 +1,6 @@
 package com.resteam.smartway.service;
 
+import com.resteam.smartway.domain.MenuItemCategory;
 import com.resteam.smartway.service.dto.MenuItemCategoryDTO;
 import java.util.List;
 import java.util.UUID;
@@ -15,4 +16,6 @@ public interface MenuItemCategoryService {
     MenuItemCategoryDTO updateMenuItemCategory(MenuItemCategoryDTO menuItemCategoryDTO);
 
     void deleteMenuItemCategory(UUID id);
+
+    MenuItemCategory loadMenuItemCategoryByName(String name);
 }

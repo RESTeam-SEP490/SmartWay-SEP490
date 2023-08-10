@@ -7,10 +7,10 @@
             </column>
         </createTable>
         <loadData
-                file="config/liquibase/data/authority.csv"
-                separator=";"
-                tableName="authority"
-                usePreparedStatements="true">
+            file="config/liquibase/data/authority.csv"
+            separator=";"
+            tableName="authority"
+            usePreparedStatements="true">
             <column name="name" type="string"/>
         </loadData>    </changeSet>
     <changeSet author="Dao Xuan Nhat Truong (generated)" id="1686416786014-2">

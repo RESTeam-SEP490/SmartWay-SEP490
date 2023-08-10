@@ -10,7 +10,7 @@ import { alphabetCompare, itemAdditionCompare } from 'app/app.constant';
 import { kitchenActions } from '../kitchen.reducer';
 import { AnimatePresence, motion } from 'framer-motion';
 import { IReadyToServeNotification } from 'app/shared/model/order/ready-to-serve-notfication.model';
-import { MdOutlineSoupKitchen, MdRestaurant, MdSoupKitchen } from 'react-icons/md';
+import { MdOutlineSoupKitchen, MdRestaurant, MdShoppingBag, MdSoupKitchen, MdTableRestaurant } from 'react-icons/md';
 import { translate } from 'react-jhipster';
 
 export const PreparingItems = () => {
@@ -58,7 +58,7 @@ export const PreparingItems = () => {
                     <Typography.Title className="!m-0 !leading-none w-full" level={5} ellipsis={{ tooltip: item.menuItemName }}>
                       {item.menuItemName}
                     </Typography.Title>
-                    {item.note && <div className="text-sm text-yellow-600">{item.note}</div>}
+                    {item.note && <div className="text-sm text-blue-600">{item.note}</div>}
                     <div className="mt-1 text-xs text-gray-500">
                       {dayjs(item.notifiedTime).format('L LT') + ` - ${translate('entity.label.by')} `}
                       <span className="text-blue-600">{item.createdBy}</span>
@@ -78,10 +78,18 @@ export const PreparingItems = () => {
                     </span>
                   </div>
                   <div className="flex flex-col justify-between w-1/6 overflow-visible">
-                    <div className="">
-                      {`${[...item.tableList].sort(alphabetCompare).map(table => table.name)[0]}`}
-                      {item.tableList.length > 1 && <span className="ml-2 text-blue-500">{`(+${item.tableList.length - 1})`}</span>}
-                    </div>
+                    {item.tableList.length > 0 ? (
+                      <div className="flex items-center gap-1 ">
+                        <MdTableRestaurant className="text-gray-400" size={20} />
+                        {`${[...item.tableList].sort(alphabetCompare).map(table => table.name)[0]}`}
+                        {item.tableList.length > 1 && <span className="ml-2 text-blue-500">{`(+${item.tableList.length - 1})`}</span>}
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1 font-semibold text-yellow-600">
+                        <MdShoppingBag size={20} />
+                        Takeaway
+                      </div>
+                    )}
                     <div className="text-xs text-gray-600">{dayjs(item.notifiedTime).from(now)}</div>
                     {item.itemCancellationNotificationList.length > 0 && (
                       <div className="mt-2 ">
