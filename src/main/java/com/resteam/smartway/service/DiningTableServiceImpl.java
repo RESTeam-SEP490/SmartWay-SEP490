@@ -181,8 +181,8 @@ public class DiningTableServiceImpl implements DiningTableService {
                     }
                     Iterator<Cell> cells = row.iterator();
                     DiningTable diningTable = new DiningTable();
-                    boolean isCheckAllEmptyOrNull = false;
-                    boolean isNumberOfSeatRun = false;
+                    String zoneString = null;
+                    boolean isSaveZone = false;
                     boolean isTableNameChecked = false;
                     List<String> keysToRemove = new ArrayList<>();
                     DecimalFormat decimalFormat = new DecimalFormat("#");
@@ -194,9 +194,11 @@ public class DiningTableServiceImpl implements DiningTableService {
                                 if (currentZone.isPresent()) {
                                     diningTable.setZone(currentZone.get());
                                 } else {
-                                    Zone newZone = new Zone(null, cell.getStringCellValue());
-                                    zoneRepository.save(newZone);
-                                    diningTable.setZone(newZone);
+                                    isSaveZone = true;
+                                    zoneString = cell.getStringCellValue();
+                                    if (zoneString.equals("")) {
+                                        isSaveZone = false;
+                                    }
                                 }
                                 break;
                             case 1:
@@ -225,7 +227,7 @@ public class DiningTableServiceImpl implements DiningTableService {
 
                     if (
                         (diningTable.getName() == null || diningTable.getName().equals("")) &&
-                        (diningTable.getZone() == null) &&
+                        (diningTable.getZone() == null && !isSaveZone) &&
                         (diningTable.getNumberOfSeats() == null || diningTable.getNumberOfSeats().equals(0))
                     ) {
                         if (diningTableList.isEmpty()) {
@@ -305,6 +307,10 @@ public class DiningTableServiceImpl implements DiningTableService {
                     }
 
                     if (isValidated) {
+                        if (isSaveZone) {
+                            Zone zone = new Zone(null, zoneString);
+                            diningTable.setZone(zone);
+                        }
                         diningTable.setIsFree(true);
                         diningTable.setIsActive(true);
                         diningTableList.add(diningTable);
@@ -316,6 +322,9 @@ public class DiningTableServiceImpl implements DiningTableService {
                     if (diningTableList.isEmpty()) {
                         errorMap.put("Table.xlsx ", "diningTable.emptyFileName");
                     } else {
+                        for (DiningTable newTable : diningTableList) {
+                            zoneRepository.save(newTable.getZone());
+                        }
                         diningTableRepository.saveAll(diningTableList);
                     }
                 }
