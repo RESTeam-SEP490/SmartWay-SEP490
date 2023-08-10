@@ -65,4 +65,9 @@ public class MenuItemCategoryServiceImpl implements MenuItemCategoryService {
     public void deleteMenuItemCategory(UUID id) {
         menuItemCategoryRepository.findById(id).ifPresent(menuItemCategoryRepository::delete);
     }
+
+    @Override
+    public MenuItemCategory loadMenuItemCategoryByName(String name) {
+        return menuItemCategoryRepository.findByName(name);
+    }
 }

@@ -32,4 +32,6 @@ public interface MenuItemRepository extends BaseRepository<MenuItem> {
     Optional<MenuItem> findTopByOrderByCodeDesc();
 
     Optional<MenuItem> findByIdAndIsActiveAndIsInStock(UUID id, boolean isActive, boolean isInStock);
+
+    Optional<MenuItem> findOneByName(String name);
 }

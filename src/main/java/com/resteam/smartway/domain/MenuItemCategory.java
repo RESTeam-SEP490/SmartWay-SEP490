@@ -3,7 +3,6 @@ package com.resteam.smartway.domain;
 import com.resteam.smartway.domain.base.AbstractBaseAuditingEntity;
 import java.util.UUID;
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,7 +21,6 @@ public class MenuItemCategory extends AbstractBaseAuditingEntity<UUID> {
     @Column(columnDefinition = "BINARY(16)")
     private UUID id;
 
-    @NotBlank
     @Column(columnDefinition = "NVARCHAR(30)", nullable = false)
     private String name;
 }
