@@ -1,5 +1,6 @@
 package com.resteam.smartway.repository.order;
 
+import com.resteam.smartway.domain.DiningTable;
 import com.resteam.smartway.domain.order.SwOrder;
 import com.resteam.smartway.security.multitenancy.repository.BaseRepository;
 import java.time.Instant;
@@ -21,4 +22,20 @@ public interface OrderRepository extends BaseRepository<SwOrder> {
 
     @Query("SELECT o FROM SwOrder o WHERE o.isPaid = true AND o.payDate >= :startDay AND o.payDate <= :endDay order by o.payDate asc ")
     List<SwOrder> findAllByPaidTrueAndPayDateBetween(@Param("startDay") Instant startDay, @Param("endDay") Instant endDay);
+
+    @Query(
+        value = "SELECT DISTINCT * FROM sw_order o " +
+        "INNER JOIN order_table ot ON o.id = ot.order_id " +
+        "WHERE ot.table_id IN :tableList AND o.is_paid = :isPaid",
+        nativeQuery = true
+    )
+    List<SwOrder> findDistinctByTableListAndIsPaid(@Param("tableList") List<DiningTable> tableList, @Param("isPaid") boolean isPaid);
+
+    @Query(
+        value = "SELECT * FROM sw_order o " +
+        "INNER JOIN order_table ot ON o.id = ot.order_id " +
+        "WHERE ot.table_id = :table AND o.is_paid = :isPaid LIMIT 1",
+        nativeQuery = true
+    )
+    Optional<SwOrder> findOneByTableAndIsPaid(@Param("table") DiningTable table, @Param("isPaid") boolean isPaid);
 }

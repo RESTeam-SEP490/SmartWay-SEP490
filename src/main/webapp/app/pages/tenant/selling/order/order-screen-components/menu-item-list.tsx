@@ -1,14 +1,14 @@
-import { SyncOutlined } from '@ant-design/icons';
-import { Button, Image, Segmented, Typography } from 'antd';
+import { Image, Segmented, Typography } from 'antd';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { IMenuItem } from 'app/shared/model/menu-item.model';
-import { IOrderDetail } from 'app/shared/model/order/order-detail.model';
 import { IOrder } from 'app/shared/model/order/order.model';
 import React, { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { MdOutlineFastfood } from 'react-icons/md';
 import { currencyFormatter } from '../../../../../app.constant';
 import { orderActions } from '../order.reducer';
+import { translate } from 'react-jhipster';
+import Search from 'antd/es/input/Search';
 
 export const MenuItemList = () => {
   const dispatch = useAppDispatch();
@@ -18,54 +18,40 @@ export const MenuItemList = () => {
   const currentOrder: IOrder = useAppSelector(state => state.order.currentOrder);
 
   const [filteredMenuItemList, setFilteredMenuItemList] = useState([]);
-  const [filter, setFilter] = useState({ zoneId: '' });
+  const [filter, setFilter] = useState({ zoneId: '', searchText: '' });
 
   useEffect(() => {
-    const { zoneId } = filter;
+    const { zoneId, searchText } = filter;
     let nextFilteredMenuItemList: IMenuItem[] = [...menuItemList];
     if (zoneId?.length > 0) nextFilteredMenuItemList = nextFilteredMenuItemList.filter(item => item.menuItemCategory.id === zoneId);
+    nextFilteredMenuItemList = nextFilteredMenuItemList.filter(item => item.name.toLowerCase().includes(searchText.toLowerCase()));
     setFilteredMenuItemList(nextFilteredMenuItemList);
   }, [filter, menuItemList]);
 
   const handleSelectMenuItem = selectedItem => {
     if (!currentOrder.id) {
-      dispatch(orderActions.createOrder(selectedItem.id));
+      dispatch(orderActions.createOrder({ menuItemId: selectedItem.id, tableIdList: currentOrder.tableList.map(t => t.id) }));
     } else {
-      const matchedItem = currentOrder.orderDetailList.find(
-        (item: IOrderDetail) => item.menuItem.id === selectedItem.id && item.notifiedTime === null
+      dispatch(
+        orderActions.addOrderDetail({
+          menuItem: selectedItem,
+          quantity: 1,
+        })
       );
-      if (matchedItem) {
-        dispatch(
-          orderActions.adjustDetailQuantity({
-            orderDetailId: matchedItem.id,
-            quantityAdjust: 1,
-          })
-        );
-      } else {
-        dispatch(
-          orderActions.addOrderDetail({
-            menuItem: selectedItem,
-            quantity: 1,
-          })
-        );
-      }
     }
   };
 
   return (
-    <div className="p-2 bg-white h-[calc(100vh-60px)] flex flex-col rounded-se-lg rounded-b-lg">
-      <div className="flex items-center justify-between px-2 py-4">
-        <Segmented
-          options={[{ label: 'All', value: '' }, ...categoryList.map(z => ({ label: z.name, value: z.id }))]}
-          onChange={value => setFilter(prev => ({ ...prev, zoneId: value.toString() }))}
-        />
-        <Button
-          size="large"
-          icon={<SyncOutlined rev="" />}
-          shape="circle"
-          type="ghost"
-          className="hover:!text-blue-600 !text-slate-600"
-        ></Button>
+    <div className="p-2 bg-white h-[calc(100vh-66px)] flex flex-col rounded-se-lg rounded-b-lg">
+      <div className="flex items-center gap-4 px-2 py-4">
+        <Search className="mb-3 w-80" enterButton onChange={e => setFilter(prev => ({ ...prev, searchText: e.target.value }))} />
+        <Scrollbars autoHide className="!h-[52px]">
+          <Segmented
+            className="mb-1"
+            options={[{ label: translate('entity.label.all'), value: '' }, ...categoryList.map(z => ({ label: z.name, value: z.id }))]}
+            onChange={value => setFilter(prev => ({ ...prev, zoneId: value.toString() }))}
+          />
+        </Scrollbars>
       </div>
 
       <Scrollbars className="bg-gray-200 rounded-md grow">

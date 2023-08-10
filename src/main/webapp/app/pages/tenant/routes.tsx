@@ -1,15 +1,12 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
-
 import ErrorBoundaryRoutes from 'app/shared/error/error-boundary-routes';
-
-import { AUTHORITIES } from 'app/config/constants';
-import { useAppSelector } from 'app/config/store';
-import PrivateRoute from 'app/shared/auth/private-route';
-import DiningTable from './management/dining-table';
 import MenuItem from './management/menu-item/menu-item';
-import Role from './management/role/role';
 import { Staff } from './management/staff/staff';
+import Role from './management/role/role';
+import DiningTable from './management/dining-table';
+import PrivateRoute from 'app/shared/auth/private-route';
+import { AUTHORITIES } from 'app/config/constants';
 import { UserMenu } from 'app/shared/layout/menus/main-menu';
 
 export default () => {
@@ -50,6 +47,7 @@ export default () => {
               </PrivateRoute>
             }
           />
+
           {/* <Route path="*" element={<PageNotFound />} /> */}
         </ErrorBoundaryRoutes>
       </div>

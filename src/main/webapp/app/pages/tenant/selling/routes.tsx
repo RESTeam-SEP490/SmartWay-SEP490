@@ -1,22 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, Route, useLocation } from 'react-router-dom';
 
 import ErrorBoundaryRoutes from 'app/shared/error/error-boundary-routes';
-
-import PageNotFound from 'app/shared/error/page-not-found';
 import OrderScreen from './order/order';
 import { Storage, Translate } from 'react-jhipster';
-import { useState } from 'react';
 import { BrandIcon } from 'app/shared/layout/header/header-components';
 import { Button, Menu } from 'antd';
-import {
-  MdDisplaySettings,
-  MdOutlineDisplaySettings,
-  MdOutlineRestaurantMenu,
-  MdOutlineRoomService,
-  MdOutlineTune,
-  MdRestaurant,
-} from 'react-icons/md';
+import { MdOutlineReceiptLong, MdOutlineRestaurantMenu, MdOutlineRoomService, MdOutlineTune } from 'react-icons/md';
 import Kitchen from './kitchen/kitchen';
 
 export default () => {
@@ -38,8 +28,10 @@ export default () => {
           }`}
         >
           <div className="">
-            <div className="px-3">
-              <BrandIcon type="white" isHiddenText={isCollapse} />
+            <div className="px-3 cursor-pointer">
+              <Link to={'/'}>
+                <BrandIcon type="white" isHiddenText={isCollapse} />
+              </Link>
             </div>
             <Menu
               selectedKeys={[location.pathname]}
@@ -49,22 +41,21 @@ export default () => {
               inlineCollapsed={isCollapse}
             >
               <Menu.Item icon={<MdOutlineRoomService size={24} />} key={'/pos/orders'}>
-                {/* <Translate contentKey="menu.staff.submenu.staffs" /> */}
-                Gọi món
+                <Translate contentKey="menu.order.label" />
                 <Link to="/pos/orders" />
               </Menu.Item>
               <Menu.Item icon={<MdOutlineRestaurantMenu size={24} />} key={'/pos/kitchen'}>
-                Bếp
-                {/* <Translate contentKey="menu.staff.submenu.staffs" /> */}
+                <Translate contentKey="menu.kitchen.label" />
                 <Link to="/pos/kitchen" />
+              </Menu.Item>
+              <Menu.Item key="/pos/bills" icon={<MdOutlineReceiptLong size={24} />}>
+                <Translate contentKey="menu.bill.label" />
+                <Link to="/pos/bills" />
               </Menu.Item>
             </Menu>
           </div>
           <div className="">
             <div className="h-16 mx-4 border-0 border-t border-solid border-slate-200 ">
-              <Button type="primary" icon={<MdDisplaySettings size={24} />} className="!shadow-none px-1 float-right mr-2 my-4">
-                <Link to={'/managing'} />
-              </Button>
               <Button
                 onClick={handleCollapse}
                 icon={<MdOutlineTune size={24} />}

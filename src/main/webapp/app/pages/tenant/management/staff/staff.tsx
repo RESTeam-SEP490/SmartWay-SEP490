@@ -1,16 +1,17 @@
 import { useAppDispatch, useAppSelector } from 'app/config/store';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { translate, Translate } from 'react-jhipster';
 import { IStaff } from 'app/shared/model/staff.model';
-import { Button, Card, Dropdown, Empty, Input, MenuProps, Table, Tag, Typography } from 'antd';
+import { Button, Card, Dropdown, Empty, Input, MenuProps, message, Modal, Table, Tag, Typography } from 'antd';
 import { DEFAULT_PAGINATION_CONFIG } from 'app/shared/util/pagination.constants';
 import { getEntities, setPageable } from 'app/pages/tenant/management/staff/staff.reducer';
-import { BarsOutlined, PlusOutlined } from '@ant-design/icons';
+import { BarsOutlined, PlusOutlined, UploadOutlined, WarningOutlined } from '@ant-design/icons';
 import StaffForm from 'app/pages/tenant/management/staff/staff-form';
 import { CheckboxValueType } from 'antd/es/checkbox/Group';
 import StaffDetail from 'app/pages/tenant/management/staff/staff-detail';
 import { RoleCheckBoxes } from 'app/pages/tenant/management/role/role-component';
 import StaffDialog from 'app/pages/tenant/management/staff/staff-dialog';
+import axios from 'axios';
 
 export const Staff = () => {
   const dispatch = useAppDispatch();
@@ -40,17 +41,19 @@ export const Staff = () => {
   const [selectedItems, setSelectedItems] = useState<IStaff[]>([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [allowSale, setAllowSale] = useState<boolean>();
-
+  const [error, setError] = useState(null);
   const [isShowForm, setIsShowForm] = useState(false);
   const [updateStaff, setUpdateStaff] = useState<IStaff>();
 
   const staffList = useAppSelector(state => state.staff.entities);
   const pageable = useAppSelector(state => state.staff.pageable);
   const updateSuccess = useAppSelector(state => state.staff.updateSuccess);
-
+  const fileInputRef = useRef(null);
   const roleList = useAppSelector(state => state.role.entities);
   const count = useAppSelector(state => state.staff.totalItems);
   const loading = useAppSelector(state => state.staff.loading);
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
 
   useEffect(() => {
     dispatch(getEntities());
@@ -122,10 +125,159 @@ export const Staff = () => {
     setSelectedRowKeys([]);
   };
 
+  const handleOpenPopup = () => {
+    setIsPopupVisible(true);
+  };
+
+  const handleCancelPopup = () => {
+    setIsPopupVisible(false);
+    resetUpload();
+    setError(null);
+  };
+
+  const resetUpload = () => {
+    setSelectedFile(null);
+    fileInputRef.current.value = null;
+  };
+
+  const downloadTemplate = () => {
+    const apiUrl = '/api/staffs/download-template';
+    axios({
+      url: apiUrl,
+      method: 'GET',
+      responseType: 'blob',
+    })
+      .then(response => {
+        const contentDisposition = response.headers['content-disposition'];
+        const fileNameMatch = contentDisposition?.match(/filename="(.+?)"/);
+        const fileName = fileNameMatch ? fileNameMatch[1] : 'Staff.xlsx';
+        const blob = new Blob([response.data], {
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      })
+      .catch(error => {
+        console.error('Error during template download:', error);
+      });
+  };
+
+  const handleFileSelect = event => {
+    const file = event.target.files[0];
+    if (file && file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+      setSelectedFile(file);
+    } else {
+      setSelectedFile(null);
+      setError(
+        <span style={{ color: 'red' }}>
+          <Translate contentKey={'diningTable.fileInvalid'}></Translate>
+        </span>
+      );
+    }
+  };
+
+  const refreshStaffs = () => {
+    dispatch(getEntities());
+  };
+
+  const handleUpload = async () => {
+    if (selectedFile) {
+      console.log('Đã chọn tệp:', selectedFile);
+      const formData = new FormData();
+      fileInputRef.current.value = null;
+      formData.append('file', selectedFile);
+      try {
+        const response = await axios.post('/api/staffs/import-staff', formData);
+        setIsPopupVisible(false);
+        setTimeout(() => {
+          message.success(translate('diningTable.uploadSuccess'));
+        }, 2000);
+        refreshStaffs();
+        resetUpload();
+        setError(null);
+      } catch (error) {
+        const errorList = error.response.data;
+        let displayMessage = '';
+        for (let i = 0; i < errorList.length; i++) {
+          const error = errorList[i];
+          const errorKey = error.errorKey;
+          if (errorKey == 'staff.nullSecretKey') {
+            displayMessage = `${translate(errorKey)}`;
+          } else {
+            if (errorKey == 'staff.invalidSecretKey') {
+              displayMessage = `${translate(errorKey)}`;
+            } else {
+              const contentKey = translate(error.contentKey);
+              displayMessage += `${errorKey}: ${contentKey}\n`;
+            }
+          }
+        }
+        setError(<span style={{ whiteSpace: 'pre-line' }}>{displayMessage}</span>);
+      }
+    }
+  };
+
   return (
     <>
       <StaffForm staff={updateStaff} isOpen={isShowForm} handleClose={handleClose} />
       <StaffDialog staffs={selectedItems} isOpen={isShowDialog} handleClose={() => setIsShowDialog(false)} isActive={allowSale} />
+
+      <Modal visible={isPopupVisible} onCancel={handleCancelPopup} footer={null}>
+        <p>
+          <div className="font-bold">
+            <Translate contentKey={'staff.titleModalUpload'}></Translate>
+          </div>
+          <div>
+            <Translate contentKey={'staff.contentDownload'}></Translate>
+            <a onClick={downloadTemplate} download className="underline">
+              <Translate contentKey={'staff.excelFile'}></Translate>
+            </a>
+            ).
+          </div>
+        </p>
+        <div style={{ backgroundColor: '#f9f9e0', padding: '10px' }}>
+          <p style={{ marginTop: '10px', fontStyle: 'italic', color: '#7b5e2a' }}>
+            <span style={{ fontWeight: 'bold' }}>
+              <WarningOutlined style={{ marginRight: '0.5rem' }} rev={''} />
+              <Translate contentKey={'staff.note'}></Translate>
+            </span>
+            <br />
+            <Translate contentKey={'staff.dataValid'}></Translate>
+            <br />
+            <br />
+            <Translate contentKey={'staff.specialCharacters'}></Translate>
+          </p>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
+          <div style={{ position: 'relative', marginRight: '10px' }}>
+            <input type="file" onChange={handleFileSelect} style={{ display: 'none' }} ref={fileInputRef} accept=".xlsx" />
+            <div>
+              <Button type="primary" onClick={() => fileInputRef.current.click()}>
+                <Translate contentKey={'staff.selectFile'}></Translate>
+              </Button>
+            </div>
+            {selectedFile && (
+              <div>
+                <div style={{ float: 'right' }}>
+                  <p>{selectedFile.name}</p>
+                </div>
+                <div>
+                  <Button type="primary" style={{ float: 'right' }} onClick={handleUpload}>
+                    <Translate contentKey={'staff.upload'}></Translate>
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+        {error && <div style={{ color: 'red', marginTop: '1rem' }}>{error}</div>}
+      </Modal>
 
       <div className="flex h-full p-2">
         <div className="flex flex-col w-1/5 gap-4 p-4">
@@ -160,6 +312,10 @@ export const Staff = () => {
 
                 <Button type="primary" icon={<PlusOutlined rev={''} />} onClick={() => setIsShowForm(true)}>
                   <Translate contentKey="staff.addNewLabel" />
+                </Button>
+
+                <Button type="primary" icon={<UploadOutlined rev={''} />} onClick={handleOpenPopup}>
+                  <Translate contentKey="entity.action.import" />
                 </Button>
               </div>
             </div>

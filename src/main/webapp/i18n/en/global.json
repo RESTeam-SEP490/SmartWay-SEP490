@@ -13,11 +13,11 @@
         "main": "Entities",
         "restaurant": "Restaurant",
         "table": "Table",
+        "takeaway": "Takeaway",
         "menu": "Menu",
         "menuItem": "Menu item",
         "staff": "Staff",
         "role": "Role",
-        "table": "Table",
         "menuItemCategory": "Category",
         "username": "Username",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
@@ -31,7 +31,8 @@
         "login": "Sign in",
         "logout": "Sign out",
         "register": "Sign up",
-        "start": "Get started"
+        "start": "Get started",
+        "restaurant": "Restaurant setting"
       },
       "admin": {
         "main": "Administration",
@@ -97,18 +98,18 @@
         "newpassword": {
           "required": "Password is required",
           "minlength": "Password is must be at least 4 characters",
-          "maxlength": "Password cannot be more than 50 characters"
+          "maxlength": "Password cannot be more than 100 characters"
         },
         "confirmpassword": {
           "required": "Your confirmation password is required",
           "minlength": "Your confirmation password is required to be at least 4 characters",
-          "maxlength": "Your confirmation password cannot be more than 50 characters"
+          "maxlength": "Your confirmation password cannot be more than 100 characters"
         },
         "email": {
           "required": "Your email is required",
           "invalid": "Your email is invalid",
           "minlength": "Your email is required to be at least 5 characters",
-          "maxlength": "Your email cannot be more than 50 characters"
+          "maxlength": "Your email cannot be more than 100 characters"
         },
         "phone": {
           "required": "Phone number is required",
@@ -136,7 +137,9 @@
       "operations": "Operate",
       "confirm": "Confirm",
       "status": "Select status",
-      "all": "All"
+      "all": "All",
+      "by": "By",
+      "cancelled": "Cancelled"
     },
     "action": {
       "addblob": "Add blob",
@@ -175,7 +178,8 @@
       "datetimelocal": "This field should be a date and time.",
       "patternLogin": "This field can only contain letters, digits and e-mail addresses.",
       "email": "Invalid email format.",
-      "phoneRegexCS": "Invalid phone number format."
+      "phoneRegexCS": "Invalid phone number format.",
+      "fullName": "Invalid full name format."
     },
     "filters": {
       "all": "Select all",
@@ -199,6 +203,7 @@
     "idnull": "Invalid ID",
     "idinvalid": "Invalid ID",
     "idnotfound": "ID cannot be found",
+    "id": "ID not found",
     "file": {
       "could.not.extract": "Could not extract file",
       "not.image": "File was expected to be an image but was found to be \"{{ fileType }}\""

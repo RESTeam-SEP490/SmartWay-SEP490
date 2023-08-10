@@ -4,7 +4,7 @@ import React from 'react';
 import { Translate } from 'react-jhipster';
 
 export const SubmitButton = ({ form, isNew, updating }: { form: FormInstance; isNew: boolean; updating: boolean }) => {
-  const [isValid, setIsValid] = React.useState(false);
+  const [isValid, setIsValid] = React.useState(true);
 
   const values = Form.useWatch([], form);
 

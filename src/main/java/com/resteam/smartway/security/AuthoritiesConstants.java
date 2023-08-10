@@ -43,7 +43,8 @@ public final class AuthoritiesConstants {
         ORDER_DISCOUNT,
         BILL_VIEW,
         BILL_EDIT,
-        BILL_DELETE
+        BILL_DELETE,
+        ROLE_USER
     );
     public static final List<String> DEFAULT_MANAGER_AUTHORITIES = List.of(
         ORDER_WAITER,
@@ -67,7 +68,8 @@ public final class AuthoritiesConstants {
         TABLE_VIEW,
         TABLE_CREATE,
         TABLE_EDIT,
-        TABLE_DELETE
+        TABLE_DELETE,
+        ROLE_USER
     );
 
     private AuthoritiesConstants() {}

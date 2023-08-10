@@ -1,16 +1,15 @@
 package com.resteam.smartway.service;
 
-import com.resteam.smartway.service.dto.DiningTableDTO;
+import com.itextpdf.text.DocumentException;
 import com.resteam.smartway.service.dto.order.*;
-import com.resteam.smartway.service.dto.order.notification.ItemAdditionNotificationDTO;
-import com.resteam.smartway.service.dto.order.notification.OrderDetailPriorityDTO;
+import com.resteam.smartway.service.dto.order.notification.CancellationDTO;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import org.springframework.transaction.annotation.Transactional;
+import lombok.SneakyThrows;
 
 public interface OrderService {
     OrderDTO createOrder(OrderCreationDTO orderDTO);
+    OrderDTO createTakeAwayOrder();
 
     OrderDTO adjustDetailQuantity(OrderDetailAdjustQuantityDTO dto);
 
@@ -24,13 +23,22 @@ public interface OrderService {
 
     OrderDTO addNoteToOrderDetail(DetailAddNoteDTO dto);
 
-    void groupTables(OrderDTO orderDTO, List<String> ids);
+    OrderDTO groupTables(UUID orderId, List<String> ids);
 
     OrderDTO findById(UUID orderId);
 
     void ungroupTables(UUID orderId, List<String> tableIds);
 
+    OrderDTO splitOrder(UUID orderId, UUID targetTableId, List<UUID> orderDetailIds);
+
     OrderDTO changePriority(OrderDetailPriorityDTO orderDetailDTO);
 
-    List<ItemAdditionNotificationDTO> getAllOrderItemInKitchen();
+    OrderDTO cancelOrderDetail(CancellationDTO dto);
+
+    byte[] generatePdfOrder(UUID orderId) throws DocumentException;
+
+    @SneakyThrows
+    byte[] generatePdfOrderForPay(PaymentDTO dto);
+
+    byte[] generatePdfOrderForNotificationKitchen(List<UUID> ids) throws DocumentException;
 }

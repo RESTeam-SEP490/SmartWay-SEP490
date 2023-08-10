@@ -5,8 +5,8 @@ import '../content/css/app.css';
 import '../output.css';
 
 import React, { useEffect } from 'react';
-import { BrowserRouter, useLocation } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
+import { BrowserRouter } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
 
 import { ConfigProvider, notification } from 'antd';
 import { AUTHORITIES } from 'app/config/constants';
@@ -20,11 +20,13 @@ import Scrollbars from 'react-custom-scrollbars-2';
 import { theme } from './config/ant-design-theme';
 import { AdminAppRoutes, MainAppRoutes, TenantAppRoutes } from './routes';
 import { getAppUrl } from './shared/util/subdomain/helpers';
+import { getRestaurantInfo } from './pages/tenant/restaurant-setting/restaurant.reducer';
 
 const baseHref = document.querySelector('base').getAttribute('href').replace(/\/$/, '');
 
 export const App = () => {
   const dispatch = useAppDispatch();
+
   useEffect(() => {
     dispatch(getSession());
     dispatch(getProfile());
@@ -35,30 +37,32 @@ export const App = () => {
   const isInProd = useAppSelector(state => state.applicationProfile.inProduction);
   if (appType == null) window.location.replace(getAppUrl(isInProd, 'www', domain, '/page-not-found'));
 
-  const currentLocale = useAppSelector(state => state.locale.currentLocale);
   const isAuthenticated = useAppSelector(state => state.authentication.isAuthenticated);
-  const username = useAppSelector(state => state.authentication.account.username);
   const isAdmin = useAppSelector(state => hasAnyAuthority(state.authentication.account.authorities, [AUTHORITIES.SYSTEM_ADMIN]));
   const ribbonEnv = useAppSelector(state => state.applicationProfile.ribbonEnv);
   const isInProduction = useAppSelector(state => state.applicationProfile.inProduction);
   const isOpenAPIEnabled = useAppSelector(state => state.applicationProfile.isOpenAPIEnabled);
-  notification.config({ placement: 'bottomRight' });
+
+  notification.config({ placement: 'bottomLeft' });
+
+  useEffect(() => {
+    if (isAuthenticated) dispatch(getRestaurantInfo());
+  }, [isAuthenticated]);
+
   return (
     <BrowserRouter basename={baseHref}>
       <Scrollbars className="!w-screen !h-screen">
         <ConfigProvider theme={theme}>
           <ToastContainer position={toast.POSITION.TOP_RIGHT} className="toastify-container" toastClassName="toastify-toast" />
-          <div className="flex flex-col min-h-screen">
+          <div className="flex flex-col w-screen min-h-screen">
             <ErrorBoundary>
               <Header
                 appType={appType}
                 isAuthenticated={isAuthenticated}
                 isAdmin={isAdmin}
-                currentLocale={currentLocale}
                 ribbonEnv={ribbonEnv}
                 isInProduction={isInProduction}
                 isOpenAPIEnabled={isOpenAPIEnabled}
-                username={username}
               />
             </ErrorBoundary>
             <div className="flex flex-col grow">
