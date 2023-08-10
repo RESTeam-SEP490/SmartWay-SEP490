@@ -3,15 +3,15 @@ import { Translate, translate } from 'react-jhipster';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 
-import { BarsOutlined, DownloadOutlined, PlusOutlined, UploadOutlined, WarningOutlined } from '@ant-design/icons';
+import { BarsOutlined, PlusOutlined, UploadOutlined, WarningOutlined } from '@ant-design/icons';
 import { Button, Card, Dropdown, Empty, Input, MenuProps, message, Modal, Radio, Table, Tag, Typography } from 'antd';
 import { CheckboxValueType } from 'antd/es/checkbox/Group';
 import { IMenuItem } from 'app/shared/model/menu-item.model';
-
 import MenuItemDetail from './menu-item-detail';
 import { MenuItemDialog } from './menu-item-dialog';
 import MenuItemForm from './menu-item-form';
 import { getEntities, setPageable } from './menu-item.reducer';
+import { getEntities as loadCategory } from '../menu-item-category/menu-item-category.reducer';
 import { currencyFormatter } from 'app/app.constant';
 import { DEFAULT_PAGINATION_CONFIG } from '../../../../shared/util/pagination.constants';
 import { MenuItemCategoryCheckBoxes } from '../menu-item-category/menu-item-category';
@@ -140,6 +140,7 @@ export const MenuItem = () => {
           message.success(translate('diningTable.uploadSuccess'));
         }, 2000);
         refreshMenuItems();
+        refreshCategory();
         resetUpload();
         setError(null);
       } catch (error) {
@@ -166,6 +167,10 @@ export const MenuItem = () => {
 
   const refreshMenuItems = () => {
     dispatch(getEntities());
+  };
+
+  const refreshCategory = () => {
+    dispatch(loadCategory({}));
   };
 
   //filter operation can do with tables
