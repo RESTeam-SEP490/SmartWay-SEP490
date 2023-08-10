@@ -14,9 +14,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class OrderCreationDTO {
 
-    @NotNull
     private UUID menuItemId;
 
-    @NotNull
     private List<UUID> tableIdList;
 }

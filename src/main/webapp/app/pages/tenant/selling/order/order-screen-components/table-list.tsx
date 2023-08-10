@@ -1,5 +1,5 @@
-import { BlockOutlined, ClockCircleOutlined, SyncOutlined } from '@ant-design/icons';
-import { Button, Radio, Segmented, Typography } from 'antd';
+import { BlockOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import { Radio, Segmented, Typography } from 'antd';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { getEntities as getZoneEntities } from 'app/pages/tenant/management/zone/zone.reducer';
 import TableIcon from 'app/shared/icons/table-icon';
@@ -16,9 +16,8 @@ export const TableList = () => {
   const dispatch = useAppDispatch();
   const tableList = useAppSelector(state => state.diningTable.entities);
   const zoneList = useAppSelector(state => state.zone.entities);
-  const currentOrder: IOrder = useAppSelector(state => state.order.currentOrder);
-  const orders: IOrder[] = useAppSelector(state => state.order.activeOrders);
-  const loading = useAppSelector(state => state.order.loading);
+  const orderLoading = useAppSelector(state => state.order.loading);
+  const tableLoading = useAppSelector(state => state.diningTable.loading);
 
   const [filteredTableList, setFilteredTableList] = useState([]);
   const [filter, setFilter] = useState({ zoneId: '', isFree: undefined });
@@ -28,9 +27,8 @@ export const TableList = () => {
   }, []);
 
   useEffect(() => {
-    console.log(tableList, currentOrder, orders);
-    if (tableList?.length > 0 && currentOrder.tableList.length === 0 && !loading) dispatch(orderActions.selectOrderByTable(tableList[0]));
-  }, [tableList, orders]);
+    if (tableList?.length > 0 && !tableLoading && !orderLoading) dispatch(orderActions.selectOrderByTable(tableList[0]));
+  }, [tableLoading, orderLoading]);
 
   useEffect(() => {
     const { zoneId, isFree } = filter;
@@ -46,23 +44,17 @@ export const TableList = () => {
 
   return (
     <div className="p-2 bg-white h-[calc(100vh-66px)] flex flex-col rounded-se-lg rounded-b-lg">
-      <div className="flex flex-col gap-4 px-2 py-4">
-        <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-2 px-2 py-4">
+        <Scrollbars autoHide className="!h-[52px]">
           <Segmented
+            className="mb-1"
             options={[
               { label: <Translate contentKey="entity.label.all" />, value: '' },
               ...zoneList.map(z => ({ label: z.name, value: z.id })),
             ]}
             onChange={value => setFilter(prev => ({ ...prev, zoneId: value.toString() }))}
           />
-          <Button
-            size="large"
-            icon={<SyncOutlined rev="" />}
-            shape="circle"
-            type="ghost"
-            className="hover:!text-blue-600 !text-slate-600"
-          ></Button>
-        </div>
+        </Scrollbars>
         <Radio.Group
           className="flex items-center gap-2 px-2"
           defaultValue={undefined}
@@ -80,14 +72,9 @@ export const TableList = () => {
         </Radio.Group>
       </div>
       <Scrollbars className="bg-gray-200 rounded-md grow">
-        <div className="flex flex-wrap gap-4 m-4 ">
-          {filteredTableList.map(table => (
-            <TableCard
-              key={table.id}
-              table={table}
-              handleSelectTable={() => handleSelectTable(table)}
-              isSelected={currentOrder.tableList.map(t => t.id).includes(table.id)}
-            />
+        <div className="flex flex-wrap gap-4 m-4 content-stretch">
+          {filteredTableList?.map(table => (
+            <TableCard key={table.id} table={table} handleSelectTable={() => handleSelectTable(table)} />
           ))}
         </div>
       </Scrollbars>
@@ -95,11 +82,12 @@ export const TableList = () => {
   );
 };
 
-const TableCard = ({ table, handleSelectTable, isSelected }: { table: IDiningTable; handleSelectTable: any; isSelected: boolean }) => {
+const TableCard = ({ table, handleSelectTable }: { table: IDiningTable; handleSelectTable: any }) => {
   const orders: IOrder[] = useAppSelector(state => state.order.activeOrders);
+  const currentOrder: IOrder = useAppSelector(state => state.order.currentOrder);
 
-  const orderOfThisTable: IOrder = orders?.find(o => o.tableList.some(t => t.id === table.id));
-
+  const orderOfThisTable: IOrder = orders?.filter(o => !o.takeAway).find(o => o.tableList.some(t => t.id === table.id));
+  const isSelected = !currentOrder.takeAway && currentOrder.tableList.some(t => t.id === table.id);
   const hasReadyToServeItem = orderOfThisTable?.orderDetailList.some(detail => detail.readyToServeQuantity > 0);
 
   return (

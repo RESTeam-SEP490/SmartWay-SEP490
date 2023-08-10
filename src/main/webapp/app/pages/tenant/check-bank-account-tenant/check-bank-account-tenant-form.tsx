@@ -26,8 +26,6 @@ export const CheckBankAccountTenantForm = ({
   const [isValidAccount, setIsValidAccount] = useState(false);
   const [bankList, setBankList] = useState([]);
   const url = 'https://api.vietqr.io/v2/banks';
-  const [selectedBankIndex, setSelectedBankIndex] = useState<number | null>(null);
-  const [formError, setFormError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchBankList();
@@ -35,13 +33,13 @@ export const CheckBankAccountTenantForm = ({
 
   useEffect(() => {
     if (!isNew) {
-      const selectedBank = bankList.find(bank => bank.bin == bankAccount.bin);
+      const selectedBank = bankList.find(bank => bank.bin === bankAccount.bin);
       if (selectedBank) form.setFieldValue('bank', JSON.stringify(selectedBank));
       form.setFieldsValue({ ...bankAccount });
     } else {
       form.resetFields();
     }
-  }, [isNew]);
+  }, [isNew, isOpen]);
 
   useEffect(() => {
     if (updateSuccess) {
@@ -84,14 +82,14 @@ export const CheckBankAccountTenantForm = ({
   };
 
   const handelOnblur = () => {
-    var axios = require('axios');
+    let axios = require('axios');
     const bank = JSON.parse(form.getFieldValue('bank'));
     const data = JSON.stringify({
       bin: bank?.bin || '',
       accountNumber: form.getFieldValue('accountNumber') || '',
     });
 
-    var config = {
+    let config = {
       method: 'post',
       url: 'https://api.vietqr.io/v2/lookup',
       headers: {

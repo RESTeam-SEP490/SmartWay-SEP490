@@ -1,4 +1,3 @@
-import restaurant from './restaurant/restaurant.reducer';
 import menuItem from './menu-item/menu-item.reducer';
 import menuItemCategory from './menu-item-category/menu-item-category.reducer';
 import staff from './staff/staff.reducer';
@@ -10,6 +9,7 @@ import changePassword from './tenant-profile/tenant-change-password.reducer';
 import order from '../selling/order/order.reducer';
 import kitchen from '../selling/kitchen/kitchen.reducer';
 import bankAccount from '../check-bank-account-tenant/check-bank-account-tenant.reducer';
+import restaurant from '../restaurant-setting/restaurant.reducer';
 /* jhipster-needle-add-reducer-import - JHipster will add reducer here */
 
 const entitiesReducers = {

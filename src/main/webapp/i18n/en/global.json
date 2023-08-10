@@ -13,11 +13,11 @@
         "main": "Entities",
         "restaurant": "Restaurant",
         "table": "Table",
+        "takeaway": "Takeaway",
         "menu": "Menu",
         "menuItem": "Menu item",
         "staff": "Staff",
         "role": "Role",
-        "table": "Table",
         "menuItemCategory": "Category",
         "username": "Username",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
@@ -31,7 +31,8 @@
         "login": "Sign in",
         "logout": "Sign out",
         "register": "Sign up",
-        "start": "Get started"
+        "start": "Get started",
+        "restaurant": "Restaurant setting"
       },
       "admin": {
         "main": "Administration",
