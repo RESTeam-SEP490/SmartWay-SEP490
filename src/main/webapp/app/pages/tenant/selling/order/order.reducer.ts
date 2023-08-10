@@ -137,13 +137,14 @@ export const OrderSlice = createSlice({
     },
     selectOrderByTable(state, action) {
       const selectedTable = action.payload;
-      const selectedOrder = state.activeOrders.find((order: IOrder) => order.tableList.map(table => table.id).includes(selectedTable.id));
+      const selectedOrder = state.activeOrders.find(
+        (order: IOrder) => !order.takeAway && order.tableList.map(table => table.id).includes(selectedTable.id)
+      );
       state.currentOrder = selectedOrder ? selectedOrder : { ...defaultValue, tableList: [selectedTable] };
     },
     selectOrderById(state, action) {
       const orderId = action.payload;
       const selectedOrder = [...state.activeOrders].find((order: IOrder) => order.id === orderId);
-      console.log(selectedOrder);
       if (selectedOrder) state.currentOrder = selectedOrder;
     },
     selectTab(state, action) {

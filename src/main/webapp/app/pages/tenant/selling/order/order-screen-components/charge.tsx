@@ -32,6 +32,7 @@ export const Charge = ({ isOpen, handleClose }: { isOpen: boolean; handleClose: 
   const [discount, setDiscount] = useState<{ number: number; isByPercent: boolean }>({ number: 0, isByPercent: false });
   const [selectedAccount, setSelectedAccount] = useState<IBankAccountInfo>({});
   const restaurant = useAppSelector(state => state.restaurant.restaurant);
+  const orders = useAppSelector(state => state.order.activeOrders);
 
   useEffect(() => {
     const defaultBankInfo = bankAccountInfoList.find(info => info.default);
@@ -111,6 +112,7 @@ export const Charge = ({ isOpen, handleClose }: { isOpen: boolean; handleClose: 
     const values = form.getFieldsValue();
     dispatch(pay({ ...values, orderId: currentOrder.id }));
   };
+  console.log(orders);
 
   return (
     <>
@@ -125,12 +127,16 @@ export const Charge = ({ isOpen, handleClose }: { isOpen: boolean; handleClose: 
         <div className="flex flex-col w-7/12">
           <h3 className="mb-4 text-blue-700">
             {'#' + currentOrder.code + ' - '}
-            {!currentOrder.takeAway && currentOrder.tableList.length > 0
-              ? [...currentOrder.tableList].sort(alphabetCompare)[0].name
-              : 'Takeaway'}
-            <span className="font-normal text-gray-400">
-              {currentOrder.tableList.length > 1 ? ` (+${currentOrder.tableList.length - 1})` : ''}
-            </span>
+            {!currentOrder.takeAway && currentOrder.tableList.length > 0 ? (
+              <>
+                {[...currentOrder.tableList].sort(alphabetCompare)[0].name}
+                <span className="font-normal text-gray-400">
+                  {currentOrder.tableList.length > 1 ? ` (+${currentOrder.tableList.length - 1})` : ''}
+                </span>
+              </>
+            ) : (
+              'Takeaway'
+            )}
           </h3>
           <div className="flex items-center h-10 pl-4 mr-4 font-semibold text-gray-500 bg-gray-200 rounded-t-lg">
             <Translate contentKey="order.charge.itemList" />

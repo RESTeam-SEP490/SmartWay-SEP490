@@ -853,24 +853,25 @@ public class OrderServiceImpl implements OrderService {
                 ); else {
                     dto.setCancelledQuantity(dto.getCancelledQuantity() - orderDetail.getUnnotifiedQuantity());
                     orderDetail.setUnnotifiedQuantity(0);
-                    if (dto.getCancelledQuantity() > 0) {
-                        KitchenNotificationHistory knh = new KitchenNotificationHistory(); //tạo lịch sử báo bếp mới
-                        knh.setOrder(order);
-                        KitchenNotificationHistory savedKnh = kitchenNotificationHistoryRepository.save(knh);
+                }
+            }
 
-                        int toCancelSeredItemQuantity = cancelNotServedItem(dto.getCancelledQuantity(), orderDetail, savedKnh);
+            if (dto.getCancelledQuantity() > 0) {
+                KitchenNotificationHistory knh = new KitchenNotificationHistory(); //tạo lịch sử báo bếp mới
+                knh.setOrder(order);
+                KitchenNotificationHistory savedKnh = kitchenNotificationHistoryRepository.save(knh);
 
-                        if (toCancelSeredItemQuantity > 0) {
-                            orderDetail.setServedQuantity(orderDetail.getServedQuantity() - toCancelSeredItemQuantity);
+                int toCancelSeredItemQuantity = cancelNotServedItem(dto.getCancelledQuantity(), orderDetail, savedKnh);
 
-                            ItemCancellationNotification icn = new ItemCancellationNotification();
-                            icn.setQuantity(toCancelSeredItemQuantity);
-                            icn.setKitchenNotificationHistory(savedKnh);
-                            icn.setOrderDetail(orderDetail);
+                if (toCancelSeredItemQuantity > 0) {
+                    orderDetail.setServedQuantity(orderDetail.getServedQuantity() - toCancelSeredItemQuantity);
 
-                            savedKnh.getItemCancellationNotificationList().add(icn);
-                        }
-                    }
+                    ItemCancellationNotification icn = new ItemCancellationNotification();
+                    icn.setQuantity(toCancelSeredItemQuantity);
+                    icn.setKitchenNotificationHistory(savedKnh);
+                    icn.setOrderDetail(orderDetail);
+
+                    savedKnh.getItemCancellationNotificationList().add(icn);
                 }
             }
         }

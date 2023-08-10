@@ -249,7 +249,12 @@ export const OrderDetails = () => {
               }}
             >
               <Button
-                disabled={(currentOrder.id ? false : true) || currentOrder.orderDetailList.some(od => od.unnotifiedQuantity > 0)}
+                disabled={
+                  currentOrder.orderDetailList.length === 0 ||
+                  currentOrder.orderDetailList.every(od => od.quantity === 0) ||
+                  currentOrder.orderDetailList.some(od => od.unnotifiedQuantity > 0) ||
+                  currentOrder.id === null
+                }
                 onClick={() => setIsOpenChargeModal(true)}
                 icon={<MdMonetizationOn size={20} />}
                 size="large"
