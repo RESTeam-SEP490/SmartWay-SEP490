@@ -20,11 +20,13 @@ import Scrollbars from 'react-custom-scrollbars-2';
 import { theme } from './config/ant-design-theme';
 import { AdminAppRoutes, MainAppRoutes, TenantAppRoutes } from './routes';
 import { getAppUrl } from './shared/util/subdomain/helpers';
+import { getRestaurantInfo } from './pages/tenant/restaurant-setting/restaurant.reducer';
 
 const baseHref = document.querySelector('base').getAttribute('href').replace(/\/$/, '');
 
 export const App = () => {
   const dispatch = useAppDispatch();
+
   useEffect(() => {
     dispatch(getSession());
     dispatch(getProfile());
@@ -40,13 +42,19 @@ export const App = () => {
   const ribbonEnv = useAppSelector(state => state.applicationProfile.ribbonEnv);
   const isInProduction = useAppSelector(state => state.applicationProfile.inProduction);
   const isOpenAPIEnabled = useAppSelector(state => state.applicationProfile.isOpenAPIEnabled);
+
   notification.config({ placement: 'bottomLeft' });
+
+  useEffect(() => {
+    if (isAuthenticated) dispatch(getRestaurantInfo());
+  }, [isAuthenticated]);
+
   return (
     <BrowserRouter basename={baseHref}>
       <Scrollbars className="!w-screen !h-screen">
         <ConfigProvider theme={theme}>
           <ToastContainer position={toast.POSITION.TOP_RIGHT} className="toastify-container" toastClassName="toastify-toast" />
-          <div className="flex flex-col min-h-screen">
+          <div className="flex flex-col w-screen min-h-screen">
             <ErrorBoundary>
               <Header
                 appType={appType}

@@ -1,4 +1,4 @@
-import { DownOutlined, FileTextOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons';
+import { DownOutlined, FileTextOutlined, LogoutOutlined, ShopOutlined, UserOutlined } from '@ant-design/icons';
 import { Avatar, Button, Dropdown, MenuProps } from 'antd';
 import { useAppSelector } from 'app/config/store';
 import { RedirectLoginModal } from 'app/modules/login/redirect-login-modal';
@@ -13,11 +13,20 @@ export const AuthenticatedAccountMenu = () => {
     {
       key: 'profile',
       label: (
-        <Link to="profile">
+        <Link to="/profile">
           <Translate contentKey="global.menu.account.profile" />
         </Link>
       ),
       icon: <FileTextOutlined rev={FileTextOutlined} />,
+    },
+    {
+      key: 'restaurant',
+      label: (
+        <Link to="/restaurant-setting">
+          <Translate contentKey="global.menu.account.restaurant" />
+        </Link>
+      ),
+      icon: <ShopOutlined rev={FileTextOutlined} />,
     },
     {
       key: 'logout',
@@ -30,7 +39,7 @@ export const AuthenticatedAccountMenu = () => {
     },
   ];
   return (
-    <Dropdown menu={{ items }} placement="bottomRight">
+    <Dropdown menu={{ items }} placement="bottomRight" className="!text-base">
       <div className="flex items-center p-2 text-base cursor-pointer">
         <span className="mr-4 ">{username}</span>
         <Avatar shape="square" size="default" className="!bg-blue-600" icon={<UserOutlined rev={UserOutlined} />} />

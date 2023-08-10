@@ -7,9 +7,11 @@ import {
   PlusOutlined,
   StarFilled,
 } from '@ant-design/icons';
-import { Button, ConfigProvider, Drawer, Image, notification, Spin, Typography } from 'antd';
+import { Button, ConfigProvider, Drawer, Image, Spin, Typography } from 'antd';
 import { alphabetCompare, currencyFormatter } from 'app/app.constant';
+import { colors } from 'app/config/ant-design-theme';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
+import { AuthenticatedAccountMenu, LocaleMenu } from 'app/shared/layout/menus';
 import { IItemAdditionNotification } from 'app/shared/model/order/item-addition-notfication.model';
 import { IOrderDetail } from 'app/shared/model/order/order-detail.model';
 import { IOrder } from 'app/shared/model/order/order.model';
@@ -17,17 +19,14 @@ import dayjs from 'dayjs';
 import { motion } from 'framer-motion';
 import React, { useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
-import { MdMonetizationOn, MdOutlineFastfood, MdOutlineRamenDining, MdRoomService, MdTableRestaurant } from 'react-icons/md';
+import { MdMonetizationOn, MdOutlineFastfood, MdOutlineRamenDining, MdRoomService, MdShoppingBag, MdTableRestaurant } from 'react-icons/md';
 import { Translate, translate } from 'react-jhipster';
 import { orderActions } from '../order.reducer';
+import { Charge } from './charge';
 import { AddNoteForm } from './modals/detail-note-modal';
+import { ItemCancellationModal } from './modals/item-cancellation-modal';
 import { NumbericKeyboard } from './modals/numberic-keyboard';
 import { TablesOfOrderModal } from './modals/order-table-modal';
-import { ItemCancellationModal } from './modals/item-cancellation-modal';
-import { IItemCancellationNotification } from 'app/shared/model/order/item-cancellation-notification.model';
-import { AuthenticatedAccountMenu, LocaleMenu } from 'app/shared/layout/menus';
-import { Charge } from './charge';
-import { colors } from 'app/config/ant-design-theme';
 
 export const OrderDetails = () => {
   const dispatch = useAppDispatch();
@@ -160,20 +159,32 @@ export const OrderDetails = () => {
                 }}
               >
                 <div className="absolute left-0 z-10 flex items-center justify-center p-1 text-blue-100 -translate-x-1/2 -translate-y-1/2 bg-blue-700 rounded-full aspect-square top-1/2">
-                  {currentOrder.tableList.length > 1 ? <BlockOutlined rev="" /> : <MdTableRestaurant size={16} />}
+                  {currentOrder.takeAway ? (
+                    <MdShoppingBag size={16} />
+                  ) : currentOrder.tableList.length > 1 ? (
+                    <BlockOutlined rev="" />
+                  ) : (
+                    <MdTableRestaurant size={16} />
+                  )}
                 </div>
                 <div className="flex items-center gap-2">
-                  {currentOrder.tableList.length > 0 && [...currentOrder.tableList].sort(alphabetCompare)[0].name}
-                  <span className="font-normal text-gray-400">
-                    {currentOrder.tableList.length > 1 ? ` (+${currentOrder.tableList.length - 1})` : ''}
-                  </span>
+                  {!currentOrder.takeAway && currentOrder.tableList.length > 0 ? (
+                    <>
+                      {[...currentOrder.tableList].sort(alphabetCompare)[0].name}
+                      <span className="font-normal text-gray-400">
+                        {currentOrder.tableList.length > 1 ? ` (+${currentOrder.tableList.length - 1})` : ''}
+                      </span>
+                    </>
+                  ) : (
+                    <>Takeaway</>
+                  )}
                 </div>
               </div>
             </div>
           </div>
           <div className="ml-2 mr-2 border-0 border-t border-solid border-slate-200"></div>
           <div className="pl-3 pr-2 grow order-details">
-            {currentOrder.id ? (
+            {currentOrder.orderDetailList.length > 0 ? (
               <Spin tip={'Loading...'} spinning={loading} className="h-full grow">
                 <Scrollbars className="w-full grow">
                   <div className="flex flex-col-reverse gap-2 pt-2 pr-4">
@@ -238,7 +249,12 @@ export const OrderDetails = () => {
               }}
             >
               <Button
-                disabled={currentOrder.id ? false : true}
+                disabled={
+                  currentOrder.orderDetailList.length === 0 ||
+                  currentOrder.orderDetailList.every(od => od.quantity === 0) ||
+                  currentOrder.orderDetailList.some(od => od.unnotifiedQuantity > 0) ||
+                  currentOrder.id === null
+                }
                 onClick={() => setIsOpenChargeModal(true)}
                 icon={<MdMonetizationOn size={20} />}
                 size="large"
@@ -364,7 +380,13 @@ const OrderDetailCard = ({
               icon={<MinusOutlined rev={''} />}
             />
             <div className="min-w-[40px] flex gap-1.5 justify-center items-end cursor-pointer" onClick={openNumbericKeyboard}>
-              <Typography.Text className={`!m-0 ${detail.unnotifiedQuantity > 0 ? '!text-blue-600 font-semibold' : ''}`}>
+              <Typography.Text
+                className={`!m-0 ${
+                  detail.unnotifiedQuantity > 0
+                    ? '!text-blue-700 bg-yellow-100 flex items-center justify-center w-[22px] rounded-full font-bold'
+                    : ''
+                }`}
+              >
                 {detail.quantity}
               </Typography.Text>
             </div>

@@ -4,6 +4,7 @@ import com.resteam.smartway.domain.Authority;
 import com.resteam.smartway.domain.Restaurant;
 import com.resteam.smartway.domain.Role;
 import com.resteam.smartway.domain.User;
+import com.resteam.smartway.domain.enumeration.CurrencyUnit;
 import com.resteam.smartway.repository.AuthorityRepository;
 import com.resteam.smartway.repository.RestaurantRepository;
 import com.resteam.smartway.repository.RoleRepository;
@@ -120,7 +121,11 @@ public class UserServiceImpl implements UserService {
                 throw new SubdomainAlreadyUsedException();
             });
 
-        Restaurant restaurant = new Restaurant(tenantRegistrationDTO.getRestaurantId());
+        Restaurant restaurant = new Restaurant();
+        restaurant.setId(tenantRegistrationDTO.getRestaurantId());
+        restaurant.setPhone(tenantRegistrationDTO.getPhone());
+        restaurant.setCurrencyUnit(tenantRegistrationDTO.getLangKey().equals("vi") ? CurrencyUnit.VND : CurrencyUnit.USD);
+
         Restaurant savedRestaurant = restaurantRepository.save(restaurant);
         RestaurantContext.setCurrentRestaurant(savedRestaurant);
         createRole(tenantRegistrationDTO.getLangKey());
