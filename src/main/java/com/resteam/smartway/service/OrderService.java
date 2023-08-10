@@ -1,13 +1,18 @@
 package com.resteam.smartway.service;
 
 import com.itextpdf.text.DocumentException;
+import com.resteam.smartway.service.dto.BillDTO;
 import com.resteam.smartway.service.dto.order.*;
 import com.resteam.smartway.service.dto.order.notification.CancellationDTO;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import lombok.SneakyThrows;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface OrderService {
+    Page<BillDTO> loadAllBillWithSort(Instant startDay, Instant endDay, UUID tableId, Pageable pageable);
     OrderDTO createOrder(OrderCreationDTO orderDTO);
     OrderDTO createTakeAwayOrder();
 

@@ -22,9 +22,12 @@ import com.resteam.smartway.repository.RestaurantRepository;
 import com.resteam.smartway.repository.order.*;
 import com.resteam.smartway.security.multitenancy.context.RestaurantContext;
 import com.resteam.smartway.service.aws.S3Service;
+import com.resteam.smartway.service.dto.BillDTO;
 import com.resteam.smartway.service.dto.DiningTableDTO;
 import com.resteam.smartway.service.dto.order.*;
 import com.resteam.smartway.service.dto.order.notification.CancellationDTO;
+import com.resteam.smartway.service.mapper.BillMapper;
+import com.resteam.smartway.service.mapper.DiningTableMapper;
 import com.resteam.smartway.service.mapper.order.OrderDetailMapper;
 import com.resteam.smartway.service.mapper.order.OrderMapper;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
@@ -36,6 +39,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -43,6 +47,9 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,10 +71,82 @@ public class OrderServiceImpl implements OrderService {
     private final ItemCancellationNotificationRepository itemCancellationNotificationRepository;
     private final BankAccountInfoRepository bankAccountInfoRepository;
     private final S3Service s3Service;
+    private final DiningTableMapper diningTableMapper;
+    private final BillMapper billMapper;
+
     private static final String ORDER = "order";
     private static final String TABLE = "table";
     private static final String MENUITEM = "menuItem";
     private static final String ORDER_DETAIL = "orderDetail";
+
+    @Override
+    public Page<BillDTO> loadAllBillWithSort(Instant startDay, Instant endDay, UUID tableId, Pageable pageable) {
+        Page<SwOrder> paidOrders;
+
+        if (tableId != null) {
+            paidOrders =
+                orderRepository.findPaidOrdersForTableBetweenDates(
+                    tableId,
+                    startDay.truncatedTo(ChronoUnit.DAYS),
+                    endDay.truncatedTo(ChronoUnit.DAYS).plus(1, ChronoUnit.DAYS).minus(1, ChronoUnit.SECONDS),
+                    pageable
+                );
+        } else {
+            paidOrders =
+                orderRepository.findByIsPaidTrueOrderByPayDate(
+                    startDay.truncatedTo(ChronoUnit.DAYS),
+                    endDay.truncatedTo(ChronoUnit.DAYS).plus(1, ChronoUnit.DAYS).minus(1, ChronoUnit.SECONDS),
+                    pageable
+                );
+        }
+
+        List<BillDTO> bills = new ArrayList<>();
+
+        for (SwOrder order : paidOrders) {
+            if (order.isPaid()) {
+                BillDTO bill = new BillDTO();
+                bill.setOrderCode(order.getCode());
+                bill.setTableList(diningTableMapper.toDto(order.getTableList()));
+                bill.setOrderDetailList(orderDetailMapper.toDto(order.getOrderDetailList()));
+
+                List<OrderDetail> mergedOrderDetailList = new ArrayList<>();
+                double sumTotal = 0;
+
+                for (OrderDetail orderDetail : order.getOrderDetailList()) {
+                    UUID menuItemId = orderDetail.getMenuItem().getId();
+                    int quantity = orderDetail.getQuantity();
+                    double sellPrice = orderDetail.getMenuItem().getSellPrice();
+
+                    sumTotal += quantity * sellPrice;
+
+                    boolean menuItemExists = false;
+                    for (OrderDetail mergedOrderDetail : mergedOrderDetailList) {
+                        if (mergedOrderDetail.getMenuItem().getId().equals(menuItemId)) {
+                            mergedOrderDetail.setQuantity(mergedOrderDetail.getQuantity() + quantity);
+                            menuItemExists = true;
+                            break;
+                        }
+                    }
+                    if (!menuItemExists) {
+                        MenuItem menuItem = new MenuItem();
+                        menuItem.setId(menuItemId);
+
+                        OrderDetail mergedOrderDetail = new OrderDetail();
+                        mergedOrderDetail.setMenuItem(menuItem);
+                        mergedOrderDetail.setQuantity(quantity);
+
+                        mergedOrderDetailList.add(mergedOrderDetail);
+                    }
+                }
+
+                bill.setSumMoney(sumTotal);
+                bill.setPayDate(order.getPayDate());
+
+                bills.add(bill);
+            }
+        }
+        return new PageImpl<>(bills, pageable, paidOrders.getTotalElements());
+    }
 
     @Override
     public OrderDTO createOrder(OrderCreationDTO orderDTO) {
