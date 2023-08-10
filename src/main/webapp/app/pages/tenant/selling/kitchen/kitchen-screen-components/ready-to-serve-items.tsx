@@ -10,7 +10,7 @@ import React, { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { kitchenActions } from '../kitchen.reducer';
 import { translate } from 'react-jhipster';
-import { MdOutlineRamenDining, MdOutlineSoupKitchen } from 'react-icons/md';
+import { MdOutlineRamenDining, MdOutlineSoupKitchen, MdShoppingBag, MdTableRestaurant } from 'react-icons/md';
 
 export const ReadyToServeItems = () => {
   const dispatch = useAppDispatch();
@@ -79,12 +79,20 @@ export const ReadyToServeItems = () => {
                     </span>
                   </div>
                   <div className="flex flex-col justify-between w-1/6 overflow-visible">
-                    <div className="">
-                      {`${[...item.itemAdditionNotification.tableList].sort(alphabetCompare).map(table => table.name)[0]}`}
-                      {item.itemAdditionNotification.tableList.length > 1 && (
-                        <span className="ml-2 text-blue-500">{`(+${item.itemAdditionNotification.tableList.length - 1})`}</span>
-                      )}
-                    </div>
+                    {item.itemAdditionNotification.tableList.length > 0 ? (
+                      <div className="flex items-center gap-1 ">
+                        <MdTableRestaurant className="text-gray-400" size={20} />
+                        {`${[...item.itemAdditionNotification.tableList].sort(alphabetCompare).map(table => table.name)[0]}`}
+                        {item.itemAdditionNotification.tableList.length > 1 && (
+                          <span className="ml-2 text-blue-500">{`(+${item.itemAdditionNotification.tableList.length - 1})`}</span>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1 font-semibold text-yellow-600">
+                        <MdShoppingBag size={20} />
+                        Takeaway
+                      </div>
+                    )}
                     <div className="text-xs text-gray-600 whitespace-nowrap">{`${translate('kitchen.rtsItems.done')} ${dayjs(
                       item.notifiedTime
                     ).from(now)}`}</div>

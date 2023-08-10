@@ -1,5 +1,7 @@
 package com.resteam.smartway.web.websocket;
 
+import com.resteam.smartway.domain.order.OrderDetail;
+import com.resteam.smartway.domain.order.SwOrder;
 import com.resteam.smartway.domain.order.notifications.KitchenNotificationHistory;
 import com.resteam.smartway.domain.order.notifications.ReadyToServeNotification;
 import com.resteam.smartway.repository.order.KitchenNotificationHistoryRepository;
@@ -90,11 +92,14 @@ public class KitchenWebsocket {
     }
 
     private void sendAlertToOrders(String destinationPath, ReadyToServeNotification readyToServeNotification) {
+        OrderDetail orderDetail = readyToServeNotification.getItemAdditionNotification().getOrderDetail();
         String itemInfo = String.format(
             "%s - %s - %s",
             readyToServeNotification.getQuantity(),
-            readyToServeNotification.getItemAdditionNotification().getOrderDetail().getMenuItem().getName(),
-            readyToServeNotification.getItemAdditionNotification().getOrderDetail().getOrder().getTableList().get(0).getName()
+            orderDetail.getMenuItem().getName(),
+            orderDetail.getOrder().isTakeAway()
+                ? orderDetail.getOrder().getCode() + (" (Takeaway)")
+                : readyToServeNotification.getItemAdditionNotification().getOrderDetail().getOrder().getTableList().get(0).getName()
         );
         Map<String, Object> headers = new HashMap<>();
         headers.put("item", itemInfo);
