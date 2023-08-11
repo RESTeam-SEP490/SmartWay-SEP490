@@ -108,7 +108,7 @@ public class OrderServiceImpl implements OrderService {
                 bill.setOrderCode(order.getCode());
                 bill.setTableList(diningTableMapper.toDto(order.getTableList()));
                 bill.setOrderDetailList(orderDetailMapper.toDto(order.getOrderDetailList()));
-
+                bill.setDiscount(order.getDiscount());
                 List<OrderDetail> mergedOrderDetailList = new ArrayList<>();
                 double sumTotal = 0;
 
@@ -350,10 +350,28 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<OrderDTO> getAllActiveOrders() {
         return orderRepository
-            .findByIsPaidFalse()
+            .findAllByIsCompleted(false)
             .stream()
             .map(this::sortOrderDetailsAndNotificationHistories)
             .collect(Collectors.toList());
+    }
+
+    @Override
+    public OrderDTO setOrderIsCompleted(UUID orderId) {
+        SwOrder order = orderRepository
+            .findById(orderId)
+            .orElseThrow(() -> new BadRequestAlertException("Invalid ID", ORDER, "idnotfound"));
+        List<DiningTable> tables = diningTableRepository.findAllById(
+            order.getTableList().stream().map(DiningTable::getId).collect(Collectors.toList())
+        );
+
+        for (DiningTable table : tables) {
+            table.setIsFree(true);
+        }
+
+        order.setCompleted(true);
+        orderRepository.save(order);
+        return orderMapper.toDto(order);
     }
 
     @Override
@@ -701,14 +719,16 @@ public class OrderServiceImpl implements OrderService {
             order.setCurrencyUnit(restaurant.getCurrencyUnit());
             orderRepository.save(order);
 
-            List<DiningTable> tableList = order
-                .getTableList()
-                .stream()
-                .peek(table -> {
-                    table.setIsFree(true);
-                })
-                .collect(Collectors.toList());
-            diningTableRepository.saveAll(tableList);
+            if (dto.isClearTable()) {
+                List<DiningTable> tableList = order
+                    .getTableList()
+                    .stream()
+                    .peek(table -> {
+                        table.setIsFree(true);
+                    })
+                    .collect(Collectors.toList());
+                diningTableRepository.saveAll(tableList);
+            }
         }
 
         return generatePdfOrder(dto.getOrderId());

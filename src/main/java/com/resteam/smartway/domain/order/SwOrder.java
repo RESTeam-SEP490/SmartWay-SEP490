@@ -46,6 +46,9 @@ public class SwOrder extends AbstractBaseAuditingEntity<UUID> {
     @Column(name = "discount")
     private Double discount;
 
+    @Column(name = "is_completed")
+    private boolean isCompleted;
+
     @ManyToOne
     @JoinColumn(name = "bank_account_info_id", referencedColumnName = "id")
     private BankAccountInfo bankAccountInfo;

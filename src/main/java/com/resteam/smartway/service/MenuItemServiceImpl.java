@@ -12,11 +12,9 @@ import com.resteam.smartway.service.dto.MenuItemDTO;
 import com.resteam.smartway.service.mapper.MenuItemMapper;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
 import java.io.InputStream;
-import java.text.DecimalFormat;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import javax.swing.text.html.Option;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -158,7 +156,6 @@ public class MenuItemServiceImpl implements MenuItemService {
                     boolean isMenuItemNameChecked = false;
                     boolean isSaveCategory = false;
                     String category = null;
-                    String menuItemCode = null;
                     List<String> keysToRemove = new ArrayList<>();
                     while (cells.hasNext()) {
                         Cell cell = cells.next();
@@ -246,7 +243,6 @@ public class MenuItemServiceImpl implements MenuItemService {
                             keysToRemove.add(getColumnLabel(1) + (rowNumber + 1));
                         }
                     }
-
                     if (menuItem.getName() == null) {
                         if (!isMenuItemNameChecked) {
                             isValidated = false;
@@ -270,7 +266,6 @@ public class MenuItemServiceImpl implements MenuItemService {
                             keysToRemove.add(getColumnLabel(2) + (rowNumber + 1));
                         }
                     }
-
                     if (menuItem.getDescription() == null) {
                         isValidated = false;
                         noUpload = true;
@@ -292,7 +287,6 @@ public class MenuItemServiceImpl implements MenuItemService {
                             keysToRemove.add(getColumnLabel(3) + (rowNumber + 1));
                         }
                     }
-
                     if ((menuItem.getBasePrice() == null) && !isCheckBasePrice) {
                         isValidated = false;
                         noUpload = true;
@@ -308,7 +302,6 @@ public class MenuItemServiceImpl implements MenuItemService {
                             keysToRemove.add(getColumnLabel(4) + (rowNumber + 1));
                         }
                     }
-
                     if ((menuItem.getSellPrice() == null) && !isCheckSellingPrice) {
                         isValidated = false;
                         noUpload = true;
@@ -330,13 +323,10 @@ public class MenuItemServiceImpl implements MenuItemService {
                             MenuItemCategory newMenuItemCategory = new MenuItemCategory(null, category);
                             menuItem.setMenuItemCategory(newMenuItemCategory);
                         }
-                        menuItemCode = generateCode();
                         menuItem.setIsActive(Boolean.TRUE);
                         menuItem.setIsInStock(Boolean.TRUE);
-                        menuItem.setCode(menuItemCode);
                         menuItemList.add(menuItem);
                     }
-
                     rowNumber++;
                 }
 
@@ -345,9 +335,20 @@ public class MenuItemServiceImpl implements MenuItemService {
                         errorMap.put("Menu-Item.xlsx", "menuItem.emptyFileName");
                     } else {
                         for (MenuItem newCategoryByName : menuItemList) {
-                            menuItemCategoryRepository.save(newCategoryByName.getMenuItemCategory());
+                            MenuItemCategory category = newCategoryByName.getMenuItemCategory();
+                            Optional<MenuItemCategory> findCategory = menuItemCategoryRepository.findOneByName(category.getName());
+                            if (findCategory.isEmpty()) {
+                                menuItemCategoryRepository.save(category);
+                                String menuItemCode = generateCode();
+                                newCategoryByName.setCode(menuItemCode);
+                                menuItemRepository.save(newCategoryByName);
+                            } else {
+                                newCategoryByName.setMenuItemCategory(findCategory.get());
+                                String menuItemCode = generateCode();
+                                newCategoryByName.setCode(menuItemCode);
+                                menuItemRepository.save(newCategoryByName);
+                            }
                         }
-                        menuItemRepository.saveAll(menuItemList);
                     }
                 }
             } else {
