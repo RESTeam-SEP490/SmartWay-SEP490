@@ -5,8 +5,8 @@ import axios from 'axios';
 import getStore from 'app/config/store';
 import { DEFAULT_PAGEABLE } from 'app/app.constant';
 import { cleanEntity, getListValuesInParam } from 'app/shared/util/entity-utils';
-import { updateIsActiveEntity } from 'app/pages/tenant/management/menu-item/menu-item.reducer';
 import { translate } from 'react-jhipster';
+import { IListUpdateBoolean } from 'app/shared/model/list-update-boolean';
 
 const initialState: EntityState<IStaff> = {
   loading: false,
@@ -16,7 +16,7 @@ const initialState: EntityState<IStaff> = {
   entity: defaultValue,
   updating: false,
   updateSuccess: false,
-  pageable: { ...DEFAULT_PAGEABLE },
+  pageable: { ...DEFAULT_PAGEABLE, isActive: true },
 };
 
 const apiUrl = 'api/staffs';
@@ -26,10 +26,10 @@ export const setPageable = createAsyncThunk('staff/set_pageable', (pageable: IQu
 });
 
 export const getEntities = createAsyncThunk('/staff/fetch_entity_list', async () => {
-  const { sort, page, size, role, search } = getStore().getState().staff.pageable;
-  const requestUrl = `${apiUrl}?page=${page}&size=${size}&sort=${sort}&search=${search ? search : ''}&roleIds=${getListValuesInParam(
-    role
-  )}`;
+  const { sort, page, size, role, search, isActive } = getStore().getState().staff.pageable;
+  const requestUrl = `${apiUrl}?page=${page}&size=${size}&sort=${sort}&isActive=${isActive !== undefined ? isActive : ''}&search=${
+    search ? search : ''
+  }&roleIds=${getListValuesInParam(role)}`;
   return axios.get<IStaff[]>(requestUrl);
 });
 
@@ -67,6 +67,16 @@ export const deleteEntity = createAsyncThunk(
   async (ids: React.Key[], thunkAPI) => {
     const requestUrl = `${apiUrl}?ids=${getListValuesInParam(ids)}`;
     const result = await axios.delete<IStaff>(requestUrl);
+    thunkAPI.dispatch(getEntities());
+    return result;
+  },
+  { serializeError: serializeAxiosError }
+);
+
+export const updateIsActiveEntity = createAsyncThunk(
+  'staff/partial_update_entity',
+  async (data: IListUpdateBoolean, thunkAPI) => {
+    const result = await axios.put<IStaff>(`${apiUrl}`, data);
     thunkAPI.dispatch(getEntities());
     return result;
   },

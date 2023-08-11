@@ -35,8 +35,18 @@
     "invalidSecretKey": "Chỉ có tệp mẫu của hệ thống mới có thể tải lên",
     "nullSecretKey": "Chỉ có tệp mẫu của hệ thống mới có thể tải lên",
     "messageUsername": "Tài khoản không hợp lệ",
+    "status.label": "Trạng thái",
+    "status.trueValue": "Đang hoạt động",
+    "status.falseValue": "Ngưng hoạt động",
+
     "action": {
-      "delete.question": "Bạn có muốn xóa tên đăng nhập <b>{{ code }}</b> không ?"
+      "delete.question": "Bạn có muốn xóa tên đăng nhập <b>{{ code }}</b> không ?",
+      "allowSell": "Cho phép hoạt động",
+      "allowSell.question": "Cho phép hoạt động<b>{{ number }}</b> nhân viên đã chọn?",
+      "allowSellOne.question": "Cho phép nhân viên hoạt động <b>{{ userName }}</b>?",
+      "stopSell": "Ngưng hoạt động cho nhà hàng",
+      "stopSell.question": "Ngưng hoạt động <b>{{ number }}</b> nhân viên đã chọn?",
+      "stopSellOne.question": "Ngưng hoạt động <b>{{ userName }}</b>?"
     }
   },
 

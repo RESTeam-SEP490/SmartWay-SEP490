@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Translate, translate } from 'react-jhipster';
-import { DeleteFilled, EditFilled } from '@ant-design/icons';
+import { CheckSquareFilled, DeleteFilled, EditFilled, LockFilled } from '@ant-design/icons';
 import { Button, Form, Input, Tabs, Typography } from 'antd';
 import { DEFAULT_FORM_ITEM_LAYOUT } from 'app/app.constant';
 import { useAppDispatch } from 'app/config/store';
@@ -14,6 +14,11 @@ export const StaffDetail = ({ staff, onUpdate }: { staff: IStaff; onUpdate: any 
 
   const handleDelete = () => {
     setIsActive(undefined);
+    setIsShowDialog(true);
+  };
+
+  const handleUpdateIsActive = () => {
+    setIsActive(!staff.isActive);
     setIsShowDialog(true);
   };
 
@@ -50,6 +55,15 @@ export const StaffDetail = ({ staff, onUpdate }: { staff: IStaff; onUpdate: any 
               <EditFilled rev={''} />
               <Translate contentKey="entity.action.edit" />
             </Button>
+            {staff.isActive ? (
+              <Button danger type="primary" icon={<LockFilled rev={''} />} onClick={handleUpdateIsActive}>
+                <Translate contentKey="staff.action.stopSell" />
+              </Button>
+            ) : (
+              <Button type="primary" icon={<CheckSquareFilled rev={''} />} onClick={handleUpdateIsActive}>
+                <Translate contentKey="staff.action.allowSell" />
+              </Button>
+            )}
             <Button type="primary" danger onClick={handleDelete}>
               <DeleteFilled rev={''} />
               <Translate contentKey="entity.action.delete" />
