@@ -39,6 +39,7 @@
     "status.label": "Status",
     "status.trueValue": "Enable",
     "status.falseValue": "Disable",
+    "usernameExist": "Username is exist",
     "action": {
       "delete.question": "Are you sure to delete username <b>{{ code }}</b> ?",
       "allowSell": "Mark as use staff",

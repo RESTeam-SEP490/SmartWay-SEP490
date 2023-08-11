@@ -39,6 +39,7 @@
     "status.trueValue": "Đang hoạt động",
     "status.falseValue": "Ngưng hoạt động",
 
+    "usernameExist": "Tên đăng nhập đã tồn tại",
     "action": {
       "delete.question": "Bạn có muốn xóa tên đăng nhập <b>{{ code }}</b> không ?",
       "allowSell": "Cho phép hoạt động",
