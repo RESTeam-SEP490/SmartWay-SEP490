@@ -4,18 +4,15 @@ import com.resteam.smartway.domain.MenuItem;
 import com.resteam.smartway.domain.order.OrderDetail;
 import com.resteam.smartway.domain.order.SwOrder;
 import com.resteam.smartway.repository.order.OrderRepository;
-import com.resteam.smartway.service.dto.statistic.MonthlyRevenueDTO;
-import com.resteam.smartway.service.dto.statistic.StatisticDailyDayDTO;
+import com.resteam.smartway.service.dto.statistic.StatisticDTO;
 import com.resteam.smartway.service.dto.statistic.StatisticDateRangeDTO;
 import com.resteam.smartway.service.dto.statistic.TopSellingItemsDTO;
-import com.resteam.smartway.service.mapper.order.OrderMapper;
 import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +24,44 @@ public class StatisticServiceImpl implements StatisticService {
 
     private final OrderRepository orderRepository;
 
-    private final OrderMapper orderMapper;
+    @Override
+    public StatisticDateRangeDTO calculateMonthlyRevenueStatistics(Instant startDay, Instant endDay) {
+        List<SwOrder> paidOrders = orderRepository.findAllByPaidTrueAndPayDateBetween(
+            startDay.truncatedTo(ChronoUnit.DAYS),
+            endDay.truncatedTo(ChronoUnit.DAYS).plus(1, ChronoUnit.DAYS).minus(1, ChronoUnit.SECONDS)
+        );
+
+        double totalRevenueForRange = 0;
+        int totalOrders = 0;
+        List<StatisticDTO> statisticsList = new ArrayList<>();
+
+        YearMonth startMonth = YearMonth.from(startDay.atZone(ZoneId.systemDefault()));
+        YearMonth endMonth = YearMonth.from(endDay.atZone(ZoneId.systemDefault()));
+
+        for (YearMonth month = startMonth; !month.isAfter(endMonth); month = month.plusMonths(1)) {
+            Instant currentMonthStart = month.atDay(1).atStartOfDay(ZoneId.of("UTC")).toInstant();
+            Instant currentMonthEnd = month.atEndOfMonth().atStartOfDay(ZoneId.systemDefault()).toInstant().minus(1, ChronoUnit.SECONDS);
+
+            List<SwOrder> ordersInCurrentMonth = paidOrders
+                .stream()
+                .filter(order -> order.getPayDate().isAfter(currentMonthStart) && order.getPayDate().isBefore(currentMonthEnd))
+                .collect(Collectors.toList());
+
+            double totalRevenueForMonth = 0;
+            int ordersInMonth = ordersInCurrentMonth.size();
+
+            for (SwOrder order : ordersInCurrentMonth) {
+                totalRevenueForMonth += calculateOrderRevenue(order);
+            }
+
+            StatisticDTO currentMonthStatistic = new StatisticDTO(currentMonthStart, totalRevenueForMonth, ordersInMonth);
+            statisticsList.add(currentMonthStatistic);
+            totalRevenueForRange += totalRevenueForMonth;
+            totalOrders += ordersInMonth;
+        }
+
+        return new StatisticDateRangeDTO(totalRevenueForRange, totalOrders, statisticsList);
+    }
 
     @Override
     public StatisticDateRangeDTO calculateSalesStatisticsByDateRange(Instant startDay, Instant endDay) {
@@ -35,11 +69,10 @@ public class StatisticServiceImpl implements StatisticService {
             startDay.truncatedTo(ChronoUnit.DAYS),
             endDay.truncatedTo(ChronoUnit.DAYS).plus(1, ChronoUnit.DAYS).minus(1, ChronoUnit.SECONDS)
         );
-
         double totalRevenueForRange = 0;
         double totalRevenueForDay = 0;
         int totalOrders = paidOrders.size();
-        List<StatisticDailyDayDTO> statisticsList = new ArrayList<>();
+        List<StatisticDTO> statisticsList = new ArrayList<>();
 
         LocalDate startDate = startDay.atZone(ZoneId.systemDefault()).toLocalDate();
         LocalDate endDate = endDay.atZone(ZoneId.systemDefault()).toLocalDate();
@@ -55,7 +88,7 @@ public class StatisticServiceImpl implements StatisticService {
             for (SwOrder order : ordersInCurrentDay) {
                 totalRevenueForDay += calculateOrderRevenue(order);
             }
-            StatisticDailyDayDTO currentDay = new StatisticDailyDayDTO(currentDayStart, totalRevenueForDay, ordersInCurrentDay.size());
+            StatisticDTO currentDay = new StatisticDTO(currentDayStart, totalRevenueForDay, ordersInCurrentDay.size());
             statisticsList.add(currentDay);
             totalRevenueForRange += totalRevenueForDay;
             totalRevenueForDay = 0;
@@ -64,7 +97,7 @@ public class StatisticServiceImpl implements StatisticService {
     }
 
     @Override
-    public StatisticDailyDayDTO calculateDailySalesStatistics() {
+    public StatisticDTO calculateDailySalesStatistics() {
         Instant currentDate = Instant.now();
         orderRepository.findAll();
         System.out.println(orderRepository.findAll());
@@ -84,7 +117,7 @@ public class StatisticServiceImpl implements StatisticService {
             totalRevenue += calculateOrderRevenue(order);
         }
 
-        return new StatisticDailyDayDTO(currentDate, totalRevenue, totalOrders);
+        return new StatisticDTO(currentDate, totalRevenue, totalOrders);
     }
 
     private double calculateOrderRevenue(SwOrder order) {
@@ -93,30 +126,6 @@ public class StatisticServiceImpl implements StatisticService {
             revenue += orderDetail.getQuantity() * orderDetail.getMenuItem().getSellPrice();
         }
         return revenue;
-    }
-
-    @Override
-    public MonthlyRevenueDTO calculateMonthlyRevenueStatistics() {
-        LocalDate currentDate = LocalDate.now();
-        int currentMonth = currentDate.getMonthValue();
-        int currentYear = currentDate.getYear();
-
-        YearMonth yearMonth = YearMonth.of(currentYear, currentMonth);
-
-        double totalRevenue = 0;
-
-        //        List<Object[]> result = orderRepository.calculateMonthlyRevenue(yearMonth);
-        //        for (Object[] row : result) {
-        //            BigDecimal orderTotal = (BigDecimal) row[0];
-        //            totalRevenue = totalRevenue.add(orderTotal);
-        //        }
-
-        MonthlyRevenueDTO monthlyRevenueDTO = new MonthlyRevenueDTO();
-        monthlyRevenueDTO.setMonth(currentMonth);
-        monthlyRevenueDTO.setYear(currentYear);
-        monthlyRevenueDTO.setTotalRevenue(totalRevenue);
-
-        return monthlyRevenueDTO;
     }
 
     @Override

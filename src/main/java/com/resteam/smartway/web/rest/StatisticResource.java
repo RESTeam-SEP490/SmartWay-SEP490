@@ -1,10 +1,10 @@
 package com.resteam.smartway.web.rest;
 
 import com.resteam.smartway.service.StatisticService;
-import com.resteam.smartway.service.dto.statistic.MonthlyRevenueDTO;
-import com.resteam.smartway.service.dto.statistic.StatisticDailyDayDTO;
+import com.resteam.smartway.service.dto.statistic.StatisticDTO;
 import com.resteam.smartway.service.dto.statistic.StatisticDateRangeDTO;
 import com.resteam.smartway.service.dto.statistic.TopSellingItemsDTO;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -26,24 +26,20 @@ public class StatisticResource {
     private final StatisticService statisticService;
 
     @GetMapping("/daily-sales")
-    public ResponseEntity<StatisticDailyDayDTO> getDailySalesStatistics() {
-        StatisticDailyDayDTO dailySalesStatistics = statisticService.calculateDailySalesStatistics();
+    public ResponseEntity<StatisticDTO> getDailySalesStatistics() {
+        StatisticDTO dailySalesStatistics = statisticService.calculateDailySalesStatistics();
         return ResponseEntity.ok(dailySalesStatistics);
     }
 
-    @GetMapping("/sales")
-    public ResponseEntity<StatisticDateRangeDTO> calculateSalesStatisticsByDateRange(
-        @RequestParam Instant startDay,
-        @RequestParam Instant endDay
-    ) {
-        StatisticDateRangeDTO statistics = statisticService.calculateSalesStatisticsByDateRange(startDay, endDay);
-        return ResponseEntity.ok(statistics);
-    }
+    @GetMapping("/calculate-statistics")
+    public StatisticDateRangeDTO calculateStatistics(@RequestParam Instant startDay, @RequestParam Instant endDay) {
+        long daysBetween = Duration.between(startDay, endDay).toDays();
 
-    @GetMapping("/monthly-revenue")
-    public ResponseEntity<MonthlyRevenueDTO> getMonthlyRevenueStatistics() {
-        MonthlyRevenueDTO monthlyRevenueStatistics = statisticService.calculateMonthlyRevenueStatistics();
-        return ResponseEntity.ok(monthlyRevenueStatistics);
+        if (daysBetween > 31) {
+            return statisticService.calculateMonthlyRevenueStatistics(startDay, endDay);
+        } else {
+            return statisticService.calculateSalesStatisticsByDateRange(startDay, endDay);
+        }
     }
 
     @GetMapping("/best-sellers")

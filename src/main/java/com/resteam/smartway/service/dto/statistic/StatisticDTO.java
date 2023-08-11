@@ -1,9 +1,6 @@
 package com.resteam.smartway.service.dto.statistic;
 
-import com.resteam.smartway.domain.order.SwOrder;
-import com.resteam.smartway.service.dto.order.OrderDTO;
 import java.time.Instant;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,7 +10,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class StatisticDailyDayDTO {
+public class StatisticDTO {
 
     //    private Instant startDay;
     private Instant date;
