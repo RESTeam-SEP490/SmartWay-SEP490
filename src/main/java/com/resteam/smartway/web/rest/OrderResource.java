@@ -52,6 +52,12 @@ public class OrderResource {
         return ResponseEntity.ok(notPaidOrders);
     }
 
+    @PutMapping("/set-isCompleted")
+    public ResponseEntity<OrderDTO> setOrderIsCompleted(@RequestParam UUID orderId) {
+        OrderDTO completedOrder = orderService.setOrderIsCompleted(orderId);
+        return ResponseEntity.ok(completedOrder);
+    }
+
     @PutMapping("/add-note")
     public ResponseEntity<OrderDTO> addNoteToOrderDetail(@Valid @RequestBody DetailAddNoteDTO dto) {
         OrderDTO orderDTO = orderService.addNoteToOrderDetail(dto);
@@ -68,9 +74,7 @@ public class OrderResource {
 
     @PostMapping("/{orderId}/ungroup-tables")
     public ResponseEntity<Void> ungroupTables(@PathVariable UUID orderId, @RequestBody List<String> tableIds) {
-        OrderDTO orderDTO = orderService.findById(orderId);
         orderService.ungroupTables(orderId, tableIds);
-
         return ResponseEntity.ok().build();
     }
 
@@ -109,7 +113,7 @@ public class OrderResource {
         }
     }
 
-    @PostMapping("/pay")
+    @PostMapping("/check-out")
     public ResponseEntity<byte[]> exportPdfForOrderForPay(@RequestBody PaymentDTO paymentDTO) {
         byte[] pdfContent = orderService.generatePdfOrderForPay(paymentDTO);
 

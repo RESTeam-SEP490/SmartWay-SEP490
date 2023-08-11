@@ -19,6 +19,8 @@ public interface OrderService {
 
     List<OrderDTO> getAllActiveOrders();
 
+    OrderDTO setOrderIsCompleted(UUID orderId);
+
     OrderDTO deleteOrderDetail(UUID orderDetailId);
 
     OrderDTO addNoteToOrderDetail(DetailAddNoteDTO dto);
