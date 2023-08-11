@@ -108,7 +108,7 @@ public class OrderServiceImpl implements OrderService {
                 bill.setOrderCode(order.getCode());
                 bill.setTableList(diningTableMapper.toDto(order.getTableList()));
                 bill.setOrderDetailList(orderDetailMapper.toDto(order.getOrderDetailList()));
-
+                bill.setDiscount(order.getDiscount());
                 List<OrderDetail> mergedOrderDetailList = new ArrayList<>();
                 double sumTotal = 0;
 
