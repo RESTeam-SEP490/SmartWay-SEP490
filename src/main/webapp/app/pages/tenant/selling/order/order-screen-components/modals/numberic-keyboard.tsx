@@ -11,19 +11,20 @@ export const NumbericKeyboard = ({ detail, isOpen, handleClose }: { detail: IOrd
   const dispatch = useAppDispatch();
   const [quantity, setQuantity] = useState<string>('');
   const keyboard = useRef(null);
-  const inputRef = useCallback(inputElement => {
-    if (inputElement) {
-      inputElement.focus();
-    }
-  }, []);
+  const inputRef = useCallback(
+    inputElement => {
+      if (keyboard.current?.input.default !== quantity) keyboard.current?.setInput(quantity + '');
+
+      if (inputElement) {
+        inputElement.focus();
+      }
+    },
+    [quantity]
+  );
 
   useEffect(() => {
     setQuantity(detail.quantity ? detail.quantity + '' : '0');
-  }, [detail]);
-
-  useEffect(() => {
-    if (keyboard.current?.input.default !== quantity) keyboard.current?.setInput(quantity + '');
-  }, [quantity]);
+  }, [detail, isOpen]);
 
   const onChange = (i: string) => {
     let output = i;
@@ -38,13 +39,13 @@ export const NumbericKeyboard = ({ detail, isOpen, handleClose }: { detail: IOrd
 
   const handleSubmit = () => {
     const nextQuantity = parseFloat(quantity);
-    if (nextQuantity > detail.quantity)
+    if (nextQuantity > detail.quantity - detail.unnotifiedQuantity)
       dispatch(orderActions.adjustDetailQuantity({ orderDetailId: detail.id, quantityAdjust: nextQuantity - detail.quantity }));
     handleClose();
   };
 
   return (
-    <Modal centered open={isOpen} closable={false} width={400} footer={[]} onCancel={handleClose}>
+    <Modal centered destroyOnClose open={isOpen} closable={false} width={400} footer={[]} onCancel={handleClose}>
       <div className="flex items-center justify-between gap-2 mb-4">
         <div className="text-lg font-semibold text-blue-600">Số lượng:</div>
         <div className="">

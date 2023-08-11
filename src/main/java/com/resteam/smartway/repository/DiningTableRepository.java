@@ -1,7 +1,6 @@
 package com.resteam.smartway.repository;
 
 import com.resteam.smartway.domain.DiningTable;
-import com.resteam.smartway.domain.Restaurant;
 import com.resteam.smartway.security.multitenancy.repository.BaseRepository;
 import java.util.List;
 import java.util.Optional;
@@ -29,4 +28,5 @@ public interface DiningTableRepository extends BaseRepository<DiningTable> {
 
     Optional<DiningTable> findByIdAndIsFreeAndIsActive(UUID uuid, boolean isFree, boolean isActive);
     Optional<DiningTable> findByIdAndIsActive(UUID id, boolean isActive);
+    Optional<DiningTable> findOneByName(String tableName);
 }

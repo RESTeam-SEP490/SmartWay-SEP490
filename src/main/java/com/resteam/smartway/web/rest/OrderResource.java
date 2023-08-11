@@ -1,13 +1,14 @@
 package com.resteam.smartway.web.rest;
 
 import com.itextpdf.text.DocumentException;
-import com.resteam.smartway.domain.order.notifications.KitchenNotificationHistory;
 import com.resteam.smartway.service.OrderService;
+import com.resteam.smartway.service.PaymentDTO;
 import com.resteam.smartway.service.dto.order.*;
 import com.resteam.smartway.service.dto.order.notification.CancellationDTO;
 import com.resteam.smartway.web.websocket.KitchenWebsocket;
 import com.resteam.smartway.web.websocket.OrderWebsocket;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
@@ -51,6 +52,12 @@ public class OrderResource {
         return ResponseEntity.ok(notPaidOrders);
     }
 
+    @PutMapping("/set-isCompleted")
+    public ResponseEntity<OrderDTO> setOrderIsCompleted(@RequestParam UUID orderId) {
+        OrderDTO completedOrder = orderService.setOrderIsCompleted(orderId);
+        return ResponseEntity.ok(completedOrder);
+    }
+
     @PutMapping("/add-note")
     public ResponseEntity<OrderDTO> addNoteToOrderDetail(@Valid @RequestBody DetailAddNoteDTO dto) {
         OrderDTO orderDTO = orderService.addNoteToOrderDetail(dto);
@@ -67,9 +74,7 @@ public class OrderResource {
 
     @PostMapping("/{orderId}/ungroup-tables")
     public ResponseEntity<Void> ungroupTables(@PathVariable UUID orderId, @RequestBody List<String> tableIds) {
-        OrderDTO orderDTO = orderService.findById(orderId);
         orderService.ungroupTables(orderId, tableIds);
-
         return ResponseEntity.ok().build();
     }
 
@@ -93,10 +98,8 @@ public class OrderResource {
 
     @GetMapping("/{id}/print-bill")
     public ResponseEntity<byte[]> exportPdfForOrder(@PathVariable UUID id) {
-        OrderDTO orderDTO = orderService.findById(id);
-
         try {
-            byte[] pdfContent = orderService.generatePdfOrder(orderDTO);
+            byte[] pdfContent = orderService.generatePdfOrder(id);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_PDF);
@@ -110,16 +113,28 @@ public class OrderResource {
         }
     }
 
-    @PostMapping("/{id}/pay")
-    public ResponseEntity<byte[]> exportPdfForOrderForPay(@PathVariable UUID id) {
-        OrderDTO orderDTO = orderService.findById(id);
+    @PostMapping("/check-out")
+    public ResponseEntity<byte[]> exportPdfForOrderForPay(@RequestBody PaymentDTO paymentDTO) {
+        byte[] pdfContent = orderService.generatePdfOrderForPay(paymentDTO);
 
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("inline", "_order_" + paymentDTO.getOrderId() + ".pdf");
+        headers.add("paid-order-id", paymentDTO.getOrderId().toString());
+
+        orderWebsocket.sendMessageAfterPayment(paymentDTO.getOrderId());
+        return new ResponseEntity<>(pdfContent, headers, HttpStatus.OK);
+    }
+
+    @GetMapping("/export-notificationKitchen")
+    public ResponseEntity<byte[]> exportPdfForNotificationKitchen(@RequestBody Map<String, List<UUID>> request) {
+        List<UUID> ids = request.get("ids");
         try {
-            byte[] pdfContent = orderService.generatePdfOrderForPay(orderDTO);
+            byte[] pdfContent = orderService.generatePdfOrderForNotificationKitchen(ids);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_PDF);
-            headers.setContentDispositionFormData("inline", "_order_" + id + ".pdf");
+            headers.setContentDispositionFormData("inline", "_orderTicket_" + ".pdf");
 
             return new ResponseEntity<>(pdfContent, headers, HttpStatus.OK);
         } catch (DocumentException e) {

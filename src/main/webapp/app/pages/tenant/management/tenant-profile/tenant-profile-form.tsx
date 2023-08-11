@@ -22,7 +22,6 @@ export const TenantProfileForm = () => {
 
   useEffect(() => {
     dispatch(getTenant());
-    console.log(dispatch(getTenant()));
   }, []);
 
   useEffect(() => {
@@ -155,7 +154,7 @@ export const TenantProfileForm = () => {
         </Form>
       </Modal>
 
-      <div className="form-wrapper flex justify-center h-screen">
+      <div className="flex justify-center h-screen form-wrapper">
         <Form {...DEFAULT_FORM_ITEM_LAYOUT} form={form} className="flex-auto">
           <Tabs className="p-2">
             <Tabs.TabPane tab={translate('users.infoTabs.information')} key={1} className="flex gap-8 p-2">

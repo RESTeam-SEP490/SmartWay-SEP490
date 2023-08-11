@@ -19,8 +19,8 @@ public interface OrderRepository extends BaseRepository<SwOrder> {
     Optional<SwOrder> findById(UUID uuid);
 
     Optional<SwOrder> findTopByOrderByCodeDesc();
-    List<SwOrder> findByIsPaidFalse();
     Optional<SwOrder> findByIdAndIsPaid(UUID id, boolean isPaid);
+    List<SwOrder> findAllByIsCompleted(boolean isCompleted);
 
     @Query(
         value = "SELECT DISTINCT * FROM sw_order o " +

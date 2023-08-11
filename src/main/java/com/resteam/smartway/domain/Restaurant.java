@@ -1,10 +1,8 @@
 package com.resteam.smartway.domain;
 
+import com.resteam.smartway.domain.enumeration.CurrencyUnit;
 import java.io.Serializable;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,6 +24,13 @@ public class Restaurant implements Serializable {
 
     @Column(name = "name")
     private String name;
+
+    @Column(name = "phone")
+    private String phone;
+
+    @Column(name = "currency_unit")
+    @Enumerated(EnumType.STRING)
+    private CurrencyUnit currencyUnit;
 
     public Restaurant(String id) {
         this.id = id;

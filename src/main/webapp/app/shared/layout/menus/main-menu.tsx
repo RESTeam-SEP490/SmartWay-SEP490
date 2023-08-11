@@ -99,16 +99,8 @@ export const UserMenu = () => {
           <Translate contentKey="menu.table.label" />
           <Link to="/managing/tables" />
         </Menu.Item>
-        <Menu.Item
-          key="bills"
-          icon={<MdOutlineReceiptLong size={24} />}
-          hidden={isHiddenWithAuthority([AUTHORITIES.ADMIN, AUTHORITIES.BILL_VIEW])}
-        >
-          <Translate contentKey="menu.bill.label" />
-          <Link to="/managing/bills" />
-        </Menu.Item>
       </Menu>
-      <div className="mx-4 h-16 border-t border-solid border-0 border-slate-200 ">
+      <div className="h-16 mx-4 border-0 border-t border-solid border-slate-200 ">
         <Button onClick={handleCollapse} className="!shadow-none px-1 float-right mr-2 my-4 text-slate-400">
           <MdOutlineTune size={24} />
         </Button>

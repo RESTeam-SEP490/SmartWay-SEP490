@@ -16,7 +16,8 @@ export interface IOrder {
 export const defaultValue: Readonly<IOrder> = {
   id: null,
   code: '',
-  isPaid: null,
+  isPaid: false,
+  takeAway: false,
   tableList: [],
   orderDetailList: [],
   kitchenNotificationHistoryList: [],
