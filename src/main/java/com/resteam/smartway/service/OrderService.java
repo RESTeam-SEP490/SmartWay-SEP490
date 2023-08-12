@@ -1,10 +1,12 @@
 package com.resteam.smartway.service;
 
 import com.itextpdf.text.DocumentException;
+import com.resteam.smartway.service.dto.PaymentDTO;
 import com.resteam.smartway.service.dto.order.*;
 import com.resteam.smartway.service.dto.order.notification.CancellationDTO;
 import java.util.List;
 import java.util.UUID;
+import lombok.SneakyThrows;
 
 public interface OrderService {
     OrderDTO createOrder(OrderCreationDTO orderDTO);
@@ -32,9 +34,12 @@ public interface OrderService {
 
     OrderDTO changePriority(OrderDetailPriorityDTO orderDetailDTO);
 
-    byte[] generatePdfOrder(OrderDTO orderDTO) throws DocumentException;
-
-    byte[] generatePdfOrderForPay(OrderDTO orderDTO) throws DocumentException;
-
     OrderDTO cancelOrderDetail(CancellationDTO dto);
+
+    byte[] generatePdfOrder(UUID orderId) throws DocumentException;
+
+    @SneakyThrows
+    byte[] generatePdfOrderForPay(PaymentDTO dto);
+
+    byte[] generatePdfOrderForNotificationKitchen(List<UUID> ids) throws DocumentException;
 }

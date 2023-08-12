@@ -1,20 +1,10 @@
 package com.resteam.smartway.service.dto;
 
+import com.resteam.smartway.domain.enumeration.CurrencyUnit;
 import java.time.Instant;
-import java.util.UUID;
-import javax.persistence.Column;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
 public class RestaurantDTO {
 
     private String id;
@@ -28,4 +18,6 @@ public class RestaurantDTO {
     private String email;
 
     private String phone;
+
+    private CurrencyUnit currencyUnit;
 }

@@ -17,12 +17,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.Date;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -56,6 +55,15 @@ public class DiningTableServiceImpl implements DiningTableService {
     private final String CONTENT_KEY_SEAT_INVALID = "diningTable.seatInvalid";
     private final String CONTENT_KEY_SEAT_INTEGER_INVALID = "diningTable.seatIntegerInvalid";
     private final String CONTENT_KEY_SHEET_NAME_INVALID = "diningTable.sheetInvalidName";
+    private final String NAME_SHEET_SECRET_KEY = "Secret_Key";
+    private static final String SECRET_KEY_ENCRYPT = "lUcV6iYbiEtmXQze5RQf92eJLeJe6LPOFwgP0YRBwJc=";
+    private final String REGEX_ZONE = "^.{1,50}$";
+    private final String MESSAGE_ZONE = "diningTable.regexZone";
+    private final String REGEX_TABLE_NAME = "^.{1,50}$";
+    private final String MESSAGE_TABLE_NAME = "diningTable.regexTableName";
+    private final String REGEX_NUMBER_OF_SEAT = "^[1-9][0-9]*$";
+    private final String MESSAGE_NUMBER_OF_SEAT = "diningTable.regexNumberOfSeat";
+    private final String CONTENT_TABLE_NAME_EXIST = "diningTable.regexTableNameExist";
 
     @Override
     public Page<DiningTableDTO> loadDiningTablesWithSearch(Pageable pageable, String searchText, List<String> zoneIds, Boolean isActive) {
@@ -64,7 +72,6 @@ public class DiningTableServiceImpl implements DiningTableService {
         if (zoneIds != null && zoneIds.size() > 0) zoneUuidList =
             zoneIds.stream().map(c -> UUID.fromString(c)).collect(Collectors.toList());
         Page<DiningTable> diningTablePage = diningTableRepository.findWithFilterParams(searchText, zoneUuidList, isActive, pageable);
-
         return diningTablePage.map(item -> {
             DiningTableDTO diningTable = diningTableMapper.toDto(item);
             return diningTable;

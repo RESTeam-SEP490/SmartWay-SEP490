@@ -22,7 +22,6 @@ public class MenuItemCategory extends AbstractBaseAuditingEntity<UUID> {
     @Column(columnDefinition = "BINARY(16)")
     private UUID id;
 
-    @NotBlank
     @Column(columnDefinition = "NVARCHAR(30)", nullable = false)
     private String name;
 }

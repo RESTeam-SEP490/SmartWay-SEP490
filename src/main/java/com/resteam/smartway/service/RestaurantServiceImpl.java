@@ -4,7 +4,10 @@ import com.resteam.smartway.domain.Restaurant;
 import com.resteam.smartway.domain.User;
 import com.resteam.smartway.repository.RestaurantRepository;
 import com.resteam.smartway.repository.UserRepository;
+import com.resteam.smartway.security.multitenancy.context.RestaurantContext;
 import com.resteam.smartway.service.dto.RestaurantDTO;
+import com.resteam.smartway.service.mapper.RestaurantMapper;
+import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -25,6 +28,7 @@ public class RestaurantServiceImpl implements RestaurantService {
     private final RestaurantRepository restaurantRepository;
     private final UserRepository userRepository;
     private final UserService userService;
+    private final RestaurantMapper restaurantMapper;
 
     @Autowired
     private EmailService emailService;
@@ -81,5 +85,13 @@ public class RestaurantServiceImpl implements RestaurantService {
                 }
             }
         }
+    }
+
+    @Override
+    public RestaurantDTO getRestaurantInfo() {
+        Restaurant restaurant = restaurantRepository
+            .findOneById(RestaurantContext.getCurrentRestaurant().getId())
+            .orElseThrow(() -> new BadRequestAlertException("Restaurant not found", "restaurant", "idnotfound"));
+        return restaurantMapper.toDto(restaurant);
     }
 }

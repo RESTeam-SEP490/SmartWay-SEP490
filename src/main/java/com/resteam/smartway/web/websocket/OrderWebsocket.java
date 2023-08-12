@@ -30,9 +30,15 @@ public class OrderWebsocket {
     public static final String RECEIVE_DESTINATION_FORMAT = "/orders/%s/receive-changed-order";
 
     @MessageMapping("/create-order")
-    public void createOrder(@Valid @Payload OrderCreationDTO dto, @DestinationVariable String restaurantId, Principal principal) {
+    public void createOrder(@Payload OrderCreationDTO dto, @DestinationVariable String restaurantId, Principal principal) {
         setRestaurantContext(principal);
-        simpMessagingTemplate.convertAndSend(String.format(RECEIVE_DESTINATION_FORMAT, restaurantId), orderService.createOrder(dto));
+        OrderDTO orderDTO;
+        if (dto.getTableIdList().size() > 0) {
+            orderDTO = orderService.createOrder(dto);
+        } else {
+            orderDTO = orderService.createTakeAwayOrder();
+        }
+        simpMessagingTemplate.convertAndSend(String.format(RECEIVE_DESTINATION_FORMAT, restaurantId), orderDTO);
     }
 
     @MessageMapping("/adjust-detail-quantity")
@@ -90,6 +96,13 @@ public class OrderWebsocket {
         simpMessagingTemplate.convertAndSend(
             String.format(RECEIVE_DESTINATION_FORMAT, RestaurantContext.getCurrentRestaurant().getId()),
             dto
+        );
+    }
+
+    public void sendMessageAfterPayment(UUID id) {
+        simpMessagingTemplate.convertAndSend(
+            String.format("/orders/%s/receive-new-payment", RestaurantContext.getCurrentRestaurant().getId()),
+            id
         );
     }
 

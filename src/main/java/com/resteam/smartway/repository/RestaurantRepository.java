@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+@SuppressWarnings("unused")
 @Repository
 public interface RestaurantRepository extends JpaRepository<Restaurant, String> {
     @Query("SELECT m from Restaurant m where (:search is null " + "or lower(m.name) like concat('%',:search, '%' ))")
