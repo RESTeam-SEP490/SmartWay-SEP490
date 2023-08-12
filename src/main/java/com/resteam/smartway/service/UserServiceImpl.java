@@ -498,15 +498,26 @@ public class UserServiceImpl implements UserService {
                         }
                     }
 
-                    if (staff.getEmail() != null) {
-                        if (!staff.getEmail().equals("")) {
-                            if (!Pattern.matches(REGEX_EMAIL, staff.getEmail())) {
-                                isValidated = false;
-                                noUpload = true;
-                                StringBuilder columnName = new StringBuilder(getColumnLabel(4));
-                                errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), MESSAGE_EMAIL);
-                                keysToRemove.add(getColumnLabel(4) + (rowNumber + 1));
-                            }
+                    if (staff.getEmail() == null) {
+                        isValidated = false;
+                        StringBuilder columnName = new StringBuilder(getColumnLabel(4));
+                        errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), CONTENT_KEY_COLUMN_EMPTY);
+                        keysToRemove.add(getColumnLabel(4) + (rowNumber + 1));
+                        noUpload = true;
+                    } else {
+                        if (!Pattern.matches(REGEX_EMAIL, staff.getEmail())) {
+                            isValidated = false;
+                            noUpload = true;
+                            StringBuilder columnName = new StringBuilder(getColumnLabel(4));
+                            errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), MESSAGE_EMAIL);
+                            keysToRemove.add(getColumnLabel(4) + (rowNumber + 1));
+                        }
+                        if (staff.getEmail().equals("")) {
+                            isValidated = false;
+                            StringBuilder columnName = new StringBuilder(getColumnLabel(4));
+                            errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), CONTENT_KEY_COLUMN_EMPTY);
+                            keysToRemove.add(getColumnLabel(4) + (rowNumber + 1));
+                            noUpload = true;
                         }
                     }
 
@@ -533,6 +544,8 @@ public class UserServiceImpl implements UserService {
                     }
 
                     if (isValidated) {
+                        String encryptedPassword = passwordEncoder.encode(staff.getPassword());
+                        staff.setPassword(encryptedPassword);
                         staffList.add(staff);
                     }
                     rowNumber++;
