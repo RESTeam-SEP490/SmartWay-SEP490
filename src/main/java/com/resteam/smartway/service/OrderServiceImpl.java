@@ -23,7 +23,6 @@ import com.resteam.smartway.repository.order.*;
 import com.resteam.smartway.security.multitenancy.context.RestaurantContext;
 import com.resteam.smartway.service.aws.S3Service;
 import com.resteam.smartway.service.dto.DiningTableDTO;
-import com.resteam.smartway.service.dto.PaymentDTO;
 import com.resteam.smartway.service.dto.order.*;
 import com.resteam.smartway.service.dto.order.notification.CancellationDTO;
 import com.resteam.smartway.service.mapper.order.OrderDetailMapper;

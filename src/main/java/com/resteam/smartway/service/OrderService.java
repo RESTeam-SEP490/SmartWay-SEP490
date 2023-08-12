@@ -1,7 +1,6 @@
 package com.resteam.smartway.service;
 
 import com.itextpdf.text.DocumentException;
-import com.resteam.smartway.service.dto.PaymentDTO;
 import com.resteam.smartway.service.dto.order.*;
 import com.resteam.smartway.service.dto.order.notification.CancellationDTO;
 import java.util.List;
