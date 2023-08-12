@@ -1,10 +1,12 @@
 package com.resteam.smartway.service;
 
 import com.resteam.smartway.domain.User;
+import com.resteam.smartway.security.multitenancy.context.RestaurantContext;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
@@ -78,35 +80,42 @@ public class MailService {
     }
 
     @Async
-    public void sendEmailFromTemplate(User user, String templateName, String titleKey) {
+    public void sendEmailFromTemplate(User user, String templateName, String titleKey, String restaurant) {
         if (user.getEmail() == null) {
             log.debug("Email doesn't exist for user '{}'", user.getUsername());
             return;
         }
+
         Locale locale = Locale.forLanguageTag(user.getLangKey());
         Context context = new Context(locale);
         context.setVariable(USER, user);
-        context.setVariable(BASE_URL, jHipsterProperties.getMail().getBaseUrl());
+        context.setVariable(BASE_URL, "http://" + restaurant);
         String content = templateEngine.process(templateName, context);
         String subject = messageSource.getMessage(titleKey, null, locale);
         sendEmail(user.getEmail(), subject, content, false, true);
     }
 
     @Async
-    public void sendActivationEmail(User user) {
+    public void sendActivationEmail(User user, HttpServletRequest request) {
+        String subdomain = request.getHeader("host");
+        RestaurantContext.setCurrentRestaurantById(subdomain);
         log.debug("Sending activation email to '{}'", user.getEmail());
-        sendEmailFromTemplate(user, "mail/activationEmail", "email.activation.title");
+        sendEmailFromTemplate(user, "mail/activationEmail", "email.activation.title", subdomain);
     }
 
     @Async
-    public void sendCreationEmail(User user) {
+    public void sendCreationEmail(User user, HttpServletRequest request) {
+        String subdomain = request.getHeader("host");
+        RestaurantContext.setCurrentRestaurantById(subdomain);
         log.debug("Sending creation email to '{}'", user.getEmail());
-        sendEmailFromTemplate(user, "mail/creationEmail", "email.activation.title");
+        sendEmailFromTemplate(user, "mail/creationEmail", "email.activation.title", subdomain);
     }
 
     @Async
-    public void sendPasswordResetMail(User user) {
+    public void sendPasswordResetMail(User user, HttpServletRequest request) {
+        String subdomain = request.getHeader("host");
+        RestaurantContext.setCurrentRestaurantById(subdomain);
         log.debug("Sending password reset email to '{}'", user.getEmail());
-        sendEmailFromTemplate(user, "mail/passwordResetEmail", "email.reset.title");
+        sendEmailFromTemplate(user, "mail/passwordResetEmail", "email.reset.title", subdomain);
     }
 }

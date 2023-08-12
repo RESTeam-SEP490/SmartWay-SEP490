@@ -8,13 +8,14 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javax.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface UserService {
-    Optional<User> completePasswordReset(String newPassword, String key);
+    User completePasswordReset(String newPassword, String key);
 
-    Optional<User> requestPasswordReset(String mail);
+    Optional<User> requestPasswordReset(String mail, HttpServletRequest request);
 
     String registerUser(TenantRegistrationDTO tenantRegistrationDTO);
 
