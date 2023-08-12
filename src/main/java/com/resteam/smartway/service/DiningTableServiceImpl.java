@@ -190,19 +190,21 @@ public class DiningTableServiceImpl implements DiningTableService {
                         Cell cell = cells.next();
                         switch (cell.getColumnIndex()) {
                             case 0:
-                                Optional<Zone> currentZone = zoneRepository.findOneByName(cell.getStringCellValue());
+                                Optional<Zone> currentZone = zoneRepository.findOneByName(cell.getStringCellValue().trim());
                                 if (currentZone.isPresent()) {
                                     diningTable.setZone(currentZone.get());
                                 } else {
                                     isSaveZone = true;
-                                    zoneString = cell.getStringCellValue();
+                                    zoneString = cell.getStringCellValue().trim();
                                     if (zoneString.equals("")) {
                                         isSaveZone = false;
                                     }
                                 }
                                 break;
                             case 1:
-                                Optional<DiningTable> diningTableOptional = diningTableRepository.findOneByName(cell.getStringCellValue());
+                                Optional<DiningTable> diningTableOptional = diningTableRepository.findOneByName(
+                                    cell.getStringCellValue().trim()
+                                );
                                 if (diningTableOptional.isPresent()) {
                                     noUpload = true;
                                     isTableNameChecked = true;
@@ -211,9 +213,9 @@ public class DiningTableServiceImpl implements DiningTableService {
                                     keysToRemove.add(getColumnLabel(2) + (rowNumber + 1));
                                 } else {
                                     isTableNameChecked = true;
-                                    diningTable.setName(cell.getStringCellValue());
+                                    diningTable.setName(cell.getStringCellValue().trim());
                                 }
-                                diningTable.setName(cell.getStringCellValue());
+                                diningTable.setName(cell.getStringCellValue().trim());
                                 break;
                             case 2:
                                 diningTable.setNumberOfSeats((int) cell.getNumericCellValue());
@@ -307,7 +309,7 @@ public class DiningTableServiceImpl implements DiningTableService {
                     }
 
                     if (isValidated) {
-                        if (isSaveZone) {
+                        if (isSaveZone && !Objects.equals(zoneString, "")) {
                             Zone zone = new Zone(null, zoneString);
                             diningTable.setZone(zone);
                         }
@@ -324,13 +326,17 @@ public class DiningTableServiceImpl implements DiningTableService {
                     } else {
                         for (DiningTable newTable : diningTableList) {
                             Zone zone = newTable.getZone();
-                            Optional<Zone> optionalZone = zoneRepository.findOneByName(zone.getName());
-                            if (optionalZone.isEmpty()) {
-                                zoneRepository.save(zone);
+                            if (newTable.getZone() == null) {
                                 diningTableRepository.save(newTable);
                             } else {
-                                newTable.setZone(optionalZone.get());
-                                diningTableRepository.save(newTable);
+                                Optional<Zone> optionalZone = zoneRepository.findOneByName(zone.getName());
+                                if (optionalZone.isEmpty()) {
+                                    zoneRepository.save(zone);
+                                    diningTableRepository.save(newTable);
+                                } else {
+                                    newTable.setZone(optionalZone.get());
+                                    diningTableRepository.save(newTable);
+                                }
                             }
                         }
                     }

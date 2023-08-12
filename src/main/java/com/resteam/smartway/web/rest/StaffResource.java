@@ -63,6 +63,9 @@ public class StaffResource {
         @RequestParam(value = "isActive", required = false) Boolean isActive
     ) {
         Page<StaffDTO> staffDTOPage = userService.loadStaffsWithSearch(pageable, searchText, roleIds, isActive);
+        for (StaffDTO s : staffDTOPage) {
+            s.setPassword(null);
+        }
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), staffDTOPage);
         return new ResponseEntity<>(staffDTOPage.getContent(), headers, HttpStatus.OK);
     }

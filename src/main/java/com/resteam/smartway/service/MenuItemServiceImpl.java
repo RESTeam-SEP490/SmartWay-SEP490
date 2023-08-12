@@ -162,20 +162,20 @@ public class MenuItemServiceImpl implements MenuItemService {
                         switch (cell.getColumnIndex()) {
                             case 0:
                                 Optional<MenuItemCategory> menuItemCategoryCurrent = menuItemCategoryRepository.findOneByName(
-                                    cell.getStringCellValue()
+                                    cell.getStringCellValue().trim()
                                 );
                                 if (menuItemCategoryCurrent.isPresent()) {
                                     menuItem.setMenuItemCategory(menuItemCategoryCurrent.get());
                                 } else {
                                     isSaveCategory = true;
-                                    category = cell.getStringCellValue();
+                                    category = cell.getStringCellValue().trim();
                                     if (category.equals("")) {
                                         isSaveCategory = false;
                                     }
                                 }
                                 break;
                             case 1:
-                                Optional<MenuItem> menuItemOptional = menuItemRepository.findOneByName(cell.getStringCellValue());
+                                Optional<MenuItem> menuItemOptional = menuItemRepository.findOneByName(cell.getStringCellValue().trim());
                                 if (menuItemOptional.isPresent()) {
                                     noUpload = true;
                                     isMenuItemNameChecked = true;
@@ -184,11 +184,11 @@ public class MenuItemServiceImpl implements MenuItemService {
                                     keysToRemove.add(getColumnLabel(2) + (rowNumber + 1));
                                 } else {
                                     isMenuItemNameChecked = true;
-                                    menuItem.setName(cell.getStringCellValue());
+                                    menuItem.setName(cell.getStringCellValue().trim());
                                 }
                                 break;
                             case 2:
-                                menuItem.setDescription(cell.getStringCellValue());
+                                menuItem.setDescription(cell.getStringCellValue().trim());
                                 break;
                             case 3:
                                 menuItem.setBasePrice(cell.getNumericCellValue());

@@ -362,7 +362,7 @@ public class UserServiceImpl implements UserService {
                         Cell cell = cells.next();
                         switch (cell.getColumnIndex()) {
                             case 0:
-                                Optional<User> optionalUser = userRepository.findOneByUsername(cell.getStringCellValue());
+                                Optional<User> optionalUser = userRepository.findOneByUsername(cell.getStringCellValue().trim());
                                 if (optionalUser.isPresent()) {
                                     noUpload = true;
                                     isUsernameChecked = true;
@@ -371,23 +371,23 @@ public class UserServiceImpl implements UserService {
                                     keysToRemove.add(getColumnLabel(1) + (rowNumber + 1));
                                 } else {
                                     isUsernameChecked = true;
-                                    staff.setUsername(cell.getStringCellValue());
+                                    staff.setUsername(cell.getStringCellValue().trim());
                                 }
                                 break;
                             case 1:
-                                staff.setPassword(cell.getStringCellValue());
+                                staff.setPassword(cell.getStringCellValue().trim());
                                 break;
                             case 2:
-                                staff.setFullName(cell.getStringCellValue());
+                                staff.setFullName(cell.getStringCellValue().trim());
                                 break;
                             case 3:
-                                staff.setEmail(cell.getStringCellValue());
+                                staff.setEmail(cell.getStringCellValue().trim());
                                 break;
                             case 4:
-                                staff.setPhone(cell.getStringCellValue());
+                                staff.setPhone(cell.getStringCellValue().trim());
                                 break;
                             case 5:
-                                Optional<Role> currentRole = roleRepository.findOneByName(cell.getStringCellValue());
+                                Optional<Role> currentRole = roleRepository.findOneByName(cell.getStringCellValue().trim());
                                 if (currentRole.isPresent()) {
                                     staff.setRole(currentRole.get());
                                 } else {
