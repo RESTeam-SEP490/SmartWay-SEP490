@@ -327,9 +327,9 @@ public class UserServiceImpl implements UserService {
             XSSFWorkbook workbook = new XSSFWorkbook(is);
             XSSFSheet sheetSecretKey = workbook.getSheet(NAME_SHEET_SECRET_KEY);
             if (sheetSecretKey != null) {
-                Row row = sheetSecretKey.getRow(0);
+                Row row = sheetSecretKey.getRow(1);
                 if (row != null) {
-                    Cell cell = row.getCell(0);
+                    Cell cell = row.getCell(1);
                     if (cell != null && cell.getCellType() == CellType.STRING) {
                         secretKeyInFile = cell.getStringCellValue();
                     }
@@ -550,6 +550,7 @@ public class UserServiceImpl implements UserService {
                     if (isValidated) {
                         String encryptedPassword = passwordEncoder.encode(staff.getPassword());
                         staff.setPassword(encryptedPassword);
+                        staff.setIsActive(true);
                         staffList.add(staff);
                     }
                     rowNumber++;

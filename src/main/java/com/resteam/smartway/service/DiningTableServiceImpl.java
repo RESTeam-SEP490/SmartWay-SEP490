@@ -155,9 +155,9 @@ public class DiningTableServiceImpl implements DiningTableService {
             XSSFWorkbook workbook = new XSSFWorkbook(is);
             XSSFSheet sheetSecretKey = workbook.getSheet(NAME_SHEET_SECRET_KEY);
             if (sheetSecretKey != null) {
-                Row row = sheetSecretKey.getRow(0);
+                Row row = sheetSecretKey.getRow(3);
                 if (row != null) {
-                    Cell cell = row.getCell(0);
+                    Cell cell = row.getCell(3);
                     if (cell != null && cell.getCellType() == CellType.STRING) {
                         secretKeyInFile = cell.getStringCellValue();
                     }
