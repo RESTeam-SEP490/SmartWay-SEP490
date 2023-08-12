@@ -5,8 +5,7 @@ import React, { useEffect } from 'react';
 import { Translate } from 'react-jhipster';
 import { IListUpdateBoolean } from 'app/shared/model/list-update-boolean';
 import { IStaff } from 'app/shared/model/staff.model';
-import { deleteEntity } from 'app/pages/tenant/management/staff/staff.reducer';
-import { updateIsActiveEntity } from 'app/pages/tenant/management/menu-item/menu-item.reducer';
+import { deleteEntity, updateIsActiveEntity } from 'app/pages/tenant/management/staff/staff.reducer';
 
 export const StaffDialog = ({
   staffs,
@@ -53,7 +52,7 @@ export const StaffDialog = ({
       {isActive === undefined ? (
         <Typography.Text>
           {staffs[0]?.username ? (
-            <Translate contentKey="menuItem.action.delete.question" interpolate={{ code: staffs[0].username }} />
+            <Translate contentKey="staff.action.delete.question" interpolate={{ code: staffs[0].username }} />
           ) : (
             <Translate contentKey="entity.action.delete.question" interpolate={{ number: staffs.length }} />
           )}
@@ -62,14 +61,14 @@ export const StaffDialog = ({
         <Typography>
           {staffs[0]?.id ? (
             isActive ? (
-              <Translate contentKey="menuItem.action.allowSellOne.question" interpolate={{ code: staffs[0].id }} />
+              <Translate contentKey="staff.action.allowSellOne.question" interpolate={{ userName: staffs[0].username }} />
             ) : (
-              <Translate contentKey="menuItem.action.stopSellOne.question" interpolate={{ code: staffs[0].id }} />
+              <Translate contentKey="staff.action.stopSellOne.question" interpolate={{ userName: staffs[0].username }} />
             )
           ) : isActive ? (
-            <Translate contentKey="menuItem.action.allowSell.question" interpolate={{ number: staffs.length }} />
+            <Translate contentKey="staff.action.allowSell.question" interpolate={{ number: staffs.length }} />
           ) : (
-            <Translate contentKey="menuItem.action.stopSell.question" interpolate={{ number: staffs.length }} />
+            <Translate contentKey="staff.action.stopSell.question" interpolate={{ number: staffs.length }} />
           )}
         </Typography>
       )}

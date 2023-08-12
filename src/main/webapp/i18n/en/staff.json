@@ -36,9 +36,18 @@
     "invalidSecretKey": "The file can only upload the system's sample excel file",
     "messageUsername": "Username is invalid",
     "nullSecretKey": "The file can only upload the system's sample excel file",
+    "status.label": "Status",
+    "status.trueValue": "Enable",
+    "status.falseValue": "Disable",
     "usernameExist": "Username is exist",
     "action": {
-      "delete.question": "Are you sure to delete username <b>{{ code }}</b> ?"
+      "delete.question": "Are you sure to delete username <b>{{ code }}</b> ?",
+      "allowSell": "Mark as use staff",
+      "allowSell.question": "Are you sure to mark <b>{{ number }}</b> selected staff(s) as enable staff?",
+      "allowSellOne.question": "Are you sure to mark staff <b>{{ userName }}</b> as enable staff?",
+      "stopSell": "Mark as disable staff",
+      "stopSell.question": "Are you sure to mark <b>{{ number }}</b> selected staff(s) as discontinued staff?",
+      "stopSellOne.question": "Are you sure to mark staff <b>{{ userName }}</b> as discontinued staff?"
     }
   },
 

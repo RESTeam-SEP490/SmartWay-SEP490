@@ -12,6 +12,7 @@ import com.resteam.smartway.repository.UserRepository;
 import com.resteam.smartway.security.AuthoritiesConstants;
 import com.resteam.smartway.security.SecurityUtils;
 import com.resteam.smartway.security.multitenancy.context.RestaurantContext;
+import com.resteam.smartway.service.dto.IsActiveUpdateDTO;
 import com.resteam.smartway.service.dto.ProfileDTO;
 import com.resteam.smartway.service.dto.StaffDTO;
 import com.resteam.smartway.service.dto.TenantRegistrationDTO;
@@ -222,12 +223,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<StaffDTO> loadStaffsWithSearch(Pageable pageable, String searchText, List<String> roleIds) {
+    public Page<StaffDTO> loadStaffsWithSearch(Pageable pageable, String searchText, List<String> roleIds, Boolean isActive) {
         if (searchText != null) searchText = searchText.toLowerCase();
         List<UUID> roleUUIDList = null;
         if (roleIds != null && roleIds.size() > 0) roleUUIDList = roleIds.stream().map(UUID::fromString).collect(Collectors.toList());
-        Page<User> userPage = userRepository.findWithFilterParams(searchText, roleUUIDList, pageable);
-        return userPage.map(staffMapper::toDto);
+        Page<User> userPage = userRepository.findWithFilterParams(searchText, roleUUIDList, isActive, pageable);
+        return userPage.map(item -> {
+            StaffDTO staffDTO = staffMapper.toDto(item);
+            return staffDTO;
+        });
     }
 
     @SneakyThrows
@@ -567,6 +571,23 @@ public class UserServiceImpl implements UserService {
         }
 
         return errorMap;
+    }
+
+    @Override
+    public void updateIsActiveStaff(IsActiveUpdateDTO isActiveUpdateDTO) {
+        List<User> staffList = isActiveUpdateDTO
+            .getIds()
+            .stream()
+            .map(id -> {
+                if (id == null) throw new BadRequestAlertException("Invalid id", ENTITY_NAME_STAFF, "idnull");
+                User staff = userRepository
+                    .findById(UUID.fromString(id))
+                    .orElseThrow(() -> new BadRequestAlertException("Invalid ID", ENTITY_NAME_STAFF, "idnotfound"));
+                staff.setIsActive(isActiveUpdateDTO.getIsActive());
+                return staff;
+            })
+            .collect(Collectors.toList());
+        userRepository.saveAll(staffList);
     }
 
     private String getColumnLabel(int column) {

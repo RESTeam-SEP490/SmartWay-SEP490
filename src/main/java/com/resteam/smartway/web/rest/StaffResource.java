@@ -2,6 +2,7 @@ package com.resteam.smartway.web.rest;
 
 import com.resteam.smartway.service.TemplateService;
 import com.resteam.smartway.service.UserService;
+import com.resteam.smartway.service.dto.IsActiveUpdateDTO;
 import com.resteam.smartway.service.dto.StaffDTO;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
 import java.io.ByteArrayInputStream;
@@ -58,9 +59,10 @@ public class StaffResource {
     public ResponseEntity<List<StaffDTO>> getAllStaffWithSearch(
         Pageable pageable,
         @RequestParam(value = "search", required = false) String searchText,
-        @RequestParam(value = "roleIds", required = false) List<String> roleIds
+        @RequestParam(value = "roleIds", required = false) List<String> roleIds,
+        @RequestParam(value = "isActive", required = false) Boolean isActive
     ) {
-        Page<StaffDTO> staffDTOPage = userService.loadStaffsWithSearch(pageable, searchText, roleIds);
+        Page<StaffDTO> staffDTOPage = userService.loadStaffsWithSearch(pageable, searchText, roleIds, isActive);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), staffDTOPage);
         return new ResponseEntity<>(staffDTOPage.getContent(), headers, HttpStatus.OK);
     }
@@ -91,6 +93,15 @@ public class StaffResource {
             .ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
+    }
+
+    @PutMapping
+    public ResponseEntity<StaffDTO> updateIsActiveStaff(@Valid @RequestBody IsActiveUpdateDTO isActiveUpdateDTO) {
+        userService.updateIsActiveStaff(isActiveUpdateDTO);
+        return ResponseEntity
+            .ok()
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, isActiveUpdateDTO.getIds().toString()))
+            .build();
     }
 
     @DeleteMapping
