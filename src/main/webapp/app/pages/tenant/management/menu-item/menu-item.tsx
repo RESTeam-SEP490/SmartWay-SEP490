@@ -1,20 +1,21 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Translate, translate } from 'react-jhipster';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 
-import { BarsOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
-import { Button, Card, Dropdown, Empty, Input, MenuProps, Radio, Table, Tag, Typography } from 'antd';
+import { BarsOutlined, PlusOutlined, UploadOutlined, WarningOutlined } from '@ant-design/icons';
+import { Button, Card, Dropdown, Empty, Input, MenuProps, message, Modal, Radio, Table, Tag, Typography } from 'antd';
 import { CheckboxValueType } from 'antd/es/checkbox/Group';
 import { IMenuItem } from 'app/shared/model/menu-item.model';
-
 import MenuItemDetail from './menu-item-detail';
 import { MenuItemDialog } from './menu-item-dialog';
 import MenuItemForm from './menu-item-form';
 import { getEntities, setPageable } from './menu-item.reducer';
+import { getEntities as loadCategory } from '../menu-item-category/menu-item-category.reducer';
 import { currencyFormatter } from 'app/app.constant';
 import { DEFAULT_PAGINATION_CONFIG } from '../../../../shared/util/pagination.constants';
 import { MenuItemCategoryCheckBoxes } from '../menu-item-category/menu-item-category';
+import axios from 'axios';
 
 export const MenuItem = () => {
   const dispatch = useAppDispatch();
@@ -90,6 +91,87 @@ export const MenuItem = () => {
   const categoryUpdateSuccess = useAppSelector(state => state.menuItemCategory.updateSuccess);
   const count = useAppSelector(state => state.menuItem.totalItems);
   const loading = useAppSelector(state => state.menuItem.loading);
+  const [menuItems, setMenuItems] = useState([]);
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const fileInputRef = useRef(null);
+  const [error, setError] = useState(null);
+
+  const handleOpenPopup = () => {
+    setIsPopupVisible(true);
+  };
+
+  const handleCancelPopup = () => {
+    setIsPopupVisible(false);
+    resetUpload();
+    setError(null);
+  };
+
+  const resetUpload = () => {
+    setSelectedFile(null);
+    fileInputRef.current.value = null;
+  };
+
+  const handleFileSelect = event => {
+    const file = event.target.files[0];
+    if (file && file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+      setSelectedFile(file);
+    } else {
+      setSelectedFile(null);
+      setError(
+        <span style={{ color: 'red' }}>
+          <Translate contentKey={'menuItem.fileInvalid'}></Translate>
+        </span>
+      );
+    }
+  };
+
+  const [uploadMessage, setUploadMessage] = useState('');
+
+  const handleUpload = async () => {
+    if (selectedFile) {
+      const formData = new FormData();
+      fileInputRef.current.value = null;
+      formData.append('file', selectedFile);
+      try {
+        const response = await axios.post('/api/menu-items/import-menu-item', formData);
+        setIsPopupVisible(false);
+        setTimeout(() => {
+          message.success(translate('diningTable.uploadSuccess'));
+        }, 2000);
+        refreshMenuItems();
+        refreshCategory();
+        resetUpload();
+        setError(null);
+      } catch (error) {
+        const errorList = error.response.data;
+        let displayMessage = '';
+        for (let i = 0; i < errorList.length; i++) {
+          const error = errorList[i];
+          const errorKey = error.errorKey;
+          if (errorKey == 'menuItem.nullSecretKey') {
+            displayMessage = `${translate(errorKey)}`;
+          } else {
+            if (errorKey == 'menuItem.invalidSecretKey') {
+              displayMessage = `${translate(errorKey)}`;
+            } else {
+              const contentKey = translate(error.contentKey);
+              displayMessage += `${errorKey}: ${contentKey}\n`;
+            }
+          }
+        }
+        setError(<span style={{ whiteSpace: 'pre-line' }}>{displayMessage}</span>);
+      }
+    }
+  };
+
+  const refreshMenuItems = () => {
+    dispatch(getEntities());
+  };
+
+  const refreshCategory = () => {
+    dispatch(loadCategory({}));
+  };
 
   //filter operation can do with tables
   if (pageable.isActive !== undefined) {
@@ -184,10 +266,90 @@ export const MenuItem = () => {
     e.preventDefault();
     setSelectedRowKeys([]);
   };
+
+  const downloadTemplate = () => {
+    const apiUrl = '/api/menu-items/download-template';
+    axios({
+      url: apiUrl,
+      method: 'GET',
+      responseType: 'blob',
+    })
+      .then(response => {
+        const contentDisposition = response.headers['content-disposition'];
+        const fileNameMatch = contentDisposition?.match(/filename="(.+?)"/);
+        const fileName = fileNameMatch ? fileNameMatch[1] : 'Menu-Item.xlsx';
+        const blob = new Blob([response.data], {
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      })
+      .catch(error => {
+        console.error('Error during template download:', error);
+      });
+  };
+
   return (
     <>
       <MenuItemForm menuItem={updatingItem} handleClose={handleClose} isOpen={isShowForm} />
       <MenuItemDialog menuItems={selectedItems} handleClose={() => setIsShowDialog(false)} isOpen={isShowDialog} isActive={allowSale} />
+
+      <Modal visible={isPopupVisible} onCancel={handleCancelPopup} footer={null}>
+        <p>
+          <div className="font-bold">
+            <Translate contentKey={'menuItem.titleModalUpload'}></Translate>
+          </div>
+          <div>
+            <Translate contentKey={'menuItem.contentDownload'}></Translate>
+            <a onClick={downloadTemplate} download className="underline">
+              <Translate contentKey={'menuItem.excelFile'}></Translate>
+            </a>
+            ).
+          </div>
+        </p>
+        <div style={{ backgroundColor: '#f9f9e0', padding: '10px' }}>
+          <p style={{ marginTop: '10px', fontStyle: 'italic', color: '#7b5e2a' }}>
+            <span style={{ fontWeight: 'bold' }}>
+              <WarningOutlined style={{ marginRight: '0.5rem' }} rev={''} />
+              <Translate contentKey={'menuItem.note'}></Translate>
+            </span>
+            <br />
+            <Translate contentKey={'menuItem.dataValid'}></Translate>
+            <br />
+            <br />
+            <Translate contentKey={'menuItem.specialCharacters'}></Translate>
+          </p>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
+          <div style={{ position: 'relative', marginRight: '10px' }}>
+            <input type="file" onChange={handleFileSelect} style={{ display: 'none' }} ref={fileInputRef} accept=".xlsx" />
+            <div>
+              <Button type="primary" onClick={() => fileInputRef.current.click()}>
+                <Translate contentKey={'menuItem.selectFile'}></Translate>
+              </Button>
+            </div>
+            {selectedFile && (
+              <div>
+                <div style={{ float: 'right' }}>
+                  <p>{selectedFile.name}</p>
+                </div>
+                <div>
+                  <Button type="primary" style={{ float: 'right' }} onClick={handleUpload}>
+                    <Translate contentKey={'menuItem.upload'}></Translate>
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+        {error && <div style={{ color: 'red', marginTop: '1rem' }}>{error}</div>}
+      </Modal>
 
       <div className="flex h-full p-2">
         <div className="flex flex-col w-1/5 gap-4 p-4">
@@ -237,12 +399,11 @@ export const MenuItem = () => {
                 <Button type="primary" icon={<PlusOutlined rev={''} />} onClick={() => setIsShowForm(true)}>
                   <Translate contentKey="menuItem.addNewLabel" />
                 </Button>
-                <Button type="primary" icon={<UploadOutlined rev={''} />}>
+                <Button type="primary" icon={<UploadOutlined rev={''} />} onClick={handleOpenPopup}>
                   <Translate contentKey="entity.action.import" />
                 </Button>
               </div>
             </div>
-
             <Table
               columns={columns.map(c => ({ ...c, ellipsis: true }))}
               dataSource={menuItemList}

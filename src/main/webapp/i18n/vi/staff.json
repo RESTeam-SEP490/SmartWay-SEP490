@@ -35,6 +35,7 @@
     "invalidSecretKey": "Chỉ có tệp mẫu của hệ thống mới có thể tải lên",
     "nullSecretKey": "Chỉ có tệp mẫu của hệ thống mới có thể tải lên",
     "messageUsername": "Tài khoản không hợp lệ",
+    "usernameExist": "Username đã tồn tại",
     "action": {
       "delete.question": "Bạn có muốn xóa tên đăng nhập <b>{{ code }}</b> không ?"
     }

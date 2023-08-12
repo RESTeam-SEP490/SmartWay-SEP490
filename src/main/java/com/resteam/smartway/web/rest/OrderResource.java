@@ -2,7 +2,7 @@ package com.resteam.smartway.web.rest;
 
 import com.itextpdf.text.DocumentException;
 import com.resteam.smartway.service.OrderService;
-import com.resteam.smartway.service.dto.PaymentDTO;
+import com.resteam.smartway.service.PaymentDTO;
 import com.resteam.smartway.service.dto.order.*;
 import com.resteam.smartway.service.dto.order.notification.CancellationDTO;
 import com.resteam.smartway.web.websocket.KitchenWebsocket;

@@ -182,7 +182,7 @@ export const Staff = () => {
     }
   };
 
-  const refreshMenuItems = () => {
+  const refreshStaffs = () => {
     dispatch(getEntities());
   };
 
@@ -198,7 +198,7 @@ export const Staff = () => {
         setTimeout(() => {
           message.success(translate('diningTable.uploadSuccess'));
         }, 2000);
-        refreshMenuItems();
+        refreshStaffs();
         resetUpload();
         setError(null);
       } catch (error) {

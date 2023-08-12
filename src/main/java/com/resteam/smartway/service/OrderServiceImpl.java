@@ -65,7 +65,6 @@ public class OrderServiceImpl implements OrderService {
     private final ItemCancellationNotificationRepository itemCancellationNotificationRepository;
     private final BankAccountInfoRepository bankAccountInfoRepository;
     private final S3Service s3Service;
-
     private static final String ORDER = "order";
     private static final String TABLE = "table";
     private static final String MENUITEM = "menuItem";

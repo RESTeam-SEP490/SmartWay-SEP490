@@ -7,9 +7,7 @@ import Stomp from 'webstomp-client';
 import { notification } from 'antd';
 import { receiveChangedTable } from 'app/pages/tenant/management/dining-table/dining-table.reducer';
 import OrderEvent from 'app/pages/tenant/selling/order/order-event';
-import { IOrder } from 'app/shared/model/order/order.model';
 import { orderActions } from './order.reducer';
-import { isFulfilledAction } from 'app/shared/reducers/reducer.utils';
 
 let stompClient = null;
 let subscriber = null;
@@ -131,16 +129,19 @@ export default store => next => action => {
       subscribe(OrderEvent.ReceiveChangedOrder);
       subscribe(OrderEvent.HasReadyToServeItem);
       subscribe(OrderEvent.HasServedItem);
-      receive().subscribe((order: IOrder) => {
-        store.dispatch(orderActions.receiveChangedOrder(order));
-        store.dispatch(receiveChangedTable(order.tableList));
+      subscribe(OrderEvent.ReceiveNewPayment);
+      receive().subscribe(order => {
+        if (typeof order === 'string') store.dispatch(orderActions.receiveNewPayment(order));
+        else {
+          store.dispatch(orderActions.receiveChangedOrder(order));
+          if (!order.takeAway) store.dispatch(receiveChangedTable(order.tableList));
+        }
       });
     }
   }
 
   if (orderActions.createOrder.match(action) && alreadyConnectedOnce) {
-    const currentTablelist = store.getState().order.currentOrder.tableList;
-    send(OrderEvent.CreateOrder, { menuItemId: action.payload, tableIdList: currentTablelist.map(table => table.id) });
+    send(OrderEvent.CreateOrder, { ...action.payload });
   }
 
   if (orderActions.adjustDetailQuantity.match(action) && alreadyConnectedOnce) {
