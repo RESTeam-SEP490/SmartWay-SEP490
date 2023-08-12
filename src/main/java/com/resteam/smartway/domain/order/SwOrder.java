@@ -43,6 +43,9 @@ public class SwOrder extends AbstractBaseAuditingEntity<UUID> {
     @Column(name = "currency_unit")
     private CurrencyUnit currencyUnit;
 
+    @Column(name = "subtotal")
+    private Double subtotal;
+
     @Column(name = "discount")
     private Double discount;
 

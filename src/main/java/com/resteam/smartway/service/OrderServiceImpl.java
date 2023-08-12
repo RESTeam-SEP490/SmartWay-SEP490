@@ -105,7 +105,7 @@ public class OrderServiceImpl implements OrderService {
         for (SwOrder order : paidOrders) {
             if (order.isPaid()) {
                 BillDTO bill = new BillDTO();
-                bill.setOrderCode(order.getCode());
+                bill.setCode(order.getCode());
                 bill.setTableList(diningTableMapper.toDto(order.getTableList()));
                 bill.setOrderDetailList(orderDetailMapper.toDto(order.getOrderDetailList()));
                 bill.setDiscount(order.getDiscount());
@@ -139,9 +139,11 @@ public class OrderServiceImpl implements OrderService {
                     }
                 }
 
-                bill.setSumMoney(sumTotal);
+                bill.setSumMoney(order.getSubtotal());
+                bill.setDiscount(order.getDiscount());
                 bill.setPayDate(order.getPayDate());
-
+                bill.setId(order.getId());
+                bill.setTakeAway(order.isTakeAway());
                 bills.add(bill);
             }
         }
@@ -691,47 +693,55 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @SneakyThrows
-    public byte[] generatePdfOrderForPay(PaymentDTO dto) {
+    public OrderDTO checkOut(PaymentDTO dto) {
         Restaurant restaurant = restaurantRepository
             .findById(RestaurantContext.getCurrentRestaurant().getId())
             .orElseThrow(() -> new BadRequestAlertException("Restaurant not found", "restaurant", "idnotfound"));
 
-        Optional<SwOrder> orderOptional = orderRepository.findById(dto.getOrderId());
-        if (orderOptional.isPresent()) {
-            SwOrder order = orderOptional.get();
+        SwOrder order = orderRepository
+            .findById(dto.getOrderId())
+            .orElseThrow(() -> new BadRequestAlertException("Order not found", "order", "idnotfound"));
 
-            if (!dto.getIsPayByCash()) {
-                if (dto.getBankAccountId() == null) throw new BadRequestAlertException(
-                    "Bank account id cant not be null",
-                    "bankAccountInfo",
-                    "idnull"
-                );
-                BankAccountInfo bankAccountInfo = bankAccountInfoRepository
-                    .findById(dto.getBankAccountId())
-                    .orElseThrow(() -> new BadRequestAlertException("Bank account information not found", "bankAccountInfo", "idnotfound"));
-                order.setBankAccountInfo(bankAccountInfo);
-            }
-
-            order.setPaid(true);
-            order.setPayDate(Instant.now());
-            order.setIsPayByCash(dto.getIsPayByCash());
-            order.setDiscount(dto.getDiscount());
-            order.setCurrencyUnit(restaurant.getCurrencyUnit());
-            orderRepository.save(order);
-
-            if (dto.isClearTable()) {
-                List<DiningTable> tableList = order
-                    .getTableList()
-                    .stream()
-                    .peek(table -> {
-                        table.setIsFree(true);
-                    })
-                    .collect(Collectors.toList());
-                diningTableRepository.saveAll(tableList);
-            }
+        if (!dto.getIsPayByCash()) {
+            if (dto.getBankAccountId() == null) throw new BadRequestAlertException(
+                "Bank account id cant not be null",
+                "bankAccountInfo",
+                "idnull"
+            );
+            BankAccountInfo bankAccountInfo = bankAccountInfoRepository
+                .findById(dto.getBankAccountId())
+                .orElseThrow(() -> new BadRequestAlertException("Bank account information not found", "bankAccountInfo", "idnotfound"));
+            order.setBankAccountInfo(bankAccountInfo);
         }
 
-        return generatePdfOrder(dto.getOrderId());
+        order.setPaid(true);
+        order.setPayDate(Instant.now());
+        order.setIsPayByCash(dto.getIsPayByCash());
+        order.setDiscount(dto.getDiscount());
+        order.setCurrencyUnit(restaurant.getCurrencyUnit());
+
+        double subtotal = order
+            .getOrderDetailList()
+            .stream()
+            .reduce(
+                0.0,
+                (prevSubtotal, currentDetail) -> prevSubtotal + currentDetail.getQuantity() * currentDetail.getMenuItem().getSellPrice(),
+                Double::sum
+            );
+        order.setSubtotal(subtotal);
+
+        if (dto.isFreeUpTable()) {
+            order.setCompleted(true);
+            List<DiningTable> tableList = order
+                .getTableList()
+                .stream()
+                .peek(table -> {
+                    table.setIsFree(true);
+                })
+                .collect(Collectors.toList());
+            diningTableRepository.saveAll(tableList);
+        }
+        return orderMapper.toDto(orderRepository.save(order));
     }
 
     @Override

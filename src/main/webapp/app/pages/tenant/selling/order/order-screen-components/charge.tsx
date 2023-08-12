@@ -1,5 +1,5 @@
 import { CreditCardOutlined, PercentageOutlined, PrinterFilled, TagsFilled } from '@ant-design/icons';
-import { Button, ConfigProvider, Drawer, Form, Image, Input, InputNumber, Popover, Radio, Select, Table } from 'antd';
+import { Button, ConfigProvider, Drawer, Form, Image, Input, InputNumber, Modal, Popover, Radio, Select, Table } from 'antd';
 import { alphabetCompare, currencyFormatter } from 'app/app.constant';
 import { colors } from 'app/config/ant-design-theme';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
@@ -9,7 +9,7 @@ import { IOrder } from 'app/shared/model/order/order.model';
 import React, { useCallback, useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { Translate, translate } from 'react-jhipster';
-import { pay, printBill } from '../order.reducer';
+import { checkOut, printBill } from '../order.reducer';
 
 export const Charge = ({ isOpen, handleClose }: { isOpen: boolean; handleClose: any }) => {
   const dispatch = useAppDispatch();
@@ -28,6 +28,7 @@ export const Charge = ({ isOpen, handleClose }: { isOpen: boolean; handleClose: 
     : { totalQuantity: 0, subtotal: 0 };
 
   const [isShowBankSelect, setIsShowBankSelect] = useState(false);
+  const [isOpenConfirmModal, setIsOpenConfirmModal] = useState(false);
   const [isShowDiscountPopover, setIsShowDiscountPopover] = useState(false);
   const [discount, setDiscount] = useState<{ number: number; isByPercent: boolean }>({ number: 0, isByPercent: false });
   const [selectedAccount, setSelectedAccount] = useState<IBankAccountInfo>({});
@@ -44,6 +45,7 @@ export const Charge = ({ isOpen, handleClose }: { isOpen: boolean; handleClose: 
 
   useEffect(() => {
     handleClose();
+    setIsOpenConfirmModal(false);
   }, [updateSuccess]);
 
   useEffect(() => {
@@ -108,11 +110,10 @@ export const Charge = ({ isOpen, handleClose }: { isOpen: boolean; handleClose: 
     setSelectedAccount(bankAccountInfoList.find(info => info.id === value));
   };
 
-  const onPay = () => {
+  const onCheckout = (isFreeUpTable: boolean) => {
     const values = form.getFieldsValue();
-    dispatch(pay({ ...values, orderId: currentOrder.id }));
+    dispatch(checkOut({ ...values, orderId: currentOrder.id, freeUpTable: isFreeUpTable }));
   };
-  console.log(orders);
 
   return (
     <>
@@ -266,15 +267,39 @@ export const Charge = ({ isOpen, handleClose }: { isOpen: boolean; handleClose: 
                   dispatch(printBill(currentOrder.id));
                 }}
               >
-                In tạm tính
+                Print bill
               </Button>
-              <Button size="large" type="primary" className="w-40" icon={<CreditCardOutlined rev="" />} onClick={onPay}>
-                Thanh toán
+              <Button
+                size="large"
+                type="primary"
+                className="w-40"
+                icon={<CreditCardOutlined rev="" />}
+                onClick={() => setIsOpenConfirmModal(true)}
+              >
+                Check out
               </Button>
             </div>
           </ConfigProvider>
         </div>
       </Drawer>
+      <Modal
+        centered
+        open={isOpenConfirmModal}
+        destroyOnClose
+        width={500}
+        onOk={() => onCheckout(true)}
+        onCancel={() => setIsOpenConfirmModal(false)}
+        footer={[]}
+        closeIcon={<></>}
+      >
+        <span className="text-[1rem]">Do you want to check out and free up tables?</span>
+        <div className="flex justify-end gap-2 mt-4">
+          <Button type="primary" onClick={() => onCheckout(true)}>
+            Yes
+          </Button>
+          <Button onClick={() => onCheckout(false)}>No, check out only</Button>
+        </div>
+      </Modal>
     </>
   );
 };

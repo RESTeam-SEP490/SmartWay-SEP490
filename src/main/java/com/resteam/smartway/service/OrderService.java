@@ -45,7 +45,7 @@ public interface OrderService {
     byte[] generatePdfOrder(UUID orderId) throws DocumentException;
 
     @SneakyThrows
-    byte[] generatePdfOrderForPay(PaymentDTO dto);
+    OrderDTO checkOut(PaymentDTO dto);
 
     byte[] generatePdfOrderForNotificationKitchen(List<UUID> ids) throws DocumentException;
 }

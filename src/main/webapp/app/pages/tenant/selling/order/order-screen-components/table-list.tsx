@@ -1,3 +1,4 @@
+import { GiWoodenChair } from 'react-icons/gi';
 import { BlockOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import { Radio, Segmented, Typography } from 'antd';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
@@ -93,16 +94,22 @@ const TableCard = ({ table, handleSelectTable }: { table: IDiningTable; handleSe
   return (
     <div
       onClick={handleSelectTable}
-      className={`relative flex flex-col items-center shadow-sm bg-white w-32 h-40 p-2 rounded-lg cursor-pointer hover:shadow-md border-2 border-solid ${
+      className={`relative flex flex-col items-center shadow-sm bg-white w-36 h-52 p-2 rounded-lg cursor-pointer hover:shadow-md border-2 border-solid ${
         isSelected ? 'border-blue-700 !bg-blue-100' : 'border-transparent'
       }`}
     >
-      <Typography.Text className={`pb-4 !mt-2 font-semibold ${isSelected ? '!text-blue-700' : ''}`}>{table.name}</Typography.Text>
+      <Typography.Text className={`flex items-center gap-2 pb-4 !mt-2 font-semibold ${isSelected ? '!text-blue-700' : ''}`}>
+        {table.name}
+      </Typography.Text>
       <TableIcon
-        size={80}
+        size={88}
         status={isSelected ? 'selected' : !orderOfThisTable ? 'available' : 'occupied'}
-        numberOfSeats={table.numberOfSeats}
+        isPaid={orderOfThisTable?.paid}
       />
+      <Typography.Text className={`flex mt-3 items-center ${isSelected ? '!text-blue-600' : '!text-gray-500'}`}>
+        <GiWoodenChair size={24} />
+        {': ' + (table.numberOfSeats ?? '--')}
+      </Typography.Text>
       {orderOfThisTable ? (
         <div className={`flex gap-2 mt-4 px-3 py-1 rounded-full ${isSelected ? 'bg-white text-blue-700' : 'bg-gray-100 text-gray-600'}`}>
           <ClockCircleOutlined rev="" />
