@@ -34,6 +34,12 @@ public class OrderResource {
     private final OrderWebsocket orderWebsocket;
     private final KitchenWebsocket kitchenWebsocket;
 
+    @PutMapping("/return-item")
+    public ResponseEntity<OrderDTO> returnItem(@RequestBody ReturnItemDTO returnItemDTO) {
+        OrderDTO updatedOrder = orderService.returnItem(returnItemDTO);
+        return ResponseEntity.ok(updatedOrder);
+    }
+
     @PostMapping
     public ResponseEntity<OrderDTO> createOrder(@Valid @RequestBody OrderCreationDTO orderDTO) {
         OrderDTO createdOrder = orderService.createOrder(orderDTO);

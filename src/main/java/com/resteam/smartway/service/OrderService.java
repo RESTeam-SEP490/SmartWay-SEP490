@@ -8,6 +8,7 @@ import java.util.UUID;
 import lombok.SneakyThrows;
 
 public interface OrderService {
+    OrderDTO returnItem(ReturnItemDTO returnItemDTO);
     OrderDTO createOrder(OrderCreationDTO orderDTO);
     OrderDTO createTakeAwayOrder();
 

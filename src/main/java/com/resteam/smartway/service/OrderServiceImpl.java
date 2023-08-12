@@ -70,6 +70,51 @@ public class OrderServiceImpl implements OrderService {
     private static final String ORDER_DETAIL = "orderDetail";
 
     @Override
+    public OrderDTO returnItem(ReturnItemDTO returnItemDTO) {
+        SwOrder order = orderRepository
+            .findByIdAndIsPaid(returnItemDTO.getId(), false)
+            .orElseThrow(() -> new BadRequestAlertException("Order was not found or Paid", ORDER, "not found or not existed"));
+
+        List<OrderDetailDTO> listItemsReturn = returnItemDTO.getListItemsReturn();
+        List<OrderDetail> orderDetailList = order.getOrderDetailList();
+
+        Map<UUID, Integer> menuItemIdToOriginalQuantity = new HashMap<>();
+        for (OrderDetail orderDetail : orderDetailList) {
+            UUID menuItemId = orderDetail.getMenuItem().getId();
+            int originalQuantity = menuItemIdToOriginalQuantity.getOrDefault(menuItemId, 0);
+            menuItemIdToOriginalQuantity.put(menuItemId, originalQuantity + orderDetail.getQuantity());
+        }
+
+        for (OrderDetailDTO itemReturn : listItemsReturn) {
+            UUID menuItemId = itemReturn.getMenuItem().getId();
+            int returnedQuantity = itemReturn.getQuantity();
+
+            if (menuItemIdToOriginalQuantity.containsKey(menuItemId)) {
+                int originalQuantity = menuItemIdToOriginalQuantity.get(menuItemId);
+
+                if (returnedQuantity <= originalQuantity) {
+                    menuItemIdToOriginalQuantity.put(menuItemId, originalQuantity - returnedQuantity);
+                } else {
+                    throw new BadRequestAlertException("not enough quantity to return", ORDER, "notenoughquantity");
+                }
+            }
+        }
+
+        // Update lại số lượng của orderDetail dựa trên menuItemId
+        for (OrderDetail orderDetail : orderDetailList) {
+            UUID menuItemId = orderDetail.getMenuItem().getId();
+            int updatedQuantity = menuItemIdToOriginalQuantity.get(menuItemId);
+            if (!(orderDetail.getServedQuantity() == orderDetail.getQuantity())) {
+                throw new BadRequestAlertException("Served quantity not equal to quantity", ORDER, "notequal");
+            }
+            orderDetail.setQuantity(updatedQuantity);
+            orderDetail.setServedQuantity(updatedQuantity);
+            orderDetailRepository.save(orderDetail);
+        }
+        return orderMapper.toDto(order);
+    }
+
+    @Override
     public OrderDTO createOrder(OrderCreationDTO orderDTO) {
         List<DiningTable> tableList = orderDTO
             .getTableIdList()
