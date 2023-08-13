@@ -29,7 +29,7 @@ public class TemplateServiceImpl implements TemplateService {
     private final String SECRET_KEY = "@smartway_@upload_@staff";
 
     @Override
-    public ByteArrayInputStream downloadExcelTemplate(String path) {
+    public ByteArrayInputStream downloadExcelTemplate(String path, int indexSecret) {
         Path templatePath = Paths.get("src", "main", "resources", path);
 
         try (
@@ -44,13 +44,13 @@ public class TemplateServiceImpl implements TemplateService {
             workbook.setSheetHidden(workbook.getSheetIndex(NAME_SHEET), true);
             byte[] encryptedKey = encryptSecretKey(SECRET_KEY);
             String encryptedKeyString = Base64.getEncoder().encodeToString(encryptedKey);
-            Row row = sheet.getRow(0);
+            Row row = sheet.getRow(indexSecret);
             if (row == null) {
-                row = sheet.createRow(0);
+                row = sheet.createRow(indexSecret);
             }
-            Cell cell = row.getCell(0);
+            Cell cell = row.getCell(indexSecret);
             if (cell == null) {
-                cell = row.createCell(0);
+                cell = row.createCell(indexSecret);
             }
             cell.setCellValue(encryptedKeyString);
             CellStyle hiddenCellStyle = workbook.createCellStyle();

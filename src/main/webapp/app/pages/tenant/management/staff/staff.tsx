@@ -2,7 +2,7 @@ import { useAppDispatch, useAppSelector } from 'app/config/store';
 import React, { useEffect, useRef, useState } from 'react';
 import { translate, Translate } from 'react-jhipster';
 import { IStaff } from 'app/shared/model/staff.model';
-import { Button, Card, Dropdown, Empty, Input, MenuProps, message, Modal, Table, Tag, Typography } from 'antd';
+import { Button, Card, Dropdown, Empty, Input, MenuProps, message, Modal, Radio, Table, Tag, Typography } from 'antd';
 import { DEFAULT_PAGINATION_CONFIG } from 'app/shared/util/pagination.constants';
 import { getEntities, setPageable } from 'app/pages/tenant/management/staff/staff.reducer';
 import { BarsOutlined, PlusOutlined, UploadOutlined, WarningOutlined } from '@ant-design/icons';
@@ -22,6 +22,22 @@ export const Staff = () => {
       label: (
         <div onClick={() => handleDelete()}>
           <Translate contentKey="entity.action.delete" />
+        </div>
+      ),
+    },
+    {
+      key: '2',
+      label: (
+        <div onClick={() => handleUpdateIsActive(true)}>
+          <Translate contentKey="staff.action.allowSell" />
+        </div>
+      ),
+    },
+    {
+      key: '3',
+      label: (
+        <div onClick={() => handleUpdateIsActive(false)}>
+          <Translate contentKey="staff.action.stopSell" />
         </div>
       ),
     },
@@ -65,6 +81,10 @@ export const Staff = () => {
       setSelectedItems([]);
     }
   }, [updateSuccess]);
+
+  const handleOnchangeStatusFilter = e => {
+    dispatch(setPageable({ ...pageable, page: 0, isActive: e.target.value }));
+  };
 
   const handleOnchangePage = (page, pageSize) => {
     dispatch(setPageable({ ...pageable, page: page - 1, size: pageSize }));
@@ -223,6 +243,16 @@ export const Staff = () => {
     }
   };
 
+  const handleUpdateIsActive = (isActive: boolean) => {
+    const nextSelectedItems = selectedRowKeys.map(key => {
+      const m: IStaff = { id: key + '' };
+      return m;
+    });
+    setSelectedItems(nextSelectedItems);
+    setAllowSale(isActive);
+    setIsShowDialog(true);
+  };
+
   return (
     <>
       <StaffForm staff={updateStaff} isOpen={isShowForm} handleClose={handleClose} />
@@ -286,6 +316,22 @@ export const Staff = () => {
               <Translate contentKey="entity.action.find" />
             </Typography.Title>
             <Input placeholder={translate('staff.search.placeholder')} onPressEnter={handleOnchangeSearch} />
+          </Card>
+          <Card>
+            <Typography.Title level={5}>
+              <Translate contentKey="entity.label.status" />
+            </Typography.Title>
+            <Radio.Group className="flex flex-col gap-2" defaultValue={true} onChange={handleOnchangeStatusFilter}>
+              <Radio className="!font-normal" value={true}>
+                <Translate contentKey="staff.status.trueValue" />
+              </Radio>
+              <Radio className="!font-normal" value={false}>
+                <Translate contentKey="staff.status.falseValue" />
+              </Radio>
+              <Radio className="!font-normal" value={undefined}>
+                <Translate contentKey="entity.label.all" />
+              </Radio>
+            </Radio.Group>
           </Card>
           <RoleCheckBoxes onFilter={handleOnchangeRoleFilter} />
         </div>
