@@ -42,6 +42,7 @@
     "regexTableName": "Table name is invalid",
     "regexNumberOfSeat": "Number of sear min value is 1",
     "regexZone": "Zone is invalid",
+    "regexTableNameExist": "Table name is exist",
 
     "action": {
       "delete.question": "Are you sure to delete table <b>{{ name }}</b>?",
