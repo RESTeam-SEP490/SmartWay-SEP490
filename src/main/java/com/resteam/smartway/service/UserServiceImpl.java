@@ -12,6 +12,7 @@ import com.resteam.smartway.repository.UserRepository;
 import com.resteam.smartway.security.AuthoritiesConstants;
 import com.resteam.smartway.security.SecurityUtils;
 import com.resteam.smartway.security.multitenancy.context.RestaurantContext;
+import com.resteam.smartway.service.dto.IsActiveUpdateDTO;
 import com.resteam.smartway.service.dto.ProfileDTO;
 import com.resteam.smartway.service.dto.StaffDTO;
 import com.resteam.smartway.service.dto.TenantRegistrationDTO;
@@ -222,12 +223,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<StaffDTO> loadStaffsWithSearch(Pageable pageable, String searchText, List<String> roleIds) {
+    public Page<StaffDTO> loadStaffsWithSearch(Pageable pageable, String searchText, List<String> roleIds, Boolean isActive) {
         if (searchText != null) searchText = searchText.toLowerCase();
         List<UUID> roleUUIDList = null;
         if (roleIds != null && roleIds.size() > 0) roleUUIDList = roleIds.stream().map(UUID::fromString).collect(Collectors.toList());
-        Page<User> userPage = userRepository.findWithFilterParams(searchText, roleUUIDList, pageable);
-        return userPage.map(staffMapper::toDto);
+        Page<User> userPage = userRepository.findWithFilterParams(searchText, roleUUIDList, isActive, pageable);
+        return userPage.map(item -> {
+            StaffDTO staffDTO = staffMapper.toDto(item);
+            return staffDTO;
+        });
     }
 
     @SneakyThrows
@@ -323,9 +327,9 @@ public class UserServiceImpl implements UserService {
             XSSFWorkbook workbook = new XSSFWorkbook(is);
             XSSFSheet sheetSecretKey = workbook.getSheet(NAME_SHEET_SECRET_KEY);
             if (sheetSecretKey != null) {
-                Row row = sheetSecretKey.getRow(0);
+                Row row = sheetSecretKey.getRow(1);
                 if (row != null) {
-                    Cell cell = row.getCell(0);
+                    Cell cell = row.getCell(1);
                     if (cell != null && cell.getCellType() == CellType.STRING) {
                         secretKeyInFile = cell.getStringCellValue();
                     }
@@ -358,7 +362,7 @@ public class UserServiceImpl implements UserService {
                         Cell cell = cells.next();
                         switch (cell.getColumnIndex()) {
                             case 0:
-                                Optional<User> optionalUser = userRepository.findOneByUsername(cell.getStringCellValue());
+                                Optional<User> optionalUser = userRepository.findOneByUsername(cell.getStringCellValue().trim());
                                 if (optionalUser.isPresent()) {
                                     noUpload = true;
                                     isUsernameChecked = true;
@@ -367,23 +371,23 @@ public class UserServiceImpl implements UserService {
                                     keysToRemove.add(getColumnLabel(1) + (rowNumber + 1));
                                 } else {
                                     isUsernameChecked = true;
-                                    staff.setUsername(cell.getStringCellValue());
+                                    staff.setUsername(cell.getStringCellValue().trim());
                                 }
                                 break;
                             case 1:
-                                staff.setPassword(cell.getStringCellValue());
+                                staff.setPassword(cell.getStringCellValue().trim());
                                 break;
                             case 2:
-                                staff.setFullName(cell.getStringCellValue());
+                                staff.setFullName(cell.getStringCellValue().trim());
                                 break;
                             case 3:
-                                staff.setEmail(cell.getStringCellValue());
+                                staff.setEmail(cell.getStringCellValue().trim());
                                 break;
                             case 4:
-                                staff.setPhone(cell.getStringCellValue());
+                                staff.setPhone(cell.getStringCellValue().trim());
                                 break;
                             case 5:
-                                Optional<Role> currentRole = roleRepository.findOneByName(cell.getStringCellValue());
+                                Optional<Role> currentRole = roleRepository.findOneByName(cell.getStringCellValue().trim());
                                 if (currentRole.isPresent()) {
                                     staff.setRole(currentRole.get());
                                 } else {
@@ -498,15 +502,26 @@ public class UserServiceImpl implements UserService {
                         }
                     }
 
-                    if (staff.getEmail() != null) {
-                        if (!staff.getEmail().equals("")) {
-                            if (!Pattern.matches(REGEX_EMAIL, staff.getEmail())) {
-                                isValidated = false;
-                                noUpload = true;
-                                StringBuilder columnName = new StringBuilder(getColumnLabel(4));
-                                errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), MESSAGE_EMAIL);
-                                keysToRemove.add(getColumnLabel(4) + (rowNumber + 1));
-                            }
+                    if (staff.getEmail() == null) {
+                        isValidated = false;
+                        StringBuilder columnName = new StringBuilder(getColumnLabel(4));
+                        errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), CONTENT_KEY_COLUMN_EMPTY);
+                        keysToRemove.add(getColumnLabel(4) + (rowNumber + 1));
+                        noUpload = true;
+                    } else {
+                        if (!Pattern.matches(REGEX_EMAIL, staff.getEmail())) {
+                            isValidated = false;
+                            noUpload = true;
+                            StringBuilder columnName = new StringBuilder(getColumnLabel(4));
+                            errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), MESSAGE_EMAIL);
+                            keysToRemove.add(getColumnLabel(4) + (rowNumber + 1));
+                        }
+                        if (staff.getEmail().equals("")) {
+                            isValidated = false;
+                            StringBuilder columnName = new StringBuilder(getColumnLabel(4));
+                            errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), CONTENT_KEY_COLUMN_EMPTY);
+                            keysToRemove.add(getColumnLabel(4) + (rowNumber + 1));
+                            noUpload = true;
                         }
                     }
 
@@ -533,6 +548,9 @@ public class UserServiceImpl implements UserService {
                     }
 
                     if (isValidated) {
+                        String encryptedPassword = passwordEncoder.encode(staff.getPassword());
+                        staff.setPassword(encryptedPassword);
+                        staff.setIsActive(true);
                         staffList.add(staff);
                     }
                     rowNumber++;
@@ -554,6 +572,23 @@ public class UserServiceImpl implements UserService {
         }
 
         return errorMap;
+    }
+
+    @Override
+    public void updateIsActiveStaff(IsActiveUpdateDTO isActiveUpdateDTO) {
+        List<User> staffList = isActiveUpdateDTO
+            .getIds()
+            .stream()
+            .map(id -> {
+                if (id == null) throw new BadRequestAlertException("Invalid id", ENTITY_NAME_STAFF, "idnull");
+                User staff = userRepository
+                    .findById(UUID.fromString(id))
+                    .orElseThrow(() -> new BadRequestAlertException("Invalid ID", ENTITY_NAME_STAFF, "idnotfound"));
+                staff.setIsActive(isActiveUpdateDTO.getIsActive());
+                return staff;
+            })
+            .collect(Collectors.toList());
+        userRepository.saveAll(staffList);
     }
 
     private String getColumnLabel(int column) {
