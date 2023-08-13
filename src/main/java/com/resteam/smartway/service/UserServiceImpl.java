@@ -638,4 +638,9 @@ public class UserServiceImpl implements UserService {
     private boolean checkSecretKey(String secretKey) {
         return secretKey.equals(SECRET_KEY_ENCRYPT);
     }
+
+    @Override
+    public User findUserByRestaurantId(String id) {
+        return userRepository.findUserByRestaurantId(id);
+    }
 }

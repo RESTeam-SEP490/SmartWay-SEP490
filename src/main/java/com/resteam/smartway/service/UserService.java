@@ -42,4 +42,6 @@ public interface UserService {
     Map<String, String> importStaff(InputStream is);
 
     void updateIsActiveStaff(IsActiveUpdateDTO isActiveUpdateDTO);
+
+    User findUserByRestaurantId(String id);
 }
