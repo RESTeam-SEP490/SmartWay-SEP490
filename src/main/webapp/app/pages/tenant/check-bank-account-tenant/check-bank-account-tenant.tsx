@@ -38,15 +38,13 @@ export const CheckBankAccountTenant = () => {
       <div className="max-w-lg mt-4 ml-2">
         <div className="flex flex-col">
           {bankAccountList?.map((account: IBankAccountInfo) => (
-            <>
-              <div key={account.id} className="flex items-center justify-between gap-2 px-4 py-2">
-                <div className="flex gap-2">
-                  <Image preview={false} className="!w-14 object-contain" src={account?.logoBank} />
-                  <span className="text-gray-500">{account.bankName + ' - ' + account?.accountNumber}</span>
-                </div>
-                <Button type="text" className="text-gray-400" icon={<EditFilled rev={''} />} onClick={() => handleOpen(account)}></Button>
+            <div key={account.id} className="flex items-center justify-between gap-2 px-4 py-2">
+              <div className="flex gap-2">
+                <Image preview={false} className="!w-14 object-contain" src={account?.logoBank} />
+                <span className="text-gray-500">{account.bankName + ' - ' + account?.accountNumber}</span>
               </div>
-            </>
+              <Button type="text" className="text-gray-400" icon={<EditFilled rev={''} />} onClick={() => handleOpen(account)}></Button>
+            </div>
           ))}
         </div>
       </div>

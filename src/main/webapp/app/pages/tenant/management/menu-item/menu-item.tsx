@@ -12,10 +12,10 @@ import { MenuItemDialog } from './menu-item-dialog';
 import MenuItemForm from './menu-item-form';
 import { getEntities, setPageable } from './menu-item.reducer';
 import { getEntities as loadCategory } from '../menu-item-category/menu-item-category.reducer';
-import { currencyFormatter } from 'app/app.constant';
 import { DEFAULT_PAGINATION_CONFIG } from '../../../../shared/util/pagination.constants';
 import { MenuItemCategoryCheckBoxes } from '../menu-item-category/menu-item-category';
 import axios from 'axios';
+import { CurrencyFormat } from 'app/shared/util/currency-utils';
 
 export const MenuItem = () => {
   const dispatch = useAppDispatch();
@@ -56,14 +56,14 @@ export const MenuItem = () => {
       dataIndex: 'basePrice',
       key: 'basePrice',
       align: 'right' as const,
-      render: p => currencyFormatter(p),
+      render: p => <CurrencyFormat>{p}</CurrencyFormat>,
     },
     {
       title: <Translate contentKey="menuItem.sellPrice.label" />,
       dataIndex: 'sellPrice',
       key: 'sellPrice',
       align: 'right' as const,
-      render: p => currencyFormatter(p),
+      render: p => <CurrencyFormat>{p}</CurrencyFormat>,
     },
     {
       title: <Translate contentKey="menuItem.status.label" />,

@@ -15,7 +15,6 @@ const initialState = {
   updateSuccess: false,
   activeOrders: [],
   currentOrder: defaultValue,
-  changedDetailId: null,
 };
 
 const apiUrl = 'api/orders';
@@ -64,10 +63,10 @@ export const cancelOrderDetail = createAsyncThunk(
   { serializeError: serializeAxiosError }
 );
 
-export const pay = createAsyncThunk(
-  'orders/pay',
+export const checkOut = createAsyncThunk(
+  'orders/checkOut',
   async (dto: { orderId: string; isPayByCash: boolean; bankAccountId: string | null; discount: number }, thunkAPI) => {
-    const requestUrl = `${apiUrl}/pay`;
+    const requestUrl = `${apiUrl}/check-out`;
     const result = axios.post<ArrayBuffer>(requestUrl, dto);
     return result;
   },
@@ -152,9 +151,6 @@ export const OrderSlice = createSlice({
       const selectedOrder = state.activeOrders.find((order: IOrder) => order.tableList.map(table => table.id).includes(selectedTableId));
       state.currentOrder = selectedOrder ? selectedOrder : null;
     },
-    setChangedDetailId(state, action) {
-      state.changedDetailId = action.payload;
-    },
     receiveNewPayment(state, action) {
       const paidOrderId = action.payload;
       state.activeOrders = state.activeOrders.filter(o => o.id !== paidOrderId);
@@ -181,7 +177,7 @@ export const OrderSlice = createSlice({
           if (nextCurrentOrder) state.currentOrder = nextCurrentOrder;
         }
       })
-      .addCase(pay.fulfilled, (state, action) => {
+      .addCase(checkOut.fulfilled, (state, action) => {
         state.updateSuccess = true;
         state.updating = false;
         notification.success({ message: translate('order.checkout.success') });
@@ -198,7 +194,7 @@ export const OrderSlice = createSlice({
 
         iframe.contentWindow.print();
       })
-      .addMatcher(isPending(addNote, groupTables, cancelOrderDetail, pay, printBill), (state, action) => {
+      .addMatcher(isPending(addNote, groupTables, cancelOrderDetail, checkOut, printBill), (state, action) => {
         state.updateSuccess = false;
         state.updating = true;
       })
@@ -206,7 +202,7 @@ export const OrderSlice = createSlice({
         state.updateSuccess = true;
         state.updating = false;
       })
-      .addMatcher(isRejected(addNote, groupTables, getEntities), (state, action) => {
+      .addMatcher(isRejected(addNote, groupTables, getEntities, printBill, checkOut), (state, action) => {
         state.updating = false;
       });
   },

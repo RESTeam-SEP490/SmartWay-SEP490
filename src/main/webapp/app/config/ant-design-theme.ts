@@ -40,10 +40,24 @@ export const colors = {
     900: '#40120D',
     950: '#1E0806',
   },
+  yellow: {
+    50: '#FEF8EB',
+    100: '#FDF1D8',
+    200: '#FCE3B1',
+    300: '#FAD68E',
+    400: '#F9C867',
+    500: '#F7B940',
+    600: '#F0A30A',
+    700: '#B57B08',
+    800: '#765005',
+    900: '#3B2802',
+    950: '#1D1401',
+  },
 };
 
 export const theme: ThemeConfig = {
   token: {
+    fontSize: 14,
     colorPrimary: colors.blue[600],
     colorPrimaryHover: colors.blue[500],
     colorPrimaryActive: colors.blue[700],

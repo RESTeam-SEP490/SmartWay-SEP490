@@ -71,7 +71,7 @@ const TenantAppHeader = (props: IHeaderProps) => {
       <LoadingBar className="loading-bar" />
       <div className="">
         <div className="flex items-center justify-between py-2 pl-4 pr-12">
-          <BrandIcon />
+          <Brand />
           <div className="flex items-center gap-10">
             <Link to={'/pos/orders'}>
               <Button type="primary" icon={<DesktopOutlined rev={''} />}>

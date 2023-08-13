@@ -17,6 +17,7 @@ public class OrderDTO {
     private boolean isPaid;
     private Instant createdDate;
     private boolean isTakeAway;
+    private boolean isCompleted;
 
     @NotEmpty
     private List<DiningTableDTO> tableList;
