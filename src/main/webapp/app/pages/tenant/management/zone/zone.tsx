@@ -129,7 +129,7 @@ export const ZoneCheckBoxes = ({ onFilter }: { onFilter: any }) => {
         )}
       </Card>
       <ZoneForm zone={selectedZone} isOpen={isShowForm} handleClose={() => handleClose('edit')} />
-      <ZoneDelete category={selectedZone} isOpen={isShowDeleteConfirm} handleClose={() => handleClose('delete')} />
+      <ZoneDelete zone={selectedZone} isOpen={isShowDeleteConfirm} handleClose={() => handleClose('delete')} />
     </>
   );
 };
