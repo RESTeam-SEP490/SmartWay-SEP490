@@ -22,9 +22,12 @@ import com.resteam.smartway.repository.RestaurantRepository;
 import com.resteam.smartway.repository.order.*;
 import com.resteam.smartway.security.multitenancy.context.RestaurantContext;
 import com.resteam.smartway.service.aws.S3Service;
+import com.resteam.smartway.service.dto.BillDTO;
 import com.resteam.smartway.service.dto.DiningTableDTO;
 import com.resteam.smartway.service.dto.order.*;
 import com.resteam.smartway.service.dto.order.notification.CancellationDTO;
+import com.resteam.smartway.service.mapper.BillMapper;
+import com.resteam.smartway.service.mapper.DiningTableMapper;
 import com.resteam.smartway.service.mapper.order.OrderDetailMapper;
 import com.resteam.smartway.service.mapper.order.OrderMapper;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
@@ -36,6 +39,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -43,6 +47,9 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,10 +71,84 @@ public class OrderServiceImpl implements OrderService {
     private final ItemCancellationNotificationRepository itemCancellationNotificationRepository;
     private final BankAccountInfoRepository bankAccountInfoRepository;
     private final S3Service s3Service;
+    private final DiningTableMapper diningTableMapper;
+    private final BillMapper billMapper;
+
     private static final String ORDER = "order";
     private static final String TABLE = "table";
     private static final String MENUITEM = "menuItem";
     private static final String ORDER_DETAIL = "orderDetail";
+
+    @Override
+    public Page<BillDTO> loadAllBillWithSort(Instant startDay, Instant endDay, UUID tableId, Pageable pageable) {
+        Page<SwOrder> paidOrders;
+
+        if (tableId != null) {
+            paidOrders =
+                orderRepository.findPaidOrdersForTableBetweenDates(
+                    tableId,
+                    startDay.truncatedTo(ChronoUnit.DAYS),
+                    endDay.truncatedTo(ChronoUnit.DAYS).plus(1, ChronoUnit.DAYS).minus(1, ChronoUnit.SECONDS),
+                    pageable
+                );
+        } else {
+            paidOrders =
+                orderRepository.findByIsPaidTrueOrderByPayDate(
+                    startDay.truncatedTo(ChronoUnit.DAYS),
+                    endDay.truncatedTo(ChronoUnit.DAYS).plus(1, ChronoUnit.DAYS).minus(1, ChronoUnit.SECONDS),
+                    pageable
+                );
+        }
+
+        List<BillDTO> bills = new ArrayList<>();
+
+        for (SwOrder order : paidOrders) {
+            if (order.isPaid()) {
+                BillDTO bill = new BillDTO();
+                bill.setCode(order.getCode());
+                bill.setTableList(diningTableMapper.toDto(order.getTableList()));
+                bill.setOrderDetailList(orderDetailMapper.toDto(order.getOrderDetailList()));
+                bill.setDiscount(order.getDiscount());
+                List<OrderDetail> mergedOrderDetailList = new ArrayList<>();
+                double sumTotal = 0;
+
+                for (OrderDetail orderDetail : order.getOrderDetailList()) {
+                    UUID menuItemId = orderDetail.getMenuItem().getId();
+                    int quantity = orderDetail.getQuantity();
+                    double sellPrice = orderDetail.getMenuItem().getSellPrice();
+
+                    sumTotal += quantity * sellPrice;
+
+                    boolean menuItemExists = false;
+                    for (OrderDetail mergedOrderDetail : mergedOrderDetailList) {
+                        if (mergedOrderDetail.getMenuItem().getId().equals(menuItemId)) {
+                            mergedOrderDetail.setQuantity(mergedOrderDetail.getQuantity() + quantity);
+                            menuItemExists = true;
+                            break;
+                        }
+                    }
+                    if (!menuItemExists) {
+                        MenuItem menuItem = new MenuItem();
+                        menuItem.setId(menuItemId);
+
+                        OrderDetail mergedOrderDetail = new OrderDetail();
+                        mergedOrderDetail.setMenuItem(menuItem);
+                        mergedOrderDetail.setQuantity(quantity);
+
+                        mergedOrderDetailList.add(mergedOrderDetail);
+                    }
+                }
+
+                bill.setSumMoney(order.getSubtotal());
+                bill.setDiscount(order.getDiscount());
+                bill.setPayDate(order.getPayDate());
+                bill.setId(order.getId());
+                bill.setTakeAway(order.isTakeAway());
+                bills.add(bill);
+            }
+        }
+        return new PageImpl<>(bills, pageable, paidOrders.getTotalElements());
+    }
 
     @Override
     public OrderDTO createOrder(OrderCreationDTO orderDTO) {
@@ -271,10 +352,28 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<OrderDTO> getAllActiveOrders() {
         return orderRepository
-            .findByIsPaidFalse()
+            .findAllByIsCompleted(false)
             .stream()
             .map(this::sortOrderDetailsAndNotificationHistories)
             .collect(Collectors.toList());
+    }
+
+    @Override
+    public OrderDTO setOrderIsCompleted(UUID orderId) {
+        SwOrder order = orderRepository
+            .findById(orderId)
+            .orElseThrow(() -> new BadRequestAlertException("Invalid ID", ORDER, "idnotfound"));
+        List<DiningTable> tables = diningTableRepository.findAllById(
+            order.getTableList().stream().map(DiningTable::getId).collect(Collectors.toList())
+        );
+
+        for (DiningTable table : tables) {
+            table.setIsFree(true);
+        }
+
+        order.setCompleted(true);
+        orderRepository.save(order);
+        return orderMapper.toDto(order);
     }
 
     @Override
@@ -594,34 +693,45 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @SneakyThrows
-    public byte[] generatePdfOrderForPay(PaymentDTO dto) {
+    public OrderDTO checkOut(PaymentDTO dto) {
         Restaurant restaurant = restaurantRepository
             .findById(RestaurantContext.getCurrentRestaurant().getId())
             .orElseThrow(() -> new BadRequestAlertException("Restaurant not found", "restaurant", "idnotfound"));
 
-        Optional<SwOrder> orderOptional = orderRepository.findById(dto.getOrderId());
-        if (orderOptional.isPresent()) {
-            SwOrder order = orderOptional.get();
+        SwOrder order = orderRepository
+            .findById(dto.getOrderId())
+            .orElseThrow(() -> new BadRequestAlertException("Order not found", "order", "idnotfound"));
 
-            if (!dto.getIsPayByCash()) {
-                if (dto.getBankAccountId() == null) throw new BadRequestAlertException(
-                    "Bank account id cant not be null",
-                    "bankAccountInfo",
-                    "idnull"
-                );
-                BankAccountInfo bankAccountInfo = bankAccountInfoRepository
-                    .findById(dto.getBankAccountId())
-                    .orElseThrow(() -> new BadRequestAlertException("Bank account information not found", "bankAccountInfo", "idnotfound"));
-                order.setBankAccountInfo(bankAccountInfo);
-            }
+        if (!dto.getIsPayByCash()) {
+            if (dto.getBankAccountId() == null) throw new BadRequestAlertException(
+                "Bank account id cant not be null",
+                "bankAccountInfo",
+                "idnull"
+            );
+            BankAccountInfo bankAccountInfo = bankAccountInfoRepository
+                .findById(dto.getBankAccountId())
+                .orElseThrow(() -> new BadRequestAlertException("Bank account information not found", "bankAccountInfo", "idnotfound"));
+            order.setBankAccountInfo(bankAccountInfo);
+        }
 
-            order.setPaid(true);
-            order.setPayDate(Instant.now());
-            order.setIsPayByCash(dto.getIsPayByCash());
-            order.setDiscount(dto.getDiscount());
-            order.setCurrencyUnit(restaurant.getCurrencyUnit());
-            orderRepository.save(order);
+        order.setPaid(true);
+        order.setPayDate(Instant.now());
+        order.setIsPayByCash(dto.getIsPayByCash());
+        order.setDiscount(dto.getDiscount());
+        order.setCurrencyUnit(restaurant.getCurrencyUnit());
 
+        double subtotal = order
+            .getOrderDetailList()
+            .stream()
+            .reduce(
+                0.0,
+                (prevSubtotal, currentDetail) -> prevSubtotal + currentDetail.getQuantity() * currentDetail.getMenuItem().getSellPrice(),
+                Double::sum
+            );
+        order.setSubtotal(subtotal);
+
+        if (dto.isFreeUpTable()) {
+            order.setCompleted(true);
             List<DiningTable> tableList = order
                 .getTableList()
                 .stream()
@@ -631,8 +741,7 @@ public class OrderServiceImpl implements OrderService {
                 .collect(Collectors.toList());
             diningTableRepository.saveAll(tableList);
         }
-
-        return generatePdfOrder(dto.getOrderId());
+        return orderMapper.toDto(orderRepository.save(order));
     }
 
     @Override

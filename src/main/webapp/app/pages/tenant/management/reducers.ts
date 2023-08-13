@@ -11,6 +11,7 @@ import kitchen from '../selling/kitchen/kitchen.reducer';
 import bankAccount from '../check-bank-account-tenant/check-bank-account-tenant.reducer';
 import restaurant from '../restaurant-setting/restaurant.reducer';
 import statistic from './dashboard/dashboard.reduce';
+import bill from '../selling/bill/bill.reducer';
 /* jhipster-needle-add-reducer-import - JHipster will add reducer here */
 
 const entitiesReducers = {
@@ -27,6 +28,7 @@ const entitiesReducers = {
   kitchen,
   bankAccount,
   statistic,
+  bill,
   /* jhipster-needle-add-reducer-combine - JHipster will add reducer here */
 };
 

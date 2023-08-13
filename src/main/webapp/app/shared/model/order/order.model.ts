@@ -5,7 +5,7 @@ import { IOrderDetail } from './order-detail.model';
 export interface IOrder {
   id?: string;
   code?: string | null;
-  isPaid?: boolean | null;
+  paid?: boolean | null;
   takeAway?: boolean | null;
   createdDate?: string;
   tableList?: IDiningTable[];
@@ -16,7 +16,7 @@ export interface IOrder {
 export const defaultValue: Readonly<IOrder> = {
   id: null,
   code: '',
-  isPaid: false,
+  paid: false,
   takeAway: false,
   tableList: [],
   orderDetailList: [],

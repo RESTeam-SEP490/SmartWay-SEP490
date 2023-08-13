@@ -7,6 +7,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -17,8 +19,8 @@ public interface OrderRepository extends BaseRepository<SwOrder> {
     Optional<SwOrder> findById(UUID uuid);
 
     Optional<SwOrder> findTopByOrderByCodeDesc();
-    List<SwOrder> findByIsPaidFalse();
     Optional<SwOrder> findByIdAndIsPaid(UUID id, boolean isPaid);
+    List<SwOrder> findAllByIsCompleted(boolean isCompleted);
 
     @Query("SELECT o FROM SwOrder o WHERE o.isPaid = true AND o.payDate >= :startDay AND o.payDate <= :endDay order by o.payDate asc ")
     List<SwOrder> findAllByPaidTrueAndPayDateBetween(@Param("startDay") Instant startDay, @Param("endDay") Instant endDay);
@@ -38,4 +40,17 @@ public interface OrderRepository extends BaseRepository<SwOrder> {
         nativeQuery = true
     )
     Optional<SwOrder> findOneByTableAndIsPaid(@Param("table") DiningTable table, @Param("isPaid") boolean isPaid);
+
+    @Query("SELECT o FROM SwOrder o WHERE o.isPaid = true AND o.payDate >= :startDay AND o.payDate <= :endDay order by o.payDate desc ")
+    Page<SwOrder> findByIsPaidTrueOrderByPayDate(@Param("startDay") Instant startDay, @Param("endDay") Instant endDay, Pageable pageable);
+
+    @Query(
+        "SELECT o FROM SwOrder o JOIN o.tableList t WHERE o.isPaid = true AND t.id = :tableId AND o.payDate BETWEEN :startDay AND :endDay"
+    )
+    Page<SwOrder> findPaidOrdersForTableBetweenDates(
+        @Param("tableId") UUID tableId,
+        @Param("startDay") Instant startDay,
+        @Param("endDay") Instant endDay,
+        Pageable pageable
+    );
 }
