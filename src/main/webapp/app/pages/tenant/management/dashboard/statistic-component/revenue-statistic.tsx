@@ -7,6 +7,7 @@ import { IRevenueStatistic } from 'app/shared/model/revenue-statistic';
 import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
 import { getRevenueByTime } from '../dashboard.reduce';
+import { CurrencyFormat } from 'app/shared/util/currency-utils';
 
 export const RevenueStatistic = () => {
   const dispatch = useAppDispatch();
@@ -25,11 +26,11 @@ export const RevenueStatistic = () => {
     meta: {
       totalRevenue: {
         alias: 'Revenue',
-        formatter: num => num,
+        formatter: num => <CurrencyFormat>{num}</CurrencyFormat>,
       },
       totalOrders: {
         alias: 'Bill amount',
-        formatter: num => num,
+        formatter: num => <CurrencyFormat>{num}</CurrencyFormat>,
       },
       date: {
         formatter: date =>

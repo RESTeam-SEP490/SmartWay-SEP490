@@ -11,6 +11,7 @@ import { DualAxes } from '@ant-design/charts';
 import { colors } from 'app/config/ant-design-theme';
 import { weekdays } from 'moment';
 import { RevenueStatistic } from './statistic-component/revenue-statistic';
+import { SellingStatistic } from './statistic-component/sell-statistic';
 
 export const Dashboard = () => {
   return (
@@ -23,6 +24,7 @@ export const Dashboard = () => {
         </div>
 
         <RevenueStatistic />
+        <SellingStatistic />
       </div>
     </>
   );

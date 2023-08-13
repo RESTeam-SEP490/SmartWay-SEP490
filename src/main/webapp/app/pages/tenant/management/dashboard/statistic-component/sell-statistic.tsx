@@ -1,15 +1,14 @@
-import { DualAxes } from '@ant-design/charts';
+import { Bar } from '@ant-design/charts';
 import { RightCircleFilled } from '@ant-design/icons';
 import { Card, Select } from 'antd';
 import { colors } from 'app/config/ant-design-theme';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
-import { IRevenueStatistic } from 'app/shared/model/revenue-statistic';
 import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
-import { getRevenueByTime } from '../dashboard.reduce';
+import { getBestSeller, getRevenueByTime } from '../dashboard.reduce';
 import { IItemSellingQuantity } from 'app/shared/model/item-selling-quantity';
 
-export const SellStatistic = () => {
+export const SellingStatistic = () => {
   const dispatch = useAppDispatch();
   const itemsSellingQuantity: IItemSellingQuantity[] = useAppSelector(state => state.statistic.itemsSellingQuantity);
 
@@ -20,56 +19,37 @@ export const SellStatistic = () => {
   });
 
   const revenueConfig = {
-    data: [itemsSellingQuantity],
-    xField: 'date',
-    yField: ['totalRevenue', 'totalOrders'],
+    data: itemsSellingQuantity.map((i: IItemSellingQuantity, index) => ({
+      name: i.menuItem.name,
+      quantity: i.quantity,
+      isBestSeller: index === 0,
+    })),
+
+    xField: 'quantity',
+    yField: 'name',
+    color({ isBestSeller }) {
+      return isBestSeller ? colors.yellow[600] : colors.blue[600];
+    },
+    barWidthMax: 50,
+    legend: false,
+    seriesField: 'isBestSeller',
     meta: {
-      totalRevenue: {
-        alias: 'Revenue',
-        formatter: num => num,
+      quantity: {
+        alias: 'Quantity',
       },
-      totalOrders: {
-        alias: 'Bill amount',
-        formatter: num => num,
-      },
-      date: {
-        formatter: date =>
-          dayjs(date).format(
-            ['week', 'last-week'].includes(revenueChartTime.type)
-              ? 'dddd'
-              : ['month', 'last-month'].includes(revenueChartTime.type)
-              ? 'DD/MM'
-              : 'MM/YYYY'
-          ),
+      name: {
+        alias: 'Name',
       },
     },
-    geometryOptions: [
-      {
-        geometry: 'column',
-        color: colors.blue[600],
-        columnWidthRatio: 0.5,
-        label: {
-          style: {},
-        },
-      },
-      {
-        geometry: 'line',
-        smooth: true,
-        color: colors.yellow[600],
-      },
-    ],
     interactions: [
       {
         type: 'element-highlight',
-      },
-      {
-        type: 'active-region',
       },
     ],
   };
 
   useEffect(() => {
-    dispatch(getRevenueByTime(revenueChartTime));
+    dispatch(getBestSeller(revenueChartTime));
   }, [revenueChartTime]);
 
   const onChangeTime = type => {
@@ -109,10 +89,9 @@ export const SellStatistic = () => {
     <Card>
       <div className="flex justify-between">
         <div className="flex gap-4">
-          <span className="text-lg font-semibold">Revenue today</span>
+          <span className="text-lg font-semibold">Selling statistic</span>
           <span className="flex items-center gap-2 text-xl font-semibold text-green-600">
             <RightCircleFilled className="text-lg text-gray-300" rev="" />
-            {revenuaByTime.totalRevenue}
           </span>
         </div>
         <Select className="w-32" value={revenueChartTime.type} onChange={value => onChangeTime(value)}>
@@ -124,7 +103,7 @@ export const SellStatistic = () => {
         </Select>
       </div>
       <div className="p-4">
-        <DualAxes {...revenueConfig} />
+        <Bar {...revenueConfig} />
       </div>
     </Card>
   );
