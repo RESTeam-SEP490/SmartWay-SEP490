@@ -172,7 +172,7 @@ public class DiningTableServiceImpl implements DiningTableService {
                 XSSFSheet sheet = workbook.getSheet(NAME_SHEET_TABLE);
                 int rowNumber = 0;
                 Iterator<Row> iterator = sheet.iterator();
-                boolean os = true;
+                List<String> listDiningTableInFile = new ArrayList<>();
                 while (iterator.hasNext()) {
                     Row row = iterator.next();
                     if (rowNumber == 0) {
@@ -306,6 +306,16 @@ public class DiningTableServiceImpl implements DiningTableService {
                             errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), CONTENT_KEY_COLUMN_EMPTY);
                             keysToRemove.add(getColumnLabel(3) + (rowNumber + 1));
                         }
+                    }
+
+                    boolean isDuplicateTable = listDiningTableInFile.stream().anyMatch(d -> d.equals(diningTable.getName()));
+                    if (isDuplicateTable) {
+                        isValidated = false;
+                        noUpload = true;
+                        StringBuilder columnName = new StringBuilder(getColumnLabel(2));
+                        errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), CONTENT_TABLE_NAME_EXIST);
+                    } else {
+                        listDiningTableInFile.add(diningTable.getName());
                     }
 
                     if (isValidated) {
