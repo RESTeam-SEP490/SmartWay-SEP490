@@ -24,9 +24,9 @@ export const getRevenueByTime = createAsyncThunk('statistic/get_revenue_by_time'
 });
 
 export const getSalesResult = createAsyncThunk('statistic/get_sale_result', async () => {
-  const startDate = dayjs().day(1).format('YYYY-MM-DD[T]hh:mm:ss[Z]');
-  const endDate = dayjs().format('YYYY-MM-DD[T]hh:mm:ss[Z]');
-  const requestUrl = `${apiUrl}/revenue-by-time?startDay=${endDate}&endDay=${startDate}`;
+  const startDate = dayjs().subtract(1, 'day').utc().format().replace('+00:00', 'Z');
+  const endDate = dayjs().utc().format().replace('+00:00', 'Z');
+  const requestUrl = `${apiUrl}/revenue-by-time?startDay=${startDate}&endDay=${endDate}`;
   return axios.get<IRevenueStatistic>(requestUrl);
 });
 

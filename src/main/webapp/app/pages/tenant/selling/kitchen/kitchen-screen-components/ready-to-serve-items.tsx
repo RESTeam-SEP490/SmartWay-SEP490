@@ -111,7 +111,7 @@ export const ReadyToServeItems = () => {
                     )}
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="flex justify-end gap-2 w-28">
                     <ConfigProvider
                       theme={{
                         token: {

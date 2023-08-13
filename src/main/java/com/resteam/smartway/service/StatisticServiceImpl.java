@@ -83,7 +83,7 @@ public class StatisticServiceImpl implements StatisticService {
 
             List<SwOrder> ordersInCurrentDay = paidOrders
                 .stream()
-                .filter(order -> order.getCreatedDate().isAfter(currentDayStart) && order.getCreatedDate().isBefore(currentDayEnd))
+                .filter(order -> order.getPayDate().isAfter(currentDayStart) && order.getPayDate().isBefore(currentDayEnd))
                 .collect(Collectors.toList());
             for (SwOrder order : ordersInCurrentDay) {
                 totalRevenueForDay += calculateOrderRevenue(order);

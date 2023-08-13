@@ -44,6 +44,7 @@ export const createEntity = createAsyncThunk(
   'menuItem/create_entity',
   async (entity: IMenuItem, thunkAPI) => {
     const data = new FormData();
+    entity = { ...entity, imageUrl: null };
     data.append('imageSource', entity.imageSource);
     entity['imageSource'] = null;
     data.append(
