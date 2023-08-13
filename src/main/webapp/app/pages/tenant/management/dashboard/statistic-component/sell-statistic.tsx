@@ -1,4 +1,4 @@
-import { Bar } from '@ant-design/charts';
+import { Bar, Column } from '@ant-design/charts';
 import { RightCircleFilled } from '@ant-design/icons';
 import { Card, Select } from 'antd';
 import { colors } from 'app/config/ant-design-theme';
@@ -7,45 +7,45 @@ import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
 import { getBestSeller, getRevenueByTime } from '../dashboard.reduce';
 import { IItemSellingQuantity } from 'app/shared/model/item-selling-quantity';
+import { currencyFormat } from 'app/shared/util/currency-utils';
+import { IMenuItem } from 'app/shared/model/menu-item.model';
 
 export const SellingStatistic = () => {
   const dispatch = useAppDispatch();
   const itemsSellingQuantity: IItemSellingQuantity[] = useAppSelector(state => state.statistic.itemsSellingQuantity);
+  const { currencyUnit } = useAppSelector(state => state.restaurant.restaurant);
+  const localeKey = currencyUnit === 'VND' ? 'vi-VN' : currencyUnit === 'USD' ? 'en-US' : '';
 
   const [revenueChartTime, setRevenueChartTime] = useState({
-    startDate: dayjs().weekday(0).format('YYYY-MM-DD[T]hh:mm:ss[Z]'),
+    startDate: dayjs().day(-6).format('YYYY-MM-DD[T]hh:mm:ss[Z]'),
     endDate: dayjs().format('YYYY-MM-DD[T]hh:mm:ss[Z]'),
     type: 'week',
   });
 
-  const revenueConfig = {
-    data: itemsSellingQuantity.map((i: IItemSellingQuantity, index) => ({
-      name: i.menuItem.name,
-      quantity: i.quantity,
-      isBestSeller: index === 0,
-    })),
+  const [isByRevenue, setIsByRevenue] = useState(true);
 
-    xField: 'quantity',
+  const data = [...itemsSellingQuantity]
+    .sort((a, b) => (isByRevenue ? (a.revenue > b.revenue ? -1 : 1) : a.quantity > b.quantity ? -1 : 1))
+    .map((i: IItemSellingQuantity) => {
+      return { x: isByRevenue ? i.revenue : i.quantity, name: i.menuItem.name, id: i.menuItem.id };
+    });
+
+  const bestSeller = data[0];
+
+  const config = {
+    data,
     yField: 'name',
-    color({ isBestSeller }) {
-      return isBestSeller ? colors.yellow[600] : colors.blue[600];
-    },
-    barWidthMax: 50,
-    legend: false,
-    seriesField: 'isBestSeller',
+    xField: 'x',
+    maxBarWidth: 50,
     meta: {
-      quantity: {
-        alias: 'Quantity',
+      x: {
+        alias: isByRevenue ? 'Revenue' : 'Quantity',
+        formatter: x => (isByRevenue ? currencyFormat(x, localeKey) : x),
       },
       name: {
-        alias: 'Name',
+        alias: 'Menu item',
       },
     },
-    interactions: [
-      {
-        type: 'element-highlight',
-      },
-    ],
   };
 
   useEffect(() => {
@@ -55,7 +55,7 @@ export const SellingStatistic = () => {
   const onChangeTime = type => {
     if (type === 'week')
       setRevenueChartTime({
-        startDate: dayjs().weekday(0).format('YYYY-MM-DD[T]hh:mm:ss[Z]'),
+        startDate: dayjs().day(-6).format('YYYY-MM-DD[T]hh:mm:ss[Z]'),
         endDate: dayjs().format('YYYY-MM-DD[T]hh:mm:ss[Z]'),
         type,
       });
@@ -73,8 +73,8 @@ export const SellingStatistic = () => {
       });
     else if (type === 'last-week')
       setRevenueChartTime({
-        startDate: dayjs().weekday(-7).format('YYYY-MM-DD[T]hh:mm:ss[Z]'),
-        endDate: dayjs().weekday(-1).format('YYYY-MM-DD[T]hh:mm:ss[Z]'),
+        startDate: dayjs().day(-13).format('YYYY-MM-DD[T]hh:mm:ss[Z]'),
+        endDate: dayjs().day(-7).format('YYYY-MM-DD[T]hh:mm:ss[Z]'),
         type,
       });
     else if (type === 'last-month')
@@ -88,13 +88,19 @@ export const SellingStatistic = () => {
   return (
     <Card>
       <div className="flex justify-between">
-        <div className="flex gap-4">
-          <span className="text-lg font-semibold">Selling statistic</span>
-          <span className="flex items-center gap-2 text-xl font-semibold text-green-600">
-            <RightCircleFilled className="text-lg text-gray-300" rev="" />
-          </span>
+        <div className="flex items-center">
+          <span className="mb-0.5 text-lg font-semibold">SELLING STATISTIC</span>
+          <Select
+            className="text-lg !text-blue-600 w-fit statistic"
+            defaultValue={true}
+            bordered={false}
+            onChange={value => setIsByRevenue(value)}
+          >
+            <Select.Option value={true}>BY REVENUE</Select.Option>
+            <Select.Option value={false}>BY QUANTITY</Select.Option>
+          </Select>
         </div>
-        <Select className="w-32" value={revenueChartTime.type} onChange={value => onChangeTime(value)}>
+        <Select size="large" className="w-40 !pl-1 text-lg" value={revenueChartTime.type} onChange={value => onChangeTime(value)}>
           <Select.Option value="week">This week</Select.Option>
           <Select.Option value="last-week">Last week</Select.Option>
           <Select.Option value="month">This month</Select.Option>
@@ -102,8 +108,8 @@ export const SellingStatistic = () => {
           <Select.Option value="year">This Year</Select.Option>
         </Select>
       </div>
-      <div className="p-4">
-        <Bar {...revenueConfig} />
+      <div className="p-4 pt-8">
+        <Bar {...config} isGroup={true} />
       </div>
     </Card>
   );

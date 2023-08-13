@@ -199,6 +199,7 @@ public class OrderServiceImpl implements OrderService {
         String orderCode = generateCode();
         order.setCode(orderCode);
         order.setTakeAway(true);
+        order.setCompleted(false);
         SwOrder savedOrder = orderRepository.save(order);
         return orderMapper.toDto(savedOrder);
     }

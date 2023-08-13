@@ -3,11 +3,13 @@ import axios from 'axios';
 
 import { IRevenueStatistic, defaultValue } from 'app/shared/model/revenue-statistic';
 import { IItemSellingQuantity } from 'app/shared/model/item-selling-quantity';
+import dayjs from 'dayjs';
 
 const initialState = {
   loading: false,
   errorMessage: null,
   revenueByTime: defaultValue,
+  salesResult: defaultValue,
   itemsSellingQuantity: [],
   totalItems: 0,
 };
@@ -18,6 +20,13 @@ const apiUrl = 'api/statistics';
 
 export const getRevenueByTime = createAsyncThunk('statistic/get_revenue_by_time', async (dto: { startDate: string; endDate: string }) => {
   const requestUrl = `${apiUrl}/revenue-by-time?startDay=${dto.startDate}&endDay=${dto.endDate}`;
+  return axios.get<IRevenueStatistic>(requestUrl);
+});
+
+export const getSalesResult = createAsyncThunk('statistic/get_sale_result', async () => {
+  const startDate = dayjs().day(1).format('YYYY-MM-DD[T]hh:mm:ss[Z]');
+  const endDate = dayjs().format('YYYY-MM-DD[T]hh:mm:ss[Z]');
+  const requestUrl = `${apiUrl}/revenue-by-time?startDay=${endDate}&endDay=${startDate}`;
   return axios.get<IRevenueStatistic>(requestUrl);
 });
 
@@ -41,6 +50,15 @@ export const StatisticSlice = createSlice({
           ...state,
           loading: false,
           revenueByTime: data,
+        };
+      })
+      .addMatcher(isFulfilled(getSalesResult), (state, action) => {
+        const { data } = action.payload;
+
+        return {
+          ...state,
+          loading: false,
+          salesResult: data,
         };
       })
       .addMatcher(isFulfilled(getBestSeller), (state, action) => {

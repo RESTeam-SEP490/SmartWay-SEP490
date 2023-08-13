@@ -57,6 +57,7 @@ export const colors = {
 
 export const theme: ThemeConfig = {
   token: {
+    fontSize: 14,
     colorPrimary: colors.blue[600],
     colorPrimaryHover: colors.blue[500],
     colorPrimaryActive: colors.blue[700],
