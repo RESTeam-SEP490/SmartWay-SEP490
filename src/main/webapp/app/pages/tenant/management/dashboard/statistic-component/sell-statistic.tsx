@@ -1,4 +1,3 @@
-import { Bar, Column } from '@ant-design/charts';
 import { RightCircleFilled } from '@ant-design/icons';
 import { Card, Select } from 'antd';
 import { colors } from 'app/config/ant-design-theme';
@@ -9,6 +8,7 @@ import { getBestSeller, getRevenueByTime } from '../dashboard.reduce';
 import { IItemSellingQuantity } from 'app/shared/model/item-selling-quantity';
 import { currencyFormat } from 'app/shared/util/currency-utils';
 import { IMenuItem } from 'app/shared/model/menu-item.model';
+import { Bar } from '@ant-design/plots';
 
 export const SellingStatistic = () => {
   const dispatch = useAppDispatch();

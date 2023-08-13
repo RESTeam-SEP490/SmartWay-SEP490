@@ -1,4 +1,4 @@
-import { DualAxes } from '@ant-design/charts';
+import { DualAxes } from '@ant-design/plots';
 import { RightCircleFilled } from '@ant-design/icons';
 import { Card, Select } from 'antd';
 import { colors } from 'app/config/ant-design-theme';

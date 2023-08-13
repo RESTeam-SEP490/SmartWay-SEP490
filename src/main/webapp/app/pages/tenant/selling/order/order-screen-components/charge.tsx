@@ -150,7 +150,7 @@ export const Charge = ({ isOpen, handleClose }: { isOpen: boolean; handleClose: 
               pagination={false}
               columns={columns}
               showHeader={false}
-              dataSource={groupedOderDetailList}
+              dataSource={groupedOderDetailList.filter((od: IOrderDetail) => od.quantity > 0)}
             ></Table>
           </Scrollbars>
         </div>
