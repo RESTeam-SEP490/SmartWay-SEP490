@@ -18,6 +18,7 @@ module.exports = async () =>
     entry: {
       main: './src/main/webapp/app/index',
     },
+    maximumFileSizeToCacheInBytes: 30 * 1024 * 1024,
     output: {
       path: utils.root('target/classes/static/'),
       filename: '[name].[contenthash:8].js',
