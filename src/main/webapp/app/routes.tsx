@@ -17,6 +17,7 @@ import Order from 'app/pages/tenant/selling/routes';
 import { Spin } from 'antd';
 import { TenantProfileForm } from 'app/pages/tenant/management/tenant-profile/tenant-profile-form';
 import RestaurantSetting from './pages/tenant/restaurant-setting/restaurant';
+import Tenant from 'app/pages/tenant/routes';
 
 const loading = (
   <div className="flex items-center justify-center grow">
@@ -35,11 +36,6 @@ const Account = Loadable({
 //   loader: () => import(/* webpackChunkName: "admin" */ 'app/pages/admin'),
 //   loading: () => loading,
 // });
-
-const Tenant = Loadable({
-  loader: () => import(/* webpackChunkName: "tenant" */ 'app/pages/tenant/routes'),
-  loading: () => loading,
-});
 
 export const MainAppRoutes = () => {
   return (
