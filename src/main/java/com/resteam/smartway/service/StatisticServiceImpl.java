@@ -40,7 +40,7 @@ public class StatisticServiceImpl implements StatisticService {
 
         for (YearMonth month = startMonth; !month.isAfter(endMonth); month = month.plusMonths(1)) {
             Instant currentMonthStart = month.atDay(1).atStartOfDay(ZoneId.of("UTC")).toInstant();
-            Instant currentMonthEnd = month.atEndOfMonth().atStartOfDay(ZoneId.systemDefault()).toInstant().minus(1, ChronoUnit.SECONDS);
+            Instant currentMonthEnd = month.atEndOfMonth().atStartOfDay(ZoneId.of("UTC")).toInstant().minus(1, ChronoUnit.SECONDS);
 
             List<SwOrder> ordersInCurrentMonth = paidOrders
                 .stream()
@@ -78,8 +78,8 @@ public class StatisticServiceImpl implements StatisticService {
         LocalDate endDate = endDay.atZone(ZoneId.systemDefault()).toLocalDate();
 
         for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
-            Instant currentDayStart = date.atStartOfDay(ZoneId.systemDefault()).toInstant();
-            Instant currentDayEnd = date.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant().minus(1, ChronoUnit.SECONDS);
+            Instant currentDayStart = date.atStartOfDay(ZoneId.of("UTC")).toInstant();
+            Instant currentDayEnd = date.plusDays(1).atStartOfDay(ZoneId.of("UTC")).toInstant().minus(1, ChronoUnit.SECONDS);
 
             List<SwOrder> ordersInCurrentDay = paidOrders
                 .stream()
