@@ -10,7 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 public class TopSellingItemsDTO {
 
-    MenuItem MenuItem;
+    MenuItem menuItem;
     int quantity;
     double revenue;
 }

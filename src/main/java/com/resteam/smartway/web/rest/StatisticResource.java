@@ -31,7 +31,7 @@ public class StatisticResource {
         return ResponseEntity.ok(dailySalesStatistics);
     }
 
-    @GetMapping("/calculate-statistics")
+    @GetMapping("/revenue-by-time")
     public StatisticDateRangeDTO calculateStatistics(@RequestParam Instant startDay, @RequestParam Instant endDay) {
         long daysBetween = Duration.between(startDay, endDay).toDays();
 

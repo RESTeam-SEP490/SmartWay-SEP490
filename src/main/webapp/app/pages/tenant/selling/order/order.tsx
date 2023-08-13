@@ -4,10 +4,18 @@ import React, { useEffect } from 'react';
 import { MdFastfood, MdShoppingBag, MdTableRestaurant } from 'react-icons/md';
 import { Translate } from 'react-jhipster';
 import { DEFAULT_PAGEABLE } from '../../../../app.constant';
-import { getEntities as getTables, setPageable as setTablePageable } from '../../management/dining-table/dining-table.reducer';
+import {
+  getEntities as getTables,
+  reset as resetTable,
+  setPageable as setTablePageable,
+} from '../../management/dining-table/dining-table.reducer';
 import { getEntities as getCategories } from '../../management/menu-item-category/menu-item-category.reducer';
 import { getEntities as getBankAccoutInfo } from '../../check-bank-account-tenant/check-bank-account-tenant.reducer';
-import { getEntities as getMenuItems, setPageable as setItemPageable } from '../../management/menu-item/menu-item.reducer';
+import {
+  getEntities as getMenuItems,
+  reset as resetMenuItem,
+  setPageable as setItemPageable,
+} from '../../management/menu-item/menu-item.reducer';
 import { getEntities as getOrders, orderActions } from '../../selling/order/order.reducer';
 import { MenuItemList } from './order-screen-components/menu-item-list';
 import { OrderDetails } from './order-screen-components/order-details';
@@ -65,6 +73,8 @@ export const OrderScreen = () => {
     dispatch(getBankAccoutInfo());
 
     return () => {
+      dispatch(resetMenuItem());
+      dispatch(resetTable());
       dispatch(orderActions.disconnectStomp());
     };
   }, []);
