@@ -38,6 +38,9 @@
     <include file="config/liquibase/changelog/20230808131704_add_fields_into_order.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20230809170027_delete_discountType_in_order.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20230727140220_addRestaurant.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230810193004_add_column_isActive_User.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230811065725_add_isCompleted_to_order.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230811073128_add_subtotal_to_order.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
     <!-- jhipster-needle-liquibase-add-incremental-changelog - JHipster will add incremental liquibase changelogs here -->

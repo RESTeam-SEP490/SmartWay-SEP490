@@ -49,4 +49,6 @@ public class StaffDTO {
     private String langKey;
 
     private RoleDTO role;
+
+    private Boolean isActive = true;
 }
