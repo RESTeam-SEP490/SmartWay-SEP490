@@ -52,7 +52,11 @@ export default () => {
             />
             <Route
               path="dashboard"
-              element={<PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.TABLE_VIEW]}>{/*<Dashboard />*/}</PrivateRoute>}
+              element={
+                <PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.TABLE_VIEW]}>
+                  <Dashboard />
+                </PrivateRoute>
+              }
             />
 
             {/* <Route path="*" element={<PageNotFound />} /> */}
