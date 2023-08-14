@@ -8,6 +8,7 @@ import { BrandIcon } from 'app/shared/layout/header/header-components';
 import { Button, Menu } from 'antd';
 import { MdOutlineReceiptLong, MdOutlineRestaurantMenu, MdOutlineRoomService, MdOutlineTune } from 'react-icons/md';
 import Kitchen from './kitchen/kitchen';
+import { Bill } from './bill/bill';
 
 export default () => {
   const location = useLocation();
@@ -69,6 +70,7 @@ export default () => {
           <ErrorBoundaryRoutes>
             <Route path="orders" element={<OrderScreen />} />
             <Route path="kitchen" element={<Kitchen />} />
+            <Route path="bills" element={<Bill />} />
             {/* <Route path="*" element={<PageNotFound />} /> */}
           </ErrorBoundaryRoutes>
         </div>

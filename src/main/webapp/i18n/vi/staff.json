@@ -38,7 +38,7 @@
     "status.label": "Trạng thái",
     "status.trueValue": "Đang hoạt động",
     "status.falseValue": "Ngưng hoạt động",
-
+    "emailExist": "Email đã tồn tại",
     "usernameExist": "Tên đăng nhập đã tồn tại",
     "action": {
       "delete.question": "Bạn có muốn xóa tên đăng nhập <b>{{ code }}</b> không ?",

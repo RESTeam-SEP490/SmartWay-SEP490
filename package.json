@@ -73,11 +73,13 @@
     "packaging": "jar"
   },
   "dependencies": {
-    "@ant-design/icons": "^5.1.4",
+    "@ant-design/icons": "^4.6.0",
+    "@ant-design/plots": "^1.2.5",
     "@fortawesome/fontawesome-svg-core": "^6.4.0",
     "@fortawesome/free-regular-svg-icons": "^6.4.0",
     "@fortawesome/free-solid-svg-icons": "^6.4.0",
     "@fortawesome/react-fontawesome": "^0.2.0",
+    "@loadable/component": "^5.15.3",
     "@reduxjs/toolkit": "1.8.5",
     "antd": "^5.7",
     "antd-img-crop": "^4.12.2",

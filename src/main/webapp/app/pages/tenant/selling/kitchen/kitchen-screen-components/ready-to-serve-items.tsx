@@ -111,7 +111,7 @@ export const ReadyToServeItems = () => {
                     )}
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="flex justify-end gap-2 w-28">
                     <ConfigProvider
                       theme={{
                         token: {
@@ -149,7 +149,17 @@ export const ReadyToServeItems = () => {
                             className="!w-12"
                             icon={<DoubleRightOutlined rev="" />}
                             onClick={() =>
-                              dispatch(kitchenActions.notifyServed({ readyToServeNotificationId: item.id, servedQuantity: item.quantity }))
+                              dispatch(
+                                kitchenActions.notifyServed({
+                                  readyToServeNotificationId: item.id,
+                                  servedQuantity: [...item.itemCancellationNotificationList.map(icn => icn.quantity)].reduce<number>(
+                                    (prev, value) => {
+                                      return prev - value;
+                                    },
+                                    item.quantity - item.servedQuantity
+                                  ),
+                                })
+                              )
                             }
                           />
                         </>

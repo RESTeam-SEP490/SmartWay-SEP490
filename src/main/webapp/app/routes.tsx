@@ -1,7 +1,7 @@
 import React from 'react';
-import Loadable from 'react-loadable';
 import { Navigate, Route } from 'react-router-dom';
 
+import { Spin } from 'antd';
 import { AUTHORITIES } from 'app/config/constants';
 import Activate from 'app/modules/account/activate/activate';
 import PasswordResetFinish from 'app/modules/account/password-reset/finish/password-reset-finish';
@@ -10,13 +10,12 @@ import Register from 'app/modules/account/register/register';
 import Home from 'app/modules/home/home';
 import Login from 'app/modules/login/login';
 import Logout from 'app/modules/login/logout';
+import { TenantProfileForm } from 'app/pages/tenant/management/tenant-profile/tenant-profile-form';
 import PrivateRoute from 'app/shared/auth/private-route';
 import ErrorBoundaryRoutes from 'app/shared/error/error-boundary-routes';
 import PageNotFound from 'app/shared/error/page-not-found';
-import Order from 'app/pages/tenant/selling/routes';
-import { Spin } from 'antd';
-import { TenantProfileForm } from 'app/pages/tenant/management/tenant-profile/tenant-profile-form';
 import RestaurantSetting from './pages/tenant/restaurant-setting/restaurant';
+import loadable from '@loadable/component';
 
 const loading = (
   <div className="flex items-center justify-center grow">
@@ -26,20 +25,16 @@ const loading = (
   </div>
 );
 
-const Account = Loadable({
-  loader: () => import(/* webpackChunkName: "account" */ 'app/modules/account'),
-  loading: () => loading,
-});
+const Account = loadable(() => import(/* webpackChunkName: "account" */ 'app/modules/account'));
 
 // const Admin = Loadable({
 //   loader: () => import(/* webpackChunkName: "admin" */ 'app/pages/admin'),
 //   loading: () => loading,
 // });
 
-const Tenant = Loadable({
-  loader: () => import(/* webpackChunkName: "tenant" */ 'app/pages/tenant/routes'),
-  loading: () => loading,
-});
+const Setup = loadable(() => import(/* webpackChunkName: "tenant" */ 'app/pages/tenant/routes'));
+
+const POS = loadable(() => import(/* webpackChunkName: "tenant" */ 'app/pages/tenant/selling/routes'));
 
 export const MainAppRoutes = () => {
   return (
@@ -85,7 +80,7 @@ export const TenantAppRoutes = () => {
         path="managing/*"
         element={
           <PrivateRoute hasAnyAuthorities={[AUTHORITIES.USER, AUTHORITIES.ADMIN]}>
-            <Tenant />
+            <Setup />
           </PrivateRoute>
         }
       ></Route>
@@ -93,7 +88,7 @@ export const TenantAppRoutes = () => {
         path="pos/*"
         element={
           <PrivateRoute hasAnyAuthorities={[AUTHORITIES.USER, AUTHORITIES.ADMIN]}>
-            <Order />
+            <POS />
           </PrivateRoute>
         }
       ></Route>

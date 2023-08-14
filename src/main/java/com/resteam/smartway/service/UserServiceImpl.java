@@ -21,7 +21,6 @@ import com.resteam.smartway.service.mapper.StaffMapper;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
 import com.resteam.smartway.web.rest.errors.SubdomainAlreadyUsedException;
 import java.io.InputStream;
-import java.text.DecimalFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -84,6 +83,7 @@ public class UserServiceImpl implements UserService {
     private final String CONTENT_ROLE_NOT_EXIST = "staff.roleNotExist";
     private static final String SECRET_KEY_ENCRYPT = "lUcV6iYbiEtmXQze5RQf92eJLeJe6LPOFwgP0YRBwJc=";
     private final String CONTENT_USERNAME_EXIST = "staff.usernameExist";
+    private final String CONTENT_EMAIL_EXIST = "staff.emailExist";
     private final String ENTITY_USERNAME_PROFILE = "username";
 
     @Value("${jhipster.clientApp.name}")
@@ -345,6 +345,8 @@ public class UserServiceImpl implements UserService {
                 XSSFSheet sheet = workbook.getSheet(NAME_SHEET_STAFF);
                 int rowNumber = 0;
                 Iterator<Row> iterator = sheet.iterator();
+                List<String> listEmailInFile = new ArrayList<>();
+                List<String> listUsernameInFile = new ArrayList<>();
                 while (iterator.hasNext()) {
                     Row row = iterator.next();
                     if (rowNumber == 0) {
@@ -356,7 +358,7 @@ public class UserServiceImpl implements UserService {
                     User staff = new User();
                     boolean isRoleChecked = false;
                     boolean isUsernameChecked = false;
-                    DecimalFormat decimalFormat = new DecimalFormat("#");
+                    boolean isEmailChecked = false;
                     List<String> keysToRemove = new ArrayList<>();
                     while (cells.hasNext()) {
                         Cell cell = cells.next();
@@ -381,7 +383,17 @@ public class UserServiceImpl implements UserService {
                                 staff.setFullName(cell.getStringCellValue().trim());
                                 break;
                             case 3:
-                                staff.setEmail(cell.getStringCellValue().trim());
+                                Optional<User> optionalEmail = userRepository.findOneByEmailIgnoreCase(cell.getStringCellValue().trim());
+                                if (optionalEmail.isPresent()) {
+                                    noUpload = true;
+                                    isEmailChecked = true;
+                                    StringBuilder columnName = new StringBuilder(getColumnLabel(4));
+                                    errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), CONTENT_EMAIL_EXIST);
+                                    keysToRemove.add(getColumnLabel(4) + (rowNumber + 1));
+                                } else {
+                                    isEmailChecked = true;
+                                    staff.setEmail(cell.getStringCellValue().trim());
+                                }
                                 break;
                             case 4:
                                 staff.setPhone(cell.getStringCellValue().trim());
@@ -503,11 +515,13 @@ public class UserServiceImpl implements UserService {
                     }
 
                     if (staff.getEmail() == null) {
-                        isValidated = false;
-                        StringBuilder columnName = new StringBuilder(getColumnLabel(4));
-                        errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), CONTENT_KEY_COLUMN_EMPTY);
-                        keysToRemove.add(getColumnLabel(4) + (rowNumber + 1));
-                        noUpload = true;
+                        if (!isEmailChecked) {
+                            isValidated = false;
+                            StringBuilder columnName = new StringBuilder(getColumnLabel(4));
+                            errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), CONTENT_KEY_COLUMN_EMPTY);
+                            keysToRemove.add(getColumnLabel(4) + (rowNumber + 1));
+                            noUpload = true;
+                        }
                     } else {
                         if (!Pattern.matches(REGEX_EMAIL, staff.getEmail())) {
                             isValidated = false;
@@ -545,6 +559,26 @@ public class UserServiceImpl implements UserService {
                             errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), CONTENT_KEY_COLUMN_EMPTY);
                             keysToRemove.add(getColumnLabel(6) + (rowNumber + 1));
                         }
+                    }
+
+                    boolean isDuplicateUsername = listUsernameInFile.stream().anyMatch(s -> s.equals(staff.getUsername()));
+                    if (isDuplicateUsername) {
+                        isValidated = false;
+                        noUpload = true;
+                        StringBuilder columnName = new StringBuilder(getColumnLabel(1));
+                        errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), CONTENT_USERNAME_EXIST);
+                    } else {
+                        listUsernameInFile.add(staff.getUsername());
+                    }
+
+                    boolean isDuplicateEmail = listEmailInFile.stream().anyMatch(s -> s.equals(staff.getEmail()));
+                    if (isDuplicateEmail) {
+                        isValidated = false;
+                        noUpload = true;
+                        StringBuilder columnName = new StringBuilder(getColumnLabel(4));
+                        errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), CONTENT_EMAIL_EXIST);
+                    } else {
+                        listEmailInFile.add(staff.getEmail());
                     }
 
                     if (isValidated) {

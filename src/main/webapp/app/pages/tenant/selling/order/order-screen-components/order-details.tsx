@@ -248,26 +248,40 @@ export const OrderDetails = () => {
                 },
               }}
             >
-              <Button
-                disabled={
-                  currentOrder.orderDetailList.length === 0 ||
-                  currentOrder.orderDetailList.every(od => od.quantity === 0) ||
-                  currentOrder.orderDetailList.some(od => od.unnotifiedQuantity > 0) ||
-                  currentOrder.id === null
-                }
-                onClick={() => setIsOpenChargeModal(true)}
-                icon={<MdMonetizationOn size={20} />}
-                size="large"
-                type="primary"
-                className="flex items-center justify-center grow"
-              >
-                <Translate contentKey="order.orderDetails.charge" />
-              </Button>
+              {!currentOrder?.paid ? (
+                <Button
+                  disabled={
+                    currentOrder.orderDetailList.length === 0 ||
+                    currentOrder.orderDetailList.every(od => od.quantity === 0) ||
+                    currentOrder.orderDetailList.filter(od => od.quantity > 0).some(od => od.servedQuantity < od.quantity) ||
+                    currentOrder.id === null
+                  }
+                  onClick={() => setIsOpenChargeModal(true)}
+                  icon={<MdMonetizationOn size={20} />}
+                  size="large"
+                  type="primary"
+                  block
+                  className="flex items-center justify-center grow"
+                >
+                  <Translate contentKey="order.orderDetails.charge" />
+                </Button>
+              ) : (
+                <Button
+                  size="large"
+                  type="primary"
+                  block
+                  className="flex items-center justify-center grow"
+                  icon={<MdTableRestaurant size={20} />}
+                >
+                  Free up table
+                </Button>
+              )}
             </ConfigProvider>
             <Button
               size="large"
               type="primary"
-              className="flex items-center justify-center grow "
+              block
+              className="flex items-center justify-center grow"
               icon={<MdRoomService size={20} />}
               onClick={() => dispatch(orderActions.notifyKitchen(currentOrder.id))}
               disabled={isDisableNotifyButton}

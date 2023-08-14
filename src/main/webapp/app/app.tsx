@@ -52,7 +52,7 @@ export const App = () => {
   return (
     <BrowserRouter basename={baseHref}>
       <Scrollbars className="!w-screen !h-screen">
-        <ConfigProvider theme={theme}>
+        <ConfigProvider theme={theme} statistic={{ style: { fontSize: 50 } }}>
           <ToastContainer position={toast.POSITION.TOP_RIGHT} className="toastify-container" toastClassName="toastify-toast" />
           <div className="flex flex-col w-screen min-h-screen">
             <ErrorBoundary>

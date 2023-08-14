@@ -342,7 +342,7 @@ th.ant-table-cell::before {
   position: absolute;
   width: 8px;
   height: 28px;
-  background: var(--100);
+  background: '#fff';
   left: -2px;
   z-index: 0;
 }
@@ -359,4 +359,18 @@ th.ant-table-cell::before {
 .label-font-semibol label {
   font-weight: 600 !important;
   padding-left: 12px;
+}
+.statistic .ant-select-selection-item {
+  font-weight: 600 !important;
+  font-size: 1.125rem !important;
+  line-height: 1.75rem !important;
+  color: #4d81f1;
+}
+
+*,
+::before,
+::after {
+  border-width: 0;
+  border-style: solid;
+  border-color: theme('borderColor.DEFAULT', currentColor);
 }
