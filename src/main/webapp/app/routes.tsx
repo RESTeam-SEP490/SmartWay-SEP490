@@ -1,5 +1,4 @@
 import React from 'react';
-import Loadable from 'react-loadable';
 import { Navigate, Route } from 'react-router-dom';
 
 import { Spin } from 'antd';
@@ -16,6 +15,7 @@ import PrivateRoute from 'app/shared/auth/private-route';
 import ErrorBoundaryRoutes from 'app/shared/error/error-boundary-routes';
 import PageNotFound from 'app/shared/error/page-not-found';
 import RestaurantSetting from './pages/tenant/restaurant-setting/restaurant';
+import loadable from '@loadable/component';
 
 const loading = (
   <div className="flex items-center justify-center grow">
@@ -25,25 +25,16 @@ const loading = (
   </div>
 );
 
-const Account = Loadable({
-  loader: () => import(/* webpackChunkName: "account" */ 'app/modules/account'),
-  loading: () => loading,
-});
+const Account = loadable(() => import(/* webpackChunkName: "account" */ 'app/modules/account'));
 
 // const Admin = Loadable({
 //   loader: () => import(/* webpackChunkName: "admin" */ 'app/pages/admin'),
 //   loading: () => loading,
 // });
 
-const Setup = Loadable({
-  loader: () => import(/* webpackChunkName: "tenant" */ 'app/pages/tenant/routes'),
-  loading: () => loading,
-});
+const Setup = loadable(() => import(/* webpackChunkName: "tenant" */ 'app/pages/tenant/routes'));
 
-const POS = Loadable({
-  loader: () => import(/* webpackChunkName: "tenant" */ 'app/pages/tenant/selling/routes'),
-  loading: () => loading,
-});
+const POS = loadable(() => import(/* webpackChunkName: "tenant" */ 'app/pages/tenant/selling/routes'));
 
 export const MainAppRoutes = () => {
   return (
