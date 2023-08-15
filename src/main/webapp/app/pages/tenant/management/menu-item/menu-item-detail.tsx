@@ -8,6 +8,7 @@ import { currencyFormatter, DEFAULT_FORM_ITEM_LAYOUT } from 'app/app.constant';
 import { useAppDispatch } from 'app/config/store';
 import MenuItemDelete from './menu-item-dialog';
 import { IMenuItem } from 'app/shared/model/menu-item.model';
+import { MdFastfood } from 'react-icons/md';
 
 export const MenuItemDetail = ({ menuItem, onUpdate }: { menuItem: IMenuItem; onUpdate: any }) => {
   const dispatch = useAppDispatch();
@@ -43,22 +44,24 @@ export const MenuItemDetail = ({ menuItem, onUpdate }: { menuItem: IMenuItem; on
               className="px-3 py-1 text-sm border-2 border-red-100 border-solid shadow-md"
               color="red"
             >
-              <Image
-                preview={false}
-                src={menuItem.imageUrl}
-                width={200}
-                height={200}
-                className="overflow-hidden border-blue-300 border-solid rounded-md shadow-md border-spacing-2 bg-slate-500 bg-opacity-20"
-              />
+              <div className="w-[200px] h-[200px] bg-blue-200">
+                <Image
+                  preview={false}
+                  src={menuItem.imageUrl}
+                  width={200}
+                  height={200}
+                  className="overflow-hidden border-blue-300 border-solid rounded-md shadow-md border-spacing-2 bg-slate-500 bg-opacity-20"
+                />
+              </div>
             </Badge.Ribbon>
           ) : (
-            <Image
-              preview={false}
-              src={menuItem.imageUrl}
-              width={200}
-              height={200}
-              className="overflow-hidden border-blue-300 border-solid rounded-md shadow-md border-spacing-2"
-            />
+            <div className="w-[200px] h-[200px] bg-blue-100 rounded-lg flex items-center justify-center text-blue-600">
+              {!menuItem.imageUrl ? (
+                <MdFastfood size={80} />
+              ) : (
+                <Image preview={false} src={menuItem.imageUrl} width={200} height={200} className="rounded-lg" />
+              )}
+            </div>
           )}
 
           <Form {...DEFAULT_FORM_ITEM_LAYOUT} colon className="flex-grow ml-6">

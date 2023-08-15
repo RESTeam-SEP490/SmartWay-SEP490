@@ -120,7 +120,7 @@ public class MenuItemResource {
 
     @GetMapping("/download-template")
     public ResponseEntity<InputStreamResource> downloadExcel() {
-        ByteArrayInputStream stream = templateService.downloadExcelTemplate(PATH_TEMPLATE_EXCEL_MENU_ITEM);
+        ByteArrayInputStream stream = templateService.downloadExcelTemplate(PATH_TEMPLATE_EXCEL_MENU_ITEM, 2);
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + FILE_NAME_MENU_ITEM);
         return ResponseEntity.ok().headers(headers).contentType(MediaType.parseMediaType(MEDIA_TYPE)).body(new InputStreamResource(stream));

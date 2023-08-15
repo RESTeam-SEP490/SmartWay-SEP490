@@ -62,6 +62,9 @@ public class User extends AbstractBaseAuditingEntity<UUID> {
     @Column(name = "is_system_admin", columnDefinition = "BIT(1) DEFAULT FALSE")
     private Boolean isSystemAdmin = false;
 
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive = true;
+
     @ManyToOne
     @JoinColumn(name = "role_id", referencedColumnName = "id", columnDefinition = "BINARY(16)")
     private Role role;

@@ -1,7 +1,10 @@
 package com.resteam.smartway.web.rest;
 
+import com.resteam.smartway.repository.RestaurantRepository;
 import com.resteam.smartway.service.RestaurantService;
+import com.resteam.smartway.service.RestaurantServiceImpl;
 import com.resteam.smartway.service.dto.RestaurantDTO;
+import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -19,10 +22,12 @@ public class RestaurantResource {
 
     private static final String ENTITY_NAME = "restaurant";
 
+    private final RestaurantService restaurantService;
+
+    private final RestaurantServiceImpl restaurantServiceImpl;
+
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
-
-    private final RestaurantService restaurantService;
 
     @GetMapping("/restaurant")
     public ResponseEntity<RestaurantDTO> getCurrentRestaurant() {
@@ -32,5 +37,17 @@ public class RestaurantResource {
     @PostMapping("/restaurant")
     public ResponseEntity<RestaurantDTO> updateCurrentRestaurant(@Valid @RequestBody RestaurantDTO dto) {
         return ResponseEntity.ok(restaurantService.getRestaurantInfo());
+    }
+
+    @GetMapping("/manage-restaurants")
+    public ResponseEntity<List<RestaurantDTO>> getListRestaurants() {
+        List<RestaurantDTO> restaurantDTOs = restaurantService.getAllRestaurantDTOs();
+        return ResponseEntity.ok(restaurantDTOs);
+    }
+
+    @GetMapping("/check-plan-expiry")
+    public ResponseEntity<String> checkPlanExpiryAndSendEmailsNow() {
+        restaurantServiceImpl.checkPlanExpiryAndSendEmails();
+        return ResponseEntity.ok("Email check and sending triggered.");
     }
 }

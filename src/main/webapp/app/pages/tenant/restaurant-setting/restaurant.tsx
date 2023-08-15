@@ -11,7 +11,8 @@ export const RestaurantSetting = () => {
   const [form] = Form.useForm();
 
   useEffect(() => {
-    form.getFieldsValue(restaurant);
+    form.setFieldsValue({ ...restaurant });
+    console.log(restaurant);
   }, [restaurant]);
 
   return (
@@ -25,7 +26,7 @@ export const RestaurantSetting = () => {
             <Typography.Title level={3}>
               <Translate contentKey="global.menu.account.restaurant" />
             </Typography.Title>
-            <span className="text-gray-500">asdas.smart-way.website</span>
+            <span className="text-gray-500">{restaurant.id}.smart-way.website</span>
           </div>
         </div>
         <div className="mt-8 border-0 border-t border-solid border-slate-200"></div>
@@ -36,16 +37,16 @@ export const RestaurantSetting = () => {
           <div className="max-w-lg mt-4 ml-4">
             <Form form={form} labelAlign="left" {...DEFAULT_FORM_ITEM_LAYOUT}>
               <Form.Item name={'name'} className="!my-2" label={'Restaurant name'}>
-                <Input />
+                <Input bordered={false} readOnly />
               </Form.Item>
               <Form.Item name={'phone'} className="!my-2" label={'Phone number'}>
-                <Input />
+                <Input bordered={false} readOnly />
               </Form.Item>
               <Form.Item name={'currencyUnit'} className="!my-2" label={'Currency'}>
-                <Input />
+                <Input bordered={false} readOnly />
               </Form.Item>
               <Form.Item className="!my-2" label={'Expired date'}>
-                <Input value={''} />
+                <Input bordered={false} readOnly />
               </Form.Item>
             </Form>
           </div>

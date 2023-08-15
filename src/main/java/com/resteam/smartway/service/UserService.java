@@ -1,6 +1,7 @@
 package com.resteam.smartway.service;
 
 import com.resteam.smartway.domain.User;
+import com.resteam.smartway.service.dto.IsActiveUpdateDTO;
 import com.resteam.smartway.service.dto.ProfileDTO;
 import com.resteam.smartway.service.dto.StaffDTO;
 import com.resteam.smartway.service.dto.TenantRegistrationDTO;
@@ -27,7 +28,7 @@ public interface UserService {
 
     List<String> getAuthorities();
 
-    Page<StaffDTO> loadStaffsWithSearch(Pageable pageable, String searchText, List<String> roleIds);
+    Page<StaffDTO> loadStaffsWithSearch(Pageable pageable, String searchText, List<String> roleIds, Boolean isActive);
 
     StaffDTO createStaff(StaffDTO staffDTO);
 
@@ -40,4 +41,8 @@ public interface UserService {
     ProfileDTO updateProfile(ProfileDTO profileDTO);
 
     Map<String, String> importStaff(InputStream is);
+
+    void updateIsActiveStaff(IsActiveUpdateDTO isActiveUpdateDTO);
+
+    User findUserByRestaurantId(String id);
 }
