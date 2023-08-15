@@ -15,6 +15,8 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +43,16 @@ public class RestaurantServiceImpl implements RestaurantService {
             .filter(restaurant -> !"system@".equals(restaurant.getId()))
             .map(this::mapToDTO)
             .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<RestaurantDTO> loadRestaurantWithSearch(Pageable pageable, String searchText) {
+        if (searchText != null) searchText = searchText.toLowerCase();
+        Page<Restaurant> restaurantPage = restaurantRepository.findWithFilterParams(searchText, pageable);
+        return restaurantPage.map(item -> {
+            RestaurantDTO restaurantDTO = restaurantMapper.toDto(item);
+            return restaurantDTO;
+        });
     }
 
     private RestaurantDTO mapToDTO(Restaurant restaurant) {
