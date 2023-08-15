@@ -19,4 +19,6 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, String> 
     Optional<Restaurant> findOneById(String name);
 
     Page<Restaurant> findAllByIdNotContains(String idNotContains, Pageable pageable);
+
+    Optional<Restaurant> findOneByStripeCustomerId(String stripeCustomerId);
 }

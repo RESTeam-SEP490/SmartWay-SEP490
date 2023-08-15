@@ -32,6 +32,12 @@ public class Restaurant implements Serializable {
     @Column(name = "plan_expiry")
     private Instant planExpiry;
 
+    @Column(name = "stripe_customer_id")
+    private String stripeCustomerId;
+
+    @Column(name = "is_new", columnDefinition = "BIT(1) default false")
+    private Boolean isNew = false;
+
     @Column(name = "currency_unit")
     @Enumerated(EnumType.STRING)
     private CurrencyUnit currencyUnit;

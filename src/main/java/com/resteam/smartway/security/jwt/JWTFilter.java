@@ -1,6 +1,7 @@
 package com.resteam.smartway.security.jwt;
 
 import com.resteam.smartway.config.ApplicationProperties;
+import com.resteam.smartway.domain.Restaurant;
 import com.resteam.smartway.security.CustomUserDetails;
 import com.resteam.smartway.security.SecurityUtils;
 import com.resteam.smartway.security.multitenancy.context.RestaurantContext;
@@ -41,9 +42,9 @@ public class JWTFilter extends GenericFilterBean {
         if (StringUtils.hasText(subdomain) && StringUtils.hasText(jwt) && this.tokenProvider.validateToken(jwt)) {
             Authentication authentication = this.tokenProvider.getAuthentication(jwt);
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            String restaurantId = ((CustomUserDetails) authentication.getPrincipal()).getRestaurantId();
-            if (!restaurantId.equals(subdomain)) throw new BadCredentialsException("Restaurant subdomain not match!");
-            RestaurantContext.setCurrentRestaurantById(restaurantId);
+            Restaurant restaurant = ((CustomUserDetails) authentication.getPrincipal()).getRestaurant();
+            if (!restaurant.getId().equals(subdomain)) throw new BadCredentialsException("Restaurant subdomain not match!");
+            RestaurantContext.setCurrentRestaurant(restaurant);
         }
         filterChain.doFilter(servletRequest, servletResponse);
     }

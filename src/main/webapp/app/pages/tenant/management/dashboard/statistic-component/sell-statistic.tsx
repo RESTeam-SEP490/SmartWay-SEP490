@@ -114,3 +114,5 @@ export const SellingStatistic = () => {
     </Card>
   );
 };
+
+export default SellingStatistic;

@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from 'app/config/store';
 import React, { useEffect } from 'react';
 import { Translate } from 'react-jhipster';
 import { CheckBankAccountTenant } from '../check-bank-account-tenant/check-bank-account-tenant';
+import dayjs from 'dayjs';
 
 export const RestaurantSetting = () => {
   const restaurant = useAppSelector(state => state.restaurant.restaurant);
@@ -46,7 +47,7 @@ export const RestaurantSetting = () => {
                 <Input bordered={false} readOnly />
               </Form.Item>
               <Form.Item className="!my-2" label={'Expired date'}>
-                <Input bordered={false} readOnly />
+                <Input bordered={false} readOnly value={dayjs(restaurant.planExpiry).format('DD/MM/YYYY')} />
               </Form.Item>
             </Form>
           </div>

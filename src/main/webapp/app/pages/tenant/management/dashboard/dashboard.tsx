@@ -1,16 +1,15 @@
 import React from 'react';
 
-import { Card } from 'antd';
-import { RevenueStatistic } from './statistic-component/revenue-statistic';
-import { SellingStatistic } from './statistic-component/sell-statistic';
 import { ArrowDownOutlined, ArrowUpOutlined, DollarCircleFilled } from '@ant-design/icons';
-import { CurrencyFormat } from 'app/shared/util/currency-utils';
-import { IRevenueByTime } from 'app/shared/model/revenue-by-time';
+import { Card } from 'antd';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { IRevenueStatistic } from 'app/shared/model/revenue-statistic';
+import { CurrencyFormat } from 'app/shared/util/currency-utils';
 import { useEffect } from 'react';
-import { getSalesResult } from './dashboard.reduce';
 import { MdReceiptLong } from 'react-icons/md';
+import { getSalesResult } from './dashboard.reduce';
+import RevenueStatistic from './statistic-component/revenue-statistic';
+import SellingStatistic from './statistic-component/sell-statistic';
 
 export const Dashboard = () => {
   const dispatch = useAppDispatch();

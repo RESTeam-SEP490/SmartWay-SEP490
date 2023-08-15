@@ -112,6 +112,6 @@ public class KitchenWebsocket {
 
     private void setRestaurantContext(Principal principal) {
         CustomUserDetails userDetails = (CustomUserDetails) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
-        RestaurantContext.setCurrentRestaurantById(userDetails.getRestaurantId());
+        RestaurantContext.setCurrentRestaurant(userDetails.getRestaurant());
     }
 }

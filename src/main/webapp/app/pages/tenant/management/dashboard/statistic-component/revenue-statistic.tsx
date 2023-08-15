@@ -140,3 +140,5 @@ export const RevenueStatistic = () => {
     </Card>
   );
 };
+
+export default RevenueStatistic;
