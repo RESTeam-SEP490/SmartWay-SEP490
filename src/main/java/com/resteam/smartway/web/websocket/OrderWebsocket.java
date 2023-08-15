@@ -92,7 +92,7 @@ public class OrderWebsocket {
         );
     }
 
-    public void sendMessageAfterAddNote(OrderDTO dto) {
+    public void sendMessageToChangedOrder(OrderDTO dto) {
         simpMessagingTemplate.convertAndSend(
             String.format(RECEIVE_DESTINATION_FORMAT, RestaurantContext.getCurrentRestaurant().getId()),
             dto

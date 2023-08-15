@@ -71,7 +71,7 @@ export const DiningTableForm = ({
           />
         }
       >
-        <Form labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} form={form} colon onFinish={saveEntity} className="p-2 pt-4 !m-0">
+        <Form labelCol={{ span: 8 }} wrapperCol={{ span: 16 }} form={form} colon onFinish={saveEntity} className="p-2 pt-4 !m-0">
           <div className="flex-grow">
             <Form.Item
               label={translate('diningTable.name.label')}

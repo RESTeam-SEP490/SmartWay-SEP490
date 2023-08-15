@@ -3,6 +3,7 @@ package com.resteam.smartway.web.rest;
 import com.resteam.smartway.domain.User;
 import com.resteam.smartway.repository.UserRepository;
 import com.resteam.smartway.security.SecurityUtils;
+import com.resteam.smartway.security.multitenancy.context.RestaurantContext;
 import com.resteam.smartway.service.MailService;
 import com.resteam.smartway.service.UserService;
 import com.resteam.smartway.service.dto.AdminUserDTO;
@@ -14,10 +15,12 @@ import com.resteam.smartway.web.rest.vm.KeyAndPasswordVM;
 import com.resteam.smartway.web.rest.vm.ManagedUserVM;
 import java.net.URI;
 import java.util.Optional;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,6 +45,10 @@ public class AccountResource {
     private final UserService userService;
 
     private final MailService mailService;
+
+    private final String NOT_FOUND_EMAIL = "reset.notFoundEmail";
+    private final String PASSWORD_EXPIRED = "reset.passwordExpired";
+    private final String LENGTH_INVALID = "reset.lengthInvalid";
 
     public AccountResource(UserRepository userRepository, UserService userService, MailService mailService) {
         this.userRepository = userRepository;
@@ -123,36 +130,40 @@ public class AccountResource {
      * {@code POST   /account/reset-password/init} : Send an email to reset the password of the user.
      *
      * @param mail the mail of the user.
+     * @return
      */
     @PostMapping(path = "/account/reset-password/init")
-    public void requestPasswordReset(@RequestBody String mail) {
-        Optional<User> user = userService.requestPasswordReset(mail);
+    public ResponseEntity<String> requestPasswordReset(@RequestBody String mail, HttpServletRequest httpServletRequest) {
+        Optional<User> user = userService.requestPasswordReset(mail, httpServletRequest);
         if (user.isPresent()) {
-            mailService.sendPasswordResetMail(user.get());
+            mailService.sendPasswordResetMail(user.get(), httpServletRequest);
         } else {
             // Pretend the request has been successful to prevent checking which emails really exist
             // but log that an invalid attempt has been made
-            log.warn("Password reset requested for non existing mail");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(NOT_FOUND_EMAIL);
         }
+        return null;
     }
 
     /**
      * {@code POST   /account/reset-password/finish} : Finish to reset the password of the user.
      *
      * @param keyAndPassword the generated key and the new password.
+     * @return
      * @throws InvalidPasswordException {@code 400 (Bad Request)} if the password is incorrect.
-     * @throws RuntimeException {@code 500 (Internal Server Error)} if the password could not be reset.
+     * @throws RuntimeException         {@code 500 (Internal Server Error)} if the password could not be reset.
      */
     @PostMapping(path = "/account/reset-password/finish")
-    public void finishPasswordReset(@RequestBody KeyAndPasswordVM keyAndPassword) {
-        if (isPasswordLengthInvalid(keyAndPassword.getNewPassword())) {
-            throw new InvalidPasswordException();
-        }
-        Optional<User> user = userService.completePasswordReset(keyAndPassword.getNewPassword(), keyAndPassword.getKey());
+    public ResponseEntity<String> finishPasswordReset(@RequestBody KeyAndPasswordVM keyAndPassword, HttpServletRequest request) {
+        String subdomain = request.getHeader("host").split("[.]")[0];
+        RestaurantContext.setCurrentRestaurantById(subdomain);
 
-        if (!user.isPresent()) {
-            throw new AccountResourceException("No user was found for this reset key");
+        if (isPasswordLengthInvalid(keyAndPassword.getNewPassword())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(LENGTH_INVALID);
         }
+        User user = userService.completePasswordReset(keyAndPassword.getNewPassword(), keyAndPassword.getKey());
+
+        return null;
     }
 
     static boolean isPasswordLengthInvalid(String password) {

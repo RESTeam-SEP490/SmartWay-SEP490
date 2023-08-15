@@ -10,4 +10,5 @@ public class PaymentDTO {
     private Double discount;
     private Boolean isPayByCash;
     private UUID bankAccountId;
+    private boolean isFreeUpTable;
 }

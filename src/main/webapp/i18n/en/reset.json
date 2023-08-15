@@ -1,7 +1,11 @@
 {
   "reset": {
+    "notFoundEmail": "Not found Email in your restaurant",
+    "passwordExpired": "Reset password session has expired",
+    "lengthInvalid": "Length password invalid",
     "request": {
       "title": "Reset your password",
+      "forgot": "Forgot password",
       "form": {
         "button": "Reset password"
       },

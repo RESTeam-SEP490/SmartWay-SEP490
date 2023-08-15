@@ -1,34 +1,28 @@
-import { BlockOutlined } from '@ant-design/icons';
+import { BsFillPatchCheckFill } from 'react-icons/bs';
 import React from 'react';
-import { MdLink } from 'react-icons/md';
+import { colors } from 'app/config/ant-design-theme';
+import { CheckCircleFilled, ClockCircleFilled, ClockCircleOutlined } from '@ant-design/icons';
+import dayjs from 'dayjs';
 
-type Status = 'available' | 'occupied' | 'booked' | 'selected';
+type Status = 'available' | 'occupied' | 'billed' | 'selected';
 
-export default function TableIcon({
-  size = 66,
-  status = 'available',
-  numberOfSeats,
-}: {
-  size?: number;
-  status?: Status;
-  numberOfSeats: number;
-}) {
+export default function TableIcon({ size = 66, status = 'available', order }: { size?: number; status?: Status; order: any }) {
   let fill = 'black';
   switch (status) {
     case 'available': {
-      fill = '#5DB06F';
+      fill = colors.blue[600];
       break;
     }
-    case 'booked': {
-      fill = '#F7B940';
+    case 'billed': {
+      fill = colors.green[600];
       break;
     }
-    case 'selected': {
-      fill = '#1152DE';
+    case 'occupied': {
+      fill = '#6b7280';
       break;
     }
     default:
-      fill = '#9ca3af';
+      fill = colors.blue[700];
   }
   return (
     <div className="relative flex">
@@ -40,13 +34,19 @@ export default function TableIcon({
           fill={fill}
         />
       </svg>
-      {numberOfSeats && (
+      {order ? (
         <div
-          className="absolute flex items-center justify-center w-6 font-semibold text-white -translate-x-1/2 -translate-y-1/2 rounded-full aspect-square left-1/2 top-1/2 spect-square"
-          style={{ background: fill }}
+          className={`absolute top-1/2 left-1/2 -translate-x-[50%] -translate-y-[50%] flex gap-2 py-1 px-1.5 rounded-lg 
+          ${status === 'billed' ? 'bg-green-100 text-green-600' : ''} 
+          ${status === 'occupied' ? 'bg-gray-100 text-gray-600' : ''}`}
+          // ${isSelected ? 'bg-white text-blue-700' : 'bg-gray-100 text-gray-600'}
+          // `}
         >
-          {numberOfSeats}
+          {status === 'billed' ? <CheckCircleFilled className="text-base" rev="" /> : <ClockCircleOutlined className="text-base" rev="" />}
+          {dayjs(order.createdDate).format('HH:mm')}
         </div>
+      ) : (
+        ''
       )}
     </div>
   );

@@ -22,8 +22,8 @@
     "sheetInvalidName": "Không đúng",
     "excelFile": "Tệp excel",
     "note": "Lưu ý",
-    "dataValid": "Nhân viên chỉ cho phép nhập vào dữ liệu hợp lệ",
-    "specialCharacters": "Tên đăng nhập, họ và tên của nhân viên nên giới hạn các ký tự đặc biệt như (@, #, $, *, /, -, _,...), như vậy thì nó sẽ\n    dễ dàng hơn trong việc in và sử dụng mã vạch.",
+    "dataValid": "Chỉ cho phép nhập vào dữ liệu nhân viên hợp lệ.",
+    "specialCharacters": "Nhập dữ liệu luôn bắt đầu từ dòng đầu tiên và không để dòng nào trống giữa các dòng có dữ liệu.",
     "selectFile": "Chọn tệp",
     "upload": "Tải lên",
     "messagePhone": "Số điện thoại không hợp lệ",
@@ -35,9 +35,19 @@
     "invalidSecretKey": "Chỉ có tệp mẫu của hệ thống mới có thể tải lên",
     "nullSecretKey": "Chỉ có tệp mẫu của hệ thống mới có thể tải lên",
     "messageUsername": "Tài khoản không hợp lệ",
-    "usernameExist": "Username đã tồn tại",
+    "status.label": "Trạng thái",
+    "status.trueValue": "Đang hoạt động",
+    "status.falseValue": "Ngưng hoạt động",
+    "emailExist": "Email đã tồn tại",
+    "usernameExist": "Tên đăng nhập đã tồn tại",
     "action": {
-      "delete.question": "Bạn có muốn xóa tên đăng nhập <b>{{ code }}</b> không ?"
+      "delete.question": "Bạn có muốn xóa tên đăng nhập <b>{{ code }}</b> không ?",
+      "allowSell": "Cho phép hoạt động",
+      "allowSell.question": "Cho phép hoạt động<b>{{ number }}</b> nhân viên đã chọn?",
+      "allowSellOne.question": "Cho phép nhân viên hoạt động <b>{{ userName }}</b>?",
+      "stopSell": "Ngưng hoạt động cho nhà hàng",
+      "stopSell.question": "Ngưng hoạt động <b>{{ number }}</b> nhân viên đã chọn?",
+      "stopSellOne.question": "Ngưng hoạt động <b>{{ userName }}</b>?"
     }
   },
 

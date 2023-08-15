@@ -11,6 +11,7 @@ export interface IStaff {
   langKey?: string;
   role?: IRole;
   restaurant?: IRestaurant;
+  isActive?: boolean | null;
 }
 
 export const defaultValue: Readonly<IStaff> = {};

@@ -1,0 +1,9 @@
+import { IRestaurant } from 'app/shared/model/restaurant.model';
+
+export interface IRevenueByTime {
+  totalRevenue?: number;
+  totalOrders?: number;
+  date?: string;
+}
+
+export const defaultValue: Readonly<IRevenueByTime> = {};

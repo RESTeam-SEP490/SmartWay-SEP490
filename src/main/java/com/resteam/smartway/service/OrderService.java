@@ -1,14 +1,19 @@
 package com.resteam.smartway.service;
 
 import com.itextpdf.text.DocumentException;
+import com.resteam.smartway.service.dto.BillDTO;
 import com.resteam.smartway.service.dto.order.*;
 import com.resteam.smartway.service.dto.order.notification.CancellationDTO;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import lombok.SneakyThrows;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface OrderService {
     OrderDTO returnItem(ReturnItemDTO returnItemDTO);
+    Page<BillDTO> loadAllBillWithSort(Instant startDay, Instant endDay, UUID tableId, Pageable pageable);
     OrderDTO createOrder(OrderCreationDTO orderDTO);
     OrderDTO createTakeAwayOrder();
 
@@ -19,6 +24,8 @@ public interface OrderService {
     OrderDTO notifyKitchen(UUID orderId);
 
     List<OrderDTO> getAllActiveOrders();
+
+    OrderDTO setOrderIsCompleted(UUID orderId);
 
     OrderDTO deleteOrderDetail(UUID orderDetailId);
 
@@ -39,7 +46,7 @@ public interface OrderService {
     byte[] generatePdfOrder(UUID orderId) throws DocumentException;
 
     @SneakyThrows
-    byte[] generatePdfOrderForPay(PaymentDTO dto);
+    OrderDTO checkOut(PaymentDTO dto);
 
     byte[] generatePdfOrderForNotificationKitchen(List<UUID> ids) throws DocumentException;
 }

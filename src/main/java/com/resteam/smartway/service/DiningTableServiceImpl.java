@@ -155,9 +155,9 @@ public class DiningTableServiceImpl implements DiningTableService {
             XSSFWorkbook workbook = new XSSFWorkbook(is);
             XSSFSheet sheetSecretKey = workbook.getSheet(NAME_SHEET_SECRET_KEY);
             if (sheetSecretKey != null) {
-                Row row = sheetSecretKey.getRow(0);
+                Row row = sheetSecretKey.getRow(3);
                 if (row != null) {
-                    Cell cell = row.getCell(0);
+                    Cell cell = row.getCell(3);
                     if (cell != null && cell.getCellType() == CellType.STRING) {
                         secretKeyInFile = cell.getStringCellValue();
                     }
@@ -172,7 +172,7 @@ public class DiningTableServiceImpl implements DiningTableService {
                 XSSFSheet sheet = workbook.getSheet(NAME_SHEET_TABLE);
                 int rowNumber = 0;
                 Iterator<Row> iterator = sheet.iterator();
-                boolean os = true;
+                List<String> listDiningTableInFile = new ArrayList<>();
                 while (iterator.hasNext()) {
                     Row row = iterator.next();
                     if (rowNumber == 0) {
@@ -190,19 +190,21 @@ public class DiningTableServiceImpl implements DiningTableService {
                         Cell cell = cells.next();
                         switch (cell.getColumnIndex()) {
                             case 0:
-                                Optional<Zone> currentZone = zoneRepository.findOneByName(cell.getStringCellValue());
+                                Optional<Zone> currentZone = zoneRepository.findOneByName(cell.getStringCellValue().trim());
                                 if (currentZone.isPresent()) {
                                     diningTable.setZone(currentZone.get());
                                 } else {
                                     isSaveZone = true;
-                                    zoneString = cell.getStringCellValue();
+                                    zoneString = cell.getStringCellValue().trim();
                                     if (zoneString.equals("")) {
                                         isSaveZone = false;
                                     }
                                 }
                                 break;
                             case 1:
-                                Optional<DiningTable> diningTableOptional = diningTableRepository.findOneByName(cell.getStringCellValue());
+                                Optional<DiningTable> diningTableOptional = diningTableRepository.findOneByName(
+                                    cell.getStringCellValue().trim()
+                                );
                                 if (diningTableOptional.isPresent()) {
                                     noUpload = true;
                                     isTableNameChecked = true;
@@ -211,9 +213,9 @@ public class DiningTableServiceImpl implements DiningTableService {
                                     keysToRemove.add(getColumnLabel(2) + (rowNumber + 1));
                                 } else {
                                     isTableNameChecked = true;
-                                    diningTable.setName(cell.getStringCellValue());
+                                    diningTable.setName(cell.getStringCellValue().trim());
                                 }
-                                diningTable.setName(cell.getStringCellValue());
+                                diningTable.setName(cell.getStringCellValue().trim());
                                 break;
                             case 2:
                                 diningTable.setNumberOfSeats((int) cell.getNumericCellValue());
@@ -306,8 +308,18 @@ public class DiningTableServiceImpl implements DiningTableService {
                         }
                     }
 
+                    boolean isDuplicateTable = listDiningTableInFile.stream().anyMatch(d -> d.equals(diningTable.getName()));
+                    if (isDuplicateTable) {
+                        isValidated = false;
+                        noUpload = true;
+                        StringBuilder columnName = new StringBuilder(getColumnLabel(2));
+                        errorMap.put(String.valueOf(columnName.append(rowNumber + 1)), CONTENT_TABLE_NAME_EXIST);
+                    } else {
+                        listDiningTableInFile.add(diningTable.getName());
+                    }
+
                     if (isValidated) {
-                        if (isSaveZone) {
+                        if (isSaveZone && !Objects.equals(zoneString, "")) {
                             Zone zone = new Zone(null, zoneString);
                             diningTable.setZone(zone);
                         }
@@ -324,13 +336,17 @@ public class DiningTableServiceImpl implements DiningTableService {
                     } else {
                         for (DiningTable newTable : diningTableList) {
                             Zone zone = newTable.getZone();
-                            Optional<Zone> optionalZone = zoneRepository.findOneByName(zone.getName());
-                            if (optionalZone.isEmpty()) {
-                                zoneRepository.save(zone);
+                            if (newTable.getZone() == null) {
                                 diningTableRepository.save(newTable);
                             } else {
-                                newTable.setZone(optionalZone.get());
-                                diningTableRepository.save(newTable);
+                                Optional<Zone> optionalZone = zoneRepository.findOneByName(zone.getName());
+                                if (optionalZone.isEmpty()) {
+                                    zoneRepository.save(zone);
+                                    diningTableRepository.save(newTable);
+                                } else {
+                                    newTable.setZone(optionalZone.get());
+                                    diningTableRepository.save(newTable);
+                                }
                             }
                         }
                     }

@@ -79,17 +79,31 @@ export const StaffForm = ({ staff, isOpen, handleClose }: { staff?: IStaff; isOp
         <Form {...DEFAULT_FORM_ITEM_LAYOUT} form={form} colon onFinish={saveEntity}>
           <div className="flex gap-8 p-4">
             <div className="flex-grow">
-              <Form.Item
-                label={translate('staff.username.label')}
-                name={'username'}
-                rules={[
-                  { required: true, message: translate('entity.validation.required') },
-                  { max: 50, message: translate('entity.validation.max', { max: 50 }) },
-                  { min: 4, message: translate('entity.validation.min', { min: 4 }) },
-                ]}
-              >
-                <Input />
-              </Form.Item>
+              {!isNew ? (
+                <Form.Item
+                  label={translate('staff.username.label')}
+                  name={'username'}
+                  rules={[
+                    { required: true, message: translate('entity.validation.required') },
+                    { max: 50, message: translate('entity.validation.max', { max: 50 }) },
+                    { min: 4, message: translate('entity.validation.min', { min: 4 }) },
+                  ]}
+                >
+                  <Input readOnly={true} />
+                </Form.Item>
+              ) : (
+                <Form.Item
+                  label={translate('staff.username.label')}
+                  name={'username'}
+                  rules={[
+                    { required: true, message: translate('entity.validation.required') },
+                    { max: 50, message: translate('entity.validation.max', { max: 50 }) },
+                    { min: 4, message: translate('entity.validation.min', { min: 4 }) },
+                  ]}
+                >
+                  <Input />
+                </Form.Item>
+              )}
               <Form.Item
                 label={translate('staff.fullName.label')}
                 name={'fullName'}

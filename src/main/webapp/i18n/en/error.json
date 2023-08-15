@@ -1,6 +1,7 @@
 {
   "error": {
     "title": "Error page!",
+    "passwordExpired": "Reset password session has expired",
     "http": {
       "400": "Bad request.",
       "403": "You are not authorized to access this page.",

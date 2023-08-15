@@ -58,25 +58,29 @@ public class OrderResource {
         return ResponseEntity.ok(notPaidOrders);
     }
 
+    @PutMapping("/set-isCompleted")
+    public ResponseEntity<OrderDTO> setOrderIsCompleted(@RequestParam UUID orderId) {
+        OrderDTO completedOrder = orderService.setOrderIsCompleted(orderId);
+        return ResponseEntity.ok(completedOrder);
+    }
+
     @PutMapping("/add-note")
     public ResponseEntity<OrderDTO> addNoteToOrderDetail(@Valid @RequestBody DetailAddNoteDTO dto) {
         OrderDTO orderDTO = orderService.addNoteToOrderDetail(dto);
-        orderWebsocket.sendMessageAfterAddNote(orderDTO);
+        orderWebsocket.sendMessageToChangedOrder(orderDTO);
         return ResponseEntity.ok(orderDTO);
     }
 
     @PutMapping("/{orderId}/group-tables")
     public ResponseEntity<OrderDTO> groupOrders(@PathVariable UUID orderId, @NotEmpty @RequestBody List<String> tableIds) {
         OrderDTO groupedOrderDTO = orderService.groupTables(orderId, tableIds);
-        orderWebsocket.sendMessageAfterAddNote(groupedOrderDTO);
+        orderWebsocket.sendMessageToChangedOrder(groupedOrderDTO);
         return ResponseEntity.ok(groupedOrderDTO);
     }
 
     @PostMapping("/{orderId}/ungroup-tables")
     public ResponseEntity<Void> ungroupTables(@PathVariable UUID orderId, @RequestBody List<String> tableIds) {
-        OrderDTO orderDTO = orderService.findById(orderId);
         orderService.ungroupTables(orderId, tableIds);
-
         return ResponseEntity.ok().build();
     }
 
@@ -115,17 +119,18 @@ public class OrderResource {
         }
     }
 
-    @PostMapping("/pay")
-    public ResponseEntity<byte[]> exportPdfForOrderForPay(@RequestBody PaymentDTO paymentDTO) {
-        byte[] pdfContent = orderService.generatePdfOrderForPay(paymentDTO);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_PDF);
-        headers.setContentDispositionFormData("inline", "_order_" + paymentDTO.getOrderId() + ".pdf");
-        headers.add("paid-order-id", paymentDTO.getOrderId().toString());
-
-        orderWebsocket.sendMessageAfterPayment(paymentDTO.getOrderId());
-        return new ResponseEntity<>(pdfContent, headers, HttpStatus.OK);
+    @PostMapping("/check-out")
+    public ResponseEntity<OrderDTO> checkOut(@RequestBody PaymentDTO paymentDTO) {
+        OrderDTO orderDTO = orderService.checkOut(paymentDTO);
+        if (paymentDTO.isFreeUpTable()) {
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("paid-order-id", paymentDTO.getOrderId().toString());
+            orderWebsocket.sendMessageAfterPayment(paymentDTO.getOrderId());
+            return new ResponseEntity<>(null, headers, HttpStatus.OK);
+        } else {
+            orderWebsocket.sendMessageToChangedOrder(orderDTO);
+            return ResponseEntity.ok(orderDTO);
+        }
     }
 
     @GetMapping("/export-notificationKitchen")
@@ -149,7 +154,7 @@ public class OrderResource {
     @PostMapping("/cancel-order-detail")
     public ResponseEntity<OrderDTO> changePriority(@RequestBody CancellationDTO dto) {
         OrderDTO updatedOrder = orderService.cancelOrderDetail(dto);
-        orderWebsocket.sendMessageAfterAddNote(updatedOrder);
+        orderWebsocket.sendMessageToChangedOrder(updatedOrder);
 
         kitchenWebsocket.sendCancelMessageToKitchenScreen(updatedOrder);
         return ResponseEntity.ok(updatedOrder);
