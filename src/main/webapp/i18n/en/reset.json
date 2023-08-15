@@ -11,7 +11,7 @@
       "forgot": "Forgot password",
       "sendEmail": "Send Successfully",
       "titleEmail": "Please check your email to change your password",
-      "success": "Check your emails for details on how to reset your password.",
+      "success": "Check your emails for details on how to reset your password",
       "form": {
         "button": "Reset password"
       },

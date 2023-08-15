@@ -1,10 +1,17 @@
 {
   "reset": {
+    "notFoundEmail": "Không tìm thấy email trong nhà hàng",
+    "passwordExpired": "Đặt lại mật khẩu đã hết phiên xử lý",
+    "lengthInvalid": "Độ dài mật khẩu không hợp lệ",
+    "buttonEmail": "Gửi Email",
     "request": {
-      "subtitle": "Nhập Email của bạn để thay đổi mật khẩu tài khoản",
+      "new": "Mật khẩu mới",
+      "info": "Nhập mật khẩu mới để thay đổi mật khẩu của bạn",
+      "subtitle": "Nhập email của bạn để thay đổi mật khẩu",
       "forgot": "Quên mật khẩu",
-      "sendEmail": "Send Successfully",
-      "titleEmail": "Please check your email to change your password",
+      "sendEmail": "Gửi thành công",
+      "titleEmail": "Kiểm tra email của bạn để thay đổi mật khẩu",
+      "success": "Vui lòng kiểm tra email của bạn để xem chi tiết cách lấy lại mật khẩu",
       "form": {
         "button": "Đặt lại mật khẩu"
       },
