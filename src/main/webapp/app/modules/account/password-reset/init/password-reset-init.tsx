@@ -3,7 +3,7 @@ import { Translate, translate } from 'react-jhipster';
 
 import { handlePasswordResetInit, reset } from '../password-reset.reducer';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
-import { Alert, Button, Form, Image, Input } from 'antd';
+import { Button, Form, Image, Input } from 'antd';
 import { MailOutlined } from '@ant-design/icons';
 
 export const PasswordResetInit = () => {
@@ -53,7 +53,22 @@ export const PasswordResetInit = () => {
           </Form.Item>
         </Form>
       ) : (
-        <Alert message={translate(successMessage)} />
+        <>
+          <div className="flex flex-col">
+            <div className="mt-20 flex justify-center">
+              <Image
+                src="https://res.cloudinary.com/fptcomplex/image/upload/v1692081683/043_success-mail_zavh6l.gif"
+                preview={false}
+                width="50%"
+              ></Image>
+            </div>
+            <div>
+              <p className="mt-5 text-lowercase font-medium text-lg flex justify-center">
+                <Translate contentKey={successMessage}></Translate>
+              </p>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );
