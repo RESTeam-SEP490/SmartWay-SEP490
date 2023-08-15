@@ -1,13 +1,16 @@
 {
   "reset": {
     "request": {
-      "title": "Đặt lại mật khẩu của bạn",
+      "subtitle": "Nhập Email của bạn để thay đổi mật khẩu tài khoản",
+      "forgot": "Quên mật khẩu",
+      "sendEmail": "Send Successfully",
+      "titleEmail": "Please check your email to change your password",
       "form": {
         "button": "Đặt lại mật khẩu"
       },
       "messages": {
         "info": "Nhập địa chỉ email mà bạn đã sử dụng để đăng ký",
-        "success": "Vui lòng kiểm tra hòm thư của bạn để xem chi tiết cách lấy lại mật khẩu."
+        "success": "Vui lòng kiểm tra email của bạn để xem chi tiết cách lấy lại mật khẩu."
       }
     },
     "finish": {

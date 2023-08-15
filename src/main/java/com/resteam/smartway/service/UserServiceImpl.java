@@ -132,7 +132,7 @@ public class UserServiceImpl implements UserService {
         restaurant.setId(tenantRegistrationDTO.getRestaurantId());
         restaurant.setPhone(tenantRegistrationDTO.getPhone());
         restaurant.setCurrencyUnit(tenantRegistrationDTO.getLangKey().equals("vi") ? CurrencyUnit.VND : CurrencyUnit.USD);
-
+        restaurant.setLangKey(tenantRegistrationDTO.getLangKey());
         Restaurant savedRestaurant = restaurantRepository.save(restaurant);
         RestaurantContext.setCurrentRestaurant(savedRestaurant);
         createRole(tenantRegistrationDTO.getLangKey());
@@ -146,7 +146,6 @@ public class UserServiceImpl implements UserService {
         newUser.setFullName(tenantRegistrationDTO.getFullName());
         newUser.setEmail(tenantRegistrationDTO.getEmail().toLowerCase());
         newUser.setPhone(tenantRegistrationDTO.getPhone());
-        newUser.setLangKey(tenantRegistrationDTO.getLangKey());
         newUser.setRole(role);
         userRepository.save(newUser);
 
@@ -298,7 +297,6 @@ public class UserServiceImpl implements UserService {
                 if (email != null) {
                     user.setEmail(email.toLowerCase());
                 }
-                user.setLangKey(langKey);
                 log.debug("Changed Information for User: {}", user);
             });
     }

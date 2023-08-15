@@ -374,3 +374,7 @@ th.ant-table-cell::before {
   border-style: solid;
   border-color: theme('borderColor.DEFAULT', currentColor);
 }
+
+.color-smart-way {
+  background: #4d81f1;
+}
