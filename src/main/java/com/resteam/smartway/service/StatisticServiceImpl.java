@@ -51,7 +51,7 @@ public class StatisticServiceImpl implements StatisticService {
             int ordersInMonth = ordersInCurrentMonth.size();
 
             for (SwOrder order : ordersInCurrentMonth) {
-                totalRevenueForMonth += calculateOrderRevenue(order);
+                totalRevenueForMonth += (order.getSubtotal() - order.getDiscount());
             }
 
             StatisticDTO currentMonthStatistic = new StatisticDTO(currentMonthStart, totalRevenueForMonth, ordersInMonth);
@@ -86,7 +86,7 @@ public class StatisticServiceImpl implements StatisticService {
                 .filter(order -> order.getPayDate().isAfter(currentDayStart) && order.getPayDate().isBefore(currentDayEnd))
                 .collect(Collectors.toList());
             for (SwOrder order : ordersInCurrentDay) {
-                totalRevenueForDay += calculateOrderRevenue(order);
+                totalRevenueForDay += (order.getSubtotal() - order.getDiscount());
             }
             StatisticDTO currentDay = new StatisticDTO(currentDayStart, totalRevenueForDay, ordersInCurrentDay.size());
             statisticsList.add(currentDay);
@@ -114,18 +114,10 @@ public class StatisticServiceImpl implements StatisticService {
         int totalOrders = paidOrders.size();
 
         for (SwOrder order : paidOrders) {
-            totalRevenue += calculateOrderRevenue(order);
+            totalRevenue += (order.getSubtotal() - order.getDiscount());
         }
 
         return new StatisticDTO(currentDate, totalRevenue, totalOrders);
-    }
-
-    private double calculateOrderRevenue(SwOrder order) {
-        double revenue = 0;
-        for (OrderDetail orderDetail : order.getOrderDetailList()) {
-            revenue += orderDetail.getQuantity() * orderDetail.getMenuItem().getSellPrice();
-        }
-        return revenue;
     }
 
     @Override
