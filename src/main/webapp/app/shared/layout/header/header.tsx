@@ -62,7 +62,7 @@ const TenantAppHeader = (props: IHeaderProps) => {
   return (
     <div
       className={
-        ['login', 'pos'].some(key => location.pathname.includes(key))
+        ['login', 'pos', 'account/reset/request', 'account/reset/finish'].some(key => location.pathname.includes(key))
           ? 'hidden'
           : 'bg-white border-0 border-solid border-b border-slate-200'
       }

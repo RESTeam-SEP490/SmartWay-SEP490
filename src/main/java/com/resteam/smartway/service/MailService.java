@@ -1,9 +1,12 @@
 package com.resteam.smartway.service;
 
+import com.resteam.smartway.domain.Restaurant;
 import com.resteam.smartway.domain.User;
+import com.resteam.smartway.repository.RestaurantRepository;
 import com.resteam.smartway.security.multitenancy.context.RestaurantContext;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
+import java.util.Optional;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
@@ -41,16 +44,20 @@ public class MailService {
 
     private final SpringTemplateEngine templateEngine;
 
+    private final RestaurantRepository restaurantRepository;
+
     public MailService(
         JHipsterProperties jHipsterProperties,
         JavaMailSender javaMailSender,
         MessageSource messageSource,
-        SpringTemplateEngine templateEngine
+        SpringTemplateEngine templateEngine,
+        RestaurantRepository restaurantRepository
     ) {
         this.jHipsterProperties = jHipsterProperties;
         this.javaMailSender = javaMailSender;
         this.messageSource = messageSource;
         this.templateEngine = templateEngine;
+        this.restaurantRepository = restaurantRepository;
     }
 
     @Async
@@ -85,14 +92,16 @@ public class MailService {
             log.debug("Email doesn't exist for user '{}'", user.getUsername());
             return;
         }
-
-        Locale locale = Locale.forLanguageTag(user.getLangKey());
-        Context context = new Context(locale);
-        context.setVariable(USER, user);
-        context.setVariable(BASE_URL, "http://" + restaurant);
-        String content = templateEngine.process(templateName, context);
-        String subject = messageSource.getMessage(titleKey, null, locale);
-        sendEmail(user.getEmail(), subject, content, false, true);
+        Optional<Restaurant> findLocale = restaurantRepository.findOneById(user.getRestaurant().getId());
+        if (findLocale.isPresent()) {
+            Locale locale = Locale.forLanguageTag(findLocale.get().getLangKey());
+            Context context = new Context(locale);
+            context.setVariable(USER, user);
+            context.setVariable(BASE_URL, "http://" + restaurant);
+            String content = templateEngine.process(templateName, context);
+            String subject = messageSource.getMessage(titleKey, null, locale);
+            sendEmail(user.getEmail(), subject, content, false, true);
+        }
     }
 
     @Async

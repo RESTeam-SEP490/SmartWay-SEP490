@@ -313,6 +313,10 @@ th.ant-table-cell::before {
   border-style: solid;
 }
 
+.color-smart-way {
+  background: #4d81f1;
+}
+
 .discount input {
   text-align: end;
   cursor: pointer;

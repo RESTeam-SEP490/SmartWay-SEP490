@@ -36,6 +36,9 @@ public class Restaurant implements Serializable {
     @Enumerated(EnumType.STRING)
     private CurrencyUnit currencyUnit;
 
+    @Column(name = "lang_key", length = 10)
+    private String langKey;
+
     public Restaurant(String id) {
         this.id = id;
     }

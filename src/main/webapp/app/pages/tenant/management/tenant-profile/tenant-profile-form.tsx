@@ -1,6 +1,6 @@
 import { DEFAULT_FORM_ITEM_LAYOUT } from 'app/app.constant';
-import { translate } from 'react-jhipster';
-import { Button, DatePicker, Form, Input, message, Modal, Select, Tabs } from 'antd';
+import { Translate, translate } from 'react-jhipster';
+import { Avatar, Button, DatePicker, Form, Input, message, Modal, Select, Typography } from 'antd';
 import { validateEmail, validatePhone } from 'app/pages/tenant/management/staff/staff.reducer';
 import React, { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
@@ -9,6 +9,7 @@ import { ITenant } from 'app/shared/model/tenant';
 import dayjs from 'dayjs';
 import { Moment } from 'moment';
 import { changePassword } from 'app/pages/tenant/management/tenant-profile/tenant-change-password.reducer';
+import { UserOutlined } from '@ant-design/icons';
 
 export const TenantProfileForm = () => {
   const [form] = Form.useForm();
@@ -112,11 +113,19 @@ export const TenantProfileForm = () => {
     <>
       <Modal
         title={translate('users.infoTabs.changePassword')}
-        visible={isChangePasswordModalVisible}
+        open={isChangePasswordModalVisible}
         onCancel={hideChangePasswordModal}
         footer={null}
+        centered
       >
-        <Form form={formChangePassword} onFinish={handlePasswordChange}>
+        <Form
+          className="mt-4"
+          size="large"
+          layout={'vertical'}
+          requiredMark={false}
+          form={formChangePassword}
+          onFinish={handlePasswordChange}
+        >
           <Form.Item
             label={translate('users.currentPassword.label')}
             name={'currentPassword'}
@@ -148,96 +157,100 @@ export const TenantProfileForm = () => {
           >
             <Input.Password />
           </Form.Item>
-          <Button type="primary" htmlType="submit">
-            {translate('users.savePassword')}
-          </Button>
+          <Form.Item className="!mb-0">
+            <Button type="primary" className="float-right" htmlType="submit">
+              {translate('entity.action.save')}
+            </Button>
+          </Form.Item>
         </Form>
       </Modal>
 
-      <div className="flex justify-center h-screen form-wrapper">
-        <Form {...DEFAULT_FORM_ITEM_LAYOUT} form={form} className="flex-auto">
-          <Tabs className="p-2">
-            <Tabs.TabPane tab={translate('users.infoTabs.information')} key={1} className="flex gap-8 p-2">
-              <div className="flex-grow">
-                <Form.Item
-                  label={translate('users.username.label')}
-                  name={'username'}
-                  rules={[
-                    { required: true, message: translate('entity.validation.required') },
-                    { max: 50, message: translate('entity.validation.max', { max: 50 }) },
-                    { min: 4, message: translate('entity.validation.min', { min: 4 }) },
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
-                <Form.Item
-                  label={translate('users.fullName.label')}
-                  name={'fullName'}
-                  rules={[
-                    { required: true, message: translate('entity.validation.required') },
-                    { max: 100, message: translate('entity.validation.max', { max: 100 }) },
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
-                <Form.Item
-                  label={translate('staff.phone.label')}
-                  name={'phone'}
-                  rules={[
-                    { validator: validatePhone },
-                    { required: true, message: translate('entity.validation.required') },
-                    { max: 20, message: translate('entity.validation.max', { max: 20 }) },
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
-                <Form.Item
-                  label={translate('staff.email.label')}
-                  name={'email'}
-                  rules={[
-                    { validator: validateEmail },
-                    { required: true, message: translate('entity.validation.required') },
-                    { max: 50, message: translate('entity.validation.max', { max: 100 }) },
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
-              </div>
-              <div className="flex-grow">
-                <Form.Item
-                  label={translate('users.address.label')}
-                  name={'address'}
-                  rules={[
-                    { required: true, message: translate('entity.validation.required') },
-                    { max: 50, message: translate('entity.validation.max', { max: 100 }) },
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
+      <div className="flex mx-auto flex-col mt-10">
+        <div className="flex">
+          <Typography.Title className="!mb-1 inline-block" level={2}>
+            <Translate contentKey="users.profile">Profile</Translate>
+          </Typography.Title>
+        </div>
 
-                <Form.Item
-                  label={translate('users.birthday.label')}
-                  name={'birthday'}
-                  rules={[{ required: true, message: translate('entity.validation.required') }]}
-                >
-                  <DatePicker style={{ width: '100%' }} />
-                </Form.Item>
+        <div className="flex gap-12 mt-10">
+          <div className="flex flex-col items-center gap-2">
+            <Avatar size={140} shape={'square'} className="!bg-blue-600" icon={<UserOutlined rev={undefined} />} />
+            <Typography.Text className="!mb-4 !font-semibold !mt-\ text-gray-400 text-xl text-black-500 ">
+              {tenant.username}
+            </Typography.Text>
+            <Button type="primary" ghost onClick={showChangePasswordModal}>
+              {translate('users.infoTabs.changePassword')}
+            </Button>
+          </div>
 
-                <Form.Item
-                  label={translate('users.gender.label')}
-                  name={'gender'}
-                  rules={[{ required: true, message: translate('entity.validation.required') }]}
-                >
-                  <Select options={genderOptions} />
-                </Form.Item>
-                <Button onClick={showChangePasswordModal}>{translate('users.infoTabs.changePassword')}</Button>
-              </div>
-            </Tabs.TabPane>
-          </Tabs>
-          <Button type="primary" onClick={handleSaveProfile} className="float-right">
-            {translate('users.save')}
-          </Button>
-        </Form>
+          <div>
+            <Form {...DEFAULT_FORM_ITEM_LAYOUT} className="min-w-[400px]" layout="vertical" size="large" requiredMark={false} form={form}>
+              <Form.Item
+                label={translate('users.fullName.label')}
+                name={'fullName'}
+                rules={[
+                  { required: true, message: translate('entity.validation.required') },
+                  { max: 100, message: translate('entity.validation.max', { max: 100 }) },
+                ]}
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item
+                label={translate('staff.phone.label')}
+                name={'phone'}
+                rules={[
+                  { validator: validatePhone },
+                  { required: true, message: translate('entity.validation.required') },
+                  { max: 20, message: translate('entity.validation.max', { max: 20 }) },
+                ]}
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item
+                label={translate('staff.email.label')}
+                name={'email'}
+                rules={[
+                  { validator: validateEmail },
+                  { required: true, message: translate('entity.validation.required') },
+                  { max: 50, message: translate('entity.validation.max', { max: 100 }) },
+                ]}
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item
+                label={translate('users.address.label')}
+                name={'address'}
+                rules={[
+                  { required: true, message: translate('entity.validation.required') },
+                  { max: 50, message: translate('entity.validation.max', { max: 100 }) },
+                ]}
+              >
+                <Input />
+              </Form.Item>
+
+              <Form.Item
+                label={translate('users.birthday.label')}
+                name={'birthday'}
+                rules={[{ required: true, message: translate('entity.validation.required') }]}
+              >
+                <DatePicker style={{ width: '100%' }} format="DD-MM-YYYY" />
+              </Form.Item>
+
+              <Form.Item
+                label={translate('users.gender.label')}
+                name={'gender'}
+                rules={[{ required: true, message: translate('entity.validation.required') }]}
+              >
+                <Select options={genderOptions} />
+              </Form.Item>
+              <Form.Item>
+                <Button type="primary" onClick={handleSaveProfile} className="float-right">
+                  {translate('users.save')}
+                </Button>
+              </Form.Item>
+            </Form>
+          </div>
+        </div>
       </div>
     </>
   );
