@@ -102,7 +102,7 @@ public class OrderResource {
         return ResponseEntity.ok(newOrderDTO);
     }
 
-    @GetMapping("/print-bill")
+    @PostMapping("/print-bill")
     public ResponseEntity<byte[]> exportPdfForOrder(@RequestBody PrintBillDTO printBillDTO) {
         try {
             byte[] pdfContent = orderService.generatePdfBillWithReturnItem(printBillDTO);

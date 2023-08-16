@@ -431,6 +431,10 @@
   margin-top: 2rem;
 }
 
+.\!mt-5 {
+  margin-top: 1.25rem !important;
+}
+
 .\!block {
   display: block !important;
 }
@@ -802,6 +806,10 @@
   min-width: 30px;
 }
 
+.min-w-\[400px\] {
+  min-width: 400px;
+}
+
 .max-w-5xl {
   max-width: 64rem;
 }
@@ -1000,6 +1008,10 @@
 
 .gap-8 {
   gap: 2rem;
+}
+
+.gap-12 {
+  gap: 3rem;
 }
 
 .divide-x > :not([hidden]) ~ :not([hidden]) {
@@ -1334,6 +1346,14 @@
 
 .bg-none {
   background-image: none;
+}
+
+.bg-\[url\(\'content\/images\/happy\.jpeg\'\)\] {
+  background-image: url('content/images/happy.jpeg');
+}
+
+.bg-\[url\(\'content\/images\/kitchen\.jpeg\'\)\] {
+  background-image: url('content/images/kitchen.jpeg');
 }
 
 .from-blue-600 {

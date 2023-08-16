@@ -1,16 +1,13 @@
 import { CreditCardOutlined, PercentageOutlined, PrinterFilled, TagsFilled } from '@ant-design/icons';
-import { Button, ConfigProvider, Drawer, Form, Image, Input, InputNumber, Modal, Popover, Radio, Select, Switch, Table } from 'antd';
-import { alphabetCompare, currencyFormatter } from 'app/app.constant';
+import { Button, ConfigProvider, Drawer, Form, Image, Input, InputNumber, Modal, Popover, Radio, Select } from 'antd';
 import { colors } from 'app/config/ant-design-theme';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { IBankAccountInfo } from 'app/shared/model/bank-account-info';
-import { IOrderDetail } from 'app/shared/model/order/order-detail.model';
 import { IOrder } from 'app/shared/model/order/order.model';
+import { currencyFormat } from 'app/shared/util/currency-utils';
 import React, { useCallback, useEffect, useState } from 'react';
-import Scrollbars from 'react-custom-scrollbars-2';
-import { Translate, translate } from 'react-jhipster';
+import { translate } from 'react-jhipster';
 import { checkOut, printBill } from '../order.reducer';
-import { CurrencyFormat, currencyFormat } from 'app/shared/util/currency-utils';
 import ReturnItemsModal from './modals/return-items-modal';
 
 export const Charge = ({ isOpen, handleClose }: { isOpen: boolean; handleClose: any }) => {
@@ -26,6 +23,7 @@ export const Charge = ({ isOpen, handleClose }: { isOpen: boolean; handleClose: 
   const [isShowBankSelect, setIsShowBankSelect] = useState(false);
   const [isOpenConfirmModal, setIsOpenConfirmModal] = useState(false);
   const [isShowDiscountPopover, setIsShowDiscountPopover] = useState(false);
+  const [returnList, setReturnList] = useState([]);
 
   const [discount, setDiscount] = useState<{ number: number; isByPercent: boolean }>({ number: 0, isByPercent: false });
   const [selectedAccount, setSelectedAccount] = useState<IBankAccountInfo>({});
@@ -55,6 +53,10 @@ export const Charge = ({ isOpen, handleClose }: { isOpen: boolean; handleClose: 
     dispatch(checkOut({ ...values, orderId: currentOrder.id, freeUpTable: isFreeUpTable }));
   };
 
+  const onPrintBill = () => {
+    dispatch(printBill({ orderId: currentOrder.id, returnItemList: returnList, discount: discount.number }));
+  };
+
   return (
     <>
       <Drawer
@@ -66,7 +68,7 @@ export const Charge = ({ isOpen, handleClose }: { isOpen: boolean; handleClose: 
         width={900}
       >
         <div className="flex flex-col w-2/3 pr-4 border-r border-r-slate-100">
-          <ReturnItemsModal setBillDetail={setBillDetail} />
+          <ReturnItemsModal setBillDetail={setBillDetail} setReturnList={setReturnList} />
         </div>
         <div className="flex flex-col justify-between w-1/3 h-full pt-8 pl-2">
           <div className="">
@@ -135,7 +137,7 @@ export const Charge = ({ isOpen, handleClose }: { isOpen: boolean; handleClose: 
               </Form.Item>
               {isShowBankSelect && (
                 <>
-                  <Form.Item label={''} name={'bankAccountInfo'} wrapperCol={{ span: 26 }}>
+                  <Form.Item label={''} name={'bankAccountInfoId'} wrapperCol={{ span: 26 }}>
                     <Select className="!w-full" onChange={changeSelectAccountInfo}>
                       {bankAccountInfoList.map((info: IBankAccountInfo) => (
                         <Select.Option key={info.id} value={info.id}>
@@ -166,16 +168,7 @@ export const Charge = ({ isOpen, handleClose }: { isOpen: boolean; handleClose: 
             }}
           >
             <div className="flex items-center justify-end gap-4">
-              <Button
-                size="large"
-                type="primary"
-                className="w-40"
-                ghost
-                icon={<PrinterFilled rev="" />}
-                onClick={() => {
-                  dispatch(printBill(currentOrder.id));
-                }}
-              >
+              <Button size="large" type="primary" className="w-40" ghost icon={<PrinterFilled rev="" />} onClick={onPrintBill}>
                 Print bill
               </Button>
               <Button

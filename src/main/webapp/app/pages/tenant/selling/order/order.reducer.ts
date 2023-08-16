@@ -6,6 +6,7 @@ import { defaultValue, IOrder } from 'app/shared/model/order/order.model';
 import { serializeAxiosError } from 'app/shared/reducers/reducer.utils';
 import { notification } from 'antd';
 import { translate } from 'react-jhipster';
+import { OrderDetails } from './order-screen-components/order-details';
 
 const initialState = {
   isEstablishingConnection: false,
@@ -24,13 +25,13 @@ export const getEntities = createAsyncThunk('orders/fetch_entity_list', async ()
   return await axios.get<IOrder[]>(requestUrl);
 });
 
-export const printBill = createAsyncThunk('orders/print_bill', async (id: string) => {
-  const requestUrl = `${apiUrl}/${id}/print-bill?cacheBuster=${new Date().getTime()}`;
+export const printBill = createAsyncThunk('orders/print_bill', async (dto: any) => {
+  const requestUrl = `${apiUrl}/print-bill?cacheBuster=${new Date().getTime()}`;
   const headers = {
     'Content-Type': 'application/json',
     Accept: 'application/pdf',
   };
-  return await axios.get<ArrayBuffer>(requestUrl, { responseType: 'arraybuffer', headers });
+  return await axios.post<ArrayBuffer>(requestUrl, dto, { responseType: 'arraybuffer', headers });
 });
 
 export const addNote = createAsyncThunk(

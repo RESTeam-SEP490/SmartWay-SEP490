@@ -673,6 +673,7 @@ public class OrderServiceImpl implements OrderService {
         Font titleFont = new Font(baseFont, 10, Font.BOLD, BaseColor.BLACK);
         Font headerFont = new Font(baseFont, 8, Font.BOLD, BaseColor.BLACK);
         Font normalFont = new Font(baseFont, 8, Font.NORMAL, BaseColor.BLACK);
+        Font footerFont = new Font(baseFont, 6, Font.BOLD, BaseColor.BLACK);
 
         document.open();
 
@@ -692,33 +693,27 @@ public class OrderServiceImpl implements OrderService {
         phone.setAlignment(Element.ALIGN_CENTER);
         document.add(phone);
 
-        Paragraph line = new Paragraph("----------------", titleFont);
+        Paragraph line = new Paragraph("----------------", headerFont);
         line.setAlignment(Element.ALIGN_CENTER);
         document.add(line);
 
         document.add(Chunk.NEWLINE);
 
-        Paragraph code = new Paragraph();
-        Chunk codeLabel = new Chunk("Bill: ", headerFont);
-        Chunk codeValue = new Chunk("#" + orderDTO.getCode(), normalFont);
-        code.add(codeLabel);
-        code.add(codeValue);
-        document.add(code);
+        Paragraph billParagraph = new Paragraph();
+        Chunk codeValue = new Chunk("#" + orderDTO.getCode(), headerFont);
+        billParagraph.add(codeValue);
 
+        String tableListInString;
         List<DiningTableDTO> tableList = orderDTO.getTableList();
         if (tableList.size() == 0) {
-            Paragraph takeaway = new Paragraph("Takeaway", headerFont);
-            document.add(takeaway);
+            tableListInString = "Takeaway";
         } else {
             tableList.sort(Comparator.comparing(DiningTableDTO::getName));
-            Paragraph tableParagraph = new Paragraph();
-            Chunk tableLabel = new Chunk("Table: ", headerFont);
-            String tableValueString = String.format("%s (+%d)", tableList.get(0).getName(), tableList.size() - 1);
-            Chunk tableValue = new Chunk(tableValueString, normalFont);
-            tableParagraph.add(tableLabel);
-            tableParagraph.add(tableValue);
-            document.add(tableParagraph);
+            tableListInString = tableList.stream().map(DiningTableDTO::getName).collect(Collectors.joining(","));
         }
+        Chunk tableListChunk = new Chunk(" - " + tableListInString, normalFont);
+        billParagraph.add(tableListChunk);
+        document.add(billParagraph);
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy").withZone(ZoneId.of("UTC"));
 
@@ -729,26 +724,18 @@ public class OrderServiceImpl implements OrderService {
         timeIn.add(timeInValue);
         document.add(timeIn);
 
-        Paragraph timeOut = new Paragraph();
-        Chunk timeOutLabel = new Chunk("Check out: ", headerFont);
-        Chunk timeOutValue = new Chunk(formatter.format(orderDTO.getCreatedDate()), normalFont);
-        timeOut.add(timeOutLabel);
-        timeOut.add(timeOutValue);
-        document.add(timeOut);
-
-        document.add(Chunk.NEWLINE);
-
         PdfPTable table = new PdfPTable(4);
         table.setWidthPercentage(100);
+        table.setSpacingBefore(10f);
 
         // Header row with relative widths
-        float[] columnWidths = { 15f, 40f, 20f, 20f }; // Adjust the percentages here
+        float[] columnWidths = { 38f, 12f, 25f, 25f }; // Adjust the percentages here
         table.setWidths(columnWidths);
         // Header row
-        addHeaderWithStyle(table, "Item", headerFont);
-        addHeaderWithStyle(table, "Qty.", headerFont);
-        addHeaderWithStyle(table, "Price", headerFont);
-        addHeaderWithStyle(table, "Amount", headerFont);
+        addHeaderWithStyle(table, "Item", headerFont, Element.ALIGN_LEFT);
+        addHeaderWithStyle(table, "Qty.", headerFont, Element.ALIGN_CENTER);
+        addHeaderWithStyle(table, "Price", headerFont, Element.ALIGN_RIGHT);
+        addHeaderWithStyle(table, "Amount", headerFont, Element.ALIGN_RIGHT);
 
         //define formatter cho currency
         DecimalFormat currencyFormatter = (DecimalFormat) NumberFormat.getCurrencyInstance(
@@ -761,22 +748,18 @@ public class OrderServiceImpl implements OrderService {
 
         // Data row
         for (OrderDetailDTO orderDetail : orderDetailList) {
-            addValueWithStyle(table, orderDetail.getMenuItem().getName(), normalFont);
-            addValueWithStyle(table, String.valueOf(orderDetail.getQuantity()), normalFont);
-            addValueWithStyle(table, currencyFormatter.format(orderDetail.getMenuItem().getSellPrice()), normalFont);
+            addValueWithStyle(table, orderDetail.getMenuItem().getName(), normalFont, Element.ALIGN_LEFT);
+            addValueWithStyle(table, String.valueOf(orderDetail.getQuantity()), normalFont, Element.ALIGN_CENTER);
+            addValueWithStyle(table, currencyFormatter.format(orderDetail.getMenuItem().getSellPrice()), normalFont, Element.ALIGN_RIGHT);
             addValueWithStyle(
                 table,
                 currencyFormatter.format(orderDetail.getMenuItem().getSellPrice() * orderDetail.getQuantity()),
-                normalFont
+                normalFont,
+                Element.ALIGN_RIGHT
             );
         }
 
-        document.add(table);
-
-        document.add(Chunk.NEWLINE);
-
-        Paragraph subtotalParagraph = new Paragraph();
-        Chunk subtotalLabel = new Chunk("Subtotal: ", normalFont);
+        addCellWithColSpan(table, "Subtotal: ", normalFont, Element.ALIGN_LEFT, 2);
         Double subtotal = orderDetailList
             .stream()
             .reduce(
@@ -784,28 +767,18 @@ public class OrderServiceImpl implements OrderService {
                 (prevSubtotal, currentDetail) -> prevSubtotal + currentDetail.getQuantity() * currentDetail.getMenuItem().getSellPrice(),
                 Double::sum
             );
-        Chunk subtotalValue = new Chunk(currencyFormatter.format(subtotal), normalFont);
-        subtotalParagraph.add(subtotalLabel);
-        subtotalParagraph.add(subtotalValue);
-        subtotalParagraph.setAlignment(Element.ALIGN_JUSTIFIED_ALL);
-        document.add(subtotalParagraph);
+        addCellWithColSpan(table, currencyFormatter.format(subtotal), normalFont, Element.ALIGN_RIGHT, 2);
 
-        Paragraph discountParagraph = new Paragraph();
-        Chunk discountLabel = new Chunk("Discount: ", normalFont);
-        Chunk discountValue = new Chunk(discount == null ? "0" : currencyFormatter.format(discount), normalFont);
-        discountParagraph.add(discountLabel);
-        discountParagraph.add(discountValue);
-        discountParagraph.setAlignment(Element.ALIGN_JUSTIFIED_ALL);
-        document.add(discountParagraph);
+        addCellWithColSpan(table, "Discount: ", normalFont, Element.ALIGN_LEFT, 2);
+        addCellWithColSpan(table, discount == null ? "0" : currencyFormatter.format(discount), normalFont, Element.ALIGN_RIGHT, 2);
 
-        Paragraph totalParagraph = new Paragraph();
-        Chunk totalLabel = new Chunk("Total: ", normalFont);
-        Chunk totalValue = new Chunk(currencyFormatter.format(subtotal - 0), titleFont);
-        discountParagraph.add(totalLabel);
-        discountParagraph.add(totalValue);
-        discountParagraph.setAlignment(Element.ALIGN_JUSTIFIED_ALL);
-        document.add(totalParagraph);
+        addCellWithColSpan(table, "Total: ", headerFont, Element.ALIGN_LEFT, 2);
+        String total = currencyFormatter.format(subtotal - discount) + restaurant.getCurrencyUnit();
+        addCellWithColSpan(table, total, headerFont, Element.ALIGN_RIGHT, 2);
 
+        document.add(table);
+
+        document.add(Chunk.NEWLINE);
         document.add(line);
 
         String imageUrl = "https://static.vecteezy.com/system/resources/previews/002/557/391/original/qr-code-for-scanning-free-vector.jpg";
@@ -820,7 +793,7 @@ public class OrderServiceImpl implements OrderService {
         logo.setSpacingBefore(spacingBeforeImage);
         logo.setSpacingAfter(spacingAfterImage);
 
-        Paragraph poweredBy = new Paragraph("Powered By SmartWay.website", titleFont);
+        Paragraph poweredBy = new Paragraph("Powered By SmartWay.website", footerFont);
         poweredBy.setAlignment(Element.ALIGN_CENTER);
         document.add(poweredBy);
 
@@ -899,20 +872,20 @@ public class OrderServiceImpl implements OrderService {
         float[] columnWidths = { 15f, 40f, 20f, 20f }; // Adjust the percentages here
         table.setWidths(columnWidths);
         // Header row
-        addHeaderWithStyle(table, "STT", headerFont);
-        addHeaderWithStyle(table, "Menu Item", headerFont);
-        addHeaderWithStyle(table, "Quantity", headerFont);
-        addHeaderWithStyle(table, "SellPrice", headerFont);
+        addHeaderWithStyle(table, "STT", headerFont, Element.ALIGN_LEFT);
+        addHeaderWithStyle(table, "Menu Item", headerFont, Element.ALIGN_LEFT);
+        addHeaderWithStyle(table, "Quantity", headerFont, Element.ALIGN_LEFT);
+        addHeaderWithStyle(table, "SellPrice", headerFont, Element.ALIGN_LEFT);
 
         // Data row
         List<OrderDetailDTO> orderDetailList = orderDTO.getOrderDetailList();
         int stt = 1;
         double sumMoney = 0.0;
         for (OrderDetailDTO orderDetail : orderDetailList) {
-            addValueWithStyle(table, String.valueOf(stt), arialUnicodeFont);
-            addValueWithStyle(table, orderDetail.getMenuItem().getName(), arialUnicodeFont);
-            addValueWithStyle(table, String.valueOf(orderDetail.getQuantity()), arialUnicodeFont);
-            addValueWithStyle(table, String.valueOf(orderDetail.getMenuItem().getSellPrice()), arialUnicodeFont);
+            addValueWithStyle(table, String.valueOf(stt), arialUnicodeFont, Element.ALIGN_LEFT);
+            addValueWithStyle(table, orderDetail.getMenuItem().getName(), arialUnicodeFont, Element.ALIGN_LEFT);
+            addValueWithStyle(table, String.valueOf(orderDetail.getQuantity()), arialUnicodeFont, Element.ALIGN_LEFT);
+            addValueWithStyle(table, String.valueOf(orderDetail.getMenuItem().getSellPrice()), arialUnicodeFont, Element.ALIGN_LEFT);
             stt++;
             sumMoney += orderDetail.getQuantity() * orderDetail.getMenuItem().getSellPrice();
         }
@@ -1085,10 +1058,10 @@ public class OrderServiceImpl implements OrderService {
         float[] columnWidths = { 15f, 40f, 20f, 20f }; // Adjust the percentages here
         table.setWidths(columnWidths);
         // Header row
-        addHeaderWithStyle(table, "STT", headerFont);
-        addHeaderWithStyle(table, "Menu Item", headerFont);
-        addHeaderWithStyle(table, "Quantity", headerFont);
-        addHeaderWithStyle(table, "Note", headerFont);
+        addHeaderWithStyle(table, "STT", headerFont, Element.ALIGN_LEFT);
+        addHeaderWithStyle(table, "Menu Item", headerFont, Element.ALIGN_LEFT);
+        addHeaderWithStyle(table, "Quantity", headerFont, Element.ALIGN_LEFT);
+        addHeaderWithStyle(table, "Note", headerFont, Element.ALIGN_LEFT);
 
         // Data row
         int stt = 1;
@@ -1098,7 +1071,7 @@ public class OrderServiceImpl implements OrderService {
                 ItemAdditionNotification itemNotification = itemAdditionNotificationDTO.get();
                 OrderDetail orderDetail = itemNotification.getOrderDetail();
                 if (orderDetail != null) {
-                    addValueWithStyle(table, String.valueOf(stt), arialUnicodeFont);
+                    addValueWithStyle(table, String.valueOf(stt), arialUnicodeFont, Element.ALIGN_LEFT);
                     PdfPCell menuItemCell = new PdfPCell(
                         new Phrase(orderDetail.getMenuItem() != null ? orderDetail.getMenuItem().getName() : "", arialUnicodeFont)
                     );
@@ -1121,14 +1094,16 @@ public class OrderServiceImpl implements OrderService {
         return byteArrayOutputStream.toByteArray();
     }
 
-    private static void addHeaderWithStyle(PdfPTable table, String text, Font font) {
+    private static void addHeaderWithStyle(PdfPTable table, String text, Font font, int alignment) {
         PdfPCell headerCell = new PdfPCell(new Phrase(text, font));
         headerCell.setBorder(Rectangle.BOTTOM); // Show only the bottom border
         headerCell.setBorderColorBottom(BaseColor.BLACK);
+        headerCell.setBorderColorTop(BaseColor.BLACK);
         headerCell.setBorderWidthBottom(1f); // Set the thickness of the bottom border
+        headerCell.setBorderWidthTop(0.5f); // Set the thickness of the bottom border
         headerCell.setBorderWidthLeft(0f); // Remove left border
         headerCell.setBorderWidthRight(0f); // Remove right border
-        headerCell.setHorizontalAlignment(Element.ALIGN_LEFT);
+        headerCell.setHorizontalAlignment(alignment);
         headerCell.setPaddingBottom(5f);
         table.addCell(headerCell);
     }
@@ -1145,16 +1120,26 @@ public class OrderServiceImpl implements OrderService {
         table.addCell(headerCell);
     }
 
-    private static void addValueWithStyle(PdfPTable table, String text, Font font) {
+    private static void addValueWithStyle(PdfPTable table, String text, Font font, int alignment) {
         PdfPCell valueCell = new PdfPCell(new Phrase(text, font));
         valueCell.setBorder(Rectangle.BOTTOM);
         valueCell.setBorderColorBottom(BaseColor.BLACK);
         valueCell.setBorderWidthBottom(0.5f);
         valueCell.setBorderWidthLeft(0f);
         valueCell.setBorderWidthRight(0f);
-        valueCell.setHorizontalAlignment(Element.ALIGN_LEFT);
+        valueCell.setHorizontalAlignment(alignment);
         valueCell.setPaddingTop(5f);
         valueCell.setPaddingBottom(8f);
+        table.addCell(valueCell);
+    }
+
+    private static void addCellWithColSpan(PdfPTable table, String text, Font font, int alignment, int colSpan) {
+        PdfPCell valueCell = new PdfPCell(new Phrase(text, font));
+        valueCell.setHorizontalAlignment(alignment);
+        valueCell.setColspan(colSpan);
+        valueCell.setBorderColor(BaseColor.WHITE);
+        valueCell.setPaddingTop(2f);
+        valueCell.setPaddingBottom(4f);
         table.addCell(valueCell);
     }
 

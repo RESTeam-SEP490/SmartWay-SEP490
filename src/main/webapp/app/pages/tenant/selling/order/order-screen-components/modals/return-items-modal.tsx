@@ -8,7 +8,7 @@ import { CurrencyFormat } from 'app/shared/util/currency-utils';
 import React, { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 
-export const ReturnItemsModal = ({ setBillDetail }) => {
+export const ReturnItemsModal = ({ setBillDetail, setReturnList }) => {
   const [currentODList, setCurrentODList] = useState([]);
   const currentOrder: IOrder = useAppSelector(state => state.order.currentOrder);
   const [isReturn, setIsReturn] = useState(false);
@@ -35,7 +35,7 @@ export const ReturnItemsModal = ({ setBillDetail }) => {
     od.forEach((value, key) => {
       const detail = {
         ...value[0],
-        id: nextGroupedOderDetailList.length + 1,
+        id: value[0].id,
         quantity: value.reduce((prevQuantity, current) => prevQuantity + current.quantity, 0),
         returnQuantity: 0,
       };
@@ -48,6 +48,10 @@ export const ReturnItemsModal = ({ setBillDetail }) => {
       subtotal: currentODList.reduce((total, detail) => total + (detail.quantity - detail.returnQuantity) * detail.menuItem.sellPrice, 0),
     });
   }, [currentOrder]);
+
+  useEffect(() => {
+    setReturnList([]);
+  }, [isReturn]);
 
   const columns = [
     {
@@ -132,6 +136,12 @@ export const ReturnItemsModal = ({ setBillDetail }) => {
       })
     );
   };
+
+  useEffect(() => {
+    setReturnList(
+      currentODList.filter(detail => detail.returnQuantity > 0).map(detail => ({ ...detail, quantity: detail.returnQuantity }))
+    );
+  }, [currentODList]);
 
   return (
     <>
