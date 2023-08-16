@@ -155,98 +155,43 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderDTO returnItem(ReturnItemDTO returnItemDTO) {
+    public void returnItem(ReturnItemDTO returnItemDTO) {
         SwOrder order = orderRepository
-            .findByIdAndIsPaid(returnItemDTO.getId(), false)
+            .findByIdAndIsPaid(returnItemDTO.getOrderId(), false)
             .orElseThrow(() -> new BadRequestAlertException("Order was not found or Paid", ORDER, "not found or not existed"));
 
         List<OrderDetailDTO> listItemsReturn = returnItemDTO.getListItemsReturn();
         List<OrderDetail> orderDetailList = order.getOrderDetailList();
 
-        Map<UUID, Integer> menuItemIdToOriginalQuantity = new HashMap<>();
-        for (OrderDetail orderDetail : orderDetailList) {
-            UUID menuItemId = orderDetail.getMenuItem().getId();
-            int originalQuantity = menuItemIdToOriginalQuantity.getOrDefault(menuItemId, 0);
-            menuItemIdToOriginalQuantity.put(menuItemId, originalQuantity + orderDetail.getQuantity());
-        }
-
         for (OrderDetailDTO itemReturn : listItemsReturn) {
             UUID menuItemId = itemReturn.getMenuItem().getId();
-            int returnedQuantity = itemReturn.getQuantity();
-
-            if (menuItemIdToOriginalQuantity.containsKey(menuItemId)) {
-                int originalQuantity = menuItemIdToOriginalQuantity.get(menuItemId);
-
-                if (returnedQuantity <= originalQuantity) {
-                    menuItemIdToOriginalQuantity.put(menuItemId, originalQuantity - returnedQuantity);
-                } else {
-                    throw new BadRequestAlertException("not enough quantity to return", ORDER, "notenoughquantity");
-                }
-            }
-        }
-
-        // Update lại số lượng của orderDetail dựa trên menuItemId
-        for (OrderDetail orderDetail : orderDetailList) {
-            UUID menuItemId = orderDetail.getMenuItem().getId();
-            int updatedQuantity = menuItemIdToOriginalQuantity.get(menuItemId);
-            if (orderDetail.getServedQuantity() != orderDetail.getQuantity()) {
-                throw new BadRequestAlertException("Served quantity not equal to quantity", ORDER, "notequal");
-            }
-            orderDetail.setQuantity(updatedQuantity);
-            orderDetail.setServedQuantity(updatedQuantity);
-            orderDetailRepository.save(orderDetail);
-        }
-        return orderMapper.toDto(order);
-    }
-
-    @Override
-    @SneakyThrows
-    public byte[] generatePdfBillWithReturnItem(PrintBillDTO printBillDTO) throws DocumentException {
-        SwOrder order = orderRepository
-            .findByIdAndIsPaid(printBillDTO.getOrderId(), false)
-            .orElseThrow(() -> new BadRequestAlertException("Order was not found or Paid", ORDER, "not found or not existed"));
-
-        List<OrderDetailDTO> listItemsReturn = printBillDTO.getReturnItemList();
-        List<OrderDetail> orderDetailList = order.getOrderDetailList();
-
-        Map<UUID, Integer> orderDetailMapGroupedByMenuItem = new HashMap<>();
-        for (OrderDetail orderDetail : orderDetailList) {
-            UUID menuItemId = orderDetail.getMenuItem().getId();
-            int originalQuantity = orderDetailMapGroupedByMenuItem.getOrDefault(menuItemId, 0);
-            orderDetailMapGroupedByMenuItem.put(menuItemId, originalQuantity + orderDetail.getQuantity());
-        }
-
-        for (OrderDetailDTO itemReturn : listItemsReturn) {
-            UUID menuItemId = itemReturn.getMenuItem().getId();
-            int returnedQuantity = itemReturn.getQuantity();
-
-            if (orderDetailMapGroupedByMenuItem.containsKey(menuItemId)) {
-                int originalQuantity = orderDetailMapGroupedByMenuItem.get(menuItemId);
-
-                if (returnedQuantity <= originalQuantity) {
-                    orderDetailMapGroupedByMenuItem.put(menuItemId, originalQuantity - returnedQuantity);
-                } else {
-                    throw new BadRequestAlertException("not enough quantity to return", ORDER, "notenoughquantity");
-                }
-            }
-        }
-
-        List<OrderDetailDTO> toPrintOrderDetailList = new ArrayList<>();
-
-        orderDetailMapGroupedByMenuItem.forEach((uuid, integer) -> {
-            OrderDetailDTO orderDetailDTO = new OrderDetailDTO();
-            MenuItem menuItem = orderDetailList
+            List<OrderDetail> orderDetailsByMenuItemId = orderDetailList
                 .stream()
-                .filter(orderDetail -> orderDetail.getMenuItem().getId().equals(uuid))
-                .findFirst()
-                .get()
-                .getMenuItem();
-            orderDetailDTO.setMenuItem(menuItemMapper.toDto(menuItem));
-            orderDetailDTO.setQuantity(integer);
-            toPrintOrderDetailList.add(orderDetailDTO);
-        });
+                .filter(orderDetail -> orderDetail.getMenuItem().getId().equals(menuItemId))
+                .collect(Collectors.toList());
 
-        return generatePdfBill(printBillDTO.getOrderId(), toPrintOrderDetailList, printBillDTO.getDiscount());
+            for (OrderDetail baseItem : orderDetailsByMenuItemId) {
+                int newQuantity;
+                int baseQuantity = baseItem.getQuantity();
+                int returnQuantity = itemReturn.getQuantity();
+                if (returnQuantity <= baseQuantity) {
+                    newQuantity = baseQuantity - returnQuantity;
+                    baseItem.setQuantity(newQuantity);
+                    baseItem.setServedQuantity(newQuantity);
+                    itemReturn.setQuantity(0);
+                    orderDetailRepository.save(baseItem);
+                    break;
+                } else {
+                    baseItem.setQuantity(0);
+                    baseItem.setServedQuantity(0);
+                    itemReturn.setQuantity(returnQuantity - baseQuantity);
+                    orderDetailRepository.save(baseItem);
+                }
+            }
+            if (itemReturn.getQuantity() > 0) {
+                throw new BadRequestAlertException("quantity of item return still left", ORDER_DETAIL, "notreturn");
+            }
+        }
     }
 
     @Override
@@ -949,6 +894,7 @@ public class OrderServiceImpl implements OrderService {
             .findById(dto.getOrderId())
             .orElseThrow(() -> new BadRequestAlertException("Order not found", "order", "idnotfound"));
 
+        returnItem(new ReturnItemDTO(dto.getOrderId(), dto.getListReturnItems()));
         if (!dto.getIsPayByCash()) {
             if (dto.getBankAccountId() == null) throw new BadRequestAlertException(
                 "Bank account id cant not be null",
