@@ -151,6 +151,46 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public void returnItem(ReturnItemDTO returnItemDTO) {
+        SwOrder order = orderRepository
+            .findByIdAndIsPaid(returnItemDTO.getOrderId(), false)
+            .orElseThrow(() -> new BadRequestAlertException("Order was not found or Paid", ORDER, "not found or not existed"));
+
+        List<OrderDetailDTO> listItemsReturn = returnItemDTO.getListItemsReturn();
+        List<OrderDetail> orderDetailList = order.getOrderDetailList();
+
+        for (OrderDetailDTO itemReturn : listItemsReturn) {
+            UUID menuItemId = itemReturn.getMenuItem().getId();
+            List<OrderDetail> orderDetailsByMenuItemId = orderDetailList
+                .stream()
+                .filter(orderDetail -> orderDetail.getMenuItem().getId().equals(menuItemId))
+                .collect(Collectors.toList());
+
+            for (OrderDetail baseItem : orderDetailsByMenuItemId) {
+                int newQuantity;
+                int baseQuantity = baseItem.getQuantity();
+                int returnQuantity = itemReturn.getQuantity();
+                if (returnQuantity <= baseQuantity) {
+                    newQuantity = baseQuantity - returnQuantity;
+                    baseItem.setQuantity(newQuantity);
+                    baseItem.setServedQuantity(newQuantity);
+                    itemReturn.setQuantity(0);
+                    orderDetailRepository.save(baseItem);
+                    break;
+                } else {
+                    baseItem.setQuantity(0);
+                    baseItem.setServedQuantity(0);
+                    itemReturn.setQuantity(returnQuantity - baseQuantity);
+                    orderDetailRepository.save(baseItem);
+                }
+            }
+            if (itemReturn.getQuantity() > 0) {
+                throw new BadRequestAlertException("quantity of item return still left", ORDER_DETAIL, "notreturn");
+            }
+        }
+    }
+
+    @Override
     public OrderDTO createOrder(OrderCreationDTO orderDTO) {
         List<DiningTable> tableList = orderDTO
             .getTableIdList()
@@ -703,6 +743,7 @@ public class OrderServiceImpl implements OrderService {
             .findById(dto.getOrderId())
             .orElseThrow(() -> new BadRequestAlertException("Order not found", "order", "idnotfound"));
 
+        returnItem(new ReturnItemDTO(dto.getOrderId(), dto.getListReturnItems()));
         if (!dto.getIsPayByCash()) {
             if (dto.getBankAccountId() == null) throw new BadRequestAlertException(
                 "Bank account id cant not be null",

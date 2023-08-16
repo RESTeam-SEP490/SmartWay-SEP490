@@ -13,6 +13,9 @@ import org.springframework.data.domain.Pageable;
 
 public interface OrderService {
     Page<BillDTO> loadAllBillWithSort(Instant startDay, Instant endDay, UUID tableId, Pageable pageable);
+
+    void returnItem(ReturnItemDTO returnItemDTO);
+
     OrderDTO createOrder(OrderCreationDTO orderDTO);
     OrderDTO createTakeAwayOrder();
 
