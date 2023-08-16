@@ -305,10 +305,7 @@ public class UserServiceImpl implements UserService {
         User profile = userRepository
             .findById(profileDTO.getId())
             .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_USERNAME_PROFILE, " id not found"));
-        Optional<User> existingUser = userRepository.findOneByUsername(profileDTO.getUsername());
-        if (existingUser.isPresent() && !existingUser.get().getId().equals(profileDTO.getId())) {
-            throw new BadRequestAlertException(applicationName, ENTITY_USERNAME_PROFILE, "existed");
-        }
+
         profile.setBirthday(profileDTO.getBirthday());
         profileMapper.partialUpdate(profile, profileDTO);
         if (profileDTO.getResetPassword() != null && profileDTO.getPassword() != null) {

@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Col, Row } from 'reactstrap';
 import { Translate, translate } from 'react-jhipster';
-import { Link, Navigate, useSearchParams } from 'react-router-dom';
+import { Navigate, useSearchParams } from 'react-router-dom';
 
 import { handlePasswordResetFinish, reset } from '../password-reset.reducer';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
-import { Alert, Button, Card, Checkbox, Form, Image, Input, notification, Typography } from 'antd';
-import { LockOutlined, UserOutlined } from '@ant-design/icons';
+import { Button, Form, notification, Typography } from 'antd';
+import { LockOutlined } from '@ant-design/icons';
 import { getAppUrl } from 'app/shared/util/subdomain/helpers';
 import { BrandIcon } from 'app/shared/layout/header/header-components';
 import { LocaleMenu } from 'app/shared/layout/menus';
@@ -111,7 +111,7 @@ const PasswordResetFinishPage = () => {
           </div>
           <div className="hidden h-screen p-6 md:block md:w-6/12 xl:w-7/12">
             <div className="relative w-full h-full">
-              <div className="absolute top-0 bottom-0 w-full rounded-lg bg-bottom lg:bg-right-bottom bg-cover bg-wall-primary bg-[url('content/images/wall-2.jpeg')]"></div>
+              <div className="absolute top-0 bottom-0 w-full rounded-lg bg-bottom lg:bg-right-bottom bg-cover bg-wall-primary bg-[url('content/images/happy.jpeg')]"></div>
               <div className="absolute top-0 bottom-0 w-full rounded-lg bg-gradient-to-l from-12 to-90 from-blue-600/60 to-blue-200/60"></div>
             </div>
           </div>

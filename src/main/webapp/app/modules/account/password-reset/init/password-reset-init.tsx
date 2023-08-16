@@ -76,7 +76,7 @@ export const PasswordResetInit = () => {
         </div>
         <div className="hidden h-screen p-6 md:block md:w-6/12 xl:w-7/12">
           <div className="relative w-full h-full">
-            <div className="absolute top-0 bottom-0 w-full rounded-lg bg-bottom lg:bg-right-bottom bg-cover bg-wall-primary bg-[url('content/images/wall-2.jpeg')]"></div>
+            <div className="absolute top-0 bottom-0 w-full rounded-lg bg-bottom lg:bg-right-bottom bg-cover bg-wall-primary bg-[url('content/images/kitchen.jpeg')]"></div>
             <div className="absolute top-0 bottom-0 w-full rounded-lg bg-gradient-to-l from-12 to-90 from-blue-600/60 to-blue-200/60"></div>
           </div>
         </div>
