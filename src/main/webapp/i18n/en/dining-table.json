@@ -43,7 +43,8 @@
     "regexNumberOfSeat": "Number of sear min value is 1",
     "regexZone": "Zone is invalid",
     "regexTableNameExist": "Table name is exist",
-
+    "nullSecretKey": "File uploads are only allowed in the 'Download Sample File' section",
+    "invalidSecretKey": "File uploads are only allowed in the 'Download Sample File' section",
     "action": {
       "delete.question": "Are you sure to delete table <b>{{ name }}</b>?",
       "allowSell": "Mark as use table",
