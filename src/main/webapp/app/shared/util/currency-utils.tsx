@@ -7,5 +7,5 @@ export const CurrencyFormat = ({ children }) => {
   return <>{localeKey && new Intl.NumberFormat(localeKey).format(parseFloat(children))}</>;
 };
 export const currencyFormat = (num, locale) => {
-  return locale ? new Intl.NumberFormat(locale).format(parseFloat(num)) : 0;
+  return locale ? new Intl.NumberFormat(locale).format(parseFloat(num)) : '0';
 };

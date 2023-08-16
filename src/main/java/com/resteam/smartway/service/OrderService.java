@@ -14,6 +14,10 @@ import org.springframework.data.domain.Pageable;
 public interface OrderService {
     OrderDTO returnItem(ReturnItemDTO returnItemDTO);
     Page<BillDTO> loadAllBillWithSort(Instant startDay, Instant endDay, UUID tableId, Pageable pageable);
+
+    @SneakyThrows
+    byte[] generatePdfBillWithReturnItem(PrintBillDTO printBillDTO) throws DocumentException;
+
     OrderDTO createOrder(OrderCreationDTO orderDTO);
     OrderDTO createTakeAwayOrder();
 

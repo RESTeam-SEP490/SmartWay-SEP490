@@ -102,14 +102,14 @@ public class OrderResource {
         return ResponseEntity.ok(newOrderDTO);
     }
 
-    @GetMapping("/{id}/print-bill")
-    public ResponseEntity<byte[]> exportPdfForOrder(@PathVariable UUID id) {
+    @GetMapping("/print-bill")
+    public ResponseEntity<byte[]> exportPdfForOrder(@RequestBody PrintBillDTO printBillDTO) {
         try {
-            byte[] pdfContent = orderService.generatePdfOrder(id);
+            byte[] pdfContent = orderService.generatePdfBillWithReturnItem(printBillDTO);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_PDF);
-            headers.setContentDispositionFormData("inline", "_order_" + id + ".pdf");
+            headers.setContentDispositionFormData("inline", "_order_" + printBillDTO.getOrderId() + ".pdf");
 
             return new ResponseEntity<>(pdfContent, headers, HttpStatus.OK);
         } catch (DocumentException e) {

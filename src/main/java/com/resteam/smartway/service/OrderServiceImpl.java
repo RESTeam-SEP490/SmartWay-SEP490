@@ -9,6 +9,7 @@ import com.resteam.smartway.domain.BankAccountInfo;
 import com.resteam.smartway.domain.DiningTable;
 import com.resteam.smartway.domain.MenuItem;
 import com.resteam.smartway.domain.Restaurant;
+import com.resteam.smartway.domain.enumeration.CurrencyUnit;
 import com.resteam.smartway.domain.order.OrderDetail;
 import com.resteam.smartway.domain.order.SwOrder;
 import com.resteam.smartway.domain.order.notifications.ItemAdditionNotification;
@@ -26,8 +27,8 @@ import com.resteam.smartway.service.dto.BillDTO;
 import com.resteam.smartway.service.dto.DiningTableDTO;
 import com.resteam.smartway.service.dto.order.*;
 import com.resteam.smartway.service.dto.order.notification.CancellationDTO;
-import com.resteam.smartway.service.mapper.BillMapper;
 import com.resteam.smartway.service.mapper.DiningTableMapper;
+import com.resteam.smartway.service.mapper.MenuItemMapper;
 import com.resteam.smartway.service.mapper.order.OrderDetailMapper;
 import com.resteam.smartway.service.mapper.order.OrderMapper;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
@@ -35,6 +36,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -70,9 +74,9 @@ public class OrderServiceImpl implements OrderService {
     private final ItemAdditionNotificationRepository itemAdditionNotificationRepository;
     private final ItemCancellationNotificationRepository itemCancellationNotificationRepository;
     private final BankAccountInfoRepository bankAccountInfoRepository;
+    private final MenuItemMapper menuItemMapper;
     private final S3Service s3Service;
     private final DiningTableMapper diningTableMapper;
-    private final BillMapper billMapper;
 
     private static final String ORDER = "order";
     private static final String TABLE = "table";
@@ -185,7 +189,7 @@ public class OrderServiceImpl implements OrderService {
         for (OrderDetail orderDetail : orderDetailList) {
             UUID menuItemId = orderDetail.getMenuItem().getId();
             int updatedQuantity = menuItemIdToOriginalQuantity.get(menuItemId);
-            if (!(orderDetail.getServedQuantity() == orderDetail.getQuantity())) {
+            if (orderDetail.getServedQuantity() != orderDetail.getQuantity()) {
                 throw new BadRequestAlertException("Served quantity not equal to quantity", ORDER, "notequal");
             }
             orderDetail.setQuantity(updatedQuantity);
@@ -193,6 +197,56 @@ public class OrderServiceImpl implements OrderService {
             orderDetailRepository.save(orderDetail);
         }
         return orderMapper.toDto(order);
+    }
+
+    @Override
+    @SneakyThrows
+    public byte[] generatePdfBillWithReturnItem(PrintBillDTO printBillDTO) throws DocumentException {
+        SwOrder order = orderRepository
+            .findByIdAndIsPaid(printBillDTO.getOrderId(), false)
+            .orElseThrow(() -> new BadRequestAlertException("Order was not found or Paid", ORDER, "not found or not existed"));
+
+        List<OrderDetailDTO> listItemsReturn = printBillDTO.getReturnItemList();
+        List<OrderDetail> orderDetailList = order.getOrderDetailList();
+
+        Map<UUID, Integer> orderDetailMapGroupedByMenuItem = new HashMap<>();
+        for (OrderDetail orderDetail : orderDetailList) {
+            UUID menuItemId = orderDetail.getMenuItem().getId();
+            int originalQuantity = orderDetailMapGroupedByMenuItem.getOrDefault(menuItemId, 0);
+            orderDetailMapGroupedByMenuItem.put(menuItemId, originalQuantity + orderDetail.getQuantity());
+        }
+
+        for (OrderDetailDTO itemReturn : listItemsReturn) {
+            UUID menuItemId = itemReturn.getMenuItem().getId();
+            int returnedQuantity = itemReturn.getQuantity();
+
+            if (orderDetailMapGroupedByMenuItem.containsKey(menuItemId)) {
+                int originalQuantity = orderDetailMapGroupedByMenuItem.get(menuItemId);
+
+                if (returnedQuantity <= originalQuantity) {
+                    orderDetailMapGroupedByMenuItem.put(menuItemId, originalQuantity - returnedQuantity);
+                } else {
+                    throw new BadRequestAlertException("not enough quantity to return", ORDER, "notenoughquantity");
+                }
+            }
+        }
+
+        List<OrderDetailDTO> toPrintOrderDetailList = new ArrayList<>();
+
+        orderDetailMapGroupedByMenuItem.forEach((uuid, integer) -> {
+            OrderDetailDTO orderDetailDTO = new OrderDetailDTO();
+            MenuItem menuItem = orderDetailList
+                .stream()
+                .filter(orderDetail -> orderDetail.getMenuItem().getId().equals(uuid))
+                .findFirst()
+                .get()
+                .getMenuItem();
+            orderDetailDTO.setMenuItem(menuItemMapper.toDto(menuItem));
+            orderDetailDTO.setQuantity(integer);
+            toPrintOrderDetailList.add(orderDetailDTO);
+        });
+
+        return generatePdfBill(printBillDTO.getOrderId(), toPrintOrderDetailList, printBillDTO.getDiscount());
     }
 
     @Override
@@ -599,6 +653,180 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.deleteAll(toDeleteOrder);
 
         return sortOrderDetailsAndNotificationHistories(order);
+    }
+
+    @SneakyThrows
+    private byte[] generatePdfBill(UUID orderId, List<OrderDetailDTO> orderDetailList, Double discount) {
+        SwOrder order = orderRepository
+            .findById(orderId)
+            .orElseThrow(() -> new BadRequestAlertException("Invalid ID", ORDER, "idnotfound"));
+        OrderDTO orderDTO = orderMapper.toDto(order);
+
+        Document document = new Document(PageSize.A7, 12, 12, 12, 12);
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        PdfWriter.getInstance(document, byteArrayOutputStream);
+
+        String fontPath = "src/main/resources/config/arial-unicode-ms.ttf";
+        BaseFont baseFont = BaseFont.createFont(fontPath, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+        // Customize PDF styles
+        Font titleFont = new Font(baseFont, 10, Font.BOLD, BaseColor.BLACK);
+        Font headerFont = new Font(baseFont, 8, Font.BOLD, BaseColor.BLACK);
+        Font normalFont = new Font(baseFont, 8, Font.NORMAL, BaseColor.BLACK);
+
+        document.open();
+
+        Restaurant restaurant = restaurantRepository
+            .findById(RestaurantContext.getCurrentRestaurant().getId())
+            .orElseThrow(() -> new BadRequestAlertException("Restaurant not found", "restaurant", "idnotfound"));
+        // Add a title to the document
+        Paragraph restaurantName = new Paragraph(restaurant.getName(), titleFont);
+        restaurantName.setAlignment(Element.ALIGN_CENTER);
+        document.add(restaurantName);
+
+        Paragraph address = new Paragraph("--address", titleFont);
+        address.setAlignment(Element.ALIGN_CENTER);
+        document.add(address);
+
+        Paragraph phone = new Paragraph(restaurant.getPhone(), titleFont);
+        phone.setAlignment(Element.ALIGN_CENTER);
+        document.add(phone);
+
+        Paragraph line = new Paragraph("----------------", titleFont);
+        line.setAlignment(Element.ALIGN_CENTER);
+        document.add(line);
+
+        document.add(Chunk.NEWLINE);
+
+        Paragraph code = new Paragraph();
+        Chunk codeLabel = new Chunk("Bill: ", headerFont);
+        Chunk codeValue = new Chunk("#" + orderDTO.getCode(), normalFont);
+        code.add(codeLabel);
+        code.add(codeValue);
+        document.add(code);
+
+        List<DiningTableDTO> tableList = orderDTO.getTableList();
+        if (tableList.size() == 0) {
+            Paragraph takeaway = new Paragraph("Takeaway", headerFont);
+            document.add(takeaway);
+        } else {
+            tableList.sort(Comparator.comparing(DiningTableDTO::getName));
+            Paragraph tableParagraph = new Paragraph();
+            Chunk tableLabel = new Chunk("Table: ", headerFont);
+            String tableValueString = String.format("%s (+%d)", tableList.get(0).getName(), tableList.size() - 1);
+            Chunk tableValue = new Chunk(tableValueString, normalFont);
+            tableParagraph.add(tableLabel);
+            tableParagraph.add(tableValue);
+            document.add(tableParagraph);
+        }
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy").withZone(ZoneId.of("UTC"));
+
+        Paragraph timeIn = new Paragraph();
+        Chunk timeInLabel = new Chunk("Check in: ", headerFont);
+        Chunk timeInValue = new Chunk(formatter.format(orderDTO.getCreatedDate()), normalFont);
+        timeIn.add(timeInLabel);
+        timeIn.add(timeInValue);
+        document.add(timeIn);
+
+        Paragraph timeOut = new Paragraph();
+        Chunk timeOutLabel = new Chunk("Check out: ", headerFont);
+        Chunk timeOutValue = new Chunk(formatter.format(orderDTO.getCreatedDate()), normalFont);
+        timeOut.add(timeOutLabel);
+        timeOut.add(timeOutValue);
+        document.add(timeOut);
+
+        document.add(Chunk.NEWLINE);
+
+        PdfPTable table = new PdfPTable(4);
+        table.setWidthPercentage(100);
+
+        // Header row with relative widths
+        float[] columnWidths = { 15f, 40f, 20f, 20f }; // Adjust the percentages here
+        table.setWidths(columnWidths);
+        // Header row
+        addHeaderWithStyle(table, "Item", headerFont);
+        addHeaderWithStyle(table, "Qty.", headerFont);
+        addHeaderWithStyle(table, "Price", headerFont);
+        addHeaderWithStyle(table, "Amount", headerFont);
+
+        //define formatter cho currency
+        DecimalFormat currencyFormatter = (DecimalFormat) NumberFormat.getCurrencyInstance(
+            restaurant.getCurrencyUnit().equals(CurrencyUnit.USD) ? Locale.US : new Locale("vi", "VN") //set locale theo đơn vị tiền tệ
+        );
+        DecimalFormatSymbols symbols = currencyFormatter.getDecimalFormatSymbols();
+        symbols.setCurrencySymbol("");
+        currencyFormatter.setDecimalFormatSymbols(symbols);
+        if (restaurant.getCurrencyUnit().equals(CurrencyUnit.USD)) currencyFormatter.setMinimumFractionDigits(2); //nếu là dollar thì ít nhất có 2 chữ số thập phân
+
+        // Data row
+        for (OrderDetailDTO orderDetail : orderDetailList) {
+            addValueWithStyle(table, orderDetail.getMenuItem().getName(), normalFont);
+            addValueWithStyle(table, String.valueOf(orderDetail.getQuantity()), normalFont);
+            addValueWithStyle(table, currencyFormatter.format(orderDetail.getMenuItem().getSellPrice()), normalFont);
+            addValueWithStyle(
+                table,
+                currencyFormatter.format(orderDetail.getMenuItem().getSellPrice() * orderDetail.getQuantity()),
+                normalFont
+            );
+        }
+
+        document.add(table);
+
+        document.add(Chunk.NEWLINE);
+
+        Paragraph subtotalParagraph = new Paragraph();
+        Chunk subtotalLabel = new Chunk("Subtotal: ", normalFont);
+        Double subtotal = orderDetailList
+            .stream()
+            .reduce(
+                0.0,
+                (prevSubtotal, currentDetail) -> prevSubtotal + currentDetail.getQuantity() * currentDetail.getMenuItem().getSellPrice(),
+                Double::sum
+            );
+        Chunk subtotalValue = new Chunk(currencyFormatter.format(subtotal), normalFont);
+        subtotalParagraph.add(subtotalLabel);
+        subtotalParagraph.add(subtotalValue);
+        subtotalParagraph.setAlignment(Element.ALIGN_JUSTIFIED_ALL);
+        document.add(subtotalParagraph);
+
+        Paragraph discountParagraph = new Paragraph();
+        Chunk discountLabel = new Chunk("Discount: ", normalFont);
+        Chunk discountValue = new Chunk(discount == null ? "0" : currencyFormatter.format(discount), normalFont);
+        discountParagraph.add(discountLabel);
+        discountParagraph.add(discountValue);
+        discountParagraph.setAlignment(Element.ALIGN_JUSTIFIED_ALL);
+        document.add(discountParagraph);
+
+        Paragraph totalParagraph = new Paragraph();
+        Chunk totalLabel = new Chunk("Total: ", normalFont);
+        Chunk totalValue = new Chunk(currencyFormatter.format(subtotal - 0), titleFont);
+        discountParagraph.add(totalLabel);
+        discountParagraph.add(totalValue);
+        discountParagraph.setAlignment(Element.ALIGN_JUSTIFIED_ALL);
+        document.add(totalParagraph);
+
+        document.add(line);
+
+        String imageUrl = "https://static.vecteezy.com/system/resources/previews/002/557/391/original/qr-code-for-scanning-free-vector.jpg";
+        // Add an image from an online URL to the document
+        Image logo = Image.getInstance(new URL(imageUrl));
+        logo.scaleToFit(75f, 75f);
+        logo.setAlignment(Element.ALIGN_CENTER);
+        document.add(logo);
+
+        float spacingBeforeImage = 0f; // Adjust the spacing as needed (in points)
+        float spacingAfterImage = 0f; // Adjust the spacing as needed (in points)
+        logo.setSpacingBefore(spacingBeforeImage);
+        logo.setSpacingAfter(spacingAfterImage);
+
+        Paragraph poweredBy = new Paragraph("Powered By SmartWay.website", titleFont);
+        poweredBy.setAlignment(Element.ALIGN_CENTER);
+        document.add(poweredBy);
+
+        document.close();
+
+        return byteArrayOutputStream.toByteArray();
     }
 
     @Override

@@ -312,3 +312,8 @@ th.ant-table-cell::before {
   border-width: 0;
   border-style: solid;
 }
+
+.discount input {
+  text-align: end;
+  cursor: pointer;
+}

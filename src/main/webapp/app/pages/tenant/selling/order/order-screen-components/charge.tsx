@@ -1,5 +1,5 @@
 import { CreditCardOutlined, PercentageOutlined, PrinterFilled, TagsFilled } from '@ant-design/icons';
-import { Button, ConfigProvider, Drawer, Form, Image, Input, InputNumber, Modal, Popover, Radio, Select, Table } from 'antd';
+import { Button, ConfigProvider, Drawer, Form, Image, Input, InputNumber, Modal, Popover, Radio, Select, Switch, Table } from 'antd';
 import { alphabetCompare, currencyFormatter } from 'app/app.constant';
 import { colors } from 'app/config/ant-design-theme';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
@@ -10,6 +10,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { Translate, translate } from 'react-jhipster';
 import { checkOut, printBill } from '../order.reducer';
+import { CurrencyFormat, currencyFormat } from 'app/shared/util/currency-utils';
+import ReturnItemsModal from './modals/return-items-modal';
 
 export const Charge = ({ isOpen, handleClose }: { isOpen: boolean; handleClose: any }) => {
   const dispatch = useAppDispatch();
@@ -19,21 +21,17 @@ export const Charge = ({ isOpen, handleClose }: { isOpen: boolean; handleClose: 
   const updateSuccess = useAppSelector(state => state.order.updateSuccess);
   const bankAccountInfoList = useAppSelector(state => state.bankAccount.entities);
   const currentOrder: IOrder = useAppSelector(state => state.order.currentOrder);
-  const [groupedOderDetailList, setGroupedOderDetailList] = useState([]);
-  const billDetail = currentOrder.id
-    ? {
-        totalQuantity: groupedOderDetailList.reduce((totalQuantity, detail) => totalQuantity + detail.quantity, 0),
-        subtotal: groupedOderDetailList.reduce((total, detail) => total + detail.quantity * detail.menuItem.sellPrice, 0),
-      }
-    : { totalQuantity: 0, subtotal: 0 };
+  const [billDetail, setBillDetail] = useState({ totalQuantity: 0, subtotal: 0 });
 
   const [isShowBankSelect, setIsShowBankSelect] = useState(false);
   const [isOpenConfirmModal, setIsOpenConfirmModal] = useState(false);
   const [isShowDiscountPopover, setIsShowDiscountPopover] = useState(false);
+
   const [discount, setDiscount] = useState<{ number: number; isByPercent: boolean }>({ number: 0, isByPercent: false });
   const [selectedAccount, setSelectedAccount] = useState<IBankAccountInfo>({});
   const restaurant = useAppSelector(state => state.restaurant.restaurant);
-  const orders = useAppSelector(state => state.order.activeOrders);
+  const { currencyUnit } = restaurant;
+  const localeKey = currencyUnit === 'VND' ? 'vi-VN' : currencyUnit === 'USD' ? 'en-US' : '';
 
   useEffect(() => {
     const defaultBankInfo = bankAccountInfoList.find(info => info.default);
@@ -47,64 +45,6 @@ export const Charge = ({ isOpen, handleClose }: { isOpen: boolean; handleClose: 
     handleClose();
     setIsOpenConfirmModal(false);
   }, [updateSuccess]);
-
-  useEffect(() => {
-    const od = currentOrder.orderDetailList.reduce((map, detail) => {
-      const { menuItem, note } = detail;
-      const group: IOrderDetail[] = map.get(menuItem.name + '._.' + note) ?? [];
-
-      group.push(detail);
-      map.set(menuItem.name + '._.' + note, group);
-
-      return map;
-    }, new Map<string, IOrderDetail[]>([]));
-
-    const nextGroupedOderDetailList = [];
-    od.forEach((value, key) => {
-      const detail = {
-        ...value[0],
-        id: nextGroupedOderDetailList.length + 1,
-        quantity: value.reduce((prevQuantity, current) => prevQuantity + current.quantity, 0),
-      };
-      nextGroupedOderDetailList.push(detail);
-    });
-
-    setGroupedOderDetailList(nextGroupedOderDetailList);
-  }, [currentOrder]);
-
-  useEffect(() => {
-    // if (!isShowDiscountPopover) {
-    const { number, isByPercent } = discount;
-    form.setFieldValue('discount', isByPercent ? (billDetail.subtotal * number) / 100 : number);
-    // }
-  }, [discount]);
-
-  const columns = [
-    {
-      dataIndex: ['menuItem', 'name'],
-      key: 'name',
-      render: (name, detail) => (
-        <div className="flex flex-col">
-          {name}
-          <span className="text-blue-600">{detail.note}</span>
-        </div>
-      ),
-    },
-    {
-      dataIndex: ['quantity'],
-      key: 'quantity',
-    },
-    {
-      dataIndex: ['menuItem', 'sellPrice'],
-      key: 'price',
-      render: price => currencyFormatter(price),
-    },
-    {
-      dataIndex: ['quantity'],
-      key: 'subTota;',
-      render: (quantity, detail) => <span className="font-semibold">{currencyFormatter(quantity * detail.menuItem.sellPrice)}</span>,
-    },
-  ];
 
   const changeSelectAccountInfo = value => {
     setSelectedAccount(bankAccountInfoList.find(info => info.id === value));
@@ -125,36 +65,10 @@ export const Charge = ({ isOpen, handleClose }: { isOpen: boolean; handleClose: 
         onClose={() => handleClose(false)}
         width={900}
       >
-        <div className="flex flex-col w-7/12">
-          <h3 className="mb-4 text-blue-700">
-            {'#' + currentOrder.code + ' - '}
-            {!currentOrder.takeAway && currentOrder.tableList.length > 0 ? (
-              <>
-                {[...currentOrder.tableList].sort(alphabetCompare)[0].name}
-                <span className="font-normal text-gray-400">
-                  {currentOrder.tableList.length > 1 ? ` (+${currentOrder.tableList.length - 1})` : ''}
-                </span>
-              </>
-            ) : (
-              'Takeaway'
-            )}
-          </h3>
-          <div className="flex items-center h-10 pl-4 mr-4 font-semibold text-gray-500 bg-gray-200 rounded-t-lg">
-            <Translate contentKey="order.charge.itemList" />
-          </div>
-          <Scrollbars className="w-full grow">
-            <Table
-              rowKey={'id'}
-              className="mr-4"
-              bordered={false}
-              pagination={false}
-              columns={columns}
-              showHeader={false}
-              dataSource={groupedOderDetailList.filter((od: IOrderDetail) => od.quantity > 0)}
-            ></Table>
-          </Scrollbars>
+        <div className="flex flex-col w-2/3 pr-4 border-r border-r-slate-100">
+          <ReturnItemsModal setBillDetail={setBillDetail} />
         </div>
-        <div className="flex flex-col justify-between w-5/12 h-full pt-8 pl-2 pr-4">
+        <div className="flex flex-col justify-between w-1/3 h-full pt-8 pl-2">
           <div className="">
             <Form
               name="billForm"
@@ -168,10 +82,10 @@ export const Charge = ({ isOpen, handleClose }: { isOpen: boolean; handleClose: 
                 <Input className="text-right " bordered={false} readOnly value={billDetail.totalQuantity} />
               </Form.Item>
               <Form.Item label={translate('order.charge.subtotal')} className="!mb-2">
-                <Input className="text-right " bordered={false} readOnly value={currencyFormatter(billDetail.subtotal)} />
+                <Input className="text-right " bordered={false} readOnly value={currencyFormat(billDetail.subtotal, localeKey)} />
               </Form.Item>
               <Popover
-                placement="left"
+                placement="top"
                 content={
                   <DiscountPopover
                     isOpen={isShowDiscountPopover}
@@ -186,17 +100,14 @@ export const Charge = ({ isOpen, handleClose }: { isOpen: boolean; handleClose: 
                 open={isShowDiscountPopover}
               >
                 <Form.Item
-                  name="discount"
-                  initialValue={discount.number}
                   label={`${translate('order.charge.discount')}${discount.isByPercent ? ` (${discount.number}%)` : ''}`}
                   className="!mb-2 cursor-pointer"
                 >
-                  <InputNumber
+                  <Input
+                    value={currencyFormat(discount.number, localeKey)}
                     bordered={false}
                     readOnly
-                    className="w-full !text-right pr-7 !cursor-pointer"
-                    controls={false}
-                    formatter={currencyFormatter}
+                    className="w-full discount pr-7 !cursor-pointer"
                     suffix={<TagsFilled className="!text-blue-400" rev="" />}
                   />
                 </Form.Item>
@@ -207,8 +118,9 @@ export const Charge = ({ isOpen, handleClose }: { isOpen: boolean; handleClose: 
                   bordered={false}
                   readOnly
                   value={
-                    currencyFormatter(
-                      billDetail.subtotal - (discount.isByPercent ? (billDetail.subtotal * discount.number) / 100 : discount.number)
+                    currencyFormat(
+                      billDetail.subtotal - (discount.isByPercent ? (billDetail.subtotal * discount.number) / 100 : discount.number),
+                      localeKey
                     ) +
                     ' ' +
                     restaurant.currencyUnit
@@ -235,12 +147,9 @@ export const Charge = ({ isOpen, handleClose }: { isOpen: boolean; handleClose: 
                   <div className="flex justify-center">
                     <Image
                       className="!w-40"
-                      src={`https://img.vietqr.io/image/${selectedAccount.bin}-${
-                        selectedAccount.accountNumber
-                      }-compact.png?amount=${groupedOderDetailList.reduce(
-                        (total, detail) => total + detail.quantity * detail.menuItem.sellPrice,
-                        0
-                      )}&addInfo=${currentOrder.code}-${restaurant.name}`}
+                      src={`https://img.vietqr.io/image/${selectedAccount.bin}-${selectedAccount.accountNumber}-compact.png?amount=${
+                        billDetail.subtotal - (discount.isByPercent ? (billDetail.subtotal * discount.number) / 100 : discount.number)
+                      }&addInfo=${currentOrder.code}-${restaurant.name}`}
                     />
                   </div>
                 </>
@@ -318,6 +227,8 @@ const DiscountPopover = ({
   subtotal: number;
 }) => {
   const restaurant = useAppSelector(state => state.restaurant.restaurant);
+  const { currencyUnit } = restaurant;
+  const localeKey = currencyUnit === 'VND' ? 'vi-VN' : currencyUnit === 'USD' ? 'en-US' : '';
   const [form] = Form.useForm();
 
   const [isByPercent, setIsByPercent] = useState(discount.isByPercent);
@@ -342,6 +253,7 @@ const DiscountPopover = ({
 
   const onchange = () => {
     const nextIsByPercent = form.getFieldValue('isByPercent');
+
     if (form.getFieldValue('number') > (nextIsByPercent ? 100 : subtotal)) {
       form.setFieldValue('number', nextIsByPercent ? '100' : subtotal);
       setTimeout(() => setIsInvalidNumber(true), 50);
@@ -373,9 +285,46 @@ const DiscountPopover = ({
           wrapperCol={{ span: 26 }}
           className="grow !m-0"
         >
-          <InputNumber ref={inputRef} min={0} className="!text-right w-full" controls={false} formatter={currencyFormatter} />
+          <InputNumber
+            ref={inputRef}
+            className="!text-right w-full"
+            controls={false}
+            parser={val => {
+              try {
+                // for when the input gets clears
+                if (typeof val === 'string' && !val.length) {
+                  val = '0.0';
+                }
+
+                // detecting and parsing between comma and dot
+                const group = new Intl.NumberFormat(localeKey).format(1111).replace(/1/g, '');
+                const decimal = new Intl.NumberFormat(localeKey).format(1.1).replace(/1/g, '');
+                let reversedVal = val.replace(new RegExp('\\' + group, 'g'), '');
+                reversedVal = reversedVal.replace(new RegExp('\\' + decimal, 'g'), '.');
+                //  => 1232.21 €
+
+                // removing everything except the digits and dot
+                reversedVal = reversedVal.replace(/[^0-9.]/g, '');
+                //  => 1232.21
+
+                // appending digits properly
+                const digitsAfterDecimalCount = (reversedVal.split('.')[1] || []).length;
+                const needsDigitsAppended = digitsAfterDecimalCount > 2;
+                let result;
+                if (needsDigitsAppended) {
+                  result = parseFloat(reversedVal) * Math.pow(10, digitsAfterDecimalCount - 2);
+                }
+
+                return Number.isNaN(result) ? 0 : reversedVal;
+              } catch (error) {
+                console.error(error);
+              }
+              return 0;
+            }}
+            formatter={x => currencyFormat(x, localeKey)}
+          />
         </Form.Item>
-        <Form.Item name={'isByPercent'} initialValue={discount.isByPercent} wrapperCol={{ span: 26 }} className="grow !m-0">
+        <Form.Item name={'isByPercent'} initialValue={isByPercent} wrapperCol={{ span: 26 }} className="grow !m-0">
           <Radio.Group buttonStyle="solid" onChange={value => setIsByPercent(value)}>
             <Radio.Button value={false}>
               <span className="font-semibold">{restaurant.currencyUnit}</span>
