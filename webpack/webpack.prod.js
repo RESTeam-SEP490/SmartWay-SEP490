@@ -23,6 +23,7 @@ module.exports = async () =>
       filename: '[name].[contenthash:8].js',
       chunkFilename: '[name].[chunkhash:8].chunk.js',
     },
+
     module: {
       rules: [
         {
