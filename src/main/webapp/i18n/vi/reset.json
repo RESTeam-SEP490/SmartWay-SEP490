@@ -1,13 +1,23 @@
 {
   "reset": {
+    "notFoundEmail": "Không tìm thấy email trong nhà hàng",
+    "passwordExpired": "Đặt lại mật khẩu đã hết phiên xử lý",
+    "lengthInvalid": "Độ dài mật khẩu không hợp lệ",
+    "buttonEmail": "Gửi Email",
     "request": {
-      "title": "Đặt lại mật khẩu của bạn",
+      "new": "Mật khẩu mới",
+      "info": "Nhập mật khẩu mới để thay đổi mật khẩu của bạn",
+      "subtitle": "Nhập email của bạn để thay đổi mật khẩu",
+      "forgot": "Quên mật khẩu",
+      "sendEmail": "Gửi thành công",
+      "titleEmail": "Kiểm tra email của bạn để thay đổi mật khẩu",
+      "success": "Vui lòng kiểm tra email của bạn để xem chi tiết cách lấy lại mật khẩu",
       "form": {
         "button": "Đặt lại mật khẩu"
       },
       "messages": {
         "info": "Nhập địa chỉ email mà bạn đã sử dụng để đăng ký",
-        "success": "Vui lòng kiểm tra hòm thư của bạn để xem chi tiết cách lấy lại mật khẩu."
+        "success": "Vui lòng kiểm tra email của bạn để xem chi tiết cách lấy lại mật khẩu."
       }
     },
     "finish": {
@@ -17,7 +27,7 @@
       },
       "messages": {
         "info": "Chọn mật khẩu mới",
-        "success": "<strong>Mật khẩu của bạn đã được đặt lại.</strong> Bạn vui lòng ",
+        "success": "<strong>Mật khẩu của bạn đã được đặt lại.</strong>",
         "keymissing": "Không tìm thấy khóa để đặt lại mật khẩu.",
         "error": "Không thể đặt lại mật khẩu của bạn. Lưu ý, yêu cầu đặt lại mật khẩu chỉ có hiệu lực trong 24 giờ."
       }

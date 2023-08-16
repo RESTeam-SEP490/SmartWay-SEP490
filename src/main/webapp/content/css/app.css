@@ -312,3 +312,7 @@ th.ant-table-cell::before {
   border-width: 0;
   border-style: solid;
 }
+
+.color-smart-way {
+  background: #4d81f1;
+}
