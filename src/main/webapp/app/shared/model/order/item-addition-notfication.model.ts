@@ -1,4 +1,5 @@
 import { IDiningTable } from '../dining-table.model';
+import { IMenuItem } from '../menu-item.model';
 import { IItemCancellationNotification } from './item-cancellation-notification.model';
 import { IReadyToServeNotification } from './ready-to-serve-notfication.model';
 
@@ -8,7 +9,7 @@ export interface IItemAdditionNotification {
   notifiedTime?: string;
   quantity?: number | 0;
   note?: string | null;
-  menuItemName?: string | null;
+  menuItem?: IMenuItem | null;
   orderDetailId?: string | null;
   tableList?: IDiningTable[] | [];
   priority?: boolean | null;

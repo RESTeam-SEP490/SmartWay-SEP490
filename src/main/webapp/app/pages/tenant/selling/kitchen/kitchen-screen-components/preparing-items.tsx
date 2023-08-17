@@ -1,17 +1,15 @@
+import { DeleteFilled, DoubleRightOutlined, RightOutlined, StarFilled } from '@ant-design/icons';
 import { Button, Typography } from 'antd';
+import { alphabetCompare, itemAdditionCompare } from 'app/app.constant';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
-import { IItemAdditionNotification } from 'app/shared/model/order/item-addition-notfication.model';
+import { IKitchenItems } from 'app/shared/model/dto/kitchen-items-dto';
+import dayjs from 'dayjs';
+import { AnimatePresence, motion } from 'framer-motion';
 import React, { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
-import dayjs from 'dayjs';
-import { DeleteFilled, DoubleRightOutlined, RightOutlined, StarFilled } from '@ant-design/icons';
-import { IKitchenItems } from 'app/shared/model/dto/kitchen-items-dto';
-import { alphabetCompare, itemAdditionCompare } from 'app/app.constant';
-import { kitchenActions } from '../kitchen.reducer';
-import { AnimatePresence, motion } from 'framer-motion';
-import { IReadyToServeNotification } from 'app/shared/model/order/ready-to-serve-notfication.model';
-import { MdOutlineSoupKitchen, MdRestaurant, MdSoupKitchen } from 'react-icons/md';
+import { MdOutlineSoupKitchen } from 'react-icons/md';
 import { translate } from 'react-jhipster';
+import { kitchenActions } from '../kitchen.reducer';
 
 export const PreparingItems = () => {
   const dispatch = useAppDispatch();
@@ -55,8 +53,8 @@ export const PreparingItems = () => {
                   key={item.id}
                 >
                   <div className="flex flex-col w-1/3">
-                    <Typography.Title className="!m-0 !leading-none w-full" level={5} ellipsis={{ tooltip: item.menuItemName }}>
-                      {item.menuItemName}
+                    <Typography.Title className="!m-0 !leading-none w-full" level={5} ellipsis={{ tooltip: item.menuItem.name }}>
+                      {item.menuItem.name}
                     </Typography.Title>
                     {item.note && <div className="text-sm text-yellow-600">{item.note}</div>}
                     <div className="mt-1 text-xs text-gray-500">

@@ -33,7 +33,7 @@
     },
     "orderDetails": {
       "total": "Total",
-      "charge": "Charge",
+      "charge": "Check out",
       "notify": "Notify kitchen"
     },
     "history": {

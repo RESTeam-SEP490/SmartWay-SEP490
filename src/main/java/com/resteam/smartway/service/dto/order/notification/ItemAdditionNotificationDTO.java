@@ -1,6 +1,7 @@
 package com.resteam.smartway.service.dto.order.notification;
 
 import com.resteam.smartway.service.dto.DiningTableDTO;
+import com.resteam.smartway.service.dto.MenuItemDTO;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -13,7 +14,7 @@ public class ItemAdditionNotificationDTO {
     private String createdBy;
     private Instant notifiedTime;
     private int quantity;
-    private String menuItemName;
+    private MenuItemDTO menuItem;
     private List<DiningTableDTO> tableList;
     private List<ItemCancellationNotificationDTO> itemCancellationNotificationList;
     private List<ReadyToServeNotificationInIANDTO> readyToServeNotificationList;

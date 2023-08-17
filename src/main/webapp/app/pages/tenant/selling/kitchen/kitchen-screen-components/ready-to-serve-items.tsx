@@ -56,9 +56,9 @@ export const ReadyToServeItems = () => {
                     <Typography.Title
                       className="!m-0 !leading-none w-full"
                       level={5}
-                      ellipsis={{ tooltip: item.itemAdditionNotification.menuItemName }}
+                      ellipsis={{ tooltip: item.itemAdditionNotification.menuItem.name }}
                     >
-                      {item.itemAdditionNotification.menuItemName}
+                      {item.itemAdditionNotification.menuItem.name}
                     </Typography.Title>
                     {item.itemAdditionNotification.note && (
                       <div className="text-xs text-yellow-600">{item.itemAdditionNotification.note}</div>

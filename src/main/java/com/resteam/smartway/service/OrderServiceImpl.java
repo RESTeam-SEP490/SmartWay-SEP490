@@ -9,6 +9,9 @@ import com.resteam.smartway.domain.BankAccountInfo;
 import com.resteam.smartway.domain.DiningTable;
 import com.resteam.smartway.domain.MenuItem;
 import com.resteam.smartway.domain.Restaurant;
+import com.resteam.smartway.domain.enumeration.CancellationReason;
+import com.resteam.smartway.domain.enumeration.CurrencyUnit;
+import com.resteam.smartway.domain.enumeration.OrderStatus;
 import com.resteam.smartway.domain.order.OrderDetail;
 import com.resteam.smartway.domain.order.SwOrder;
 import com.resteam.smartway.domain.order.notifications.ItemAdditionNotification;
@@ -26,8 +29,8 @@ import com.resteam.smartway.service.dto.BillDTO;
 import com.resteam.smartway.service.dto.DiningTableDTO;
 import com.resteam.smartway.service.dto.order.*;
 import com.resteam.smartway.service.dto.order.notification.CancellationDTO;
-import com.resteam.smartway.service.mapper.BillMapper;
 import com.resteam.smartway.service.mapper.DiningTableMapper;
+import com.resteam.smartway.service.mapper.MenuItemMapper;
 import com.resteam.smartway.service.mapper.order.OrderDetailMapper;
 import com.resteam.smartway.service.mapper.order.OrderMapper;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
@@ -35,6 +38,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -70,9 +76,9 @@ public class OrderServiceImpl implements OrderService {
     private final ItemAdditionNotificationRepository itemAdditionNotificationRepository;
     private final ItemCancellationNotificationRepository itemCancellationNotificationRepository;
     private final BankAccountInfoRepository bankAccountInfoRepository;
+    private final MenuItemMapper menuItemMapper;
     private final S3Service s3Service;
     private final DiningTableMapper diningTableMapper;
-    private final BillMapper billMapper;
 
     private static final String ORDER = "order";
     private static final String TABLE = "table";
@@ -151,6 +157,96 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public void returnItem(ReturnItemDTO returnItemDTO) {
+        SwOrder order = orderRepository
+            .findByIdAndIsPaid(returnItemDTO.getOrderId(), false)
+            .orElseThrow(() -> new BadRequestAlertException("Order was not found or Paid", ORDER, "not found or not existed"));
+
+        List<OrderDetailDTO> listItemsReturn = returnItemDTO.getListItemsReturn();
+        List<OrderDetail> orderDetailList = order.getOrderDetailList();
+
+        for (OrderDetailDTO itemReturn : listItemsReturn) {
+            UUID menuItemId = itemReturn.getMenuItem().getId();
+            List<OrderDetail> orderDetailsByMenuItemId = orderDetailList
+                .stream()
+                .filter(orderDetail -> orderDetail.getMenuItem().getId().equals(menuItemId))
+                .collect(Collectors.toList());
+
+            for (OrderDetail baseItem : orderDetailsByMenuItemId) {
+                int newQuantity;
+                int baseQuantity = baseItem.getQuantity();
+                int returnQuantity = itemReturn.getQuantity();
+                if (returnQuantity <= baseQuantity) {
+                    newQuantity = baseQuantity - returnQuantity;
+                    baseItem.setQuantity(newQuantity);
+                    baseItem.setServedQuantity(newQuantity);
+                    itemReturn.setQuantity(0);
+                    orderDetailRepository.save(baseItem);
+                    break;
+                } else {
+                    baseItem.setQuantity(0);
+                    baseItem.setServedQuantity(0);
+                    itemReturn.setQuantity(returnQuantity - baseQuantity);
+                    orderDetailRepository.save(baseItem);
+                }
+            }
+            if (itemReturn.getQuantity() > 0) {
+                throw new BadRequestAlertException("quantity of item return still left", ORDER_DETAIL, "notreturn");
+            }
+        }
+    }
+
+    @Override
+    @SneakyThrows
+    public byte[] generatePdfBillWithReturnItem(PrintBillDTO printBillDTO) throws DocumentException {
+        SwOrder order = orderRepository
+            .findByIdAndIsPaid(printBillDTO.getOrderId(), false)
+            .orElseThrow(() -> new BadRequestAlertException("Order was not found or Paid", ORDER, "not found or not existed"));
+
+        List<OrderDetailDTO> listItemsReturn = printBillDTO.getReturnItemList();
+        List<OrderDetail> orderDetailList = order.getOrderDetailList();
+
+        Map<UUID, Integer> orderDetailMapGroupedByMenuItem = new HashMap<>();
+        for (OrderDetail orderDetail : orderDetailList) {
+            UUID menuItemId = orderDetail.getMenuItem().getId();
+            int originalQuantity = orderDetailMapGroupedByMenuItem.getOrDefault(menuItemId, 0);
+            orderDetailMapGroupedByMenuItem.put(menuItemId, originalQuantity + orderDetail.getQuantity());
+        }
+
+        for (OrderDetailDTO itemReturn : listItemsReturn) {
+            UUID menuItemId = itemReturn.getMenuItem().getId();
+            int returnedQuantity = itemReturn.getQuantity();
+
+            if (orderDetailMapGroupedByMenuItem.containsKey(menuItemId)) {
+                int originalQuantity = orderDetailMapGroupedByMenuItem.get(menuItemId);
+
+                if (returnedQuantity <= originalQuantity) {
+                    orderDetailMapGroupedByMenuItem.put(menuItemId, originalQuantity - returnedQuantity);
+                } else {
+                    throw new BadRequestAlertException("not enough quantity to return", ORDER, "notenoughquantity");
+                }
+            }
+        }
+
+        List<OrderDetailDTO> toPrintOrderDetailList = new ArrayList<>();
+
+        orderDetailMapGroupedByMenuItem.forEach((uuid, integer) -> {
+            OrderDetailDTO orderDetailDTO = new OrderDetailDTO();
+            MenuItem menuItem = orderDetailList
+                .stream()
+                .filter(orderDetail -> orderDetail.getMenuItem().getId().equals(uuid))
+                .findFirst()
+                .get()
+                .getMenuItem();
+            orderDetailDTO.setMenuItem(menuItemMapper.toDto(menuItem));
+            orderDetailDTO.setQuantity(integer);
+            toPrintOrderDetailList.add(orderDetailDTO);
+        });
+
+        return generatePdfBill(printBillDTO.getOrderId(), toPrintOrderDetailList, printBillDTO.getDiscount());
+    }
+
+    @Override
     public OrderDTO createOrder(OrderCreationDTO orderDTO) {
         List<DiningTable> tableList = orderDTO
             .getTableIdList()
@@ -199,7 +295,6 @@ public class OrderServiceImpl implements OrderService {
         String orderCode = generateCode();
         order.setCode(orderCode);
         order.setTakeAway(true);
-        order.setCompleted(false);
         SwOrder savedOrder = orderRepository.save(order);
         return orderMapper.toDto(savedOrder);
     }
@@ -353,7 +448,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<OrderDTO> getAllActiveOrders() {
         return orderRepository
-            .findAllByIsCompleted(false)
+            .findAllByStatus(OrderStatus.UNCOMPLETED)
             .stream()
             .map(this::sortOrderDetailsAndNotificationHistories)
             .collect(Collectors.toList());
@@ -372,7 +467,7 @@ public class OrderServiceImpl implements OrderService {
             table.setIsFree(true);
         }
 
-        order.setCompleted(true);
+        order.setStatus(OrderStatus.COMPLETED);
         orderRepository.save(order);
         return orderMapper.toDto(order);
     }
@@ -556,6 +651,153 @@ public class OrderServiceImpl implements OrderService {
         return sortOrderDetailsAndNotificationHistories(order);
     }
 
+    @SneakyThrows
+    private byte[] generatePdfBill(UUID orderId, List<OrderDetailDTO> orderDetailList, Double discount) {
+        SwOrder order = orderRepository
+            .findById(orderId)
+            .orElseThrow(() -> new BadRequestAlertException("Invalid ID", ORDER, "idnotfound"));
+        OrderDTO orderDTO = orderMapper.toDto(order);
+
+        Document document = new Document(PageSize.A7, 12, 12, 12, 12);
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        PdfWriter.getInstance(document, byteArrayOutputStream);
+
+        String fontPath = "src/main/resources/config/arial-unicode-ms.ttf";
+        BaseFont baseFont = BaseFont.createFont(fontPath, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+        // Customize PDF styles
+        Font titleFont = new Font(baseFont, 10, Font.BOLD, BaseColor.BLACK);
+        Font headerFont = new Font(baseFont, 8, Font.BOLD, BaseColor.BLACK);
+        Font normalFont = new Font(baseFont, 8, Font.NORMAL, BaseColor.BLACK);
+        Font footerFont = new Font(baseFont, 6, Font.BOLD, BaseColor.BLACK);
+
+        document.open();
+
+        Restaurant restaurant = restaurantRepository
+            .findById(RestaurantContext.getCurrentRestaurant().getId())
+            .orElseThrow(() -> new BadRequestAlertException("Restaurant not found", "restaurant", "idnotfound"));
+        // Add a title to the document
+        Paragraph restaurantName = new Paragraph(restaurant.getName(), titleFont);
+        restaurantName.setAlignment(Element.ALIGN_CENTER);
+        document.add(restaurantName);
+
+        Paragraph address = new Paragraph("--address", titleFont);
+        address.setAlignment(Element.ALIGN_CENTER);
+        document.add(address);
+
+        Paragraph phone = new Paragraph(restaurant.getPhone(), titleFont);
+        phone.setAlignment(Element.ALIGN_CENTER);
+        document.add(phone);
+
+        Paragraph line = new Paragraph("----------------", headerFont);
+        line.setAlignment(Element.ALIGN_CENTER);
+        document.add(line);
+
+        document.add(Chunk.NEWLINE);
+
+        Paragraph billParagraph = new Paragraph();
+        Chunk codeValue = new Chunk("#" + orderDTO.getCode(), headerFont);
+        billParagraph.add(codeValue);
+
+        String tableListInString;
+        List<DiningTableDTO> tableList = orderDTO.getTableList();
+        if (tableList.size() == 0) {
+            tableListInString = "Takeaway";
+        } else {
+            tableList.sort(Comparator.comparing(DiningTableDTO::getName));
+            tableListInString = tableList.stream().map(DiningTableDTO::getName).collect(Collectors.joining(","));
+        }
+        Chunk tableListChunk = new Chunk(" - " + tableListInString, normalFont);
+        billParagraph.add(tableListChunk);
+        document.add(billParagraph);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy").withZone(ZoneId.of("UTC"));
+
+        Paragraph timeIn = new Paragraph();
+        Chunk timeInLabel = new Chunk("Check in: ", headerFont);
+        Chunk timeInValue = new Chunk(formatter.format(orderDTO.getCreatedDate()), normalFont);
+        timeIn.add(timeInLabel);
+        timeIn.add(timeInValue);
+        document.add(timeIn);
+
+        PdfPTable table = new PdfPTable(4);
+        table.setWidthPercentage(100);
+        table.setSpacingBefore(10f);
+
+        // Header row with relative widths
+        float[] columnWidths = { 38f, 12f, 25f, 25f }; // Adjust the percentages here
+        table.setWidths(columnWidths);
+        // Header row
+        addHeaderWithStyle(table, "Item", headerFont, Element.ALIGN_LEFT);
+        addHeaderWithStyle(table, "Qty.", headerFont, Element.ALIGN_CENTER);
+        addHeaderWithStyle(table, "Price", headerFont, Element.ALIGN_RIGHT);
+        addHeaderWithStyle(table, "Amount", headerFont, Element.ALIGN_RIGHT);
+
+        //define formatter cho currency
+        DecimalFormat currencyFormatter = (DecimalFormat) NumberFormat.getCurrencyInstance(
+            restaurant.getCurrencyUnit().equals(CurrencyUnit.USD) ? Locale.US : new Locale("vi", "VN") //set locale theo đơn vị tiền tệ
+        );
+        DecimalFormatSymbols symbols = currencyFormatter.getDecimalFormatSymbols();
+        symbols.setCurrencySymbol("");
+        currencyFormatter.setDecimalFormatSymbols(symbols);
+        if (restaurant.getCurrencyUnit().equals(CurrencyUnit.USD)) currencyFormatter.setMinimumFractionDigits(2); //nếu là dollar thì ít nhất có 2 chữ số thập phân
+
+        // Data row
+        for (OrderDetailDTO orderDetail : orderDetailList) {
+            addValueWithStyle(table, orderDetail.getMenuItem().getName(), normalFont, Element.ALIGN_LEFT);
+            addValueWithStyle(table, String.valueOf(orderDetail.getQuantity()), normalFont, Element.ALIGN_CENTER);
+            addValueWithStyle(table, currencyFormatter.format(orderDetail.getMenuItem().getSellPrice()), normalFont, Element.ALIGN_RIGHT);
+            addValueWithStyle(
+                table,
+                currencyFormatter.format(orderDetail.getMenuItem().getSellPrice() * orderDetail.getQuantity()),
+                normalFont,
+                Element.ALIGN_RIGHT
+            );
+        }
+
+        addCellWithColSpan(table, "Subtotal: ", normalFont, Element.ALIGN_LEFT, 2);
+        Double subtotal = orderDetailList
+            .stream()
+            .reduce(
+                0.0,
+                (prevSubtotal, currentDetail) -> prevSubtotal + currentDetail.getQuantity() * currentDetail.getMenuItem().getSellPrice(),
+                Double::sum
+            );
+        addCellWithColSpan(table, currencyFormatter.format(subtotal), normalFont, Element.ALIGN_RIGHT, 2);
+
+        addCellWithColSpan(table, "Discount: ", normalFont, Element.ALIGN_LEFT, 2);
+        addCellWithColSpan(table, discount == null ? "0" : currencyFormatter.format(discount), normalFont, Element.ALIGN_RIGHT, 2);
+
+        addCellWithColSpan(table, "Total: ", headerFont, Element.ALIGN_LEFT, 2);
+        String total = currencyFormatter.format(subtotal - discount) + restaurant.getCurrencyUnit();
+        addCellWithColSpan(table, total, headerFont, Element.ALIGN_RIGHT, 2);
+
+        document.add(table);
+
+        document.add(Chunk.NEWLINE);
+        document.add(line);
+
+        String imageUrl = "https://static.vecteezy.com/system/resources/previews/002/557/391/original/qr-code-for-scanning-free-vector.jpg";
+        // Add an image from an online URL to the document
+        Image logo = Image.getInstance(new URL(imageUrl));
+        logo.scaleToFit(75f, 75f);
+        logo.setAlignment(Element.ALIGN_CENTER);
+        document.add(logo);
+
+        float spacingBeforeImage = 0f; // Adjust the spacing as needed (in points)
+        float spacingAfterImage = 0f; // Adjust the spacing as needed (in points)
+        logo.setSpacingBefore(spacingBeforeImage);
+        logo.setSpacingAfter(spacingAfterImage);
+
+        Paragraph poweredBy = new Paragraph("Powered By SmartWay.website", footerFont);
+        poweredBy.setAlignment(Element.ALIGN_CENTER);
+        document.add(poweredBy);
+
+        document.close();
+
+        return byteArrayOutputStream.toByteArray();
+    }
+
     @Override
     public byte[] generatePdfOrder(UUID orderId) throws DocumentException {
         OrderDTO orderDTO = findById(orderId);
@@ -626,20 +868,20 @@ public class OrderServiceImpl implements OrderService {
         float[] columnWidths = { 15f, 40f, 20f, 20f }; // Adjust the percentages here
         table.setWidths(columnWidths);
         // Header row
-        addHeaderWithStyle(table, "STT", headerFont);
-        addHeaderWithStyle(table, "Menu Item", headerFont);
-        addHeaderWithStyle(table, "Quantity", headerFont);
-        addHeaderWithStyle(table, "SellPrice", headerFont);
+        addHeaderWithStyle(table, "STT", headerFont, Element.ALIGN_LEFT);
+        addHeaderWithStyle(table, "Menu Item", headerFont, Element.ALIGN_LEFT);
+        addHeaderWithStyle(table, "Quantity", headerFont, Element.ALIGN_LEFT);
+        addHeaderWithStyle(table, "SellPrice", headerFont, Element.ALIGN_LEFT);
 
         // Data row
         List<OrderDetailDTO> orderDetailList = orderDTO.getOrderDetailList();
         int stt = 1;
         double sumMoney = 0.0;
         for (OrderDetailDTO orderDetail : orderDetailList) {
-            addValueWithStyle(table, String.valueOf(stt), arialUnicodeFont);
-            addValueWithStyle(table, orderDetail.getMenuItem().getName(), arialUnicodeFont);
-            addValueWithStyle(table, String.valueOf(orderDetail.getQuantity()), arialUnicodeFont);
-            addValueWithStyle(table, String.valueOf(orderDetail.getMenuItem().getSellPrice()), arialUnicodeFont);
+            addValueWithStyle(table, String.valueOf(stt), arialUnicodeFont, Element.ALIGN_LEFT);
+            addValueWithStyle(table, orderDetail.getMenuItem().getName(), arialUnicodeFont, Element.ALIGN_LEFT);
+            addValueWithStyle(table, String.valueOf(orderDetail.getQuantity()), arialUnicodeFont, Element.ALIGN_LEFT);
+            addValueWithStyle(table, String.valueOf(orderDetail.getMenuItem().getSellPrice()), arialUnicodeFont, Element.ALIGN_LEFT);
             stt++;
             sumMoney += orderDetail.getQuantity() * orderDetail.getMenuItem().getSellPrice();
         }
@@ -703,6 +945,7 @@ public class OrderServiceImpl implements OrderService {
             .findById(dto.getOrderId())
             .orElseThrow(() -> new BadRequestAlertException("Order not found", "order", "idnotfound"));
 
+        returnItem(new ReturnItemDTO(dto.getOrderId(), dto.getListReturnItems()));
         if (!dto.getIsPayByCash()) {
             if (dto.getBankAccountId() == null) throw new BadRequestAlertException(
                 "Bank account id cant not be null",
@@ -732,7 +975,7 @@ public class OrderServiceImpl implements OrderService {
         order.setSubtotal(subtotal);
 
         if (dto.isFreeUpTable()) {
-            order.setCompleted(true);
+            order.setStatus(OrderStatus.COMPLETED);
             List<DiningTable> tableList = order
                 .getTableList()
                 .stream()
@@ -812,10 +1055,10 @@ public class OrderServiceImpl implements OrderService {
         float[] columnWidths = { 15f, 40f, 20f, 20f }; // Adjust the percentages here
         table.setWidths(columnWidths);
         // Header row
-        addHeaderWithStyle(table, "STT", headerFont);
-        addHeaderWithStyle(table, "Menu Item", headerFont);
-        addHeaderWithStyle(table, "Quantity", headerFont);
-        addHeaderWithStyle(table, "Note", headerFont);
+        addHeaderWithStyle(table, "STT", headerFont, Element.ALIGN_LEFT);
+        addHeaderWithStyle(table, "Menu Item", headerFont, Element.ALIGN_LEFT);
+        addHeaderWithStyle(table, "Quantity", headerFont, Element.ALIGN_LEFT);
+        addHeaderWithStyle(table, "Note", headerFont, Element.ALIGN_LEFT);
 
         // Data row
         int stt = 1;
@@ -825,7 +1068,7 @@ public class OrderServiceImpl implements OrderService {
                 ItemAdditionNotification itemNotification = itemAdditionNotificationDTO.get();
                 OrderDetail orderDetail = itemNotification.getOrderDetail();
                 if (orderDetail != null) {
-                    addValueWithStyle(table, String.valueOf(stt), arialUnicodeFont);
+                    addValueWithStyle(table, String.valueOf(stt), arialUnicodeFont, Element.ALIGN_LEFT);
                     PdfPCell menuItemCell = new PdfPCell(
                         new Phrase(orderDetail.getMenuItem() != null ? orderDetail.getMenuItem().getName() : "", arialUnicodeFont)
                     );
@@ -848,14 +1091,16 @@ public class OrderServiceImpl implements OrderService {
         return byteArrayOutputStream.toByteArray();
     }
 
-    private static void addHeaderWithStyle(PdfPTable table, String text, Font font) {
+    private static void addHeaderWithStyle(PdfPTable table, String text, Font font, int alignment) {
         PdfPCell headerCell = new PdfPCell(new Phrase(text, font));
         headerCell.setBorder(Rectangle.BOTTOM); // Show only the bottom border
         headerCell.setBorderColorBottom(BaseColor.BLACK);
+        headerCell.setBorderColorTop(BaseColor.BLACK);
         headerCell.setBorderWidthBottom(1f); // Set the thickness of the bottom border
+        headerCell.setBorderWidthTop(0.5f); // Set the thickness of the bottom border
         headerCell.setBorderWidthLeft(0f); // Remove left border
         headerCell.setBorderWidthRight(0f); // Remove right border
-        headerCell.setHorizontalAlignment(Element.ALIGN_LEFT);
+        headerCell.setHorizontalAlignment(alignment);
         headerCell.setPaddingBottom(5f);
         table.addCell(headerCell);
     }
@@ -872,16 +1117,26 @@ public class OrderServiceImpl implements OrderService {
         table.addCell(headerCell);
     }
 
-    private static void addValueWithStyle(PdfPTable table, String text, Font font) {
+    private static void addValueWithStyle(PdfPTable table, String text, Font font, int alignment) {
         PdfPCell valueCell = new PdfPCell(new Phrase(text, font));
         valueCell.setBorder(Rectangle.BOTTOM);
         valueCell.setBorderColorBottom(BaseColor.BLACK);
         valueCell.setBorderWidthBottom(0.5f);
         valueCell.setBorderWidthLeft(0f);
         valueCell.setBorderWidthRight(0f);
-        valueCell.setHorizontalAlignment(Element.ALIGN_LEFT);
+        valueCell.setHorizontalAlignment(alignment);
         valueCell.setPaddingTop(5f);
         valueCell.setPaddingBottom(8f);
+        table.addCell(valueCell);
+    }
+
+    private static void addCellWithColSpan(PdfPTable table, String text, Font font, int alignment, int colSpan) {
+        PdfPCell valueCell = new PdfPCell(new Phrase(text, font));
+        valueCell.setHorizontalAlignment(alignment);
+        valueCell.setColspan(colSpan);
+        valueCell.setBorderColor(BaseColor.WHITE);
+        valueCell.setPaddingTop(2f);
+        valueCell.setPaddingBottom(4f);
         table.addCell(valueCell);
     }
 
@@ -929,6 +1184,8 @@ public class OrderServiceImpl implements OrderService {
                 // nếu số lượng đã phục vụ lơn hơn hoặc bằng số lượgn cần huỷ -> trừ trực tiếp vào số lượng đã phục vụ
                 ItemCancellationNotification icn = new ItemCancellationNotification();
                 icn.setQuantity(dto.getCancelledQuantity());
+                icn.setCancellationReason(dto.getCancellationReason());
+                if (dto.getCancellationReason().equals(CancellationReason.OTHERS)) icn.setCancellationNote(dto.getCancellationNote());
                 icn.setOrderDetail(orderDetail);
                 icn.setKitchenNotificationHistory(savedKnh);
 
@@ -936,6 +1193,8 @@ public class OrderServiceImpl implements OrderService {
             } else {
                 ItemCancellationNotification icn = new ItemCancellationNotification();
                 icn.setQuantity(orderDetail.getServedQuantity());
+                icn.setCancellationReason(dto.getCancellationReason());
+                if (dto.getCancellationReason().equals(CancellationReason.OTHERS)) icn.setCancellationNote(dto.getCancellationNote());
                 icn.setOrderDetail(orderDetail);
                 icn.setKitchenNotificationHistory(savedKnh);
 
@@ -944,7 +1203,8 @@ public class OrderServiceImpl implements OrderService {
                 int toAdjustUnnotfiedItemQuantity = cancelNotServedItem(
                     dto.getCancelledQuantity() - orderDetail.getServedQuantity(),
                     orderDetail,
-                    savedKnh
+                    savedKnh,
+                    dto
                 );
                 orderDetail.setServedQuantity(0);
 
@@ -971,13 +1231,15 @@ public class OrderServiceImpl implements OrderService {
                 knh.setOrder(order);
                 KitchenNotificationHistory savedKnh = kitchenNotificationHistoryRepository.save(knh);
 
-                int toCancelSeredItemQuantity = cancelNotServedItem(dto.getCancelledQuantity(), orderDetail, savedKnh);
+                int toCancelSeredItemQuantity = cancelNotServedItem(dto.getCancelledQuantity(), orderDetail, savedKnh, dto);
 
                 if (toCancelSeredItemQuantity > 0) {
                     orderDetail.setServedQuantity(orderDetail.getServedQuantity() - toCancelSeredItemQuantity);
 
                     ItemCancellationNotification icn = new ItemCancellationNotification();
                     icn.setQuantity(toCancelSeredItemQuantity);
+                    icn.setCancellationReason(dto.getCancellationReason());
+                    if (dto.getCancellationReason().equals(CancellationReason.OTHERS)) icn.setCancellationNote(dto.getCancellationNote());
                     icn.setKitchenNotificationHistory(savedKnh);
                     icn.setOrderDetail(orderDetail);
 
@@ -990,7 +1252,12 @@ public class OrderServiceImpl implements OrderService {
         return sortOrderDetailsAndNotificationHistories(orderDetail.getOrder());
     }
 
-    private int cancelNotServedItem(int toCancelQuantity, OrderDetail orderDetail, KitchenNotificationHistory kitchenNotificationHistory) {
+    private int cancelNotServedItem(
+        int toCancelQuantity,
+        OrderDetail orderDetail,
+        KitchenNotificationHistory kitchenNotificationHistory,
+        CancellationDTO dto
+    ) {
         List<ItemCancellationNotification> itemCancellationNotifications = new ArrayList<>();
 
         //nếu số lượng đã phục vụ nhỏ hơn -> chuyển sl đã phục vụ thành 0 -> huỷ sl còn lại vào phần chưa phục vụ
@@ -1021,6 +1288,8 @@ public class OrderServiceImpl implements OrderService {
                 if (notReadyToServeQuantity >= toCancelQuantityWrapper.get()) icn.setQuantity(
                     toCancelQuantityWrapper.get()
                 ); else icn.setQuantity(notReadyToServeQuantity);
+                icn.setCancellationReason(dto.getCancellationReason());
+                if (dto.getCancellationReason().equals(CancellationReason.OTHERS)) icn.setCancellationNote(dto.getCancellationNote());
 
                 ItemCancellationNotification savedIcn = itemCancellationNotificationRepository.save(icn);
                 itemAdditionNotification.getItemCancellationNotificationList().add(savedIcn);
@@ -1044,6 +1313,8 @@ public class OrderServiceImpl implements OrderService {
                     if (rts.getQuantity() >= toCancelQuantityWrapper.get()) icn.setQuantity(
                         toCancelQuantityWrapper.get()
                     ); else icn.setQuantity(rts.getQuantity());
+                    icn.setCancellationReason(dto.getCancellationReason());
+                    if (dto.getCancellationReason().equals(CancellationReason.OTHERS)) icn.setCancellationNote(dto.getCancellationNote());
 
                     ItemCancellationNotification savedIcn = itemCancellationNotificationRepository.save(icn);
                     rts.getItemCancellationNotificationList().add(savedIcn);

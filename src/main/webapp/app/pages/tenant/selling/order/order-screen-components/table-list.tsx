@@ -1,17 +1,16 @@
-import { GiWoodenChair } from 'react-icons/gi';
-import { BlockOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import { BlockOutlined } from '@ant-design/icons';
 import { Radio, Segmented, Typography } from 'antd';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { getEntities as getZoneEntities } from 'app/pages/tenant/management/zone/zone.reducer';
 import TableIcon from 'app/shared/icons/table-icon';
 import { IDiningTable } from 'app/shared/model/dining-table.model';
 import { IOrder } from 'app/shared/model/order/order.model';
-import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
+import { GiWoodenChair } from 'react-icons/gi';
+import { MdFastfood } from 'react-icons/md';
 import { Translate } from 'react-jhipster';
 import { orderActions } from '../order.reducer';
-import { MdFastfood } from 'react-icons/md';
 
 export const TableList = () => {
   const dispatch = useAppDispatch();
@@ -19,6 +18,7 @@ export const TableList = () => {
   const zoneList = useAppSelector(state => state.zone.entities);
   const orderLoading = useAppSelector(state => state.order.loading);
   const tableLoading = useAppSelector(state => state.diningTable.loading);
+  const orders: IOrder[] = useAppSelector(state => state.order.activeOrders);
 
   const [filteredTableList, setFilteredTableList] = useState([]);
   const [filter, setFilter] = useState({ zoneId: '', isFree: undefined });
@@ -35,7 +35,14 @@ export const TableList = () => {
     const { zoneId, isFree } = filter;
     let nextFilteredTableList: IDiningTable[] = [...tableList];
     if (zoneId?.length > 0) nextFilteredTableList = nextFilteredTableList.filter(table => table.zone?.id === zoneId);
-    if (isFree !== undefined) nextFilteredTableList = nextFilteredTableList.filter(table => table.isFree === isFree);
+    if (isFree !== undefined) {
+      if (isFree === null)
+        nextFilteredTableList = nextFilteredTableList.filter(table => {
+          const orderOfThisTable: IOrder = orders?.filter(o => !o.takeAway).find(o => o.tableList.some(t => t.id === table.id));
+          return orderOfThisTable?.paid;
+        });
+      else nextFilteredTableList = nextFilteredTableList.filter(table => table.isFree === isFree);
+    }
     setFilteredTableList(nextFilteredTableList);
   }, [filter, tableList]);
 
@@ -71,7 +78,7 @@ export const TableList = () => {
             <Translate contentKey="order.tableList.status.occupied" />
           </Radio>
           <Radio className="!font-normal" value={null}>
-            Billed
+            Paid
             {/* <Translate contentKey="order.tableList.status.occupied" /> */}
           </Radio>
         </Radio.Group>
@@ -108,9 +115,9 @@ const TableCard = ({ table, handleSelectTable }: { table: IDiningTable; handleSe
     >
       <Typography.Text
         className={`flex items-center gap-2 pb-4 !mt-2 font-semibold
-       ${status === 'available' ? '!text-blue-700' : ''} 
-       ${status === 'billed' ? '!text-green-700' : ''} 
-       ${status === 'occupied' ? '!text-gray-700' : ''} 
+       ${isSelected && status === 'available' ? '!text-blue-700' : ''} 
+       ${isSelected && status === 'billed' ? '!text-green-700' : ''} 
+       ${isSelected && status === 'occupied' ? '!text-gray-700' : ''} 
        `}
       >
         {table.name}
@@ -118,9 +125,9 @@ const TableCard = ({ table, handleSelectTable }: { table: IDiningTable; handleSe
       <TableIcon size={100} status={status} order={orderOfThisTable} />
       <Typography.Text
         className={`flex mt-6 items-center 
-             ${status === 'available' ? '!text-blue-700' : ''} 
-             ${status === 'billed' ? '!text-green-700' : ''} 
-             ${status === 'occupied' ? '!text-gray-700' : ''} `}
+             ${isSelected && status === 'available' ? '!text-blue-700' : ''} 
+             ${isSelected && status === 'billed' ? '!text-green-700' : ''} 
+             ${isSelected && status === 'occupied' ? '!text-gray-700' : ''} `}
       >
         <GiWoodenChair size={24} />
         {': ' + (table.numberOfSeats ?? '--')}
