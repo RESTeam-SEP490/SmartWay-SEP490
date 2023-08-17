@@ -50,7 +50,9 @@ export const Charge = ({ isOpen, handleClose }: { isOpen: boolean; handleClose: 
 
   const onCheckout = (isFreeUpTable: boolean) => {
     const values = form.getFieldsValue();
-    dispatch(checkOut({ ...values, orderId: currentOrder.id, freeUpTable: isFreeUpTable }));
+    dispatch(
+      checkOut({ ...values, orderId: currentOrder.id, freeUpTable: isFreeUpTable, listReturnItems: returnList, discount: discount.number })
+    );
   };
 
   const onPrintBill = () => {
@@ -178,7 +180,7 @@ export const Charge = ({ isOpen, handleClose }: { isOpen: boolean; handleClose: 
                 icon={<CreditCardOutlined rev="" />}
                 onClick={() => setIsOpenConfirmModal(true)}
               >
-                Check out
+                Charge
               </Button>
             </div>
           </ConfigProvider>

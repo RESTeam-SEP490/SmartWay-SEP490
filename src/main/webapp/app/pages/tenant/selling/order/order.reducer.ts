@@ -66,9 +66,22 @@ export const cancelOrderDetail = createAsyncThunk(
 
 export const checkOut = createAsyncThunk(
   'orders/checkOut',
-  async (dto: { orderId: string; isPayByCash: boolean; bankAccountId: string | null; discount: number }, thunkAPI) => {
+  async (
+    dto: { orderId: string; isPayByCash: boolean; bankAccountId: string | null; discount: number; listItemsReturn: any },
+    thunkAPI
+  ) => {
     const requestUrl = `${apiUrl}/check-out`;
     const result = axios.post<ArrayBuffer>(requestUrl, dto);
+    return result;
+  },
+  { serializeError: serializeAxiosError }
+);
+
+export const freeUpTable = createAsyncThunk(
+  'orders/free_up_table',
+  async (orderId: string, thunkAPI) => {
+    const requestUrl = `${apiUrl}/free-up-table?orderId=${orderId}`;
+    const result = axios.put<ArrayBuffer>(requestUrl);
     return result;
   },
   { serializeError: serializeAxiosError }
@@ -195,11 +208,11 @@ export const OrderSlice = createSlice({
 
         iframe.contentWindow.print();
       })
-      .addMatcher(isPending(addNote, groupTables, cancelOrderDetail, checkOut, printBill), (state, action) => {
+      .addMatcher(isPending(addNote, groupTables, cancelOrderDetail, checkOut, printBill, freeUpTable), (state, action) => {
         state.updateSuccess = false;
         state.updating = true;
       })
-      .addMatcher(isFulfilled(addNote, groupTables, cancelOrderDetail), (state, action) => {
+      .addMatcher(isFulfilled(addNote, groupTables, cancelOrderDetail, freeUpTable), (state, action) => {
         state.updateSuccess = true;
         state.updating = false;
       })

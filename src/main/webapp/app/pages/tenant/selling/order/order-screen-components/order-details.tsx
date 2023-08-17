@@ -21,7 +21,7 @@ import React, { useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { MdMonetizationOn, MdOutlineFastfood, MdOutlineRamenDining, MdRoomService, MdShoppingBag, MdTableRestaurant } from 'react-icons/md';
 import { Translate, translate } from 'react-jhipster';
-import { orderActions } from '../order.reducer';
+import { freeUpTable, orderActions } from '../order.reducer';
 import { Charge } from './charge';
 import { AddNoteForm } from './modals/detail-note-modal';
 import { ItemCancellationModal } from './modals/item-cancellation-modal';
@@ -109,7 +109,7 @@ export const OrderDetails = () => {
                 </div>
                 {history.itemAdditionNotificationList.map((addition: IItemAdditionNotification) => (
                   <div key={addition.id} className="flex gap-2 p-0.5 pl-2 text-gray-500">
-                    {`+ ${addition.quantity} ${addition.menuItemName}`}
+                    {`+ ${addition.quantity} ${addition.menuItem.name}`}
                     {addition.priority && <StarFilled className="text-yellow-600" rev={''} />}
                   </div>
                 ))}
@@ -253,7 +253,8 @@ export const OrderDetails = () => {
                   disabled={
                     currentOrder.orderDetailList.length === 0 ||
                     currentOrder.orderDetailList.every(od => od.quantity === 0) ||
-                    currentOrder.orderDetailList.filter(od => od.quantity > 0).some(od => od.servedQuantity < od.quantity) ||
+                    currentOrder.orderDetailList.some(od => od.unnotifiedQuantity > 0) ||
+                    // currentOrder.orderDetailList.filter(od => od.quantity > 0).some(od => od.servedQuantity < od.quantity) ||
                     currentOrder.id === null
                   }
                   onClick={() => setIsOpenChargeModal(true)}
@@ -267,6 +268,9 @@ export const OrderDetails = () => {
                 </Button>
               ) : (
                 <Button
+                  onClick={() => {
+                    dispatch(freeUpTable(currentOrder.id));
+                  }}
                   size="large"
                   type="primary"
                   block

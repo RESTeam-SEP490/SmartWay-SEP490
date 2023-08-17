@@ -9,7 +9,9 @@ import com.resteam.smartway.domain.BankAccountInfo;
 import com.resteam.smartway.domain.DiningTable;
 import com.resteam.smartway.domain.MenuItem;
 import com.resteam.smartway.domain.Restaurant;
+import com.resteam.smartway.domain.enumeration.CancellationReason;
 import com.resteam.smartway.domain.enumeration.CurrencyUnit;
+import com.resteam.smartway.domain.enumeration.OrderStatus;
 import com.resteam.smartway.domain.order.OrderDetail;
 import com.resteam.smartway.domain.order.SwOrder;
 import com.resteam.smartway.domain.order.notifications.ItemAdditionNotification;
@@ -195,6 +197,56 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @SneakyThrows
+    public byte[] generatePdfBillWithReturnItem(PrintBillDTO printBillDTO) throws DocumentException {
+        SwOrder order = orderRepository
+            .findByIdAndIsPaid(printBillDTO.getOrderId(), false)
+            .orElseThrow(() -> new BadRequestAlertException("Order was not found or Paid", ORDER, "not found or not existed"));
+
+        List<OrderDetailDTO> listItemsReturn = printBillDTO.getReturnItemList();
+        List<OrderDetail> orderDetailList = order.getOrderDetailList();
+
+        Map<UUID, Integer> orderDetailMapGroupedByMenuItem = new HashMap<>();
+        for (OrderDetail orderDetail : orderDetailList) {
+            UUID menuItemId = orderDetail.getMenuItem().getId();
+            int originalQuantity = orderDetailMapGroupedByMenuItem.getOrDefault(menuItemId, 0);
+            orderDetailMapGroupedByMenuItem.put(menuItemId, originalQuantity + orderDetail.getQuantity());
+        }
+
+        for (OrderDetailDTO itemReturn : listItemsReturn) {
+            UUID menuItemId = itemReturn.getMenuItem().getId();
+            int returnedQuantity = itemReturn.getQuantity();
+
+            if (orderDetailMapGroupedByMenuItem.containsKey(menuItemId)) {
+                int originalQuantity = orderDetailMapGroupedByMenuItem.get(menuItemId);
+
+                if (returnedQuantity <= originalQuantity) {
+                    orderDetailMapGroupedByMenuItem.put(menuItemId, originalQuantity - returnedQuantity);
+                } else {
+                    throw new BadRequestAlertException("not enough quantity to return", ORDER, "notenoughquantity");
+                }
+            }
+        }
+
+        List<OrderDetailDTO> toPrintOrderDetailList = new ArrayList<>();
+
+        orderDetailMapGroupedByMenuItem.forEach((uuid, integer) -> {
+            OrderDetailDTO orderDetailDTO = new OrderDetailDTO();
+            MenuItem menuItem = orderDetailList
+                .stream()
+                .filter(orderDetail -> orderDetail.getMenuItem().getId().equals(uuid))
+                .findFirst()
+                .get()
+                .getMenuItem();
+            orderDetailDTO.setMenuItem(menuItemMapper.toDto(menuItem));
+            orderDetailDTO.setQuantity(integer);
+            toPrintOrderDetailList.add(orderDetailDTO);
+        });
+
+        return generatePdfBill(printBillDTO.getOrderId(), toPrintOrderDetailList, printBillDTO.getDiscount());
+    }
+
+    @Override
     public OrderDTO createOrder(OrderCreationDTO orderDTO) {
         List<DiningTable> tableList = orderDTO
             .getTableIdList()
@@ -243,7 +295,6 @@ public class OrderServiceImpl implements OrderService {
         String orderCode = generateCode();
         order.setCode(orderCode);
         order.setTakeAway(true);
-        order.setCompleted(false);
         SwOrder savedOrder = orderRepository.save(order);
         return orderMapper.toDto(savedOrder);
     }
@@ -397,7 +448,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<OrderDTO> getAllActiveOrders() {
         return orderRepository
-            .findAllByIsCompleted(false)
+            .findAllByStatus(OrderStatus.UNCOMPLETED)
             .stream()
             .map(this::sortOrderDetailsAndNotificationHistories)
             .collect(Collectors.toList());
@@ -416,7 +467,7 @@ public class OrderServiceImpl implements OrderService {
             table.setIsFree(true);
         }
 
-        order.setCompleted(true);
+        order.setStatus(OrderStatus.COMPLETED);
         orderRepository.save(order);
         return orderMapper.toDto(order);
     }
@@ -924,7 +975,7 @@ public class OrderServiceImpl implements OrderService {
         order.setSubtotal(subtotal);
 
         if (dto.isFreeUpTable()) {
-            order.setCompleted(true);
+            order.setStatus(OrderStatus.COMPLETED);
             List<DiningTable> tableList = order
                 .getTableList()
                 .stream()
@@ -1133,6 +1184,8 @@ public class OrderServiceImpl implements OrderService {
                 // nếu số lượng đã phục vụ lơn hơn hoặc bằng số lượgn cần huỷ -> trừ trực tiếp vào số lượng đã phục vụ
                 ItemCancellationNotification icn = new ItemCancellationNotification();
                 icn.setQuantity(dto.getCancelledQuantity());
+                icn.setCancellationReason(dto.getCancellationReason());
+                if (dto.getCancellationReason().equals(CancellationReason.OTHERS)) icn.setCancellationNote(dto.getCancellationNote());
                 icn.setOrderDetail(orderDetail);
                 icn.setKitchenNotificationHistory(savedKnh);
 
@@ -1140,6 +1193,8 @@ public class OrderServiceImpl implements OrderService {
             } else {
                 ItemCancellationNotification icn = new ItemCancellationNotification();
                 icn.setQuantity(orderDetail.getServedQuantity());
+                icn.setCancellationReason(dto.getCancellationReason());
+                if (dto.getCancellationReason().equals(CancellationReason.OTHERS)) icn.setCancellationNote(dto.getCancellationNote());
                 icn.setOrderDetail(orderDetail);
                 icn.setKitchenNotificationHistory(savedKnh);
 
@@ -1148,7 +1203,8 @@ public class OrderServiceImpl implements OrderService {
                 int toAdjustUnnotfiedItemQuantity = cancelNotServedItem(
                     dto.getCancelledQuantity() - orderDetail.getServedQuantity(),
                     orderDetail,
-                    savedKnh
+                    savedKnh,
+                    dto
                 );
                 orderDetail.setServedQuantity(0);
 
@@ -1175,13 +1231,15 @@ public class OrderServiceImpl implements OrderService {
                 knh.setOrder(order);
                 KitchenNotificationHistory savedKnh = kitchenNotificationHistoryRepository.save(knh);
 
-                int toCancelSeredItemQuantity = cancelNotServedItem(dto.getCancelledQuantity(), orderDetail, savedKnh);
+                int toCancelSeredItemQuantity = cancelNotServedItem(dto.getCancelledQuantity(), orderDetail, savedKnh, dto);
 
                 if (toCancelSeredItemQuantity > 0) {
                     orderDetail.setServedQuantity(orderDetail.getServedQuantity() - toCancelSeredItemQuantity);
 
                     ItemCancellationNotification icn = new ItemCancellationNotification();
                     icn.setQuantity(toCancelSeredItemQuantity);
+                    icn.setCancellationReason(dto.getCancellationReason());
+                    if (dto.getCancellationReason().equals(CancellationReason.OTHERS)) icn.setCancellationNote(dto.getCancellationNote());
                     icn.setKitchenNotificationHistory(savedKnh);
                     icn.setOrderDetail(orderDetail);
 
@@ -1194,7 +1252,12 @@ public class OrderServiceImpl implements OrderService {
         return sortOrderDetailsAndNotificationHistories(orderDetail.getOrder());
     }
 
-    private int cancelNotServedItem(int toCancelQuantity, OrderDetail orderDetail, KitchenNotificationHistory kitchenNotificationHistory) {
+    private int cancelNotServedItem(
+        int toCancelQuantity,
+        OrderDetail orderDetail,
+        KitchenNotificationHistory kitchenNotificationHistory,
+        CancellationDTO dto
+    ) {
         List<ItemCancellationNotification> itemCancellationNotifications = new ArrayList<>();
 
         //nếu số lượng đã phục vụ nhỏ hơn -> chuyển sl đã phục vụ thành 0 -> huỷ sl còn lại vào phần chưa phục vụ
@@ -1225,6 +1288,8 @@ public class OrderServiceImpl implements OrderService {
                 if (notReadyToServeQuantity >= toCancelQuantityWrapper.get()) icn.setQuantity(
                     toCancelQuantityWrapper.get()
                 ); else icn.setQuantity(notReadyToServeQuantity);
+                icn.setCancellationReason(dto.getCancellationReason());
+                if (dto.getCancellationReason().equals(CancellationReason.OTHERS)) icn.setCancellationNote(dto.getCancellationNote());
 
                 ItemCancellationNotification savedIcn = itemCancellationNotificationRepository.save(icn);
                 itemAdditionNotification.getItemCancellationNotificationList().add(savedIcn);
@@ -1248,6 +1313,8 @@ public class OrderServiceImpl implements OrderService {
                     if (rts.getQuantity() >= toCancelQuantityWrapper.get()) icn.setQuantity(
                         toCancelQuantityWrapper.get()
                     ); else icn.setQuantity(rts.getQuantity());
+                    icn.setCancellationReason(dto.getCancellationReason());
+                    if (dto.getCancellationReason().equals(CancellationReason.OTHERS)) icn.setCancellationNote(dto.getCancellationNote());
 
                     ItemCancellationNotification savedIcn = itemCancellationNotificationRepository.save(icn);
                     rts.getItemCancellationNotificationList().add(savedIcn);

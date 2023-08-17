@@ -115,9 +115,9 @@ const TableCard = ({ table, handleSelectTable }: { table: IDiningTable; handleSe
     >
       <Typography.Text
         className={`flex items-center gap-2 pb-4 !mt-2 font-semibold
-       ${status === 'available' ? '!text-blue-700' : ''} 
-       ${status === 'billed' ? '!text-green-700' : ''} 
-       ${status === 'occupied' ? '!text-gray-700' : ''} 
+       ${isSelected && status === 'available' ? '!text-blue-700' : ''} 
+       ${isSelected && status === 'billed' ? '!text-green-700' : ''} 
+       ${isSelected && status === 'occupied' ? '!text-gray-700' : ''} 
        `}
       >
         {table.name}
@@ -125,9 +125,9 @@ const TableCard = ({ table, handleSelectTable }: { table: IDiningTable; handleSe
       <TableIcon size={100} status={status} order={orderOfThisTable} />
       <Typography.Text
         className={`flex mt-6 items-center 
-             ${status === 'available' ? '!text-blue-700' : ''} 
-             ${status === 'billed' ? '!text-green-700' : ''} 
-             ${status === 'occupied' ? '!text-gray-700' : ''} `}
+             ${isSelected && status === 'available' ? '!text-blue-700' : ''} 
+             ${isSelected && status === 'billed' ? '!text-green-700' : ''} 
+             ${isSelected && status === 'occupied' ? '!text-gray-700' : ''} `}
       >
         <GiWoodenChair size={24} />
         {': ' + (table.numberOfSeats ?? '--')}

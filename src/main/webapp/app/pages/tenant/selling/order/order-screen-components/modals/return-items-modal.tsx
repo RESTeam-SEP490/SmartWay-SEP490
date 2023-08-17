@@ -1,5 +1,5 @@
 import { MinusOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Switch, Table } from 'antd';
+import { Button, Popover, Switch, Table } from 'antd';
 import { alphabetCompare } from 'app/app.constant';
 import { useAppSelector } from 'app/config/store';
 import { IOrderDetail } from 'app/shared/model/order/order-detail.model';
@@ -12,6 +12,7 @@ export const ReturnItemsModal = ({ setBillDetail, setReturnList }) => {
   const [currentODList, setCurrentODList] = useState([]);
   const currentOrder: IOrder = useAppSelector(state => state.order.currentOrder);
   const [isReturn, setIsReturn] = useState(false);
+  const [isShowReturnFailedPopover, setIsShowReturnFailedPopover] = useState(false);
 
   useEffect(() => {
     setBillDetail({
@@ -159,10 +160,27 @@ export const ReturnItemsModal = ({ setBillDetail, setReturnList }) => {
             'Takeaway'
           )}
         </h3>
-        <div className="flex items-center gap-2 mb-4">
-          Return items
-          <Switch checked={isReturn} onChange={checked => setIsReturn(checked)}></Switch>
-        </div>
+        <Popover
+          placement="top"
+          content={'All items must be served before customer return item'}
+          trigger="click"
+          onOpenChange={value => {
+            if (!value) setIsShowReturnFailedPopover(value);
+          }}
+          open={isShowReturnFailedPopover}
+        >
+          <div className="flex items-center gap-2 mb-4">
+            Return items
+            <Switch
+              checked={isReturn}
+              onChange={checked => {
+                if (currentOrder.orderDetailList.some(detail => detail.servedQuantity < detail.quantity))
+                  setIsShowReturnFailedPopover(true);
+                else setIsReturn(checked);
+              }}
+            ></Switch>
+          </div>
+        </Popover>
       </div>
       <Scrollbars className="w-full grow">
         <Table

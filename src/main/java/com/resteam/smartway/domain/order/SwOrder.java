@@ -4,6 +4,7 @@ import com.resteam.smartway.domain.BankAccountInfo;
 import com.resteam.smartway.domain.DiningTable;
 import com.resteam.smartway.domain.base.AbstractBaseAuditingEntity;
 import com.resteam.smartway.domain.enumeration.CurrencyUnit;
+import com.resteam.smartway.domain.enumeration.OrderStatus;
 import com.resteam.smartway.domain.order.notifications.KitchenNotificationHistory;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -49,8 +50,9 @@ public class SwOrder extends AbstractBaseAuditingEntity<UUID> {
     @Column(name = "discount")
     private Double discount;
 
-    @Column(name = "is_completed")
-    private boolean isCompleted;
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status = OrderStatus.UNCOMPLETED;
 
     @ManyToOne
     @JoinColumn(name = "bank_account_info_id", referencedColumnName = "id")

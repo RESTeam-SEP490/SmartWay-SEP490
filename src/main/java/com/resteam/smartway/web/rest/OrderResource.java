@@ -34,12 +34,6 @@ public class OrderResource {
     private final OrderWebsocket orderWebsocket;
     private final KitchenWebsocket kitchenWebsocket;
 
-    @PutMapping("/return-item")
-    public ResponseEntity<OrderDTO> returnItem(@RequestBody ReturnItemDTO returnItemDTO) {
-        OrderDTO updatedOrder = orderService.returnItem(returnItemDTO);
-        return ResponseEntity.ok(updatedOrder);
-    }
-
     @PostMapping
     public ResponseEntity<OrderDTO> createOrder(@Valid @RequestBody OrderCreationDTO orderDTO) {
         OrderDTO createdOrder = orderService.createOrder(orderDTO);
@@ -58,9 +52,10 @@ public class OrderResource {
         return ResponseEntity.ok(notPaidOrders);
     }
 
-    @PutMapping("/set-isCompleted")
+    @PutMapping("/free-up-table")
     public ResponseEntity<OrderDTO> setOrderIsCompleted(@RequestParam UUID orderId) {
         OrderDTO completedOrder = orderService.setOrderIsCompleted(orderId);
+        orderWebsocket.sendMessageAfterPayment(orderId);
         return ResponseEntity.ok(completedOrder);
     }
 
