@@ -54,4 +54,6 @@ public interface OrderService {
     OrderDTO checkOut(PaymentDTO dto);
 
     byte[] generatePdfOrderForNotificationKitchen(List<UUID> ids) throws DocumentException;
+
+    OrderDTO cancelOrder(OrderCancellationDTO dto);
 }

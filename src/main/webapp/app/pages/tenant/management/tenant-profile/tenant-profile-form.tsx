@@ -1,6 +1,6 @@
 import { DEFAULT_FORM_ITEM_LAYOUT } from 'app/app.constant';
 import { Translate, translate } from 'react-jhipster';
-import { Avatar, Button, DatePicker, Form, Input, message, Modal, Select, Typography } from 'antd';
+import { Avatar, Button, Col, DatePicker, Form, Input, message, Modal, Row, Select, Typography } from 'antd';
 import { validateEmail, validatePhone } from 'app/pages/tenant/management/staff/staff.reducer';
 import React, { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
@@ -9,7 +9,7 @@ import { ITenant } from 'app/shared/model/tenant';
 import dayjs from 'dayjs';
 import { Moment } from 'moment';
 import { changePassword } from 'app/pages/tenant/management/tenant-profile/tenant-change-password.reducer';
-import { UserOutlined } from '@ant-design/icons';
+import { SaveOutlined, UserOutlined } from '@ant-design/icons';
 
 export const TenantProfileForm = () => {
   const [form] = Form.useForm();
@@ -66,7 +66,6 @@ export const TenantProfileForm = () => {
       newData.id = tenantData.id;
     }
     newData.birthday = formatDateForBackend(newData.birthday);
-    console.log(newData);
     dispatch(updateTenant(newData));
   };
 
@@ -165,14 +164,14 @@ export const TenantProfileForm = () => {
         </Form>
       </Modal>
 
-      <div className="flex mx-auto flex-col mt-10">
+      <div className="flex flex-col mx-auto mt-8">
         <div className="flex">
           <Typography.Title className="!mb-1 inline-block" level={2}>
-            <Translate contentKey="users.profile">Profile</Translate>
+            <Translate contentKey="users.profile">User profile</Translate>
           </Typography.Title>
         </div>
 
-        <div className="flex gap-12 mt-10">
+        <div className="flex gap-12 mt-6">
           <div className="flex flex-col items-center gap-2">
             <Avatar size={140} shape={'square'} className="!bg-blue-600" icon={<UserOutlined rev={undefined} />} />
             <Typography.Text className="!mb-4 !font-semibold !mt-\ text-gray-400 text-xl text-black-500 ">
@@ -184,67 +183,72 @@ export const TenantProfileForm = () => {
           </div>
 
           <div>
-            <Form {...DEFAULT_FORM_ITEM_LAYOUT} className="min-w-[400px]" layout="vertical" size="large" requiredMark={false} form={form}>
-              <Form.Item
-                label={translate('users.fullName.label')}
-                name={'fullName'}
-                rules={[
-                  { required: true, message: translate('entity.validation.required') },
-                  { max: 100, message: translate('entity.validation.max', { max: 100 }) },
-                ]}
-              >
-                <Input />
-              </Form.Item>
-              <Form.Item
-                label={translate('staff.phone.label')}
-                name={'phone'}
-                rules={[
-                  { validator: validatePhone },
-                  { required: true, message: translate('entity.validation.required') },
-                  { max: 20, message: translate('entity.validation.max', { max: 20 }) },
-                ]}
-              >
-                <Input />
-              </Form.Item>
-              <Form.Item
-                label={translate('staff.email.label')}
-                name={'email'}
-                rules={[
-                  { validator: validateEmail },
-                  { required: true, message: translate('entity.validation.required') },
-                  { max: 50, message: translate('entity.validation.max', { max: 100 }) },
-                ]}
-              >
-                <Input />
-              </Form.Item>
-              <Form.Item
-                label={translate('users.address.label')}
-                name={'address'}
-                rules={[
-                  { required: true, message: translate('entity.validation.required') },
-                  { max: 50, message: translate('entity.validation.max', { max: 100 }) },
-                ]}
-              >
-                <Input />
-              </Form.Item>
+            <Form className="w-[700px]" layout="vertical" size="large" requiredMark={false} form={form}>
+              <Row>
+                <Col className="w-1/2 px-4">
+                  <Form.Item
+                    label={translate('users.fullName.label')}
+                    name={'fullName'}
+                    rules={[
+                      { required: true, message: translate('entity.validation.required') },
+                      { max: 100, message: translate('entity.validation.max', { max: 100 }) },
+                    ]}
+                  >
+                    <Input />
+                  </Form.Item>
+                  <Form.Item
+                    label={translate('staff.phone.label')}
+                    name={'phone'}
+                    rules={[
+                      { validator: validatePhone },
+                      { required: true, message: translate('entity.validation.required') },
+                      { max: 20, message: translate('entity.validation.max', { max: 20 }) },
+                    ]}
+                  >
+                    <Input />
+                  </Form.Item>
+                  <Form.Item
+                    label={translate('users.birthday.label')}
+                    name={'birthday'}
+                    rules={[{ required: true, message: translate('entity.validation.required') }]}
+                  >
+                    <DatePicker style={{ width: '100%' }} format="DD-MM-YYYY" />
+                  </Form.Item>
+                </Col>
+                <Col className="w-1/2 px-4">
+                  <Form.Item
+                    label={translate('staff.email.label')}
+                    name={'email'}
+                    rules={[
+                      { validator: validateEmail },
+                      { required: true, message: translate('entity.validation.required') },
+                      { max: 50, message: translate('entity.validation.max', { max: 100 }) },
+                    ]}
+                  >
+                    <Input />
+                  </Form.Item>
+                  <Form.Item
+                    label={translate('users.address.label')}
+                    name={'address'}
+                    rules={[
+                      { required: true, message: translate('entity.validation.required') },
+                      { max: 50, message: translate('entity.validation.max', { max: 100 }) },
+                    ]}
+                  >
+                    <Input />
+                  </Form.Item>
+                  <Form.Item
+                    label={translate('users.gender.label')}
+                    name={'gender'}
+                    rules={[{ required: true, message: translate('entity.validation.required') }]}
+                  >
+                    <Select options={genderOptions} />
+                  </Form.Item>
+                </Col>
+              </Row>
 
-              <Form.Item
-                label={translate('users.birthday.label')}
-                name={'birthday'}
-                rules={[{ required: true, message: translate('entity.validation.required') }]}
-              >
-                <DatePicker style={{ width: '100%' }} format="DD-MM-YYYY" />
-              </Form.Item>
-
-              <Form.Item
-                label={translate('users.gender.label')}
-                name={'gender'}
-                rules={[{ required: true, message: translate('entity.validation.required') }]}
-              >
-                <Select options={genderOptions} />
-              </Form.Item>
               <Form.Item>
-                <Button type="primary" onClick={handleSaveProfile} className="float-right">
+                <Button type="primary" icon={<SaveOutlined rev={''} />} onClick={handleSaveProfile} className="float-right mr-4">
                   {translate('users.save')}
                 </Button>
               </Form.Item>

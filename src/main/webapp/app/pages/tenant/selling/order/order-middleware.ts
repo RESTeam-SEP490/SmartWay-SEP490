@@ -129,7 +129,7 @@ export default store => next => action => {
       subscribe(OrderEvent.ReceiveChangedOrder);
       subscribe(OrderEvent.HasReadyToServeItem);
       subscribe(OrderEvent.HasServedItem);
-      subscribe(OrderEvent.ReceiveNewPayment);
+      subscribe(OrderEvent.HideOrder);
       receive().subscribe(order => {
         if (typeof order === 'string') store.dispatch(orderActions.receiveNewPayment(order));
         else {

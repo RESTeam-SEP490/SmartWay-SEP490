@@ -7,21 +7,28 @@ import dayjs from 'dayjs';
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
-import { MdOutlineSoupKitchen } from 'react-icons/md';
+import { MdOutlineSoupKitchen, MdShoppingBag, MdTableRestaurant } from 'react-icons/md';
 import { translate } from 'react-jhipster';
 import { kitchenActions } from '../kitchen.reducer';
+import { IItemAdditionNotification } from 'app/shared/model/order/item-addition-notfication.model';
 
 export const PreparingItems = () => {
   const dispatch = useAppDispatch();
 
   const kitchenItems: IKitchenItems = useAppSelector(state => state.kitchen.kitchenItems);
-  const preparingItems = [...kitchenItems.itemAdditionNotificationList].sort(itemAdditionCompare);
+  const categoryFilter = useAppSelector(state => state.kitchen.categoryFilter);
+  const rootList = [...kitchenItems.itemAdditionNotificationList].sort(itemAdditionCompare);
+  const [preparingItems, setPreparingItems] = useState([]);
   const [now, setNow] = useState(dayjs());
 
   useEffect(() => {
     const interval = setInterval(() => setNow(dayjs()), 1000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    setPreparingItems(rootList.filter(item => categoryFilter.some(categoryId => categoryId === item.menuItem.menuItemCategory.id)));
+  }, [categoryFilter, kitchenItems]);
 
   return (
     <div className="flex flex-col pl-4 py-4 bg-white rounded-b-lg rounded-se-lg h-[calc(100vh-80px)] ">
@@ -41,8 +48,8 @@ export const PreparingItems = () => {
       ) : (
         <Scrollbars className="w-full grow">
           <div className="">
-            <AnimatePresence>
-              {preparingItems.map(item => (
+            <AnimatePresence mode="sync">
+              {preparingItems.map((item: IItemAdditionNotification) => (
                 <motion.div
                   layout
                   initial={{ opacity: 0, x: '-50%' }}
@@ -76,10 +83,18 @@ export const PreparingItems = () => {
                     </span>
                   </div>
                   <div className="flex flex-col justify-between w-1/6 overflow-visible">
-                    <div className="">
-                      {`${[...item.tableList].sort(alphabetCompare).map(table => table.name)[0]}`}
-                      {item.tableList.length > 1 && <span className="ml-2 text-blue-500">{`(+${item.tableList.length - 1})`}</span>}
-                    </div>
+                    {item.tableList.length > 0 ? (
+                      <div className="flex items-center gap-1 ">
+                        <MdTableRestaurant className="text-gray-400" size={20} />
+                        {`${[...item.tableList].sort(alphabetCompare).map(table => table.name)[0]}`}
+                        {item.tableList.length > 1 && <span className="ml-2 text-blue-500">{`(+${item.tableList.length - 1})`}</span>}
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1 font-semibold text-yellow-600">
+                        <MdShoppingBag size={20} />
+                        {'#' + item.orderCode}
+                      </div>
+                    )}
                     <div className="text-xs text-gray-600">{dayjs(item.notifiedTime).from(now)}</div>
                     {item.itemCancellationNotificationList.length > 0 && (
                       <div className="mt-2 ">

@@ -1329,4 +1329,32 @@ public class OrderServiceImpl implements OrderService {
 
         return toCancelQuantityWrapper.get();
     }
+
+    @Override
+    public OrderDTO cancelOrder(OrderCancellationDTO dto) {
+        SwOrder order = orderRepository
+            .findById(dto.getOrderId())
+            .orElseThrow(() -> new BadRequestAlertException("Invalid ID", ORDER, "idnotfound"));
+
+        if (order.getOrderDetailList().size() == 0) {
+            orderRepository.delete(order);
+            return null;
+        } else {
+            order
+                .getOrderDetailList()
+                .forEach(orderDetail -> {
+                    CancellationDTO cancellationDTO = new CancellationDTO();
+                    cancellationDTO.setOrderDetailId(orderDetail.getId());
+                    cancellationDTO.setCancellationNote(dto.getCancellationNote());
+                    cancellationDTO.setCancellationReason(dto.getCancellationReason());
+                    cancellationDTO.setCancelledQuantity(orderDetail.getQuantity());
+                    cancelOrderDetail(cancellationDTO);
+                });
+
+            order.setStatus(OrderStatus.CANCELLED);
+            orderRepository.saveAndFlush(order);
+
+            return orderMapper.toDto(order);
+        }
+    }
 }

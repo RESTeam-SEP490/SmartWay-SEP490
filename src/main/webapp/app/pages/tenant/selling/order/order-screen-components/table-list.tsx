@@ -107,10 +107,10 @@ const TableCard = ({ table, handleSelectTable }: { table: IDiningTable; handleSe
   return (
     <div
       onClick={handleSelectTable}
-      className={`relative flex flex-col items-center shadow-sm bg-white w-36 h-48 p-2 rounded-lg cursor-pointer hover:shadow-md border-4 border-solid border-transparent
-      ${isSelected && status === 'available' ? '!border-blue-400 !bg-blue-50' : ''} 
-      ${isSelected && status === 'billed' ? '!border-green-400 !bg-green-50' : ''} 
-      ${isSelected && status === 'occupied' ? '!border-gray-400 !bg-gray-50' : ''}
+      className={`relative flex flex-col items-center shadow-sm bg-white w-36 h-48 p-2 rounded-lg cursor-pointer hover:shadow-md border-2 border-solid border-transparent
+      ${isSelected && status === 'available' ? '!border-blue-700 !bg-blue-100' : ''} 
+      ${isSelected && status === 'billed' ? '!border-green-700 !bg-green-100' : ''} 
+      ${isSelected && status === 'occupied' ? '!border-gray-700 !bg-gray-100' : ''}
       `}
     >
       <Typography.Text

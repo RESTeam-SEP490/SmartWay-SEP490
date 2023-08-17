@@ -19,7 +19,7 @@ export const ItemCancellationModal = ({ detail, isOpen, handleClose }: { detail:
 
   useEffect(() => {
     form.setFieldValue('cancelServedItemsFirst', false);
-    form.setFieldValue('reason', 2);
+    form.setFieldValue('cancellationReason', 'CUSTOMER_UNSATISFIED');
   }, [isOpen]);
 
   useEffect(() => {
@@ -76,35 +76,32 @@ export const ItemCancellationModal = ({ detail, isOpen, handleClose }: { detail:
               <div className="ml-4 text-gray-400">{`(${translate('order.cancel.form.totalQ')}: ${detail?.quantity})`}</div>
             </div>
           </Form.Item>
-          <Form.Item name={'reason'} label={translate('order.cancel.form.reason')}>
+          <Form.Item name={'cancellationReason'} label={translate('order.cancel.form.reason')}>
             <Select
               onChange={value => {
                 if (value === 1) setIsShowReasonNote(true);
                 else setIsShowReasonNote(false);
               }}
             >
-              <Select.Option className="font-normal" value={1}>
-                Khác
+              <Select.Option className="font-normal" value={'CUSTOMER_UNSATISFIED'}>
+                Customer is unsatisfied with items
               </Select.Option>
-              <Select.Option className="font-normal" value={2}>
-                Khách hàng không hài lòng
+              <Select.Option className="font-normal" value={'LONG_WAITING_TIME'}>
+                Customer waited for a long time
               </Select.Option>
-              <Select.Option className="font-normal" value={3}>
-                Khách hàng đợi lâu
+              <Select.Option className="font-normal" value={'EXCHANGE_ITEM'}>
+                Customer changed their order
               </Select.Option>
-              <Select.Option className="font-normal" value={4}>
-                Khách hàng đổi món
+              <Select.Option className="font-normal" value={'OUT_OF_STOCK'}>
+                Items is unavailable
               </Select.Option>
-              <Select.Option className="font-normal" value={5}>
-                Khách hàng huỷ món
-              </Select.Option>
-              <Select.Option className="font-normal" value={6}>
-                Nhà hàng hết món
+              <Select.Option className="font-normal" value={'OTHERS'}>
+                Others
               </Select.Option>
             </Select>
           </Form.Item>
           {isShowReasonNote && (
-            <Form.Item name={'note'} label={<></>} initialValue={detail?.note} colon={false}>
+            <Form.Item name={'cancellationNote'} label={<></>} colon={false}>
               <Input.TextArea placeholder={translate('order.form.note.placeholder')} className="!resize-none !h-24" />
             </Form.Item>
           )}
@@ -113,7 +110,7 @@ export const ItemCancellationModal = ({ detail, isOpen, handleClose }: { detail:
             <Button type="default" htmlType="reset" onClick={handleClose}>
               <Translate contentKey="entity.action.back">Back</Translate>
             </Button>
-            <SubmitButton form={form} isNew={true} updating={updating} />
+            <SubmitButton form={form} isNew={true} updating={updating} text="entity.action.confirm" />
           </div>
         </Form>
       </Modal>

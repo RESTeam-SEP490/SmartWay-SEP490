@@ -9,6 +9,7 @@ const initialState = {
   isConnected: false,
   loading: false,
   kitchenItems: defaultValue,
+  categoryFilter: [],
   selectedTable: [],
   currentOrder: defaultOrder,
   changedDetailId: null,
@@ -45,6 +46,9 @@ export const KitchenSlice = createSlice({
     },
     disconnectStomp(state) {
       state.isConnected = false;
+    },
+    setCategoryFilter(state, action) {
+      state.categoryFilter = action.payload;
     },
   },
   extraReducers(builder) {
