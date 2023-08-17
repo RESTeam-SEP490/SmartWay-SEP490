@@ -27,6 +27,8 @@ import { AddNoteForm } from './modals/detail-note-modal';
 import { ItemCancellationModal } from './modals/item-cancellation-modal';
 import { NumbericKeyboard } from './modals/numberic-keyboard';
 import { TablesOfOrderModal } from './modals/order-table-modal';
+import { CurrencyFormat } from 'app/shared/util/currency-utils';
+import OrderCancellationModal from './modals/order-cancellation-modal';
 
 export const OrderDetails = () => {
   const dispatch = useAppDispatch();
@@ -39,6 +41,7 @@ export const OrderDetails = () => {
   const [isOpenNumbericKeyboard, setIsOpenNumbericKeyboard] = useState(false);
   const [isOpenTablesOfOrderModal, setIsOpenTablesOfOrderModal] = useState(false);
   const [isOpenItemCancellationModal, setIsOpenItemCancellationModal] = useState(false);
+  const [isOpenOrderCancellationModal, setIsOpenOrderCancellationModal] = useState(false);
   const [isOpenChargeModal, setIsOpenChargeModal] = useState(false);
   const [adjustingDetail, setAdjustingDetail] = useState<IOrderDetail>({});
   const [isOpenNotificationHistory, setIsOpenNotificationHistory] = useState(false);
@@ -85,6 +88,7 @@ export const OrderDetails = () => {
         isOpen={isOpenItemCancellationModal}
         handleClose={() => setIsOpenItemCancellationModal(false)}
       />
+      <OrderCancellationModal isOpen={isOpenOrderCancellationModal} handleClose={() => setIsOpenOrderCancellationModal(false)} />
       {currentOrder.id && (
         <Drawer
           width={500}
@@ -134,7 +138,7 @@ export const OrderDetails = () => {
         <div className="flex flex-col p-2 grow w-[500px] bg-white rounded-l-lg" key={currentOrder.id}>
           <div className="px-4 pt-2 pb-4">
             <div className="flex items-center justify-between h-10">
-              <Typography.Title level={4} className="!mb-1">
+              <Typography.Title level={4} className={`!mb-1 ${currentOrder.id ? '!text-blue-700' : '!text-gray-500'}`}>
                 {currentOrder.id ? '#' + currentOrder.code : translate('order.current.label')}
               </Typography.Title>
               {currentOrder.id && (
@@ -145,20 +149,32 @@ export const OrderDetails = () => {
                     icon={<HistoryOutlined rev="" />}
                     onClick={() => setIsOpenNotificationHistory(true)}
                   ></Button>
-                  <Button size="large" danger type="text" icon={<DeleteFilled rev="" />}></Button>
+                  <Button
+                    size="large"
+                    danger
+                    type="text"
+                    icon={<DeleteFilled rev="" />}
+                    onClick={() => setIsOpenOrderCancellationModal(true)}
+                  ></Button>
                 </div>
               )}
             </div>
             <div className="flex">
               <div
-                className={`relative flex items-center justify-center gap-2 py-2 pl-6 pr-4 text-sm font-semibold text-blue-700 duration-1000 bg-blue-100 border-2 border-blue-600 border-solid rounded-lg ${
-                  currentOrder.id ? 'cursor-pointer' : ''
+                className={`relative flex items-center justify-center gap-2 py-2 pl-6 pr-4 text-sm font-semibold  duration-1000  border-2  border-solid rounded-lg ${
+                  currentOrder.id && !currentOrder.takeAway
+                    ? 'cursor-pointer text-blue-700 border-blue-600 bg-blue-100'
+                    : 'text-gray-400 border-gray-400 bg-gray-50'
                 } table-tag-badge`}
                 onClick={() => {
-                  if (currentOrder.id) setIsOpenTablesOfOrderModal(true);
+                  if (currentOrder.id && !currentOrder.takeAway) setIsOpenTablesOfOrderModal(true);
                 }}
               >
-                <div className="absolute left-0 z-10 flex items-center justify-center p-1 text-blue-100 -translate-x-1/2 -translate-y-1/2 bg-blue-700 rounded-full aspect-square top-1/2">
+                <div
+                  className={`absolute left-0 z-10 flex items-center justify-center p-1 text-white -translate-x-1/2 -translate-y-1/2 ${
+                    currentOrder.id && !currentOrder.takeAway ? 'bg-blue-700' : 'bg-gray-400'
+                  } rounded-full aspect-square top-1/2`}
+                >
                   {currentOrder.takeAway ? (
                     <MdShoppingBag size={16} />
                   ) : currentOrder.tableList.length > 1 ? (
@@ -232,9 +248,9 @@ export const OrderDetails = () => {
                 <Translate contentKey="order.orderDetails.total" />
               </Typography.Text>
               <Typography.Title level={4} className="font-semibold !m-0">
-                {currencyFormatter(
-                  currentOrder.orderDetailList.map(detail => detail.quantity * detail.menuItem.sellPrice).reduce((a, b) => a + b, 0)
-                )}
+                <CurrencyFormat>
+                  {currentOrder.orderDetailList.map(detail => detail.quantity * detail.menuItem.sellPrice).reduce((a, b) => a + b, 0)}
+                </CurrencyFormat>
               </Typography.Title>
             </div>
           </div>
@@ -416,7 +432,9 @@ const OrderDetailCard = ({
               icon={<PlusOutlined rev={''} />}
             />
           </div>
-          <span className="font-semibold">{currencyFormatter(detail.menuItem.sellPrice * detail.quantity)}</span>
+          <span className="font-semibold">
+            <CurrencyFormat>{detail.menuItem.sellPrice * detail.quantity}</CurrencyFormat>
+          </span>
         </div>
       </div>
       <div className="flex flex-col justify-between h-full">

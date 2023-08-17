@@ -1,0 +1,35 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1692254258126-1">
+        <createTable tableName="order_cancellation">
+            <column name="id" type="BINARY(255)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="order_cancellationPK"/>
+            </column>
+            <column name="cancellation_note" type="VARCHAR(255)"/>
+            <column name="cancellation_reason" type="VARCHAR(255)"/>
+            <column name="order_id" type="BINARY(16)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1692254258126-2">
+        <addColumn tableName="item_cancellation_notification">
+            <column name="cancellation_note" type="varchar(255)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1692254258126-3">
+        <addColumn tableName="item_cancellation_notification">
+            <column name="cancellation_reason" type="varchar(255)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1692254258126-4">
+        <addForeignKeyConstraint baseColumnNames="order_id" baseTableName="order_cancellation" constraintName="FK4dkytg6m7vhc0lmv6jn2aff97" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="sw_order" validate="true"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1692254258126-5">
+        <dropPrimaryKey constraintName="PRIMARY" tableName="role_authority"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1692254258126-6">
+        <dropColumn columnName="is_new" tableName="restaurant"/>
+    </changeSet>
+    <changeSet author="Dao Xuan Nhat Truong (generated)" id="1692254258126-7">
+        <dropColumn columnName="stripe_customer_id" tableName="restaurant"/>
+    </changeSet>
+</databaseChangeLog>

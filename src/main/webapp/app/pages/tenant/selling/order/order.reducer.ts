@@ -58,7 +58,17 @@ export const cancelOrderDetail = createAsyncThunk(
   'orders/cancel_order_detail',
   async (dto: { isCancelServedItemFirst: boolean; orderDetailId: string; cancelledQuantity: number }, thunkAPI) => {
     const requestUrl = `${apiUrl}/cancel-order-detail`;
-    const result = axios.post<IOrder>(requestUrl, dto);
+    const result = axios.put<IOrder>(requestUrl, dto);
+    return result;
+  },
+  { serializeError: serializeAxiosError }
+);
+
+export const cancelOrder = createAsyncThunk(
+  'orders/cancel_order',
+  async (dto: { orderId: string; cancellationReason: string; cancellationNote: string }, thunkAPI) => {
+    const requestUrl = `${apiUrl}/cancel-order`;
+    const result = axios.put<IOrder>(requestUrl, dto);
     return result;
   },
   { serializeError: serializeAxiosError }
@@ -208,15 +218,15 @@ export const OrderSlice = createSlice({
 
         iframe.contentWindow.print();
       })
-      .addMatcher(isPending(addNote, groupTables, cancelOrderDetail, checkOut, printBill, freeUpTable), (state, action) => {
+      .addMatcher(isPending(addNote, groupTables, cancelOrderDetail, cancelOrder, checkOut, printBill, freeUpTable), (state, action) => {
         state.updateSuccess = false;
         state.updating = true;
       })
-      .addMatcher(isFulfilled(addNote, groupTables, cancelOrderDetail, freeUpTable), (state, action) => {
+      .addMatcher(isFulfilled(addNote, groupTables, cancelOrderDetail, cancelOrder, freeUpTable), (state, action) => {
         state.updateSuccess = true;
         state.updating = false;
       })
-      .addMatcher(isRejected(addNote, groupTables, getEntities, printBill, checkOut), (state, action) => {
+      .addMatcher(isRejected(addNote, groupTables, getEntities, printBill, cancelOrder, cancelOrderDetail, checkOut), (state, action) => {
         state.updating = false;
       });
   },

@@ -11,13 +11,22 @@ import Scrollbars from 'react-custom-scrollbars-2';
 import { kitchenActions } from '../kitchen.reducer';
 import { translate } from 'react-jhipster';
 import { MdOutlineRamenDining, MdOutlineSoupKitchen, MdShoppingBag, MdTableRestaurant } from 'react-icons/md';
+import { IReadyToServeNotification } from 'app/shared/model/order/ready-to-serve-notfication.model';
 
 export const ReadyToServeItems = () => {
   const dispatch = useAppDispatch();
 
   const kitchenItems: IKitchenItems = useAppSelector(state => state.kitchen.kitchenItems);
-  const rtsItems = [...kitchenItems.readyToServeNotificationList].sort(readyToServeItemCompare);
+  const categoryFilter = useAppSelector(state => state.kitchen.categoryFilter);
+  const rootList = [...kitchenItems.readyToServeNotificationList].sort(readyToServeItemCompare);
+  const [rtsItems, setRtsItems] = useState([]);
   const [now, setNow] = useState(dayjs());
+
+  useEffect(() => {
+    setRtsItems(
+      rootList.filter(item => categoryFilter.some(categoryId => categoryId === item.itemAdditionNotification.menuItem.menuItemCategory.id))
+    );
+  }, [categoryFilter, kitchenItems]);
   useEffect(() => {
     const interval = setInterval(() => setNow(dayjs()), 1000);
     return () => clearInterval(interval);
@@ -42,7 +51,7 @@ export const ReadyToServeItems = () => {
         <Scrollbars className="w-full grow">
           <div className="">
             <AnimatePresence>
-              {rtsItems.map(item => (
+              {rtsItems.map((item: IReadyToServeNotification) => (
                 <motion.div
                   layout
                   initial={{ opacity: 0, x: '-50%' }}
@@ -90,7 +99,7 @@ export const ReadyToServeItems = () => {
                     ) : (
                       <div className="flex items-center gap-1 font-semibold text-yellow-600">
                         <MdShoppingBag size={20} />
-                        Takeaway
+                        {'#' + item.itemAdditionNotification.orderCode}
                       </div>
                     )}
                     <div className="text-xs text-gray-600 whitespace-nowrap">{`${translate('kitchen.rtsItems.done')} ${dayjs(

@@ -1,7 +1,7 @@
 enum OrderEvent {
   CreateOrder = 'create-order',
   ReceiveChangedOrder = 'receive-changed-order',
-  ReceiveNewPayment = 'receive-new-payment',
+  HideOrder = 'hide-order',
   HasReadyToServeItem = 'has-ready-to-serve-item',
   HasServedItem = 'has-served-item',
   AddOrderDetail = 'add-order-detail',

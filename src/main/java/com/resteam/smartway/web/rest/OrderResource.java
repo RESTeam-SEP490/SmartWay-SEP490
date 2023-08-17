@@ -55,7 +55,7 @@ public class OrderResource {
     @PutMapping("/free-up-table")
     public ResponseEntity<OrderDTO> setOrderIsCompleted(@RequestParam UUID orderId) {
         OrderDTO completedOrder = orderService.setOrderIsCompleted(orderId);
-        orderWebsocket.sendMessageAfterPayment(orderId);
+        orderWebsocket.sendMessageToHideOrder(orderId);
         return ResponseEntity.ok(completedOrder);
     }
 
@@ -120,7 +120,7 @@ public class OrderResource {
         if (paymentDTO.isFreeUpTable()) {
             HttpHeaders headers = new HttpHeaders();
             headers.add("paid-order-id", paymentDTO.getOrderId().toString());
-            orderWebsocket.sendMessageAfterPayment(paymentDTO.getOrderId());
+            orderWebsocket.sendMessageToHideOrder(paymentDTO.getOrderId());
             return new ResponseEntity<>(null, headers, HttpStatus.OK);
         } else {
             orderWebsocket.sendMessageToChangedOrder(orderDTO);
@@ -146,12 +146,20 @@ public class OrderResource {
         }
     }
 
-    @PostMapping("/cancel-order-detail")
-    public ResponseEntity<OrderDTO> changePriority(@RequestBody CancellationDTO dto) {
+    @PutMapping("/cancel-order-detail")
+    public ResponseEntity<OrderDTO> cancelOrderDetail(@RequestBody CancellationDTO dto) {
         OrderDTO updatedOrder = orderService.cancelOrderDetail(dto);
         orderWebsocket.sendMessageToChangedOrder(updatedOrder);
 
         kitchenWebsocket.sendCancelMessageToKitchenScreen(updatedOrder);
+        return ResponseEntity.ok(updatedOrder);
+    }
+
+    @PutMapping("/cancel-order")
+    public ResponseEntity<OrderDTO> cancelOrder(@RequestBody OrderCancellationDTO dto) {
+        OrderDTO updatedOrder = orderService.cancelOrder(dto);
+        orderWebsocket.sendMessageToHideOrder(dto.getOrderId());
+        if (updatedOrder != null) kitchenWebsocket.sendCancelMessageToKitchenScreen(updatedOrder);
         return ResponseEntity.ok(updatedOrder);
     }
 }

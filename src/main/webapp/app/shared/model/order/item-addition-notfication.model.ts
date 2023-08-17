@@ -7,6 +7,7 @@ export interface IItemAdditionNotification {
   id?: string;
   createdBy?: string | null;
   notifiedTime?: string;
+  orderCode?: string;
   quantity?: number | 0;
   note?: string | null;
   menuItem?: IMenuItem | null;
