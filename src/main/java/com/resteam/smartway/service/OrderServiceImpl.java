@@ -585,9 +585,16 @@ public class OrderServiceImpl implements OrderService {
         SwOrder order = orderRepository
             .findByIdAndIsPaid(orderId, false)
             .orElseThrow(() -> new BadRequestAlertException("Order was not found or paid", ORDER, "idnotfound"));
-
         //list table moi
         List<DiningTable> newTableList = new ArrayList<>();
+
+        if (ids.size() == 0) {
+            order.setTakeAway(true);
+            order.setTableList(newTableList);
+            SwOrder savedOrder = orderRepository.save(order);
+            return sortOrderDetailsAndNotificationHistories(savedOrder);
+        }
+
         //list table hien tai
         List<DiningTable> currentTableList = order.getTableList();
 
