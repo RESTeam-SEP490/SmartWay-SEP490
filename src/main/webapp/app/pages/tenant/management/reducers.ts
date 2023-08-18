@@ -11,11 +11,13 @@ import kitchen from '../selling/kitchen/kitchen.reducer';
 import bankAccount from '../check-bank-account-tenant/check-bank-account-tenant.reducer';
 import restaurant from '../restaurant-setting/restaurant.reducer';
 import statistic from './dashboard/dashboard.reduce';
+import systemAdmin from '../../admin/restaurant/admin-restaurnat.reducer';
 import bill from '../selling/bill/bill.reducer';
 /* jhipster-needle-add-reducer-import - JHipster will add reducer here */
 
 const entitiesReducers = {
   restaurant,
+  systemAdmin,
   menuItem,
   menuItemCategory,
   staff,

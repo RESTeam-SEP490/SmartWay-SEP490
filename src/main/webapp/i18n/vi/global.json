@@ -195,6 +195,8 @@
     "idnull": "Invalid ID",
     "idinvalid": "Invalid Id",
     "idnotfound": "ID cannot be found",
+    "restaurantAdmin": "Tên nhà hàng không hợp lệ",
+
     "file": {
       "could.not.extract": "Could not extract file",
       "not.image": "File was expected to be an image but was found to be \"{{ fileType }}\""

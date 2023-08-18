@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.joda.time.DateTime;
 
 @Getter
 @Setter
@@ -38,6 +39,9 @@ public class Restaurant implements Serializable {
 
     @Column(name = "lang_key", length = 10)
     private String langKey;
+
+    @Column(name = "created_date")
+    private Instant createdDate;
 
     public Restaurant(String id) {
         this.id = id;

@@ -31,15 +31,10 @@ public class AdminResource {
         @RequestParam(value = "search", required = false) String searchText
     ) {
         Page<RestaurantDTO> restaurantDTOPage = restaurantService.loadRestaurantWithSearch(pageable, searchText);
-        List<RestaurantDTO> filteredRestaurantDTO = restaurantDTOPage
-            .getContent()
-            .stream()
-            .filter(dto -> !dto.getId().equals("system@"))
-            .collect(Collectors.toList());
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
             ServletUriComponentsBuilder.fromCurrentRequest(),
-            new PageImpl<>(filteredRestaurantDTO, pageable, filteredRestaurantDTO.size())
+            restaurantDTOPage
         );
-        return new ResponseEntity<>(filteredRestaurantDTO, headers, HttpStatus.OK);
+        return new ResponseEntity<>(restaurantDTOPage.getContent(), headers, HttpStatus.OK);
     }
 }

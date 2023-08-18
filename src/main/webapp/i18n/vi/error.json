@@ -1,5 +1,6 @@
 {
   "error": {
+    "restaurantAdmin": "Tên nhà hàng không hợp lệ",
     "title": "Trang thông tin lỗi!",
     "passwordExpired": "Phiên đặt mật khẩu đã hết hạn",
     "http": {

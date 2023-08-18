@@ -204,6 +204,7 @@
     "idnull": "Invalid ID",
     "idinvalid": "Invalid ID",
     "idnotfound": "ID cannot be found",
+    "restaurantAdmin": "Restaurant name is invalid",
     "id": "ID not found",
     "file": {
       "could.not.extract": "Could not extract file",

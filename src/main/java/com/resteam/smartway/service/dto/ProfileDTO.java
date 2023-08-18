@@ -32,7 +32,7 @@ public class ProfileDTO {
     @Pattern(regexp = "^[p{L}\\D]+$")
     private String fullName;
 
-    @Pattern(regexp = "^\\d+$")
+    @Pattern(regexp = "^[+]\\d{5,15}$")
     private String phone;
 
     @Email

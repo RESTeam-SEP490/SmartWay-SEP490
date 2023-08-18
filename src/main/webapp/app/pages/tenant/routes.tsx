@@ -58,7 +58,6 @@ export default () => {
                 </PrivateRoute>
               }
             />
-
             {/* <Route path="*" element={<PageNotFound />} /> */}
           </ErrorBoundaryRoutes>
         </Scrollbars>

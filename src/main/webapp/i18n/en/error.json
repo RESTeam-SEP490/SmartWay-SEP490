@@ -1,5 +1,6 @@
 {
   "error": {
+    "restaurantAdmin": "Restaurant name is invalid",
     "title": "Error page!",
     "passwordExpired": "Reset password session has expired",
     "http": {

@@ -9,11 +9,13 @@ import com.resteam.smartway.service.UserService;
 import com.resteam.smartway.service.dto.AdminUserDTO;
 import com.resteam.smartway.service.dto.PasswordChangeDTO;
 import com.resteam.smartway.service.dto.TenantRegistrationDTO;
+import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
 import com.resteam.smartway.web.rest.errors.EmailAlreadyUsedException;
 import com.resteam.smartway.web.rest.errors.InvalidPasswordException;
 import com.resteam.smartway.web.rest.vm.KeyAndPasswordVM;
 import com.resteam.smartway.web.rest.vm.ManagedUserVM;
 import java.net.URI;
+import java.util.Objects;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -61,8 +63,12 @@ public class AccountResource {
         if (isPasswordLengthInvalid(tenantRegistrationDTO.getPassword())) {
             throw new InvalidPasswordException();
         }
-        String restaurantId = userService.registerUser(tenantRegistrationDTO);
-        return ResponseEntity.created(URI.create(restaurantId)).build();
+        String restaurantId = String.valueOf(userService.registerUser(tenantRegistrationDTO));
+        if (Objects.equals(restaurantId, "admin")) {
+            throw new BadRequestAlertException("Restaurant name is invalid", "restaurant", "restaurantAdmin");
+        } else {
+            return ResponseEntity.created(URI.create(restaurantId)).build();
+        }
     }
 
     /**

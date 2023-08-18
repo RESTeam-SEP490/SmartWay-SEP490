@@ -40,7 +40,7 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
         Role systemAdminRole = createRoleIfNotFound("SYSTEM_ADMIN", List.of(new Authority(AuthoritiesConstants.ROLE_SYSTEM_ADMIN)));
         createRoleIfNotFound("ADMIN", List.of(new Authority(AuthoritiesConstants.ROLE_ADMIN)));
 
-        boolean isAdminAccountExisted = userRepository.existsByUsernameAndRestaurant("admin", new Restaurant(Constants.SYSTEM_RES_ID));
+        boolean isAdminAccountExisted = userRepository.existsByUsernameAndRestaurant("admin", new Restaurant("admin"));
         if (!isAdminAccountExisted) {
             User user = User
                 .builder()
@@ -58,7 +58,7 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
     }
 
     @Transactional
-    Role createRoleIfNotFound(String name, Collection<Authority> authorityCollection) {
+    public Role createRoleIfNotFound(String name, Collection<Authority> authorityCollection) {
         Role role = roleRepository.findByNameAndRestaurant(name, new Restaurant(Constants.SYSTEM_RES_ID));
         if (role == null) {
             role = new Role(name, authorityCollection);

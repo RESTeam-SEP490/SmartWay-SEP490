@@ -122,35 +122,39 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String registerUser(TenantRegistrationDTO tenantRegistrationDTO) {
-        restaurantRepository
-            .findOneById(tenantRegistrationDTO.getRestaurantId())
-            .ifPresent(r -> {
-                throw new SubdomainAlreadyUsedException();
-            });
+        if (Objects.equals(tenantRegistrationDTO.getRestaurantId(), "admin")) {
+            return "admin";
+        } else {
+            restaurantRepository
+                .findOneById(tenantRegistrationDTO.getRestaurantId())
+                .ifPresent(r -> {
+                    throw new SubdomainAlreadyUsedException();
+                });
 
-        Restaurant restaurant = new Restaurant();
-        restaurant.setId(tenantRegistrationDTO.getRestaurantId());
-        restaurant.setPhone(tenantRegistrationDTO.getPhone());
-        restaurant.setCurrencyUnit(tenantRegistrationDTO.getLangKey().equals("vi") ? CurrencyUnit.VND : CurrencyUnit.USD);
-        restaurant.setLangKey(tenantRegistrationDTO.getLangKey());
-        Restaurant savedRestaurant = restaurantRepository.save(restaurant);
-        RestaurantContext.setCurrentRestaurant(savedRestaurant);
-        createRole(tenantRegistrationDTO.getLangKey());
+            Restaurant restaurant = new Restaurant();
+            restaurant.setId(tenantRegistrationDTO.getRestaurantId());
+            restaurant.setPhone(tenantRegistrationDTO.getPhone());
+            restaurant.setCurrencyUnit(tenantRegistrationDTO.getLangKey().equals("vi") ? CurrencyUnit.VND : CurrencyUnit.USD);
+            restaurant.setLangKey(tenantRegistrationDTO.getLangKey());
+            Restaurant savedRestaurant = restaurantRepository.save(restaurant);
+            RestaurantContext.setCurrentRestaurant(savedRestaurant);
+            createRole(tenantRegistrationDTO.getLangKey());
 
-        Role role = roleRepository.findByNameAndRestaurant("ADMIN", new Restaurant("system@"));
+            Role role = roleRepository.findByNameAndRestaurant("ADMIN", new Restaurant("system@"));
 
-        User newUser = new User();
-        String encryptedPassword = passwordEncoder.encode(tenantRegistrationDTO.getPassword());
-        newUser.setUsername(tenantRegistrationDTO.getUsername().toLowerCase());
-        newUser.setPassword(encryptedPassword);
-        newUser.setFullName(tenantRegistrationDTO.getFullName());
-        newUser.setEmail(tenantRegistrationDTO.getEmail().toLowerCase());
-        newUser.setPhone(tenantRegistrationDTO.getPhone());
-        newUser.setRole(role);
-        userRepository.save(newUser);
+            User newUser = new User();
+            String encryptedPassword = passwordEncoder.encode(tenantRegistrationDTO.getPassword());
+            newUser.setUsername(tenantRegistrationDTO.getUsername().toLowerCase());
+            newUser.setPassword(encryptedPassword);
+            newUser.setFullName(tenantRegistrationDTO.getFullName());
+            newUser.setEmail(tenantRegistrationDTO.getEmail().toLowerCase());
+            newUser.setPhone(tenantRegistrationDTO.getPhone());
+            newUser.setRole(role);
+            userRepository.save(newUser);
 
-        log.debug("Created Information for User: {}", newUser);
-        return savedRestaurant.getId();
+            log.debug("Created Information for User: {}", newUser);
+            return savedRestaurant.getId();
+        }
     }
 
     private void createRole(String langkey) {

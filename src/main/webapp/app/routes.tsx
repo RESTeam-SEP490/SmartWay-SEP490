@@ -16,6 +16,7 @@ import ErrorBoundaryRoutes from 'app/shared/error/error-boundary-routes';
 import PageNotFound from 'app/shared/error/page-not-found';
 import RestaurantSetting from './pages/tenant/restaurant-setting/restaurant';
 import Loadable from 'react-loadable';
+import { AdminRestaurant } from 'app/pages/admin/restaurant/admin-restaurant';
 
 const loading = (
   <div className="flex items-center justify-center grow">
@@ -107,6 +108,14 @@ export const AdminAppRoutes = () => {
         element={
           <PrivateRoute hasAnyAuthorities={[AUTHORITIES.SYSTEM_ADMIN]}>
             <Account />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="adminRestaurant"
+        element={
+          <PrivateRoute hasAnyAuthorities={[AUTHORITIES.SYSTEM_ADMIN]}>
+            <AdminRestaurant />
           </PrivateRoute>
         }
       />
