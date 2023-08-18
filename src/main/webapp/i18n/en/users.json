@@ -28,6 +28,7 @@
     "search.placeholder": "Search",
     "information.label": "Information",
     "resetPassword.label": "Reset password",
+    "profile": "Profile",
     "infoTabs": {
       "information": "Information",
       "changePassword": "Change Password"
