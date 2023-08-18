@@ -9,6 +9,7 @@ import { currencyFormatter } from '../../../../../app.constant';
 import { orderActions } from '../order.reducer';
 import { translate } from 'react-jhipster';
 import Search from 'antd/es/input/Search';
+import { CurrencyFormat } from 'app/shared/util/currency-utils';
 
 export const MenuItemList = () => {
   const dispatch = useAppDispatch();
@@ -91,7 +92,9 @@ const MenuItemCard = ({ item, handleOnlick }: { item: IMenuItem; handleOnlick: a
         <Typography.Text className="font-semibold text-center w-28" ellipsis={{ tooltip: item.name }}>
           {item.name}
         </Typography.Text>
-        <Typography.Text className="font-semibold text-blue-600">{currencyFormatter(item.sellPrice)}</Typography.Text>
+        <Typography.Text className="font-semibold text-blue-600">
+          <CurrencyFormat>{item.sellPrice}</CurrencyFormat>
+        </Typography.Text>
       </div>
     </div>
   );

@@ -13,7 +13,8 @@ public interface ItemAdditionNotificationMapper extends EntityMapper<ItemAdditio
 
     @Mappings(
         {
-            @Mapping(target = "menuItemName", source = "orderDetail.menuItem.name"),
+            @Mapping(target = "menuItem", source = "orderDetail.menuItem"),
+            @Mapping(target = "orderCode", source = "orderDetail.order.code"),
             @Mapping(target = "tableList", source = "orderDetail.order.tableList"),
             @Mapping(target = "createdBy", source = "kitchenNotificationHistory.createdBy"),
             @Mapping(target = "notifiedTime", source = "kitchenNotificationHistory.notifiedTime"),

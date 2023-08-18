@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { orderActions } from '../order.reducer';
-import { MdFastfood } from 'react-icons/md';
+import { MdFastfood, MdShoppingBag } from 'react-icons/md';
 import Search from 'antd/es/input/Search';
 
 export const TakeAwayOrderList = () => {
@@ -25,7 +25,7 @@ export const TakeAwayOrderList = () => {
   const handleCreateOrder = () => {
     dispatch(orderActions.createOrder({ menuItemId: '07858e0d-1d75-4242-ac4b-8cff8e0b66e8', tableIdList: [] }));
   };
-  console.log(currentOrder);
+
   return (
     <div className="p-2 bg-white h-[calc(100vh-66px)] flex flex-col rounded-se-lg rounded-b-lg">
       <div className="flex flex-col gap-2 px-2 py-4">
@@ -35,7 +35,7 @@ export const TakeAwayOrderList = () => {
         <div className="flex flex-wrap gap-4 m-4 content-stretch">
           <div
             onClick={handleCreateOrder}
-            className={`relative flex flex-col justify-center text-blue-600 items-center shadow-sm w-32 h-40 p-2 rounded-lg cursor-pointer hover:shadow-md border-2 border-dashed border-blue-600`}
+            className={`relative flex flex-col justify-center text-blue-600 items-center shadow-sm w-36 h-48 p-2 rounded-lg cursor-pointer hover:shadow-md border-2 border-dashed border-blue-600`}
           >
             <PlusCircleFilled rev={''} className="text-4xl" />
             <div className="mt-4 font-semibold text-center">New order</div>
@@ -59,14 +59,14 @@ const OrderCard = ({ order, handleSelectTable }: { order: IOrder; handleSelectTa
   return (
     <div
       onClick={handleSelectTable}
-      className={`relative flex flex-col items-center shadow-sm bg-white w-32 h-40 p-2 rounded-lg cursor-pointer hover:shadow-md border-2 border-solid ${
+      className={`relative flex flex-col items-center shadow-sm bg-white w-36 h-48 p-2 rounded-lg cursor-pointer hover:shadow-md border-2 border-solid ${
         isSelected ? 'border-blue-700 !bg-blue-100' : 'border-transparent'
       }`}
     >
       <Typography.Text className={`pb-3 !mt-2 font-semibold ${isSelected ? '!text-blue-700' : ''}`}>{'#' + order.code}</Typography.Text>
-      <ShoppingFilled className={`text-4xl ${isSelected ? 'text-blue-700' : 'text-gray-400'}`} rev={''} />
+      <MdShoppingBag className={`text-4xl ${isSelected ? 'text-blue-700' : 'text-gray-400'}`} size={80} />
       {order ? (
-        <div className={`flex gap-2 mt-6 px-3 py-1 rounded-full ${isSelected ? 'bg-white text-blue-700' : 'bg-gray-100 text-gray-600'}`}>
+        <div className={`flex gap-2 mt-2 px-3 py-1 rounded-full ${isSelected ? 'bg-white text-blue-700' : 'bg-gray-100 text-gray-600'}`}>
           <ClockCircleOutlined rev="" />
           {dayjs(order.createdDate).format('HH:mm')}
         </div>

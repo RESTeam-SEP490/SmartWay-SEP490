@@ -1,6 +1,7 @@
 package com.resteam.smartway.repository.order;
 
 import com.resteam.smartway.domain.DiningTable;
+import com.resteam.smartway.domain.enumeration.OrderStatus;
 import com.resteam.smartway.domain.order.SwOrder;
 import com.resteam.smartway.security.multitenancy.repository.BaseRepository;
 import java.time.Instant;
@@ -20,7 +21,7 @@ public interface OrderRepository extends BaseRepository<SwOrder> {
 
     Optional<SwOrder> findTopByOrderByCodeDesc();
     Optional<SwOrder> findByIdAndIsPaid(UUID id, boolean isPaid);
-    List<SwOrder> findAllByIsCompleted(boolean isCompleted);
+    List<SwOrder> findAllByStatus(OrderStatus status);
 
     @Query("SELECT o FROM SwOrder o WHERE o.isPaid = true AND o.payDate >= :startDay AND o.payDate <= :endDay order by o.payDate asc ")
     List<SwOrder> findAllByPaidTrueAndPayDateBetween(@Param("startDay") Instant startDay, @Param("endDay") Instant endDay);
