@@ -155,6 +155,7 @@
       "save": "Save",
       "view": "View",
       "find": "Search",
+      "confirm": "Confirm",
       "show": "Show {{otherEntity}}",
       "select": "{{ number }} record(s) selected",
       "delete.question": "Are you sure to delete <b>{{ number }}</b> selected record(s)?"

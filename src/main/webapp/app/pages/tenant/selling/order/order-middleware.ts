@@ -105,9 +105,9 @@ const disconnect = () => {
 
 const receive = () => listener;
 
-const unsubscribe = (topicPath: string) => {
-  if (subscriber[topicPath] !== null) {
-    subscriber[topicPath].unsubscribe();
+const unsubscribe = () => {
+  if (subscriber !== null) {
+    subscriber.unsubscribe();
   }
   listener = createListener();
 };
@@ -129,7 +129,7 @@ export default store => next => action => {
       subscribe(OrderEvent.ReceiveChangedOrder);
       subscribe(OrderEvent.HasReadyToServeItem);
       subscribe(OrderEvent.HasServedItem);
-      subscribe(OrderEvent.ReceiveNewPayment);
+      subscribe(OrderEvent.HideOrder);
       receive().subscribe(order => {
         if (typeof order === 'string') store.dispatch(orderActions.receiveNewPayment(order));
         else {
@@ -165,6 +165,7 @@ export default store => next => action => {
   }
 
   if (orderActions.disconnectStomp.match(action) && alreadyConnectedOnce) {
+    unsubscribe();
     disconnect();
   }
 
