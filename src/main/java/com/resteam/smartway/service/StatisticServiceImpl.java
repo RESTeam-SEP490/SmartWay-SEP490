@@ -29,6 +29,30 @@ public class StatisticServiceImpl implements StatisticService {
     private final ItemCancellationNotificationRepository icnRepository;
 
     @Override
+    public StatisticDTO calculateDailySalesBill() {
+        Instant currentDate = Instant.now();
+        orderRepository.findAll();
+        System.out.println(orderRepository.findAll());
+        List<SwOrder> paidOrders = orderRepository.findAllByPaidTrueAndPayDateBetween(
+            currentDate.truncatedTo(ChronoUnit.DAYS),
+            currentDate.truncatedTo(ChronoUnit.DAYS).plus(1, ChronoUnit.DAYS)
+        );
+
+        if (paidOrders == null) {
+            paidOrders = Collections.emptyList();
+        }
+
+        double totalRevenue = 0;
+        int totalOrders = paidOrders.size();
+
+        for (SwOrder order : paidOrders) {
+            totalRevenue += (order.getSubtotal() - order.getDiscount());
+        }
+
+        return new StatisticDTO(currentDate, totalRevenue, totalOrders);
+    }
+
+    @Override
     public StatisticDateRangeDTO calculateMonthlyRevenueStatistics(Instant startDay, Instant endDay) {
         List<SwOrder> paidOrders = orderRepository.findAllByPaidTrueAndPayDateBetween(
             startDay.truncatedTo(ChronoUnit.DAYS),

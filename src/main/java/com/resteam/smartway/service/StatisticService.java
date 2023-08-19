@@ -13,6 +13,8 @@ public interface StatisticService {
 
     StatisticDTO calculateDailySalesStatistics();
 
+    StatisticDTO calculateDailySalesBill();
+
     StatisticDateRangeDTO calculateMonthlyRevenueStatistics(Instant startDay, Instant endDay);
 
     List<TopSellingItemsDTO> calculateTopSellingItemsStatistics(Instant startDay, Instant endDay);
