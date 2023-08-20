@@ -30,30 +30,32 @@ export const OrderCancellationModal = ({ isOpen, handleClose }: { isOpen: boolea
           {translate('order.cancel.confirm', { name: ' Order #' + currentOrder?.code || '' })}
         </Typography.Text>
         <Form {...DEFAULT_FORM_ITEM_LAYOUT} labelAlign="left" form={form} onFinish={handleSubmit} className="mt-4">
-          <Form.Item name={'cancellationReason'} label={translate('order.cancel.form.reason')}>
-            <Select
-              onChange={value => {
-                if (value === 1) setIsShowReasonNote(true);
-                else setIsShowReasonNote(false);
-              }}
-            >
-              <Select.Option className="font-normal" value={'CUSTOMER_UNSATISFIED'}>
-                Customer is unsatisfied with items
-              </Select.Option>
-              <Select.Option className="font-normal" value={'LONG_WAITING_TIME'}>
-                Customer waited for a long time
-              </Select.Option>
-              <Select.Option className="font-normal" value={'EXCHANGE_ITEM'}>
-                Customer changed their order
-              </Select.Option>
-              <Select.Option className="font-normal" value={'OUT_OF_STOCK'}>
-                Items is unavailable
-              </Select.Option>
-              <Select.Option className="font-normal" value={'OTHERS'}>
-                Others
-              </Select.Option>
-            </Select>
-          </Form.Item>
+          {currentOrder.orderDetailList.some(detail => detail.unnotifiedQuantity < detail.quantity) && (
+            <Form.Item name={'cancellationReason'} label={translate('order.cancel.form.reason')}>
+              <Select
+                onChange={value => {
+                  if (value === 1) setIsShowReasonNote(true);
+                  else setIsShowReasonNote(false);
+                }}
+              >
+                <Select.Option className="font-normal" value={'CUSTOMER_UNSATISFIED'}>
+                  Customer is unsatisfied with items
+                </Select.Option>
+                <Select.Option className="font-normal" value={'LONG_WAITING_TIME'}>
+                  Customer waited for a long time
+                </Select.Option>
+                <Select.Option className="font-normal" value={'EXCHANGE_ITEM'}>
+                  Customer changed their order
+                </Select.Option>
+                <Select.Option className="font-normal" value={'OUT_OF_STOCK'}>
+                  Items is unavailable
+                </Select.Option>
+                <Select.Option className="font-normal" value={'OTHERS'}>
+                  Others
+                </Select.Option>
+              </Select>
+            </Form.Item>
+          )}
           {isShowReasonNote && (
             <Form.Item name={'cancellationNote'} label={<></>} colon={false}>
               <Input.TextArea placeholder={translate('order.form.note.placeholder')} className="!resize-none !h-24" />
