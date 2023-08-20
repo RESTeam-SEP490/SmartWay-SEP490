@@ -159,7 +159,9 @@ public class OrderResource {
     public ResponseEntity<OrderDTO> cancelOrder(@RequestBody OrderCancellationDTO dto) {
         OrderDTO updatedOrder = orderService.cancelOrder(dto);
         orderWebsocket.sendMessageToHideOrder(dto.getOrderId());
-        if (updatedOrder != null) kitchenWebsocket.sendCancelMessageToKitchenScreen(updatedOrder);
+        if (
+            updatedOrder != null && !updatedOrder.getKitchenNotificationHistoryList().isEmpty()
+        ) kitchenWebsocket.sendCancelMessageToKitchenScreen(updatedOrder);
         return ResponseEntity.ok(updatedOrder);
     }
 }

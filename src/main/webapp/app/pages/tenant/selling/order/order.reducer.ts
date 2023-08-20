@@ -178,7 +178,8 @@ export const OrderSlice = createSlice({
     receiveNewPayment(state, action) {
       const paidOrderId = action.payload;
       state.activeOrders = state.activeOrders.filter(o => o.id !== paidOrderId);
-      if (state.currentOrder.id === paidOrderId) state.currentOrder = { ...defaultValue, tableList: [state.currentOrder.tableList[0]] };
+      if (state.currentOrder.id === paidOrderId)
+        state.currentOrder = { ...defaultValue, tableList: state.currentOrder.takeAway ? [] : [state.currentOrder.tableList[0]] };
     },
     disconnectStomp(state) {
       state.isConnected = false;

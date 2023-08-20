@@ -1359,6 +1359,12 @@ public class OrderServiceImpl implements OrderService {
                 });
 
             order.setStatus(OrderStatus.CANCELLED);
+            order
+                .getTableList()
+                .forEach(table -> {
+                    table.setIsFree(true);
+                    diningTableRepository.save(table);
+                });
             orderRepository.saveAndFlush(order);
 
             return orderMapper.toDto(order);
