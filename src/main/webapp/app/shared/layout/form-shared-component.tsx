@@ -3,7 +3,7 @@ import { Button, Form, FormInstance } from 'antd';
 import React from 'react';
 import { Translate } from 'react-jhipster';
 
-export const SubmitButton = ({ form, isNew, updating }: { form: FormInstance; isNew: boolean; updating: boolean }) => {
+export const SubmitButton = ({ form, isNew, updating, text }: { form: FormInstance; isNew: boolean; updating: boolean; text?: string }) => {
   const [isValid, setIsValid] = React.useState(true);
 
   const values = Form.useWatch([], form);
@@ -26,7 +26,7 @@ export const SubmitButton = ({ form, isNew, updating }: { form: FormInstance; is
       htmlType="submit"
       disabled={!isNew && (!form.isFieldsTouched() || !isValid)}
     >
-      <Translate contentKey={isNew ? 'entity.action.save' : 'entity.action.update'} />
+      <Translate contentKey={text ? text : isNew ? 'entity.action.save' : 'entity.action.update'} />
     </Button>
   );
 };

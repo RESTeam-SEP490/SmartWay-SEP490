@@ -18,7 +18,7 @@ export default function TableIcon({ size = 66, status = 'available', order }: { 
       break;
     }
     case 'occupied': {
-      fill = '#6b7280';
+      fill = '#9ca3af';
       break;
     }
     default:

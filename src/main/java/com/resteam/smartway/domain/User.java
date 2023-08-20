@@ -49,9 +49,6 @@ public class User extends AbstractBaseAuditingEntity<UUID> {
     @Column(length = 100)
     private String address;
 
-    @Column(name = "lang_key", length = 10)
-    private String langKey;
-
     @JsonIgnore
     @Column(name = "reset_key", length = 20)
     private String resetKey;

@@ -99,11 +99,8 @@ public class OrderWebsocket {
         );
     }
 
-    public void sendMessageAfterPayment(UUID id) {
-        simpMessagingTemplate.convertAndSend(
-            String.format("/orders/%s/receive-new-payment", RestaurantContext.getCurrentRestaurant().getId()),
-            id
-        );
+    public void sendMessageToHideOrder(UUID id) {
+        simpMessagingTemplate.convertAndSend(String.format("/orders/%s/hide-order", RestaurantContext.getCurrentRestaurant().getId()), id);
     }
 
     private void setRestaurantContext(Principal principal) {

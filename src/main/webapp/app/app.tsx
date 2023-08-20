@@ -8,7 +8,7 @@ import React, { useEffect } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 
-import { ConfigProvider, notification } from 'antd';
+import { ConfigProvider, notification, App as AntApp } from 'antd';
 import { AUTHORITIES } from 'app/config/constants';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { hasAnyAuthority } from 'app/shared/auth/private-route';
@@ -52,27 +52,28 @@ export const App = () => {
   return (
     <BrowserRouter basename={baseHref}>
       <Scrollbars className="!w-screen !h-screen">
-        <ConfigProvider theme={theme} statistic={{ style: { fontSize: 50 } }}>
-          <ToastContainer position={toast.POSITION.TOP_RIGHT} className="toastify-container" toastClassName="toastify-toast" />
-          <div className="flex flex-col w-screen min-h-screen">
-            <ErrorBoundary>
-              <Header
-                appType={appType}
-                isAuthenticated={isAuthenticated}
-                isAdmin={isAdmin}
-                ribbonEnv={ribbonEnv}
-                isInProduction={isInProduction}
-                isOpenAPIEnabled={isOpenAPIEnabled}
-              />
-            </ErrorBoundary>
-            <div className="flex flex-col grow">
+        <ConfigProvider theme={theme}>
+          <AntApp>
+            <div className="flex flex-col w-screen min-h-screen">
               <ErrorBoundary>
-                {appType === 'admin' && <AdminAppRoutes />}
-                {appType === 'main' && <MainAppRoutes />}
-                {appType === 'tenant' && <TenantAppRoutes />}
+                <Header
+                  appType={appType}
+                  isAuthenticated={isAuthenticated}
+                  isAdmin={isAdmin}
+                  ribbonEnv={ribbonEnv}
+                  isInProduction={isInProduction}
+                  isOpenAPIEnabled={isOpenAPIEnabled}
+                />
               </ErrorBoundary>
+              <div className="flex flex-col grow">
+                <ErrorBoundary>
+                  {appType === 'admin' && <AdminAppRoutes />}
+                  {appType === 'main' && <MainAppRoutes />}
+                  {appType === 'tenant' && <TenantAppRoutes />}
+                </ErrorBoundary>
+              </div>
             </div>
-          </div>
+          </AntApp>
         </ConfigProvider>
       </Scrollbars>
     </BrowserRouter>

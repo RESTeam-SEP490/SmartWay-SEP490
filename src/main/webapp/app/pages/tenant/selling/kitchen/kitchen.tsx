@@ -2,18 +2,20 @@ import { Tabs, TabsProps } from 'antd';
 import { useAppDispatch } from 'app/config/store';
 import { AuthenticatedAccountMenu, LocaleMenu } from 'app/shared/layout/menus';
 import React, { useEffect } from 'react';
+import { translate } from 'react-jhipster';
 import { PreparingItems } from './kitchen-screen-components/preparing-items';
 import { ReadyToServeItems } from './kitchen-screen-components/ready-to-serve-items';
 import { RTSNavTool } from './kitchen-screen-components/ready-to-serve-navtools';
-import { getEntities, kitchenActions } from './kitchen.reducer';
-import { Translate, translate } from 'react-jhipster';
+import { getEntities as getKitchenEntities, kitchenActions } from './kitchen.reducer';
+import { getEntities as getCategories } from '../../management/menu-item-category/menu-item-category.reducer';
 
 export const Kitchen = () => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     dispatch(kitchenActions.startConnecting());
-    dispatch(getEntities());
+    dispatch(getKitchenEntities());
+    dispatch(getCategories({}));
     return () => {
       dispatch(kitchenActions.disconnectStomp());
     };

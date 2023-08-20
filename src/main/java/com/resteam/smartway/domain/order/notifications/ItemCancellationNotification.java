@@ -1,6 +1,7 @@
 package com.resteam.smartway.domain.order.notifications;
 
 import com.resteam.smartway.domain.base.AbstractBaseEntity;
+import com.resteam.smartway.domain.enumeration.CancellationReason;
 import com.resteam.smartway.domain.order.OrderDetail;
 import java.util.UUID;
 import javax.persistence.*;
@@ -41,4 +42,11 @@ public class ItemCancellationNotification extends AbstractBaseEntity {
     @ManyToOne
     @JoinColumn(name = "kitchen_notification_history_id", referencedColumnName = "id", columnDefinition = "BINARY(16)")
     private KitchenNotificationHistory kitchenNotificationHistory;
+
+    @Column(name = "cancellation_reason")
+    @Enumerated(EnumType.STRING)
+    private CancellationReason cancellationReason;
+
+    @Column(name = "cancellation_note")
+    private String cancellationNote;
 }

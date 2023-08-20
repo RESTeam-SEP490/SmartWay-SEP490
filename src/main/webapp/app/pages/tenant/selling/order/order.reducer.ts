@@ -6,6 +6,7 @@ import { defaultValue, IOrder } from 'app/shared/model/order/order.model';
 import { serializeAxiosError } from 'app/shared/reducers/reducer.utils';
 import { notification } from 'antd';
 import { translate } from 'react-jhipster';
+import { OrderDetails } from './order-screen-components/order-details';
 
 const initialState = {
   isEstablishingConnection: false,
@@ -24,13 +25,13 @@ export const getEntities = createAsyncThunk('orders/fetch_entity_list', async ()
   return await axios.get<IOrder[]>(requestUrl);
 });
 
-export const printBill = createAsyncThunk('orders/print_bill', async (id: string) => {
-  const requestUrl = `${apiUrl}/${id}/print-bill?cacheBuster=${new Date().getTime()}`;
+export const printBill = createAsyncThunk('orders/print_bill', async (dto: any) => {
+  const requestUrl = `${apiUrl}/print-bill?cacheBuster=${new Date().getTime()}`;
   const headers = {
     'Content-Type': 'application/json',
     Accept: 'application/pdf',
   };
-  return await axios.get<ArrayBuffer>(requestUrl, { responseType: 'arraybuffer', headers });
+  return await axios.post<ArrayBuffer>(requestUrl, dto, { responseType: 'arraybuffer', headers });
 });
 
 export const addNote = createAsyncThunk(
@@ -57,7 +58,17 @@ export const cancelOrderDetail = createAsyncThunk(
   'orders/cancel_order_detail',
   async (dto: { isCancelServedItemFirst: boolean; orderDetailId: string; cancelledQuantity: number }, thunkAPI) => {
     const requestUrl = `${apiUrl}/cancel-order-detail`;
-    const result = axios.post<IOrder>(requestUrl, dto);
+    const result = axios.put<IOrder>(requestUrl, dto);
+    return result;
+  },
+  { serializeError: serializeAxiosError }
+);
+
+export const cancelOrder = createAsyncThunk(
+  'orders/cancel_order',
+  async (dto: { orderId: string; cancellationReason: string; cancellationNote: string }, thunkAPI) => {
+    const requestUrl = `${apiUrl}/cancel-order`;
+    const result = axios.put<IOrder>(requestUrl, dto);
     return result;
   },
   { serializeError: serializeAxiosError }
@@ -65,9 +76,22 @@ export const cancelOrderDetail = createAsyncThunk(
 
 export const checkOut = createAsyncThunk(
   'orders/checkOut',
-  async (dto: { orderId: string; isPayByCash: boolean; bankAccountId: string | null; discount: number }, thunkAPI) => {
+  async (
+    dto: { orderId: string; isPayByCash: boolean; bankAccountId: string | null; discount: number; listItemsReturn: any },
+    thunkAPI
+  ) => {
     const requestUrl = `${apiUrl}/check-out`;
     const result = axios.post<ArrayBuffer>(requestUrl, dto);
+    return result;
+  },
+  { serializeError: serializeAxiosError }
+);
+
+export const freeUpTable = createAsyncThunk(
+  'orders/free_up_table',
+  async (orderId: string, thunkAPI) => {
+    const requestUrl = `${apiUrl}/free-up-table?orderId=${orderId}`;
+    const result = axios.put<ArrayBuffer>(requestUrl);
     return result;
   },
   { serializeError: serializeAxiosError }
@@ -154,7 +178,8 @@ export const OrderSlice = createSlice({
     receiveNewPayment(state, action) {
       const paidOrderId = action.payload;
       state.activeOrders = state.activeOrders.filter(o => o.id !== paidOrderId);
-      if (state.currentOrder.id === paidOrderId) state.currentOrder = { ...defaultValue, tableList: [state.currentOrder.tableList[0]] };
+      if (state.currentOrder.id === paidOrderId)
+        state.currentOrder = { ...defaultValue, tableList: state.currentOrder.takeAway ? [] : [state.currentOrder.tableList[0]] };
     },
     disconnectStomp(state) {
       state.isConnected = false;
@@ -194,15 +219,15 @@ export const OrderSlice = createSlice({
 
         iframe.contentWindow.print();
       })
-      .addMatcher(isPending(addNote, groupTables, cancelOrderDetail, checkOut, printBill), (state, action) => {
+      .addMatcher(isPending(addNote, groupTables, cancelOrderDetail, cancelOrder, checkOut, printBill, freeUpTable), (state, action) => {
         state.updateSuccess = false;
         state.updating = true;
       })
-      .addMatcher(isFulfilled(addNote, groupTables, cancelOrderDetail), (state, action) => {
+      .addMatcher(isFulfilled(addNote, groupTables, cancelOrderDetail, cancelOrder, freeUpTable), (state, action) => {
         state.updateSuccess = true;
         state.updating = false;
       })
-      .addMatcher(isRejected(addNote, groupTables, getEntities, printBill, checkOut), (state, action) => {
+      .addMatcher(isRejected(addNote, groupTables, getEntities, printBill, cancelOrder, cancelOrderDetail, checkOut), (state, action) => {
         state.updating = false;
       });
   },
