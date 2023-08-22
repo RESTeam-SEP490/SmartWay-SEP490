@@ -6,9 +6,8 @@ import '../output.css';
 
 import React, { useEffect } from 'react';
 import { BrowserRouter } from 'react-router-dom';
-import { toast, ToastContainer } from 'react-toastify';
 
-import { ConfigProvider, notification, App as AntApp } from 'antd';
+import { App as AntApp, ConfigProvider, notification } from 'antd';
 import { AUTHORITIES } from 'app/config/constants';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { hasAnyAuthority } from 'app/shared/auth/private-route';

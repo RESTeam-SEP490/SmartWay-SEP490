@@ -8,7 +8,6 @@ export interface IStaff {
   phone?: string;
   email?: string;
   password?: string;
-  langKey?: string;
   role?: IRole;
   restaurant?: IRestaurant;
   isActive?: boolean | null;

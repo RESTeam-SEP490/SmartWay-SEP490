@@ -16,10 +16,33 @@
       },
       "detail": {
         "title": "Restaurant"
-      },
-      "id": "ID",
-      "name": "Name",
-      "email": "Email"
+      }
+    }
+  },
+  "restaurant": {
+    "title": "Restaurant",
+    "id": "ID",
+    "name": "Name",
+    "email": "Email",
+    "currencyUnit": "Currency Unit",
+    "phone": "Phone",
+    "planExpiry": "Plan Expiry",
+    "langKey": "Language",
+    "information": "Information",
+    "search": {
+      "placeholder": "Search by id, name"
+    },
+    "isActive": "Active",
+    "status.trueValue": "Enable",
+    "status.falseValue": "Disable",
+    "action": {
+      "delete.question": "Are you sure to delete restaurant <b>{{ id }}</b> ?",
+      "allowSell": "Mark as use restaurant",
+      "allowSell.question": "Are you sure to mark <b>{{ number }}</b> selected restaurant(s) as enable restaurant?",
+      "allowSellOne.question": "Are you sure to mark restaurant <b>{{ id }}</b> as enable restaurant?",
+      "stopSell": "Mark as disable restaurant",
+      "stopSell.question": "Are you sure to mark <b>{{ number }}</b> selected restaurant(s) as discontinued restaurant?",
+      "stopSellOne.question": "Are you sure to mark restaurant <b>{{ id }}</b> as discontinued restaurant?"
     }
   }
 }

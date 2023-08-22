@@ -45,7 +45,9 @@
     <include file="config/liquibase/changelog/20230817092936_add_field_created_date_restaurant.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20230817051348_change_order_status_field.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20230817055818_add_cancellationReason_and_cancellationNote.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230820134715_add_field_isActive_restaurant.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
     <!-- jhipster-needle-liquibase-add-incremental-changelog - JHipster will add incremental liquibase changelogs here -->
 </databaseChangeLog>
+

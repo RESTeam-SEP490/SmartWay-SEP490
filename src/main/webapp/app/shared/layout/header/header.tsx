@@ -5,7 +5,7 @@ import { Translate } from 'react-jhipster';
 import LoadingBar from 'react-redux-loading-bar';
 import { Link, useLocation } from 'react-router-dom';
 import { AccountMenu, AuthenticatedAccountMenu, LocaleMenu } from '../menus';
-import { Brand, BrandIcon } from './header-components';
+import { Brand } from './header-components';
 import { AppType } from 'app/app.constant';
 import { Button } from 'antd';
 import { DesktopOutlined } from '@ant-design/icons';
@@ -62,7 +62,7 @@ const TenantAppHeader = (props: IHeaderProps) => {
   return (
     <div
       className={
-        ['login', 'pos', 'account/reset/request', 'account/reset/finish'].some(key => location.pathname.includes(key))
+        ['login', 'pos', 'account/reset/request', 'account/reset/finish', '/adminRestaurant'].some(key => location.pathname.includes(key))
           ? 'hidden'
           : 'bg-white border-0 border-solid border-b border-slate-200'
       }

@@ -5,6 +5,7 @@ import com.resteam.smartway.domain.User;
 import com.resteam.smartway.repository.RestaurantRepository;
 import com.resteam.smartway.repository.UserRepository;
 import com.resteam.smartway.security.multitenancy.context.RestaurantContext;
+import com.resteam.smartway.service.dto.IsActiveUpdateDTO;
 import com.resteam.smartway.service.dto.RestaurantDTO;
 import com.resteam.smartway.service.mapper.RestaurantMapper;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
@@ -16,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,7 @@ public class RestaurantServiceImpl implements RestaurantService {
     private final UserRepository userRepository;
     private final UserService userService;
     private final RestaurantMapper restaurantMapper;
+    private final String ENTITY_RESTAURANT = "restaurant";
 
     @Autowired
     private EmailService emailService;
@@ -46,13 +49,35 @@ public class RestaurantServiceImpl implements RestaurantService {
     }
 
     @Override
-    public Page<RestaurantDTO> loadRestaurantWithSearch(Pageable pageable, String searchText) {
-        if (searchText != null) searchText = searchText.toLowerCase();
-        Page<Restaurant> restaurantPage = restaurantRepository.findWithFilterParams(searchText, pageable);
-        return restaurantPage.map(item -> {
-            RestaurantDTO restaurantDTO = restaurantMapper.toDto(item);
-            return restaurantDTO;
-        });
+    public void updateIsActiveRestaurant(IsActiveUpdateDTO isActiveUpdateDTO) {
+        List<Restaurant> restaurantList = isActiveUpdateDTO
+            .getIds()
+            .stream()
+            .map(id -> {
+                if (id == null) throw new BadRequestAlertException("Invalid", ENTITY_RESTAURANT, "idnull");
+                Restaurant restaurant = restaurantRepository
+                    .findById(id)
+                    .orElseThrow(() -> new BadRequestAlertException("Invalid ID", ENTITY_RESTAURANT, "idnotfound"));
+                restaurant.setIsActive(isActiveUpdateDTO.getIsActive());
+                return restaurant;
+            })
+            .collect(Collectors.toList());
+        restaurantRepository.saveAll(restaurantList);
+    }
+
+    @Override
+    public Page<RestaurantDTO> loadRestaurantWithSearch(Pageable pageable, String searchText, Boolean isActive) {
+        if (searchText != null) {
+            if (searchText.isEmpty()) searchText = null; else searchText = searchText.toLowerCase();
+        }
+        Page<Restaurant> restaurantPage = restaurantRepository.findWithFilterParams(searchText, isActive, pageable);
+        List<Restaurant> restaurantList = restaurantPage
+            .getContent()
+            .stream()
+            .filter(dto -> !dto.getId().equals("admin"))
+            .collect(Collectors.toList());
+        List<RestaurantDTO> restaurantDTOList = restaurantList.stream().map(restaurantMapper::toDto).collect(Collectors.toList());
+        return new PageImpl<>(restaurantDTOList, pageable, restaurantPage.getTotalElements());
     }
 
     private RestaurantDTO mapToDTO(Restaurant restaurant) {

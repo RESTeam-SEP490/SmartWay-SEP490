@@ -16,10 +16,31 @@
       },
       "detail": {
         "title": "Restaurant"
-      },
-      "id": "ID",
-      "name": "Name",
-      "email": "Email"
+      }
+    }
+  },
+  "restaurant": {
+    "id": "ID",
+    "name": "Tên",
+    "email": "Email",
+    "currencyUnit": "Đơn vị",
+    "phone": "Số điện thoại",
+    "planExpiry": "Thời hạn",
+    "langKey": "Ngôn ngữ",
+    "information": "Thông tin",
+    "search": {
+      "placeholder": "Tìm kiếm theo id, tên"
+    },
+    "isActive": "Kích hoạt",
+    "status.trueValue": "Cho phép hoạt động",
+    "status.falseValue": "Ngưng hoạt động",
+    "action": {
+      "allowSell": "Cho phép hoạt động",
+      "allowSell.question": "Cho phép hoạt động danh sách <b>{{ number }}</b> nhà hàng đã chọn?",
+      "allowSellOne.question": "Cho phép hoạt động danh sách <b>{{ id }}</b> nhà hàng đã chọn?",
+      "stopSell": "Ngưng kinh doanh",
+      "stopSell.question": "Ngưng kinh doanh danh sách <b>{{ number }}</b> các nhà hàng đã chọn?",
+      "stopSellOne.question": "Ngưng kinh doanh nhà hàng <b>{{ id }}</b>?"
     }
   }
 }

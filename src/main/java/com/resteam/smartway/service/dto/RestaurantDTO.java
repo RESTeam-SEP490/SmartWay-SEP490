@@ -24,4 +24,6 @@ public class RestaurantDTO {
 
     @Size(min = 2, max = 10)
     private String langKey;
+
+    private Boolean isActive = true;
 }

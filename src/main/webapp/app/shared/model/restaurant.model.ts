@@ -4,6 +4,7 @@ export interface IRestaurant {
   phone?: string | null;
   currencyUnit?: string | null;
   planExpiry?: Date | null;
+  langKey?: string;
 }
 
 export const defaultValue: Readonly<IRestaurant> = {};
