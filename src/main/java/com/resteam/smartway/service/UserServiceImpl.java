@@ -26,6 +26,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.poi.ss.usermodel.Cell;
@@ -85,14 +86,14 @@ public class UserServiceImpl implements UserService {
     private final String CONTENT_USERNAME_EXIST = "staff.usernameExist";
     private final String CONTENT_EMAIL_EXIST = "staff.emailExist";
     private final String ENTITY_USERNAME_PROFILE = "username";
+    private final String PASSWORD_EXPIRED = "passwordExpired";
 
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
     @Override
-    public Optional<User> completePasswordReset(String newPassword, String key) {
-        log.debug("Reset user password for reset key {}", key);
-        return userRepository
+    public User completePasswordReset(String newPassword, String key) {
+        User changedPasswordUser = userRepository
             .findOneByResetKey(key)
             .filter(user -> user.getResetDate().isAfter(Instant.now().minus(1, ChronoUnit.DAYS)))
             .map(user -> {
@@ -100,16 +101,21 @@ public class UserServiceImpl implements UserService {
                 user.setResetKey(null);
                 user.setResetDate(null);
                 return user;
-            });
+            })
+            .orElseThrow(() -> new BadRequestAlertException("Token was expired", "user", PASSWORD_EXPIRED));
+        return changedPasswordUser;
     }
 
     @Override
-    public Optional<User> requestPasswordReset(String mail) {
+    public Optional<User> requestPasswordReset(String mail, HttpServletRequest request) {
+        String subdomain = request.getHeader("host").split("[.]")[0];
+        RestaurantContext.setCurrentRestaurantById(subdomain);
         return userRepository
             .findOneByEmailIgnoreCase(mail)
             .map(user -> {
                 user.setResetKey(RandomUtil.generateResetKey());
                 user.setResetDate(Instant.now());
+                userRepository.save(user);
                 return user;
             });
     }
@@ -126,7 +132,7 @@ public class UserServiceImpl implements UserService {
         restaurant.setId(tenantRegistrationDTO.getRestaurantId());
         restaurant.setPhone(tenantRegistrationDTO.getPhone());
         restaurant.setCurrencyUnit(tenantRegistrationDTO.getLangKey().equals("vi") ? CurrencyUnit.VND : CurrencyUnit.USD);
-
+        restaurant.setLangKey(tenantRegistrationDTO.getLangKey());
         Restaurant savedRestaurant = restaurantRepository.save(restaurant);
         RestaurantContext.setCurrentRestaurant(savedRestaurant);
         createRole(tenantRegistrationDTO.getLangKey());
@@ -140,7 +146,6 @@ public class UserServiceImpl implements UserService {
         newUser.setFullName(tenantRegistrationDTO.getFullName());
         newUser.setEmail(tenantRegistrationDTO.getEmail().toLowerCase());
         newUser.setPhone(tenantRegistrationDTO.getPhone());
-        newUser.setLangKey(tenantRegistrationDTO.getLangKey());
         newUser.setRole(role);
         userRepository.save(newUser);
 
@@ -292,7 +297,6 @@ public class UserServiceImpl implements UserService {
                 if (email != null) {
                     user.setEmail(email.toLowerCase());
                 }
-                user.setLangKey(langKey);
                 log.debug("Changed Information for User: {}", user);
             });
     }
@@ -301,10 +305,7 @@ public class UserServiceImpl implements UserService {
         User profile = userRepository
             .findById(profileDTO.getId())
             .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_USERNAME_PROFILE, " id not found"));
-        Optional<User> existingUser = userRepository.findOneByUsername(profileDTO.getUsername());
-        if (existingUser.isPresent() && !existingUser.get().getId().equals(profileDTO.getId())) {
-            throw new BadRequestAlertException(applicationName, ENTITY_USERNAME_PROFILE, "existed");
-        }
+
         profile.setBirthday(profileDTO.getBirthday());
         profileMapper.partialUpdate(profile, profileDTO);
         if (profileDTO.getResetPassword() != null && profileDTO.getPassword() != null) {

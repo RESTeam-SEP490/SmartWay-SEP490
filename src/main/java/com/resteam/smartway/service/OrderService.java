@@ -13,6 +13,12 @@ import org.springframework.data.domain.Pageable;
 
 public interface OrderService {
     Page<BillDTO> loadAllBillWithSort(Instant startDay, Instant endDay, UUID tableId, Pageable pageable);
+
+    @SneakyThrows
+    byte[] generatePdfBillWithReturnItem(PrintBillDTO printBillDTO) throws DocumentException;
+
+    void returnItem(ReturnItemDTO returnItemDTO);
+
     OrderDTO createOrder(OrderCreationDTO orderDTO);
     OrderDTO createTakeAwayOrder();
 
@@ -48,4 +54,6 @@ public interface OrderService {
     OrderDTO checkOut(PaymentDTO dto);
 
     byte[] generatePdfOrderForNotificationKitchen(List<UUID> ids) throws DocumentException;
+
+    OrderDTO cancelOrder(OrderCancellationDTO dto);
 }

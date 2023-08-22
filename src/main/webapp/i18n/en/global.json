@@ -59,14 +59,15 @@
       "confirmpassword.placeholder": "Confirm the password",
       "currentpassword.label": "Current password",
       "currentpassword.placeholder": "Current password",
-      "confirmnewpassword.label": "New password confirmation",
+      "confirmnewpassword.label": "Confirmation",
       "confirmnewpassword.placeholder": "Confirm the new password",
       "email.label": "Email",
       "email.placeholder": "Your email",
       "phone.label": "Phone number",
       "phone.placeholder": "Your phone number",
       "restaurantName.label": "Restaurant subdomain",
-      "restaurantName.placeholder": "Your restaurant subdomain"
+      "restaurantName.placeholder": "Your restaurant subdomain",
+      "newpassword.label": "New password"
     },
     "table": {
       "empty": "No data",
@@ -87,7 +88,7 @@
         }
       },
       "error": {
-        "dontmatch": "The password and its confirmation do not match!"
+        "dontmatch": "The new password do not match!"
       },
       "validate": {
         "fullName": {
@@ -154,6 +155,7 @@
       "save": "Save",
       "view": "View",
       "find": "Search",
+      "confirm": "Confirm",
       "show": "Show {{otherEntity}}",
       "select": "{{ number }} record(s) selected",
       "delete.question": "Are you sure to delete <b>{{ number }}</b> selected record(s)?"

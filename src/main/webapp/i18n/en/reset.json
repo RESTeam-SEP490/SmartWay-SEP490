@@ -1,7 +1,17 @@
 {
   "reset": {
+    "notFoundEmail": "Not found Email in your restaurant",
+    "passwordExpired": "Reset password session has expired",
+    "lengthInvalid": "Length password invalid",
+    "buttonEmail": "Send Email",
     "request": {
-      "title": "Reset your password",
+      "new": "New Password",
+      "info": "Enter a new password to change your password",
+      "subtitle": "Enter your email to change your password",
+      "forgot": "Forgot password",
+      "sendEmail": "Send Successfully",
+      "titleEmail": "Please check your email to change your password",
+      "success": "Check your emails for details on how to reset your password",
       "form": {
         "button": "Reset password"
       },
@@ -17,7 +27,7 @@
       },
       "messages": {
         "info": "Choose a new password",
-        "success": "<strong>Your password has been reset.</strong> Please ",
+        "success": "<strong>Your password has been reset.</strong>",
         "keymissing": "The reset key is missing.",
         "error": "Your password couldn't be reset. Remember a password request is only valid for 24 hours."
       }

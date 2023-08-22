@@ -46,9 +46,9 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
                 .builder()
                 .fullName("System admin")
                 .isSystemAdmin(true)
+                .isActive(true)
                 .username("admin")
                 .email("admin@smartway.com")
-                .langKey("en")
                 .password(passwordEncoder.encode("admin@2023"))
                 .role(systemAdminRole)
                 .build();
