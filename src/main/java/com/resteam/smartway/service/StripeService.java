@@ -35,7 +35,7 @@ public class StripeService {
 
     private final RestaurantRepository restaurantRepository;
     private final String MONTHLY_PRICE_ID = "price_1NfKE1A39ciAsOx6Q1mX5rRt";
-    private final String PER_6_MONTH_PRICE_ID = "price_1NfKGjA39ciAsOx6PYVShxHU";
+    private final String PER_6_MONTHS_PRICE_ID = "price_1NfKGjA39ciAsOx6PYVShxHU";
     private final String YEARLY_PRICE_ID = "price_1NfKHPA39ciAsOx6rOnz9w8L";
 
     @SneakyThrows
@@ -45,8 +45,8 @@ public class StripeService {
             case YEARLY:
                 priceId = YEARLY_PRICE_ID;
                 break;
-            case PER_6_MONTH:
-                priceId = PER_6_MONTH_PRICE_ID;
+            case PER_6_MONTHS:
+                priceId = PER_6_MONTHS_PRICE_ID;
                 break;
             case MONTHLY:
                 priceId = MONTHLY_PRICE_ID;
@@ -76,6 +76,20 @@ public class StripeService {
         return session.getUrl();
     }
 
+    @SneakyThrows
+    public String initPortalSession() {
+        Restaurant restaurant = restaurantRepository
+            .findOneById(RestaurantContext.getCurrentRestaurant().getId())
+            .orElseThrow(() -> new BadRequestAlertException("Restaurant not found", "restaurant", "idnotfound"));
+        com.stripe.param.billingportal.SessionCreateParams params = new com.stripe.param.billingportal.SessionCreateParams.Builder()
+            .setCustomer(restaurant.getStripeCustomerId())
+            .setReturnUrl("http://" + RestaurantContext.getCurrentRestaurant().getId() + ".localhost:9000")
+            .build();
+
+        com.stripe.model.billingportal.Session portalSession = com.stripe.model.billingportal.Session.create(params);
+        return portalSession.getUrl();
+    }
+
     @PostConstruct
     private static void init() {
         Stripe.apiKey = "sk_test_51NFTwGA39ciAsOx6hZZpeieCrbcun2KiTnqiUjnSpZAsRotITuUiscO3O1DzHQmC9vIpYEmgJoNIdxZtiSdMIb1000egKwAlES";
@@ -94,12 +108,16 @@ public class StripeService {
         Subscription subscription = null;
         if (event.getType().equalsIgnoreCase("customer.subscription.updated")) {
             subscription = (Subscription) stripeObject;
+
             Long currentPeriodEndsInLong = subscription.getCurrentPeriodEnd();
             Instant currentPeriodEnds = Instant.ofEpochSecond(currentPeriodEndsInLong);
+
             Restaurant toUpdateRestaurant = restaurantRepository
                 .findOneByStripeCustomerId(subscription.getCustomer())
                 .orElseThrow(() -> new BadRequestAlertException("Restaurant not found", "restaurant", "idnotfound"));
             toUpdateRestaurant.setPlanExpiry(currentPeriodEnds);
+            toUpdateRestaurant.setStripeSubscriptionId(subscription.getId());
+
             restaurantRepository.save(toUpdateRestaurant);
         }
     }

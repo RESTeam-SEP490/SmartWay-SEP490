@@ -89,7 +89,7 @@ export const MenuItemForm = ({ menuItem, isOpen, handleClose }: { menuItem?: IMe
     }
     return true;
   };
-  console.log(imageSource);
+
   return (
     <>
       <Modal

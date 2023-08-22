@@ -21,6 +21,8 @@ import { theme } from './config/ant-design-theme';
 import { AdminAppRoutes, MainAppRoutes, TenantAppRoutes } from './routes';
 import { getAppUrl } from './shared/util/subdomain/helpers';
 import { getRestaurantInfo } from './pages/tenant/restaurant-setting/restaurant.reducer';
+import { TenantApp } from './pages/tenant/app';
+import MainApp from './pages/main/app';
 
 const baseHref = document.querySelector('base').getAttribute('href').replace(/\/$/, '');
 
@@ -45,34 +47,14 @@ export const App = () => {
 
   notification.config({ placement: 'bottomLeft' });
 
-  useEffect(() => {
-    if (isAuthenticated) dispatch(getRestaurantInfo());
-  }, [isAuthenticated]);
-
   return (
     <BrowserRouter basename={baseHref}>
       <Scrollbars className="!w-screen !h-screen">
         <ConfigProvider theme={theme}>
           <AntApp>
-            <div className="flex flex-col w-screen min-h-screen">
-              <ErrorBoundary>
-                <Header
-                  appType={appType}
-                  isAuthenticated={isAuthenticated}
-                  isAdmin={isAdmin}
-                  ribbonEnv={ribbonEnv}
-                  isInProduction={isInProduction}
-                  isOpenAPIEnabled={isOpenAPIEnabled}
-                />
-              </ErrorBoundary>
-              <div className="flex flex-col grow">
-                <ErrorBoundary>
-                  {appType === 'admin' && <AdminAppRoutes />}
-                  {appType === 'main' && <MainAppRoutes />}
-                  {appType === 'tenant' && <TenantAppRoutes />}
-                </ErrorBoundary>
-              </div>
-            </div>
+            {/* {appType === 'admin' && <AdminAppRoutes />} */}
+            {appType === 'main' && <MainApp />}
+            {appType === 'tenant' && <TenantApp />}
           </AntApp>
         </ConfigProvider>
       </Scrollbars>

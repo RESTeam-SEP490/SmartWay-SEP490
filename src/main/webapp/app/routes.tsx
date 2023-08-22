@@ -16,6 +16,10 @@ import ErrorBoundaryRoutes from 'app/shared/error/error-boundary-routes';
 import PageNotFound from 'app/shared/error/page-not-found';
 import RestaurantSetting from './pages/tenant/restaurant-setting/restaurant';
 import Loadable from 'react-loadable';
+import { FirstTimeSetting } from './pages/tenant/first-time-setting/restaurant-setting';
+import Subscription from './pages/tenant/restaurant-setting/subscription';
+import { IRestaurant } from './shared/model/restaurant.model';
+import { useAppSelector } from './config/store';
 
 const loading = (
   <div className="flex items-center justify-center grow">
@@ -46,53 +50,74 @@ export const MainAppRoutes = () => {
 };
 
 export const TenantAppRoutes = () => {
+  const restaurant: IRestaurant = useAppSelector(state => state.restaurant.restaurant);
+
   return (
     <ErrorBoundaryRoutes>
       <Route index element={<Navigate to={'login'} />} />
       <Route path="login" element={<Login />} />
       <Route path="logout" element={<Logout />} />
-      <Route path="profile" element={<TenantProfileForm />} />
       <Route
-        path="restaurant-setting"
+        path="first-time-setting"
         element={
           <PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN]}>
-            <RestaurantSetting />
+            <FirstTimeSetting />
           </PrivateRoute>
         }
       />
-      <Route path="account">
-        <Route
-          index
-          element={
-            <PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.USER]}>
-              <Account />
-            </PrivateRoute>
-          }
-        />
-        <Route path="activate" element={<Activate />} />
-        <Route path="reset">
-          <Route path="request" element={<PasswordResetInit />} />
-          <Route path="finish" element={<PasswordResetFinish />} />
-        </Route>
-      </Route>
-      <Route
-        path="managing/*"
-        element={
-          <PrivateRoute hasAnyAuthorities={[AUTHORITIES.USER, AUTHORITIES.ADMIN]}>
-            <Setup />
-          </PrivateRoute>
-        }
-      ></Route>
-      <Route
-        path="pos/*"
-        element={
-          <PrivateRoute hasAnyAuthorities={[AUTHORITIES.USER, AUTHORITIES.ADMIN]}>
-            <POS />
-          </PrivateRoute>
-        }
-      ></Route>
-
-      <Route path="*" element={<PageNotFound />} />
+      {restaurant.isNew === false && (
+        <>
+          <Route
+            path="restaurant-setting"
+            element={
+              <PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN]}>
+                <RestaurantSetting />
+              </PrivateRoute>
+            }
+          />
+          <Route path="profile" element={<TenantProfileForm />} />
+          <Route
+            path="subscription"
+            element={
+              <PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN]}>
+                <Subscription />
+              </PrivateRoute>
+            }
+          />
+          <Route path="account">
+            <Route
+              index
+              element={
+                <PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.USER]}>
+                  <Account />
+                </PrivateRoute>
+              }
+            />
+            <Route path="activate" element={<Activate />} />
+            <Route path="reset">
+              <Route path="request" element={<PasswordResetInit />} />
+              <Route path="finish" element={<PasswordResetFinish />} />
+            </Route>
+          </Route>
+          <Route
+            path="managing/*"
+            element={
+              <PrivateRoute hasAnyAuthorities={[AUTHORITIES.USER, AUTHORITIES.ADMIN]}>
+                <Setup />
+              </PrivateRoute>
+            }
+          ></Route>
+          <Route
+            path="pos/*"
+            element={
+              <PrivateRoute hasAnyAuthorities={[AUTHORITIES.USER, AUTHORITIES.ADMIN]}>
+                <POS />
+              </PrivateRoute>
+            }
+          ></Route>
+        </>
+      )}
+      <Route path="*" element={restaurant.isNew === true ? <Navigate to={'/first-time-setting'} replace /> : <PageNotFound />} />
     </ErrorBoundaryRoutes>
   );
 };

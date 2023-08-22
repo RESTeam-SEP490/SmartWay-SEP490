@@ -20,7 +20,15 @@ public class RestaurantDTO {
 
     private String phone;
 
+    private String address;
+
+    private Boolean isNew;
+
     private CurrencyUnit currencyUnit;
+
+    private String stripeCustomerId;
+
+    private String stripeSubscriptionId;
 
     @Size(min = 2, max = 10)
     private String langKey;

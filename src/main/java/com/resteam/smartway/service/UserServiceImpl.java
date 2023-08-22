@@ -23,6 +23,7 @@ import com.resteam.smartway.web.rest.errors.SubdomainAlreadyUsedException;
 import java.io.InputStream;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -134,10 +135,12 @@ public class UserServiceImpl implements UserService {
         Restaurant restaurant = new Restaurant();
         restaurant.setId(tenantRegistrationDTO.getRestaurantId());
         restaurant.setPhone(tenantRegistrationDTO.getPhone());
-        restaurant.setCurrencyUnit(tenantRegistrationDTO.getLangKey().equals("vi") ? CurrencyUnit.VND : CurrencyUnit.USD);
+        restaurant.setIsNew(true);
         restaurant.setLangKey(tenantRegistrationDTO.getLangKey());
+        restaurant.setPlanExpiry(Instant.now().plus(15, ChronoUnit.DAYS));
         Restaurant savedRestaurant = restaurantRepository.save(restaurant);
         RestaurantContext.setCurrentRestaurant(savedRestaurant);
+
         createRole(tenantRegistrationDTO.getLangKey());
 
         Role role = roleRepository.findByNameAndRestaurant("ADMIN", new Restaurant("system@"));
@@ -150,9 +153,11 @@ public class UserServiceImpl implements UserService {
         newUser.setEmail(tenantRegistrationDTO.getEmail().toLowerCase());
         newUser.setPhone(tenantRegistrationDTO.getPhone());
         newUser.setRole(role);
-        userRepository.save(newUser);
+        User savedUser = userRepository.save(newUser);
 
-        log.debug("Created Information for User: {}", newUser);
+        savedRestaurant.setOwner(savedUser);
+        restaurantRepository.save(savedRestaurant);
+
         return savedRestaurant.getId();
     }
 

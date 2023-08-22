@@ -1,14 +1,14 @@
 import './header.scss';
 
+import { DesktopOutlined } from '@ant-design/icons';
+import { Button } from 'antd';
+import { AppType } from 'app/app.constant';
 import React from 'react';
 import { Translate } from 'react-jhipster';
 import LoadingBar from 'react-redux-loading-bar';
 import { Link, useLocation } from 'react-router-dom';
 import { AccountMenu, AuthenticatedAccountMenu, LocaleMenu } from '../menus';
-import { Brand, BrandIcon } from './header-components';
-import { AppType } from 'app/app.constant';
-import { Button } from 'antd';
-import { DesktopOutlined } from '@ant-design/icons';
+import { Brand } from './header-components';
 
 export interface IHeaderProps {
   isAuthenticated: boolean;
@@ -20,8 +20,6 @@ export interface IHeaderProps {
 }
 
 const Header = (props: IHeaderProps) => {
-  const location = useLocation();
-
   const renderDevRibbon = () =>
     props.isInProduction === false ? (
       <div className="ribbon dev">
@@ -34,15 +32,17 @@ const Header = (props: IHeaderProps) => {
   return (
     <>
       {/* {props.appType === 'admin' && <AdminAppRoutes />} */}
-      {props.appType === 'main' && <MainAppHeader {...props} />}
-      {props.appType === 'tenant' && <TenantAppHeader {...props} />}
+      {props.appType === 'main' && <MainAppHeader />}
+      {props.appType === 'tenant' && <TenantAppHeader />}
     </>
   );
 };
 
 export default Header;
 
-const MainAppHeader = (props: IHeaderProps) => {
+export const MainAppHeader = () => {
+  const location = useLocation();
+
   return (
     <div className={location.pathname.includes('register') ? 'hidden' : location.pathname === '/' ? 'bg-gray-100' : ''}>
       {/* {renderDevRibbon()} */}
@@ -58,11 +58,15 @@ const MainAppHeader = (props: IHeaderProps) => {
   );
 };
 
-const TenantAppHeader = (props: IHeaderProps) => {
+export const TenantAppHeader = () => {
+  const location = useLocation();
+
   return (
     <div
       className={
-        ['login', 'pos', 'account/reset/request', 'account/reset/finish'].some(key => location.pathname.includes(key))
+        ['login', 'pos', 'account/reset/request', 'account/reset/finish', 'first-time-setting', 'subscription'].some(key =>
+          location.pathname.includes(key)
+        )
           ? 'hidden'
           : 'bg-white border-0 border-solid border-b border-slate-200'
       }

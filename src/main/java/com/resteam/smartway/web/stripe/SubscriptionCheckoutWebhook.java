@@ -26,10 +26,16 @@ public class SubscriptionCheckoutWebhook {
 
     String endpointSecret = "whsec_f2d27b68a2ad132a42b86cc8661b5afb2650f628f88ff30e5e4855de4029fa7e";
 
-    @PostMapping("/api/subscription/create-checkout-session")
-    public ResponseEntity<String> paymentWithCheckoutPage(@RequestParam PlanName planName) {
+    @PostMapping("/api/subscriptions/create-checkout-session")
+    public ResponseEntity<String> getCheckoutSession(@RequestParam PlanName planName) {
         String checkOutUrl = stripeService.initCheckOutSession(planName);
-        return ResponseEntity.status(303).body(checkOutUrl);
+        return ResponseEntity.ok().body(checkOutUrl);
+    }
+
+    @PostMapping("/api/subscriptions/create-portal-session")
+    public ResponseEntity<String> getPortalSession() {
+        String checkOutUrl = stripeService.initPortalSession();
+        return ResponseEntity.ok().body(checkOutUrl);
     }
 
     @PostMapping("/webhook")

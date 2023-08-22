@@ -77,7 +77,7 @@ export const OrderDetails = () => {
     setAdjustingDetail(detail);
     setIsOpenNumbericKeyboard(true);
   };
-  console.log(currentOrder);
+
   return (
     <>
       <Charge isOpen={isOpenChargeModal} handleClose={() => setIsOpenChargeModal(false)} />

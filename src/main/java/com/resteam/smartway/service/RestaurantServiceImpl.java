@@ -94,4 +94,18 @@ public class RestaurantServiceImpl implements RestaurantService {
             .orElseThrow(() -> new BadRequestAlertException("Restaurant not found", "restaurant", "idnotfound"));
         return restaurantMapper.toDto(restaurant);
     }
+
+    @Override
+    public RestaurantDTO updateRestaurantInformation(RestaurantDTO dto) {
+        Restaurant restaurant = restaurantRepository
+            .findOneById(RestaurantContext.getCurrentRestaurant().getId())
+            .orElseThrow(() -> new BadRequestAlertException("Restaurant not found", "restaurant", "idnotfound"));
+        restaurant.setPhone(dto.getPhone());
+        restaurant.setCurrencyUnit(dto.getCurrencyUnit());
+        restaurant.setName(dto.getName());
+        restaurant.setAddress(dto.getAddress());
+        restaurant.setIsNew(false);
+
+        return restaurantMapper.toDto(restaurantRepository.save(restaurant));
+    }
 }
