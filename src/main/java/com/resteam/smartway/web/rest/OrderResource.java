@@ -3,8 +3,11 @@ package com.resteam.smartway.web.rest;
 import com.itextpdf.text.DocumentException;
 import com.resteam.smartway.service.OrderService;
 import com.resteam.smartway.service.PaymentDTO;
+import com.resteam.smartway.service.StatisticService;
+import com.resteam.smartway.service.StatisticServiceImpl;
 import com.resteam.smartway.service.dto.order.*;
 import com.resteam.smartway.service.dto.order.notification.CancellationDTO;
+import com.resteam.smartway.service.dto.statistic.StatisticDTO;
 import com.resteam.smartway.web.websocket.KitchenWebsocket;
 import com.resteam.smartway.web.websocket.OrderWebsocket;
 import java.util.List;
@@ -33,6 +36,13 @@ public class OrderResource {
     private final OrderService orderService;
     private final OrderWebsocket orderWebsocket;
     private final KitchenWebsocket kitchenWebsocket;
+    private final StatisticService statisticService;
+
+    @GetMapping("/daily-sales-bill")
+    public ResponseEntity<StatisticDTO> getDailySalesBill() {
+        StatisticDTO dailySalesStatistics = statisticService.calculateDailySalesBill();
+        return ResponseEntity.ok(dailySalesStatistics);
+    }
 
     @PostMapping
     public ResponseEntity<OrderDTO> createOrder(@Valid @RequestBody OrderCreationDTO orderDTO) {

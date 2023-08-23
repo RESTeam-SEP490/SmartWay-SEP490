@@ -3,6 +3,7 @@ package com.resteam.smartway.web.rest;
 import com.resteam.smartway.service.StatisticService;
 import com.resteam.smartway.service.dto.statistic.StatisticDTO;
 import com.resteam.smartway.service.dto.statistic.StatisticDateRangeDTO;
+import com.resteam.smartway.service.dto.statistic.StatisticsCancellationDTO;
 import com.resteam.smartway.service.dto.statistic.TopSellingItemsDTO;
 import java.time.Duration;
 import java.time.Instant;
@@ -40,6 +41,15 @@ public class StatisticResource {
         } else {
             return statisticService.calculateSalesStatisticsByDateRange(startDay, endDay);
         }
+    }
+
+    @GetMapping("/cancel-items")
+    public ResponseEntity<List<StatisticsCancellationDTO>> calculateCancelItems(
+        @RequestParam Instant startDay,
+        @RequestParam Instant endDay
+    ) {
+        List<StatisticsCancellationDTO> listCancelItem = statisticService.calculateCancellationOrder(startDay, endDay);
+        return ResponseEntity.ok(listCancelItem);
     }
 
     @GetMapping("/best-sellers")
