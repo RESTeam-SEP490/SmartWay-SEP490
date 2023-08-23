@@ -38,6 +38,12 @@ public class SubscriptionCheckoutWebhook {
         return ResponseEntity.ok().body(checkOutUrl);
     }
 
+    @PostMapping("/api/subscriptions/create-account-link-session")
+    public ResponseEntity<String> getAccountLinkSession() {
+        String checkOutUrl = stripeService.initCreateAccountSession();
+        return ResponseEntity.ok().body(checkOutUrl);
+    }
+
     @PostMapping("/webhook")
     public ResponseEntity<Void> handleSubscription(@RequestHeader("Stripe-Signature") String sigHeader, @RequestBody String payload) {
         Event event = null;

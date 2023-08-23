@@ -5,7 +5,7 @@ import { BrandIcon } from 'app/shared/layout/header/header-components';
 import React, { useEffect } from 'react';
 import { Translate, translate } from 'react-jhipster';
 import { updateRestaurantInfo } from '../restaurant-setting/restaurant.reducer';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 
 export const FirstTimeSetting = () => {
   const dispatch = useAppDispatch();
@@ -16,13 +16,12 @@ export const FirstTimeSetting = () => {
   const [form] = Form.useForm();
 
   useEffect(() => {
-    if (Object.keys(restaurant).length > 0 && !restaurant.isNew) navigate('/subscription');
-    else form.setFieldsValue({ ...restaurant, name: restaurant.id, currencyUnit: 'VND' });
+    form.setFieldsValue({ ...restaurant, name: restaurant.id, currencyUnit: 'VND' });
   }, [restaurant]);
-
   const onFinish = values => {
     dispatch(updateRestaurantInfo(values));
   };
+  if (Object.keys(restaurant).length > 0 && !restaurant.isNew) return <Navigate to="/subscription" />;
 
   return (
     <>

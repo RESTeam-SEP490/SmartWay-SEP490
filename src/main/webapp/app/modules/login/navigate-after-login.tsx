@@ -1,9 +1,8 @@
 import { AUTHORITIES } from 'app/config/constants';
 import { useAppSelector } from 'app/config/store';
 import { IRestaurant } from 'app/shared/model/restaurant.model';
-import React from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export const NavigateAfterLogin = () => {
   let path = '';

@@ -67,7 +67,7 @@ public class OrderResource {
     }
 
     @PutMapping("/{orderId}/group-tables")
-    public ResponseEntity<OrderDTO> groupOrders(@PathVariable UUID orderId, @NotEmpty @RequestBody List<String> tableIds) {
+    public ResponseEntity<OrderDTO> groupOrders(@PathVariable UUID orderId, @RequestBody List<String> tableIds) {
         OrderDTO groupedOrderDTO = orderService.groupTables(orderId, tableIds);
         orderWebsocket.sendMessageToChangedOrder(groupedOrderDTO);
         return ResponseEntity.ok(groupedOrderDTO);

@@ -51,7 +51,7 @@ public class Restaurant implements Serializable {
     @Column(name = "address")
     private String address;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner")
     private User owner;
 

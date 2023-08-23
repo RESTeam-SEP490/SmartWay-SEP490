@@ -48,6 +48,7 @@
     <include file="config/liquibase/changelog/20230821071945_add_address_into_restaurant.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20230822100058_add_owner_to_restaurant.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20230822130528_add_subscription_id_into_restaurant.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230823051013_add_cashier_into_order.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
     <!-- jhipster-needle-liquibase-add-incremental-changelog - JHipster will add incremental liquibase changelogs here -->

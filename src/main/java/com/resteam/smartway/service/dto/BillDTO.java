@@ -23,4 +23,5 @@ public class BillDTO {
     private double discount;
     private Instant payDate;
     private boolean isTakeAway;
+    private String cashier;
 }

@@ -1,4 +1,4 @@
-import { Button, Radio, Typography } from 'antd';
+import { Button, Modal, Radio, Typography } from 'antd';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { BrandIcon } from 'app/shared/layout/header/header-components';
 import { IRestaurant } from 'app/shared/model/restaurant.model';
@@ -18,7 +18,13 @@ export const Subscription = () => {
   const [selectedPlan, setSelectedPlan] = useState('YEARLY');
 
   return (
-    <>
+    <Modal
+      closable={false}
+      open={restaurant.planExpiry && dayjs(restaurant.planExpiry).isBefore(dayjs())}
+      centered
+      footer={[]}
+      className=" !w-auto !h-auto rounded-lg "
+    >
       <div
         hidden={!updating}
         className="fixed transition-opacity duration-1000 bg-white bg-opacity-70 top-0 bottom-0 left-0 right-0 z-[5000]"
@@ -33,11 +39,16 @@ export const Subscription = () => {
           </div>
         </div>
       </div>
-      <div className="flex flex-col absolute top-0 bottom-0 w-full rounded-lg bg-gradient-to-tl from-5% to-50% from-blue-600/50 to-blue-50">
-        <div className="flex min-w-[1248px] mx-auto flex-col items-center justify-center h-full">
+      <div className="flex flex-col ">
+        <div className="p-8 flex bg-gradient-to-tl from-5% to-50% from-blue-600/50 to-blue-50  mx-auto flex-col items-center justify-center h-full">
           <div className="m-6">
             <BrandIcon />
           </div>
+          {restaurant.planExpiry && dayjs(restaurant.planExpiry).isBefore(dayjs()) && (
+            <Typography.Title level={5} className="leading-none !m-0 !text-red-600">
+              YOUR PLAN EXPIRED ON {dayjs(restaurant.planExpiry).format('LL').toLocaleUpperCase()}
+            </Typography.Title>
+          )}
           <Typography.Title level={2} className="leading-none !m-0">
             Select plan for your restaurant
           </Typography.Title>
@@ -120,14 +131,22 @@ export const Subscription = () => {
               Check out
             </Button>
             {!restaurant.stripeSubscriptionId && !dayjs(restaurant.planExpiry).isBefore(dayjs()) && (
-              <Button type="primary" ghost size="large" className="w-60" onClick={() => navigate('/login')}>
+              <Button
+                type="primary"
+                ghost
+                size="large"
+                className="w-60"
+                onClick={() => {
+                  navigate('/login');
+                }}
+              >
                 Continue with 15 days trial
               </Button>
             )}
           </div>
         </div>
       </div>
-    </>
+    </Modal>
   );
 };
 export default Subscription;

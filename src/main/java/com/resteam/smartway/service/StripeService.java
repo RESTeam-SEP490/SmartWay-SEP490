@@ -16,6 +16,8 @@ import com.stripe.model.*;
 import com.stripe.model.checkout.Session;
 import com.stripe.net.ApiResource;
 import com.stripe.net.Webhook;
+import com.stripe.param.AccountCreateParams;
+import com.stripe.param.AccountLinkCreateParams;
 import com.stripe.param.CustomerCreateParams;
 import com.stripe.param.checkout.SessionCreateParams;
 import java.time.Instant;
@@ -53,18 +55,13 @@ public class StripeService {
                 break;
         }
 
-        Restaurant restaurant = RestaurantContext.getCurrentRestaurant();
-
-        String customerId;
-        if (restaurant.getStripeCustomerId() == null) {
-            customerId = createStripeCustomer(restaurant.getId());
-            restaurant.setStripeCustomerId(customerId);
-            restaurantRepository.save(restaurant);
-        } else customerId = restaurant.getStripeCustomerId();
+        Restaurant restaurant = restaurantRepository
+            .findOneById(RestaurantContext.getCurrentRestaurant().getId())
+            .orElseThrow(() -> new BadRequestAlertException("Restaurant not found", "restaurant", "idnotfound"));
 
         SessionCreateParams params = SessionCreateParams
             .builder()
-            .setCustomer(customerId)
+            .setCustomer(restaurant.getStripeCustomerId())
             .setMode(SessionCreateParams.Mode.SUBSCRIPTION)
             .setSuccessUrl("http://" + RestaurantContext.getCurrentRestaurant().getId() + ".localhost:9000")
             .setCancelUrl("http://" + RestaurantContext.getCurrentRestaurant().getId() + ".localhost:9000/page-not-found")
@@ -95,9 +92,8 @@ public class StripeService {
         Stripe.apiKey = "sk_test_51NFTwGA39ciAsOx6hZZpeieCrbcun2KiTnqiUjnSpZAsRotITuUiscO3O1DzHQmC9vIpYEmgJoNIdxZtiSdMIb1000egKwAlES";
     }
 
-    public String createStripeCustomer(String name) throws StripeException {
-        CustomerCreateParams customerParams = CustomerCreateParams.builder().setName(name).build();
-
+    public String createStripeCustomer(String name, String email) throws StripeException {
+        CustomerCreateParams customerParams = CustomerCreateParams.builder().setName(name).setEmail(email).build();
         Customer customer = Customer.create(customerParams);
 
         return customer.getId();
@@ -120,5 +116,31 @@ public class StripeService {
 
             restaurantRepository.save(toUpdateRestaurant);
         }
+    }
+
+    @SneakyThrows
+    public String initCreateAccountSession() {
+        Restaurant restaurant = restaurantRepository
+            .findOneById(RestaurantContext.getCurrentRestaurant().getId())
+            .orElseThrow(() -> new BadRequestAlertException("Restaurant not found", "restaurant", "idnotfound"));
+        AccountCreateParams params = AccountCreateParams
+            .builder()
+            .setType(AccountCreateParams.Type.STANDARD)
+            .setEmail(restaurant.getOwner().getEmail())
+            .setDefaultCurrency(restaurant.getCurrencyUnit().toString())
+            .build();
+
+        Account account = Account.create(params);
+
+        AccountLinkCreateParams params2 = AccountLinkCreateParams
+            .builder()
+            .setAccount(account.getId())
+            .setRefreshUrl("https://example.com/reauth")
+            .setReturnUrl("https://example.com/return")
+            .setType(AccountLinkCreateParams.Type.ACCOUNT_ONBOARDING)
+            .build();
+
+        AccountLink accountLink = AccountLink.create(params2);
+        return accountLink.getUrl();
     }
 }

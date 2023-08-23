@@ -1,5 +1,6 @@
 package com.resteam.smartway.security;
 
+import com.resteam.smartway.domain.Restaurant;
 import com.resteam.smartway.domain.User;
 import com.resteam.smartway.repository.UserRepository;
 import com.resteam.smartway.security.multitenancy.context.RestaurantContext;

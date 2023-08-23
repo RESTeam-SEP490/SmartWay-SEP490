@@ -178,7 +178,10 @@ export const Charge = ({ isOpen, handleClose }: { isOpen: boolean; handleClose: 
                 type="primary"
                 className="w-40"
                 icon={<CreditCardOutlined rev="" />}
-                onClick={() => setIsOpenConfirmModal(true)}
+                onClick={() => {
+                  if (currentOrder.takeAway) onCheckout(true);
+                  else setIsOpenConfirmModal(true);
+                }}
               >
                 Charge
               </Button>

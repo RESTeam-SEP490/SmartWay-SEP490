@@ -27,10 +27,8 @@ export const SellingStatistic = () => {
   const data = [...itemsSellingQuantity]
     .sort((a, b) => (isByRevenue ? (a.revenue > b.revenue ? -1 : 1) : a.quantity > b.quantity ? -1 : 1))
     .map((i: IItemSellingQuantity) => {
-      return { x: isByRevenue ? i.revenue : i.quantity, name: i.menuItem.name, id: i.menuItem.id };
+      return { x: isByRevenue ? i.revenue : i.quantity, name: i.menuItem?.name, id: i.menuItem?.id };
     });
-
-  const bestSeller = data[0];
 
   const config = {
     data,

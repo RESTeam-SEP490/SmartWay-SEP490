@@ -42,6 +42,7 @@ export const RestaurantSetting = () => {
           </div>
           <Button
             type="primary"
+            ghost
             onClick={() => {
               if (restaurant.stripeSubscriptionId) dispatch(getPortalUrl());
               else navigate('/subscription');

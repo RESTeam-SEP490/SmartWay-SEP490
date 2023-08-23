@@ -3,6 +3,7 @@ import axios from 'axios';
 
 import { defaultValue, IKitchenItems } from 'app/shared/model/dto/kitchen-items-dto';
 import { defaultValue as defaultOrder } from 'app/shared/model/order/order.model';
+import { serializeAxiosError } from 'app/shared/reducers/reducer.utils';
 
 const initialState = {
   isEstablishingConnection: false,
@@ -17,10 +18,14 @@ const initialState = {
 
 const apiUrl = 'api/kitchen';
 
-export const getEntities = createAsyncThunk('kitchen/fetch_entity_list', async () => {
-  const requestUrl = `${apiUrl}/active-items?cacheBuster=${new Date().getTime()}`;
-  return axios.get<IKitchenItems>(requestUrl);
-});
+export const getEntities = createAsyncThunk(
+  'kitchen/fetch_entity_list',
+  async () => {
+    const requestUrl = `${apiUrl}/active-items?cacheBuster=${new Date().getTime()}`;
+    return axios.get<IKitchenItems>(requestUrl);
+  },
+  { serializeError: serializeAxiosError }
+);
 
 // slice
 

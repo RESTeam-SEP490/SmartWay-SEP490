@@ -58,7 +58,14 @@ public class KitchenWebsocket {
         );
 
         if (readyToServeNotification != null) {
-            sendAlertToOrders("has-ready-to-serve-item", readyToServeNotification);
+            int adjustQuantity =
+                readyToServeNotification.getQuantity() -
+                readyToServeNotification.getServedQuantity() -
+                readyToServeNotification
+                    .getItemCancellationNotificationList()
+                    .stream()
+                    .reduce(0, (sum, icn) -> sum + icn.getQuantity(), Integer::sum);
+            sendAlertToOrders("has-ready-to-serve-item", readyToServeNotification, adjustQuantity);
         }
     }
 
@@ -88,14 +95,14 @@ public class KitchenWebsocket {
             kitchenService.getAllOrderItemInKitchen()
         );
 
-        sendAlertToOrders("has-served-item", readyToServeNotification);
+        sendAlertToOrders("has-served-item", readyToServeNotification, dto.getServedQuantity());
     }
 
-    private void sendAlertToOrders(String destinationPath, ReadyToServeNotification readyToServeNotification) {
+    private void sendAlertToOrders(String destinationPath, ReadyToServeNotification readyToServeNotification, int adjustQuantity) {
         OrderDetail orderDetail = readyToServeNotification.getItemAdditionNotification().getOrderDetail();
         String itemInfo = String.format(
             "%s - %s - %s",
-            readyToServeNotification.getQuantity(),
+            adjustQuantity,
             orderDetail.getMenuItem().getName(),
             orderDetail.getOrder().isTakeAway()
                 ? orderDetail.getOrder().getCode() + (" (Takeaway)")

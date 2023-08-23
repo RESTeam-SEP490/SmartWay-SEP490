@@ -125,6 +125,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @SneakyThrows
     public String registerUser(TenantRegistrationDTO tenantRegistrationDTO) {
         restaurantRepository
             .findOneById(tenantRegistrationDTO.getRestaurantId())
@@ -140,7 +141,6 @@ public class UserServiceImpl implements UserService {
         restaurant.setPlanExpiry(Instant.now().plus(15, ChronoUnit.DAYS));
         Restaurant savedRestaurant = restaurantRepository.save(restaurant);
         RestaurantContext.setCurrentRestaurant(savedRestaurant);
-
         createRole(tenantRegistrationDTO.getLangKey());
 
         Role role = roleRepository.findByNameAndRestaurant("ADMIN", new Restaurant("system@"));
@@ -155,7 +155,9 @@ public class UserServiceImpl implements UserService {
         newUser.setRole(role);
         User savedUser = userRepository.save(newUser);
 
+        String customerId = stripeService.createStripeCustomer(savedRestaurant.getName(), savedUser.getEmail());
         savedRestaurant.setOwner(savedUser);
+        savedRestaurant.setStripeCustomerId(customerId);
         restaurantRepository.save(savedRestaurant);
 
         return savedRestaurant.getId();

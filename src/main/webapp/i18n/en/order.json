@@ -62,6 +62,7 @@
         "totalQ": "Ordered quantity",
         "reason": "Reason"
       }
-    }
+    },
+    "checkout.success": "Check out successfully!"
   }
 }
