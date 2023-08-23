@@ -37,6 +37,7 @@ public class StripeService {
 
     private final RestaurantRepository restaurantRepository;
     private final String MONTHLY_PRICE_ID = "price_1NiGMMA39ciAsOx6VvjDab7V";
+    private final String DAILY_PRICE_ID = "price_1NiHGIA39ciAsOx6ZDvG0KAu";
     private final String PER_6_MONTHS_PRICE_ID = "price_1NiGMMA39ciAsOx6fkpqhFFF";
     private final String YEARLY_PRICE_ID = "price_1NiGMMA39ciAsOx6iKUceZlW";
 
@@ -52,6 +53,9 @@ public class StripeService {
                 break;
             case MONTHLY:
                 priceId = MONTHLY_PRICE_ID;
+                break;
+            case DAILY:
+                priceId = DAILY_PRICE_ID;
                 break;
         }
 
@@ -80,7 +84,7 @@ public class StripeService {
             .orElseThrow(() -> new BadRequestAlertException("Restaurant not found", "restaurant", "idnotfound"));
         com.stripe.param.billingportal.SessionCreateParams params = new com.stripe.param.billingportal.SessionCreateParams.Builder()
             .setCustomer(restaurant.getStripeCustomerId())
-            .setReturnUrl("http://" + RestaurantContext.getCurrentRestaurant().getId() + ".localhost:9000")
+            .setReturnUrl("https://" + RestaurantContext.getCurrentRestaurant().getId() + ".smart-way.website/restaurant-setting")
             .build();
 
         com.stripe.model.billingportal.Session portalSession = com.stripe.model.billingportal.Session.create(params);

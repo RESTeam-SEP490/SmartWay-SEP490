@@ -113,6 +113,26 @@ export const Subscription = () => {
                 </div>
               </div>
             </div>
+            <div
+              onClick={() => setSelectedPlan('DAILY')}
+              className={`flex w-64 cursor-pointer flex-col items-center gap-4 p-6 pt-4 bg-white border-2 border-gray-200 rounded-lg ${
+                selectedPlan === 'MONTHLY' ? '!border-blue-400 shadow-lg shadow-blue-300/50' : ''
+              }`}
+            >
+              <Radio checked={selectedPlan === 'DAILY'} />
+              <div className="flex flex-col items-center">
+                <span className="text-lg font-semibold ">Daily plan</span>
+              </div>
+              <div className="flex flex-col items-center pt-10">
+                <div className="flex items-center gap-2 text-4xl font-semibold !leading-none">
+                  {currencyFormat(1000, 'vi-VN')}
+                  <div className="flex flex-col">
+                    <div className="text-lg">VND</div>
+                    <div className="text-sm font-normal text-gray-400">/day</div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           <div className="flex justify-center gap-4">
             <Button
