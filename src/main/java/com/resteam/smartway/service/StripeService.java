@@ -36,9 +36,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class StripeService {
 
     private final RestaurantRepository restaurantRepository;
-    private final String MONTHLY_PRICE_ID = "price_1NfKE1A39ciAsOx6Q1mX5rRt";
-    private final String PER_6_MONTHS_PRICE_ID = "price_1NfKGjA39ciAsOx6PYVShxHU";
-    private final String YEARLY_PRICE_ID = "price_1NfKHPA39ciAsOx6rOnz9w8L";
+    private final String MONTHLY_PRICE_ID = "price_1NiGMMA39ciAsOx6VvjDab7V";
+    private final String PER_6_MONTHS_PRICE_ID = "price_1NiGMMA39ciAsOx6fkpqhFFF";
+    private final String YEARLY_PRICE_ID = "price_1NiGMMA39ciAsOx6iKUceZlW";
 
     @SneakyThrows
     public String initCheckOutSession(PlanName planName) {
@@ -63,8 +63,8 @@ public class StripeService {
             .builder()
             .setCustomer(restaurant.getStripeCustomerId())
             .setMode(SessionCreateParams.Mode.SUBSCRIPTION)
-            .setSuccessUrl("http://" + RestaurantContext.getCurrentRestaurant().getId() + ".localhost:9000")
-            .setCancelUrl("http://" + RestaurantContext.getCurrentRestaurant().getId() + ".localhost:9000/page-not-found")
+            .setSuccessUrl("https://" + RestaurantContext.getCurrentRestaurant().getId() + ".smart-way.website/restaurant-setting")
+            .setCancelUrl("https://" + RestaurantContext.getCurrentRestaurant().getId() + ".smart-way.website/restaurant-setting")
             .addLineItem(SessionCreateParams.LineItem.builder().setPrice(priceId).setQuantity(1L).build())
             .build();
 
@@ -89,7 +89,7 @@ public class StripeService {
 
     @PostConstruct
     private static void init() {
-        Stripe.apiKey = "sk_test_51NFTwGA39ciAsOx6hZZpeieCrbcun2KiTnqiUjnSpZAsRotITuUiscO3O1DzHQmC9vIpYEmgJoNIdxZtiSdMIb1000egKwAlES";
+        Stripe.apiKey = "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";
     }
 
     public String createStripeCustomer(String name, String email) throws StripeException {

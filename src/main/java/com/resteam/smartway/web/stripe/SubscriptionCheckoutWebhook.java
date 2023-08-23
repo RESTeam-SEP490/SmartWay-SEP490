@@ -24,7 +24,7 @@ public class SubscriptionCheckoutWebhook {
 
     private final StripeService stripeService;
 
-    String endpointSecret = "whsec_f2d27b68a2ad132a42b86cc8661b5afb2650f628f88ff30e5e4855de4029fa7e";
+    String endpointSecret = "whsec_z6TNwESeau5AQbZMDT0fTcFW0SWcTQJU";
 
     @PostMapping("/api/subscriptions/create-checkout-session")
     public ResponseEntity<String> getCheckoutSession(@RequestParam PlanName planName) {
