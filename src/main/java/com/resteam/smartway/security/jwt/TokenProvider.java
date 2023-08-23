@@ -1,5 +1,6 @@
 package com.resteam.smartway.security.jwt;
 
+import com.resteam.smartway.domain.Restaurant;
 import com.resteam.smartway.management.SecurityMetersService;
 import com.resteam.smartway.security.CustomUserDetails;
 import io.jsonwebtoken.*;
@@ -77,7 +78,7 @@ public class TokenProvider {
         return Jwts
             .builder()
             .setSubject(userPrincipal.getUsername())
-            .setAudience(userPrincipal.getRestaurantId())
+            .setAudience(userPrincipal.getRestaurant().getId())
             .claim(AUTHORITIES_KEY, authorities)
             .signWith(key, SignatureAlgorithm.HS512)
             .setExpiration(validity)
@@ -93,7 +94,7 @@ public class TokenProvider {
             .map(SimpleGrantedAuthority::new)
             .collect(Collectors.toList());
 
-        CustomUserDetails principal = new CustomUserDetails(claims.getSubject(), null, claims.getAudience(), authorities);
+        CustomUserDetails principal = new CustomUserDetails(claims.getSubject(), null, new Restaurant(claims.getAudience()), authorities);
 
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);
     }

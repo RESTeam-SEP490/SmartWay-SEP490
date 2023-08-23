@@ -7,4 +7,6 @@ public interface RestaurantService {
     RestaurantDTO getRestaurantInfo();
 
     public List<RestaurantDTO> getAllRestaurantDTOs();
+
+    RestaurantDTO updateRestaurantInformation(RestaurantDTO dto);
 }

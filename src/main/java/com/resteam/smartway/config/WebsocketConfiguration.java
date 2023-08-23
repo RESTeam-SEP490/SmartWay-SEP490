@@ -70,7 +70,7 @@ public class WebsocketConfiguration implements WebSocketMessageBrokerConfigurer 
                         ).getPrincipal();
                         String restaurantIdInDestination = headerAccessor.getDestination().split("/")[2];
 
-                        if (!restaurantIdInDestination.equals(principal.getRestaurantId())) throw new IllegalArgumentException(
+                        if (!restaurantIdInDestination.equals(principal.getRestaurant().getId())) throw new IllegalArgumentException(
                             "No permission for this topic"
                         );
                     }

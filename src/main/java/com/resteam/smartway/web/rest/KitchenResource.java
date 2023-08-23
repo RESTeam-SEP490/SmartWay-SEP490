@@ -1,5 +1,6 @@
 package com.resteam.smartway.web.rest;
 
+import com.resteam.smartway.security.multitenancy.annotation.RestaurantRestricted;
 import com.resteam.smartway.service.KitchenService;
 import com.resteam.smartway.service.dto.order.KitchenItemsDTO;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ public class KitchenResource {
     private final KitchenService kitchenService;
 
     @GetMapping("/active-items")
+    @RestaurantRestricted
     public ResponseEntity<KitchenItemsDTO> getAllUncompletedOrder() {
         return ResponseEntity.ok(kitchenService.getAllOrderItemInKitchen());
     }

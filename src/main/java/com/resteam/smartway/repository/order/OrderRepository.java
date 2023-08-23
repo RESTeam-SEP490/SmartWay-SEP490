@@ -42,7 +42,7 @@ public interface OrderRepository extends BaseRepository<SwOrder> {
     )
     Optional<SwOrder> findOneByTableAndIsPaid(@Param("table") DiningTable table, @Param("isPaid") boolean isPaid);
 
-    @Query("SELECT o FROM SwOrder o WHERE o.isPaid = true AND o.payDate >= :startDay AND o.payDate <= :endDay order by o.payDate desc ")
+    @Query("SELECT o FROM SwOrder o WHERE o.isPaid = true AND o.payDate >= :startDay AND o.payDate <= :endDay AND o.status <> 'CANCELLED'")
     Page<SwOrder> findByIsPaidTrueOrderByPayDate(@Param("startDay") Instant startDay, @Param("endDay") Instant endDay, Pageable pageable);
 
     @Query(

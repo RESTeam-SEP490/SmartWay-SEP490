@@ -23,6 +23,7 @@ import com.resteam.smartway.web.rest.errors.SubdomainAlreadyUsedException;
 import java.io.InputStream;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -66,10 +67,13 @@ public class UserServiceImpl implements UserService {
 
     private final ProfileMapper profileMapper;
 
+    private final StripeService stripeService;
+
     private final String ENTITY_NAME_STAFF = "username";
     private final String NAME_SHEET_STAFF = "Staff-Manage";
     private final String NAME_SHEET_SECRET_KEY = "Secret_Key";
     private final String CONTENT_KEY_COLUMN_EMPTY = "staff.columnEmpty";
+
     private final String CONTENT_KEY_SHEET_NAME_INVALID = "staff.sheetInvalidName";
     private final String REGEX_PHONE = "^\\d{5,15}$";
     private final String MESSAGE_PHONE = "staff.messagePhone";
@@ -121,6 +125,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @SneakyThrows
     public String registerUser(TenantRegistrationDTO tenantRegistrationDTO) {
         restaurantRepository
             .findOneById(tenantRegistrationDTO.getRestaurantId())
@@ -131,8 +136,9 @@ public class UserServiceImpl implements UserService {
         Restaurant restaurant = new Restaurant();
         restaurant.setId(tenantRegistrationDTO.getRestaurantId());
         restaurant.setPhone(tenantRegistrationDTO.getPhone());
-        restaurant.setCurrencyUnit(tenantRegistrationDTO.getLangKey().equals("vi") ? CurrencyUnit.VND : CurrencyUnit.USD);
+        restaurant.setIsNew(true);
         restaurant.setLangKey(tenantRegistrationDTO.getLangKey());
+        restaurant.setPlanExpiry(Instant.now().plus(15, ChronoUnit.DAYS));
         Restaurant savedRestaurant = restaurantRepository.save(restaurant);
         RestaurantContext.setCurrentRestaurant(savedRestaurant);
         createRole(tenantRegistrationDTO.getLangKey());
@@ -147,9 +153,13 @@ public class UserServiceImpl implements UserService {
         newUser.setEmail(tenantRegistrationDTO.getEmail().toLowerCase());
         newUser.setPhone(tenantRegistrationDTO.getPhone());
         newUser.setRole(role);
-        userRepository.save(newUser);
+        User savedUser = userRepository.save(newUser);
 
-        log.debug("Created Information for User: {}", newUser);
+        String customerId = stripeService.createStripeCustomer(savedRestaurant.getName(), savedUser.getEmail());
+        savedRestaurant.setOwner(savedUser);
+        savedRestaurant.setStripeCustomerId(customerId);
+        restaurantRepository.save(savedRestaurant);
+
         return savedRestaurant.getId();
     }
 

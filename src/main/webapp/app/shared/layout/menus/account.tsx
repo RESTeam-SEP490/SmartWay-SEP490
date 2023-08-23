@@ -59,7 +59,7 @@ export const AccountMenu = () => {
       <div className="flex gap-2">
         <Button size="large" type="primary" ghost onClick={() => setIsOpen(true)} className="!w-32 !font-semibold">
           <Translate contentKey="global.menu.account.login">Sign in</Translate>
-        </Button>{' '}
+        </Button>
         <Button size="large" type="primary" onClick={() => navigate('/register')} className="!w-32 !font-semibold">
           <Translate contentKey="global.menu.account.register">Register</Translate>
         </Button>

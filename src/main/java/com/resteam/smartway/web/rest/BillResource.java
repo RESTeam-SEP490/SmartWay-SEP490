@@ -1,7 +1,9 @@
 package com.resteam.smartway.web.rest;
 
 import com.resteam.smartway.service.OrderService;
+import com.resteam.smartway.service.StatisticService;
 import com.resteam.smartway.service.dto.BillDTO;
+import com.resteam.smartway.service.dto.statistic.StatisticDTO;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -29,6 +31,8 @@ public class BillResource {
 
     private final OrderService orderService;
 
+    private final StatisticService statisticService;
+
     @GetMapping
     public ResponseEntity<List<BillDTO>> getAllBills(
         @RequestParam(required = false) Instant startDay,
@@ -45,5 +49,11 @@ public class BillResource {
         Page<BillDTO> billsPage = orderService.loadAllBillWithSort(startDay, endDay, tableId, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), billsPage);
         return new ResponseEntity<>(billsPage.getContent(), headers, HttpStatus.OK);
+    }
+
+    @GetMapping("/daily-sales-bill")
+    public ResponseEntity<StatisticDTO> getDailySalesBill() {
+        StatisticDTO dailySalesStatistics = statisticService.calculateDailySalesBill();
+        return ResponseEntity.ok(dailySalesStatistics);
     }
 }

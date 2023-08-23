@@ -74,4 +74,7 @@ public class SwOrder extends AbstractBaseAuditingEntity<UUID> {
 
     @Column(name = "pay_date")
     private Instant payDate;
+
+    @Column(name = "cashier")
+    private String cashier;
 }

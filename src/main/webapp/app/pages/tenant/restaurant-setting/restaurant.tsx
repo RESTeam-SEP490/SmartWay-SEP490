@@ -1,33 +1,55 @@
 import { ShopFilled } from '@ant-design/icons';
-import { Form, Input, Typography } from 'antd';
+import { Button, Form, Input, Typography } from 'antd';
 import { DEFAULT_FORM_ITEM_LAYOUT } from 'app/app.constant';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
+import { IRestaurant } from 'app/shared/model/restaurant.model';
+import dayjs from 'dayjs';
 import React, { useEffect } from 'react';
-import { Translate } from 'react-jhipster';
 import { CheckBankAccountTenant } from '../check-bank-account-tenant/check-bank-account-tenant';
+import { getPortalUrl, restaurantActions } from './restaurant.reducer';
+import { useNavigate } from 'react-router-dom';
 
 export const RestaurantSetting = () => {
-  const restaurant = useAppSelector(state => state.restaurant.restaurant);
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const restaurant: IRestaurant = useAppSelector(state => state.restaurant.restaurant);
   const [form] = Form.useForm();
 
   useEffect(() => {
     form.setFieldsValue({ ...restaurant });
-    console.log(restaurant);
   }, [restaurant]);
 
   return (
     <>
       <div className="max-w-5xl lg:min-w-[800px] mx-auto mt-10">
-        <div className="flex gap-4">
-          <div className="flex items-center justify-center w-32 h-32 bg-blue-600 rounded-lg">
-            <ShopFilled rev={''} className="text-5xl text-white" />
+        <div className="flex justify-between gap-4">
+          <div className="flex gap-4">
+            <div className="flex items-center justify-center w-32 h-32 bg-blue-600 rounded-lg">
+              <ShopFilled rev={''} className="text-5xl text-white" />
+            </div>
+            <div className="flex flex-col">
+              <div className="">
+                <Typography.Title level={3} className="!mb-0 !leading-none">
+                  {restaurant.name}
+                </Typography.Title>
+                <div className="mt-2 text-base leading-none text-gray-600">{restaurant.id}.smart-way.website</div>
+              </div>
+              <div className={`my-4 text-sm leading-none  ${restaurant.stripeSubscriptionId ? 'text-green-600' : 'text-blue-500'}`}>
+                {restaurant.stripeSubscriptionId ? 'Subscription' : 'Trial'} is active util{' '}
+                <span className="font-semibold">{dayjs(restaurant.planExpiry).format('LL')}</span>
+              </div>
+            </div>
           </div>
-          <div className="">
-            <Typography.Title level={3}>
-              <Translate contentKey="global.menu.account.restaurant" />
-            </Typography.Title>
-            <span className="text-gray-500">{restaurant.id}.smart-way.website</span>
-          </div>
+          <Button
+            type="primary"
+            ghost
+            onClick={() => {
+              if (restaurant.stripeSubscriptionId) dispatch(getPortalUrl());
+              else dispatch(restaurantActions.setIsShowSubsciptionModal(true));
+            }}
+          >
+            Subscription Portal
+          </Button>
         </div>
         <div className="mt-8 border-0 border-t border-solid border-slate-200"></div>
         <div className="p-2">
@@ -42,10 +64,10 @@ export const RestaurantSetting = () => {
               <Form.Item name={'phone'} className="!my-2" label={'Phone number'}>
                 <Input bordered={false} readOnly />
               </Form.Item>
-              <Form.Item name={'currencyUnit'} className="!my-2" label={'Currency'}>
+              <Form.Item name={'address'} className="!my-2" label={'Address'}>
                 <Input bordered={false} readOnly />
               </Form.Item>
-              <Form.Item className="!my-2" label={'Expired date'}>
+              <Form.Item name={'currencyUnit'} className="!my-2" label={'Currency'}>
                 <Input bordered={false} readOnly />
               </Form.Item>
             </Form>

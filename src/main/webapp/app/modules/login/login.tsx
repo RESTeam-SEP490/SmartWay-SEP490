@@ -12,13 +12,13 @@ import { Translate, translate } from 'react-jhipster';
 import { hasAnyAuthority } from 'app/shared/auth/private-route';
 import { AUTHORITIES } from 'app/config/constants';
 import { getAppUrl } from 'app/shared/util/subdomain/helpers';
+import NavigateAfterLogin from './navigate-after-login';
 
 export const Login = () => {
   const dispatch = useAppDispatch();
   const isAuthenticated = useAppSelector(state => state.authentication.isAuthenticated);
   const loginError = useAppSelector(state => state.authentication.loginError);
   const loading = useAppSelector(state => state.authentication.loading);
-  const authorities = useAppSelector(state => state.authentication.account.authorities);
 
   const domain = useAppSelector(state => state.applicationProfile.domain);
   const isInProd = useAppSelector(state => state.applicationProfile.inProduction);
@@ -28,15 +28,7 @@ export const Login = () => {
   };
 
   if (isAuthenticated) {
-    let path = '';
-    if (authorities.includes(AUTHORITIES.ADMIN)) path = '/managing/dashboard';
-    else if (authorities.includes(AUTHORITIES.STAFF_VIEW)) path = '/managing/staff';
-    else if (authorities.includes(AUTHORITIES.MENUITEM_VIEW)) path = '/managing/menu-items';
-    else if (authorities.includes(AUTHORITIES.TABLE_VIEW)) path = '/managing/tables';
-    else if (authorities.includes(AUTHORITIES.BILL_VIEW)) path = '/managing/bills';
-    else if (authorities.includes(AUTHORITIES.ORDER_WAITER)) path = '/pos/orders';
-
-    return <Navigate to={path} replace />;
+    return <NavigateAfterLogin />;
   }
 
   return (
@@ -44,7 +36,7 @@ export const Login = () => {
       <div className="flex">
         <div className="flex flex-col items-center w-full p-4 lg:w-6/12 xl:w-5/12 ">
           <div className="flex items-center justify-between w-full px-8 py-6 ">
-            <div className="inline-block" onClick={() => window.location.replace(getAppUrl(isInProd, 'www', domain, ''))}>
+            <div className="inline-block cursor-pointer" onClick={() => window.location.replace(getAppUrl(isInProd, 'www', domain, ''))}>
               <BrandIcon />
             </div>
             <LocaleMenu />

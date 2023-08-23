@@ -5,6 +5,7 @@ import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
+import com.resteam.smartway.config.Constants;
 import com.resteam.smartway.domain.BankAccountInfo;
 import com.resteam.smartway.domain.DiningTable;
 import com.resteam.smartway.domain.MenuItem;
@@ -23,6 +24,7 @@ import com.resteam.smartway.repository.DiningTableRepository;
 import com.resteam.smartway.repository.MenuItemRepository;
 import com.resteam.smartway.repository.RestaurantRepository;
 import com.resteam.smartway.repository.order.*;
+import com.resteam.smartway.security.SecurityUtils;
 import com.resteam.smartway.security.multitenancy.context.RestaurantContext;
 import com.resteam.smartway.service.aws.S3Service;
 import com.resteam.smartway.service.dto.BillDTO;
@@ -115,15 +117,12 @@ public class OrderServiceImpl implements OrderService {
                 bill.setTableList(diningTableMapper.toDto(order.getTableList()));
                 bill.setOrderDetailList(orderDetailMapper.toDto(order.getOrderDetailList()));
                 bill.setDiscount(order.getDiscount());
+                bill.setCashier(order.getCashier());
                 List<OrderDetail> mergedOrderDetailList = new ArrayList<>();
-                double sumTotal = 0;
 
                 for (OrderDetail orderDetail : order.getOrderDetailList()) {
                     UUID menuItemId = orderDetail.getMenuItem().getId();
                     int quantity = orderDetail.getQuantity();
-                    double sellPrice = orderDetail.getMenuItem().getSellPrice();
-
-                    sumTotal += quantity * sellPrice;
 
                     boolean menuItemExists = false;
                     for (OrderDetail mergedOrderDetail : mergedOrderDetailList) {
@@ -200,8 +199,8 @@ public class OrderServiceImpl implements OrderService {
     @SneakyThrows
     public byte[] generatePdfBillWithReturnItem(PrintBillDTO printBillDTO) throws DocumentException {
         SwOrder order = orderRepository
-            .findByIdAndIsPaid(printBillDTO.getOrderId(), false)
-            .orElseThrow(() -> new BadRequestAlertException("Order was not found or Paid", ORDER, "not found or not existed"));
+            .findById(printBillDTO.getOrderId())
+            .orElseThrow(() -> new BadRequestAlertException("Order was not found", ORDER, "idnotfound"));
 
         List<OrderDetailDTO> listItemsReturn = printBillDTO.getReturnItemList();
         List<OrderDetail> orderDetailList = order.getOrderDetailList();
@@ -286,7 +285,7 @@ public class OrderServiceImpl implements OrderService {
 
         diningTableRepository.saveAll(tableList);
 
-        return orderMapper.toDto(savedOrder);
+        return sortOrderDetailsAndNotificationHistories(savedOrder);
     }
 
     @Override
@@ -584,11 +583,11 @@ public class OrderServiceImpl implements OrderService {
         //Get order
         SwOrder order = orderRepository
             .findByIdAndIsPaid(orderId, false)
-            .orElseThrow(() -> new BadRequestAlertException("Order was not found or paid", ORDER, "idnotfound"));
+            .orElseThrow(() -> new BadRequestAlertException("Order was not found or paid", ORDER, "paidOrder"));
         //list table moi
         List<DiningTable> newTableList = new ArrayList<>();
 
-        if (ids.size() == 0) {
+        if (ids.size() == 0 && !order.isTakeAway()) {
             order.setTakeAway(true);
             order.setTableList(newTableList);
             SwOrder savedOrder = orderRepository.save(order);
@@ -688,11 +687,11 @@ public class OrderServiceImpl implements OrderService {
         restaurantName.setAlignment(Element.ALIGN_CENTER);
         document.add(restaurantName);
 
-        Paragraph address = new Paragraph("--address", titleFont);
+        Paragraph address = new Paragraph(restaurant.getAddress(), footerFont);
         address.setAlignment(Element.ALIGN_CENTER);
         document.add(address);
 
-        Paragraph phone = new Paragraph(restaurant.getPhone(), titleFont);
+        Paragraph phone = new Paragraph(restaurant.getPhone(), footerFont);
         phone.setAlignment(Element.ALIGN_CENTER);
         document.add(phone);
 
@@ -783,18 +782,6 @@ public class OrderServiceImpl implements OrderService {
 
         document.add(Chunk.NEWLINE);
         document.add(line);
-
-        String imageUrl = "https://static.vecteezy.com/system/resources/previews/002/557/391/original/qr-code-for-scanning-free-vector.jpg";
-        // Add an image from an online URL to the document
-        Image logo = Image.getInstance(new URL(imageUrl));
-        logo.scaleToFit(75f, 75f);
-        logo.setAlignment(Element.ALIGN_CENTER);
-        document.add(logo);
-
-        float spacingBeforeImage = 0f; // Adjust the spacing as needed (in points)
-        float spacingAfterImage = 0f; // Adjust the spacing as needed (in points)
-        logo.setSpacingBefore(spacingBeforeImage);
-        logo.setSpacingAfter(spacingAfterImage);
 
         Paragraph poweredBy = new Paragraph("Powered By SmartWay.website", footerFont);
         poweredBy.setAlignment(Element.ALIGN_CENTER);
@@ -970,6 +957,7 @@ public class OrderServiceImpl implements OrderService {
         order.setIsPayByCash(dto.getIsPayByCash());
         order.setDiscount(dto.getDiscount());
         order.setCurrencyUnit(restaurant.getCurrencyUnit());
+        order.setCashier(SecurityUtils.getCurrentUsername().orElse(Constants.SYSTEM));
 
         double subtotal = order
             .getOrderDetailList()

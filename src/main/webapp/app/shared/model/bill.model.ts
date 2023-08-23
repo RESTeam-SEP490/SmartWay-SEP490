@@ -7,6 +7,7 @@ export interface IBill {
   sumMoney?: number;
   discount?: number;
   payDate?: string;
+  cashier?: string;
   takeAway?: boolean;
   tableList?: IDiningTable[];
   orderDetailList?: IOrderDetail[];

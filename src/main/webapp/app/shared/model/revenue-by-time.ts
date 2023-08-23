@@ -1,5 +1,3 @@
-import { IRestaurant } from 'app/shared/model/restaurant.model';
-
 export interface IRevenueByTime {
   totalRevenue?: number;
   totalOrders?: number;
