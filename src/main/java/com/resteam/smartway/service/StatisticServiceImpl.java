@@ -3,9 +3,12 @@ package com.resteam.smartway.service;
 import com.resteam.smartway.domain.MenuItem;
 import com.resteam.smartway.domain.order.OrderDetail;
 import com.resteam.smartway.domain.order.SwOrder;
+import com.resteam.smartway.domain.order.notifications.ItemCancellationNotification;
+import com.resteam.smartway.repository.order.ItemCancellationNotificationRepository;
 import com.resteam.smartway.repository.order.OrderRepository;
 import com.resteam.smartway.service.dto.statistic.StatisticDTO;
 import com.resteam.smartway.service.dto.statistic.StatisticDateRangeDTO;
+import com.resteam.smartway.service.dto.statistic.StatisticsCancellationDTO;
 import com.resteam.smartway.service.dto.statistic.TopSellingItemsDTO;
 import java.time.*;
 import java.time.temporal.ChronoUnit;
@@ -23,6 +26,30 @@ import org.springframework.transaction.annotation.Transactional;
 public class StatisticServiceImpl implements StatisticService {
 
     private final OrderRepository orderRepository;
+    private final ItemCancellationNotificationRepository icnRepository;
+
+    @Override
+    public StatisticDTO calculateDailySalesBill() {
+        Instant currentDate = Instant.now();
+
+        List<SwOrder> paidOrders = orderRepository.findAllByPaidTrueAndPayDateBetween(
+            currentDate.atZone(ZoneId.of("Asia/Ho_Chi_Minh")).truncatedTo(ChronoUnit.DAYS).toInstant(),
+            currentDate.atZone(ZoneId.of("Asia/Ho_Chi_Minh")).truncatedTo(ChronoUnit.DAYS).plus(1, ChronoUnit.DAYS).toInstant()
+        );
+
+        if (paidOrders == null) {
+            paidOrders = Collections.emptyList();
+        }
+
+        double totalRevenue = 0;
+        int totalOrders = paidOrders.size();
+
+        for (SwOrder order : paidOrders) {
+            totalRevenue += (order.getSubtotal() - order.getDiscount());
+        }
+
+        return new StatisticDTO(currentDate, totalRevenue, totalOrders);
+    }
 
     @Override
     public StatisticDateRangeDTO calculateMonthlyRevenueStatistics(Instant startDay, Instant endDay) {
@@ -51,7 +78,7 @@ public class StatisticServiceImpl implements StatisticService {
             int ordersInMonth = ordersInCurrentMonth.size();
 
             for (SwOrder order : ordersInCurrentMonth) {
-                totalRevenueForMonth += calculateOrderRevenue(order);
+                totalRevenueForMonth += (order.getSubtotal() - order.getDiscount());
             }
 
             StatisticDTO currentMonthStatistic = new StatisticDTO(currentMonthStart, totalRevenueForMonth, ordersInMonth);
@@ -61,6 +88,51 @@ public class StatisticServiceImpl implements StatisticService {
         }
 
         return new StatisticDateRangeDTO(totalRevenueForRange, totalOrders, statisticsList);
+    }
+
+    @Override
+    public List<StatisticsCancellationDTO> calculateCancellationOrder(Instant startDay, Instant endDay) {
+        List<ItemCancellationNotification> listIcn = icnRepository.findByDateBetween(
+            startDay.truncatedTo(ChronoUnit.DAYS),
+            endDay.truncatedTo(ChronoUnit.DAYS).plus(1, ChronoUnit.DAYS).minus(1, ChronoUnit.SECONDS)
+        );
+        List<StatisticsCancellationDTO> listIcnDTO = new ArrayList<>();
+        LocalDate startDate = startDay.atZone(ZoneId.of("UTC")).toLocalDate();
+        LocalDate endDate = endDay.atZone(ZoneId.of("UTC")).toLocalDate();
+        for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+            StatisticsCancellationDTO dto = new StatisticsCancellationDTO();
+            Instant currentDayStart = date.atStartOfDay(ZoneId.of("UTC")).toInstant();
+            Instant currentDayEnd = date.plusDays(1).atStartOfDay(ZoneId.of("UTC")).toInstant().minus(1, ChronoUnit.SECONDS);
+            dto.setDate(currentDayStart);
+
+            List<ItemCancellationNotification> cancelItemsInCurrentDay = listIcn
+                .stream()
+                .filter(order ->
+                    order.getKitchenNotificationHistory().getNotifiedTime().isAfter(currentDayStart) &&
+                    order.getKitchenNotificationHistory().getNotifiedTime().isBefore(currentDayEnd)
+                )
+                .collect(Collectors.toList());
+            for (ItemCancellationNotification icnCurrentDay : cancelItemsInCurrentDay) {
+                switch (icnCurrentDay.getCancellationReason()) {
+                    case OUT_OF_STOCK:
+                        dto.setOutOfStockQuantity(dto.getOutOfStockQuantity() + icnCurrentDay.getQuantity());
+                        break;
+                    case CUSTOMER_UNSATISFIED:
+                        dto.setCustomerUnsatisfiedQuantity(dto.getCustomerUnsatisfiedQuantity() + icnCurrentDay.getQuantity());
+                        break;
+                    case LONG_WAITING_TIME:
+                        dto.setLongWaitingTimeQuantity(dto.getLongWaitingTimeQuantity() + icnCurrentDay.getQuantity());
+                        break;
+                    case EXCHANGE_ITEM:
+                        dto.setExchangeItemQuantity(dto.getExchangeItemQuantity() + icnCurrentDay.getQuantity());
+                        break;
+                    default:
+                        dto.setOthersQuantity(dto.getOthersQuantity() + icnCurrentDay.getQuantity());
+                }
+            }
+            listIcnDTO.add(dto);
+        }
+        return listIcnDTO;
     }
 
     @Override
@@ -86,7 +158,7 @@ public class StatisticServiceImpl implements StatisticService {
                 .filter(order -> order.getPayDate().isAfter(currentDayStart) && order.getPayDate().isBefore(currentDayEnd))
                 .collect(Collectors.toList());
             for (SwOrder order : ordersInCurrentDay) {
-                totalRevenueForDay += calculateOrderRevenue(order);
+                totalRevenueForDay += (order.getSubtotal() - order.getDiscount());
             }
             StatisticDTO currentDay = new StatisticDTO(currentDayStart, totalRevenueForDay, ordersInCurrentDay.size());
             statisticsList.add(currentDay);
@@ -114,18 +186,10 @@ public class StatisticServiceImpl implements StatisticService {
         int totalOrders = paidOrders.size();
 
         for (SwOrder order : paidOrders) {
-            totalRevenue += calculateOrderRevenue(order);
+            totalRevenue += (order.getSubtotal() - order.getDiscount());
         }
 
         return new StatisticDTO(currentDate, totalRevenue, totalOrders);
-    }
-
-    private double calculateOrderRevenue(SwOrder order) {
-        double revenue = 0;
-        for (OrderDetail orderDetail : order.getOrderDetailList()) {
-            revenue += orderDetail.getQuantity() * orderDetail.getMenuItem().getSellPrice();
-        }
-        return revenue;
     }
 
     @Override

@@ -53,7 +53,7 @@ export const RevenueStatistic = () => {
         geometry: 'column',
         color: colors.blue[600],
         maxColumnWidth: 80,
-        minColumnWidth: 80,
+        minColumnWidth: 20,
         label: {
           style: {},
         },
@@ -140,3 +140,5 @@ export const RevenueStatistic = () => {
     </Card>
   );
 };
+
+export default RevenueStatistic;

@@ -1,5 +1,7 @@
 package com.resteam.smartway.security;
 
+import com.resteam.smartway.domain.Restaurant;
+import com.resteam.smartway.domain.User;
 import com.resteam.smartway.repository.UserRepository;
 import com.resteam.smartway.security.multitenancy.context.RestaurantContext;
 import org.slf4j.Logger;
@@ -33,6 +35,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         return userRepository
             .findOneWithAuthoritiesByUsername(username)
+            .filter(User::getIsActive)
             .map(CustomUserDetails::build)
             .orElseThrow(() ->
                 new UsernameNotFoundException(

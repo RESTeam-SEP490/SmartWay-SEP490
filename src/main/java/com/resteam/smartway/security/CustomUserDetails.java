@@ -1,6 +1,7 @@
 package com.resteam.smartway.security;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.resteam.smartway.domain.Restaurant;
 import com.resteam.smartway.domain.User;
 import java.util.Collection;
 import java.util.List;
@@ -27,7 +28,7 @@ public class CustomUserDetails implements UserDetails {
     @JsonIgnore
     private String password;
 
-    private String restaurantId;
+    private Restaurant restaurant;
 
     private Collection<? extends GrantedAuthority> authorities;
 
@@ -39,7 +40,7 @@ public class CustomUserDetails implements UserDetails {
             .map(authority -> new SimpleGrantedAuthority(authority.getName()))
             .collect(Collectors.toList());
 
-        return new CustomUserDetails(user.getUsername(), user.getPassword(), user.getRestaurant().getId(), authorities);
+        return new CustomUserDetails(user.getUsername(), user.getPassword(), user.getRestaurant(), authorities);
     }
 
     @Override

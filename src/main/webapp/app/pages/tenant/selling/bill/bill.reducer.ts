@@ -1,24 +1,34 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, isPending } from '@reduxjs/toolkit';
 import axios from 'axios';
 
 import { DEFAULT_PAGEABLE } from 'app/app.constant';
 import { defaultValue, IBill } from 'app/shared/model/bill.model';
+import { defaultValue as defaultStatistic } from 'app/shared/model/revenue-by-time';
+import { IRevenueByTime } from 'app/shared/model/revenue-by-time';
+import getStore from 'app/config/store';
 
 const initialState = {
   loading: false,
   updating: false,
   updateSuccess: false,
   billList: [],
+  statistic: defaultStatistic,
   currentBill: defaultValue,
-  pageable: { ...DEFAULT_PAGEABLE, isActive: true },
+  pageable: { ...DEFAULT_PAGEABLE, isActive: true, sort: 'payDate,DESC' },
   totalItems: 0,
 };
 
 const apiUrl = 'api/bills';
 
 export const getEntities = createAsyncThunk('bills/fetch_entity_list', async () => {
-  const requestUrl = `${apiUrl}?cacheBuster=${new Date().getTime()}`;
+  const { sort, page, size } = getStore().getState().bill.pageable;
+  const requestUrl = `${apiUrl}?page=${page}&size=${size}&sort=${sort}`;
   return await axios.get<IBill[]>(requestUrl);
+});
+
+export const getStatistic = createAsyncThunk('bills/get_statistic_today', async () => {
+  const requestUrl = `${apiUrl}/daily-sales-bill?cacheBuster=${new Date().getTime()}`;
+  return await axios.get<IRevenueByTime>(requestUrl);
 });
 
 // slice
@@ -41,17 +51,24 @@ export const BillSlice = createSlice({
   },
   extraReducers(builder) {
     builder
-      .addCase(getEntities.pending, (state, action) => {
-        state.loading = true;
-      })
+
       .addCase(getEntities.fulfilled, (state, action) => {
         state.loading = false;
         state.billList = action.payload.data;
+        const count = action.payload.headers['x-total-count'];
+        state.totalItems = Number(count);
 
         if (state.currentBill.id !== null) {
           const nextCurrentOrder = state.billList.find(o => o.id === state.currentBill.id);
           if (nextCurrentOrder) state.currentBill = nextCurrentOrder;
         }
+      })
+      .addCase(getStatistic.fulfilled, (state, action) => {
+        state.loading = false;
+        state.statistic = action.payload.data;
+      })
+      .addMatcher(isPending(getEntities, getStatistic), (state, action) => {
+        state.loading = true;
       });
   },
 });

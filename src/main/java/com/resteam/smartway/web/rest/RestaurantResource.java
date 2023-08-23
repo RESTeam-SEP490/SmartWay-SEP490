@@ -34,9 +34,9 @@ public class RestaurantResource {
         return ResponseEntity.ok(restaurantService.getRestaurantInfo());
     }
 
-    @PostMapping("/restaurant")
+    @PutMapping("/restaurant")
     public ResponseEntity<RestaurantDTO> updateCurrentRestaurant(@Valid @RequestBody RestaurantDTO dto) {
-        return ResponseEntity.ok(restaurantService.getRestaurantInfo());
+        return ResponseEntity.ok(restaurantService.updateRestaurantInformation(dto));
     }
 
     @GetMapping("/manage-restaurants")

@@ -1,8 +1,6 @@
-import { notification, message } from 'antd';
+import { notification } from 'antd';
 import { isFulfilledAction, isRejectedAction } from 'app/shared/reducers/reducer.utils';
 import { translate } from 'react-jhipster';
-import { toast } from 'react-toastify';
-import { messages } from './constants';
 
 const addErrorAlert = (message, key?, data?) => {
   key = key ? key : message;
@@ -106,6 +104,7 @@ export default () => next => action => {
   } else if (error) {
     notification.error({ message: error.message || 'Unknown error!' });
   }
+  console.log(error, payload);
 
   return next(action);
 };

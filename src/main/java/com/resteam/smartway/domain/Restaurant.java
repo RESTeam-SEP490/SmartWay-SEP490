@@ -32,12 +32,28 @@ public class Restaurant implements Serializable {
     @Column(name = "plan_expiry")
     private Instant planExpiry;
 
+    @Column(name = "stripe_customer_id")
+    private String stripeCustomerId;
+
+    @Column(name = "stripe_subscription_id")
+    private String stripeSubscriptionId;
+
+    @Column(name = "is_new", columnDefinition = "BIT(1) default false")
+    private Boolean isNew = true;
+
     @Column(name = "currency_unit")
     @Enumerated(EnumType.STRING)
     private CurrencyUnit currencyUnit;
 
     @Column(name = "lang_key", length = 10)
     private String langKey;
+
+    @Column(name = "address")
+    private String address;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner")
+    private User owner;
 
     public Restaurant(String id) {
         this.id = id;

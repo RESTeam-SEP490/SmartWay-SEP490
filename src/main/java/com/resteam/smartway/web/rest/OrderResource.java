@@ -3,8 +3,11 @@ package com.resteam.smartway.web.rest;
 import com.itextpdf.text.DocumentException;
 import com.resteam.smartway.service.OrderService;
 import com.resteam.smartway.service.PaymentDTO;
+import com.resteam.smartway.service.StatisticService;
+import com.resteam.smartway.service.StatisticServiceImpl;
 import com.resteam.smartway.service.dto.order.*;
 import com.resteam.smartway.service.dto.order.notification.CancellationDTO;
+import com.resteam.smartway.service.dto.statistic.StatisticDTO;
 import com.resteam.smartway.web.websocket.KitchenWebsocket;
 import com.resteam.smartway.web.websocket.OrderWebsocket;
 import java.util.List;
@@ -33,6 +36,7 @@ public class OrderResource {
     private final OrderService orderService;
     private final OrderWebsocket orderWebsocket;
     private final KitchenWebsocket kitchenWebsocket;
+    private final StatisticService statisticService;
 
     @PostMapping
     public ResponseEntity<OrderDTO> createOrder(@Valid @RequestBody OrderCreationDTO orderDTO) {
@@ -67,7 +71,7 @@ public class OrderResource {
     }
 
     @PutMapping("/{orderId}/group-tables")
-    public ResponseEntity<OrderDTO> groupOrders(@PathVariable UUID orderId, @NotEmpty @RequestBody List<String> tableIds) {
+    public ResponseEntity<OrderDTO> groupOrders(@PathVariable UUID orderId, @RequestBody List<String> tableIds) {
         OrderDTO groupedOrderDTO = orderService.groupTables(orderId, tableIds);
         orderWebsocket.sendMessageToChangedOrder(groupedOrderDTO);
         return ResponseEntity.ok(groupedOrderDTO);
@@ -115,16 +119,27 @@ public class OrderResource {
     }
 
     @PostMapping("/check-out")
-    public ResponseEntity<OrderDTO> checkOut(@RequestBody PaymentDTO paymentDTO) {
+    public ResponseEntity<byte[]> checkOut(@RequestBody PaymentDTO paymentDTO) {
         OrderDTO orderDTO = orderService.checkOut(paymentDTO);
+        HttpHeaders headers = new HttpHeaders();
         if (paymentDTO.isFreeUpTable()) {
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("paid-order-id", paymentDTO.getOrderId().toString());
             orderWebsocket.sendMessageToHideOrder(paymentDTO.getOrderId());
-            return new ResponseEntity<>(null, headers, HttpStatus.OK);
         } else {
             orderWebsocket.sendMessageToChangedOrder(orderDTO);
-            return ResponseEntity.ok(orderDTO);
+        }
+        try {
+            byte[] pdfContent = orderService.generatePdfBillWithReturnItem(
+                new PrintBillDTO(paymentDTO.getOrderId(), List.of(), paymentDTO.getDiscount())
+            );
+
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("inline", "_order_" + paymentDTO.getOrderId() + ".pdf");
+
+            return new ResponseEntity<>(pdfContent, headers, HttpStatus.OK);
+        } catch (DocumentException e) {
+            // Handle exception appropriately
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

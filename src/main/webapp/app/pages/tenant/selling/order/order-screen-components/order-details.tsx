@@ -77,7 +77,7 @@ export const OrderDetails = () => {
     setAdjustingDetail(detail);
     setIsOpenNumbericKeyboard(true);
   };
-  console.log(currentOrder);
+
   return (
     <>
       <Charge isOpen={isOpenChargeModal} handleClose={() => setIsOpenChargeModal(false)} />
@@ -270,7 +270,8 @@ export const OrderDetails = () => {
                     currentOrder.orderDetailList.length === 0 ||
                     currentOrder.orderDetailList.every(od => od.quantity === 0) ||
                     currentOrder.orderDetailList.some(od => od.unnotifiedQuantity > 0) ||
-                    // currentOrder.orderDetailList.filter(od => od.quantity > 0).some(od => od.servedQuantity < od.quantity) ||
+                    (currentOrder.orderDetailList.filter(od => od.quantity > 0).some(od => od.servedQuantity < od.quantity) &&
+                      currentOrder.takeAway) ||
                     currentOrder.id === null
                   }
                   onClick={() => setIsOpenChargeModal(true)}
@@ -287,6 +288,7 @@ export const OrderDetails = () => {
                   onClick={() => {
                     dispatch(freeUpTable(currentOrder.id));
                   }}
+                  disabled={currentOrder.orderDetailList.filter(od => od.quantity > 0).some(od => od.servedQuantity < od.quantity)}
                   size="large"
                   type="primary"
                   block
@@ -333,6 +335,7 @@ const OrderDetailCard = ({
   openNumbericKeyboard: any;
 }) => {
   const dispatch = useAppDispatch();
+  const isPaid = useAppSelector(state => state.order.currentOrder).paid;
 
   return (
     <motion.div
@@ -347,7 +350,7 @@ const OrderDetailCard = ({
       <div className="relative flex items-center justify-center h-full bg-blue-100 rounded-md !aspect-square">
         {detail.menuItem.imageUrl ? (
           <>
-            <Image preview={false} src={detail.menuItem.imageUrl} className="w-full h-full overflow-hidden none-draggable" />
+            <Image preview={false} src={detail.menuItem.imageUrl} className="w-full h-full overflow-hidden rounded-md none-draggable" />
           </>
         ) : (
           <>
@@ -404,40 +407,46 @@ const OrderDetailCard = ({
           </div>
         </div>
         <div className="flex items-center justify-between">
-          <div className="flex items-center text-blue-600 w-fit">
-            <Button
-              disabled={detail.quantity === 1}
-              onClick={() => handelAdjustQuantity({ detail, quantityAdjust: -1 })}
-              type="primary"
-              size="small"
-              className="!p-0 !w-6 !h-6 shadow-none flex justify-center items-center"
-              icon={<MinusOutlined rev={''} />}
-            />
-            <div className="min-w-[40px] flex gap-1.5 justify-center items-end cursor-pointer" onClick={openNumbericKeyboard}>
-              <Typography.Text
-                className={`!m-0 ${
-                  detail.unnotifiedQuantity > 0
-                    ? '!text-blue-700 bg-yellow-100 flex items-center justify-center w-[22px] rounded-full font-bold'
-                    : ''
-                }`}
-              >
-                {detail.quantity}
-              </Typography.Text>
+          {isPaid ? (
+            <div className="min-w-[40px] flex gap-1.5 justify-center items-end cursor-pointer">
+              <Typography.Text className={`!m-0`}>{'x ' + detail.quantity}</Typography.Text>
             </div>
-            <Button
-              onClick={() => handelAdjustQuantity({ detail, quantityAdjust: 1 })}
-              type="primary"
-              size="small"
-              className="!p-0 !w-6 !h-6 shadow-none flex justify-center items-center"
-              icon={<PlusOutlined rev={''} />}
-            />
-          </div>
+          ) : (
+            <div className="flex items-center text-blue-600 w-fit">
+              <Button
+                disabled={detail.quantity === 1}
+                onClick={() => handelAdjustQuantity({ detail, quantityAdjust: -1 })}
+                type="primary"
+                size="small"
+                className="!p-0 !w-6 !h-6 shadow-none flex justify-center items-center"
+                icon={<MinusOutlined rev={''} />}
+              />
+              <div className="min-w-[40px] flex gap-1.5 justify-center items-end cursor-pointer" onClick={openNumbericKeyboard}>
+                <Typography.Text
+                  className={`!m-0 ${
+                    detail.unnotifiedQuantity > 0
+                      ? '!text-blue-700 bg-yellow-100 flex items-center justify-center w-[22px] rounded-full font-bold'
+                      : ''
+                  }`}
+                >
+                  {detail.quantity}
+                </Typography.Text>
+              </div>
+              <Button
+                onClick={() => handelAdjustQuantity({ detail, quantityAdjust: 1 })}
+                type="primary"
+                size="small"
+                className="!p-0 !w-6 !h-6 shadow-none flex justify-center items-center"
+                icon={<PlusOutlined rev={''} />}
+              />
+            </div>
+          )}
           <span className="font-semibold">
             <CurrencyFormat>{detail.menuItem.sellPrice * detail.quantity}</CurrencyFormat>
           </span>
         </div>
       </div>
-      <div className="flex flex-col justify-between h-full">
+      <div className="flex flex-col justify-between h-full" hidden={isPaid}>
         <Button
           onClick={() => handleDeleteItem(detail)}
           danger

@@ -70,7 +70,7 @@ export const TablesOfOrderModal = ({ isOpen, handleClose }: { isOpen: boolean; h
     if (!values.takeAway && values.tableList.length === 0) {
       form.setFields([{ name: 'tableList', errors: ['Please select at least 1 table'] }]);
     }
-    dispatch(groupTables({ orderId: currentOrder.id, tableList: values.tableList }));
+    dispatch(groupTables({ orderId: currentOrder.id, tableList: values.takeAway ? [] : values.tableList }));
   };
 
   const isTableMerged = (tableId: string) => {

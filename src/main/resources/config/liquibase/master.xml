@@ -41,9 +41,14 @@
     <include file="config/liquibase/changelog/20230810193004_add_column_isActive_User.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20230811065725_add_isCompleted_to_order.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20230811073128_add_subtotal_to_order.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230815113505_add_isNew_and_stripeCustomerId_to_restaurant.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20230815123100_update_field_langkey_restaurant.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20230817051348_change_order_status_field.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20230817055818_add_cancellationReason_and_cancellationNote.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230821071945_add_address_into_restaurant.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230822100058_add_owner_to_restaurant.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230822130528_add_subscription_id_into_restaurant.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230823051013_add_cashier_into_order.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
     <!-- jhipster-needle-liquibase-add-incremental-changelog - JHipster will add incremental liquibase changelogs here -->

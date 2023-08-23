@@ -13,6 +13,8 @@
     "concurrencyFailure": "Another user modified this data at the same time as you. Your changes were rejected.",
     "validation": "Validation error on the server.",
     "constraintViolation": "This data is used. You cannot delete it!",
-    "notdeletable": "This data is used. You cannot delete it!"
+    "notdeletable": "This data is used. You cannot delete it!",
+    "restaurantExpired": "<strong>Your restaurant was expired!</strong><br/> Go to <strong>Restaurant setting</strong> to renew subscription.",
+    "paidOrder": "Invalid operation because order is paid!"
   }
 }

@@ -1,18 +1,20 @@
-import React from 'react';
-import { AuthenticatedAccountMenu, LocaleMenu } from 'app/shared/layout/menus';
+import { BlockOutlined, DeleteFilled, PrinterFilled, StarFilled } from '@ant-design/icons';
 import { Button, Image, Spin, Typography } from 'antd';
-import { useAppSelector } from 'app/config/store';
-import { IBill } from 'app/shared/model/bill.model';
-import { BlockOutlined, DeleteFilled, MinusOutlined, PlusOutlined, StarFilled } from '@ant-design/icons';
-import { MdOutlineFastfood, MdOutlineRamenDining, MdShoppingBag, MdTableRestaurant } from 'react-icons/md';
 import { alphabetCompare } from 'app/app.constant';
-import Scrollbars from 'react-custom-scrollbars-2';
-import { motion } from 'framer-motion';
-import { Translate, translate } from 'react-jhipster';
-import { CurrencyFormat } from 'app/shared/util/currency-utils';
+import { useAppDispatch, useAppSelector } from 'app/config/store';
+import { AuthenticatedAccountMenu, LocaleMenu } from 'app/shared/layout/menus';
+import { IBill } from 'app/shared/model/bill.model';
 import { IOrderDetail } from 'app/shared/model/order/order-detail.model';
+import { CurrencyFormat } from 'app/shared/util/currency-utils';
+import { motion } from 'framer-motion';
+import React from 'react';
+import Scrollbars from 'react-custom-scrollbars-2';
+import { MdOutlineFastfood, MdPerson, MdReceiptLong, MdShoppingBag, MdTableRestaurant } from 'react-icons/md';
+import { Translate, translate } from 'react-jhipster';
+import { printBill } from '../../order/order.reducer';
 
 export const BillDetails = () => {
+  const dispatch = useAppDispatch();
   const curerntBill: IBill = useAppSelector(state => state.bill.currentBill);
 
   return (
@@ -23,17 +25,28 @@ export const BillDetails = () => {
           <AuthenticatedAccountMenu />
         </div>
         <div className="flex flex-col p-2 grow w-[500px] bg-white rounded-l-lg" key={curerntBill.id}>
-          <div className="px-4 pt-2 pb-4">
+          <div className="px-4 pt-2 pb-4 ">
             <div className="flex items-center justify-between h-10">
               <Typography.Title level={4} className="!mb-1">
                 {curerntBill.id ? '#' + curerntBill.code : translate('order.current.label')}
               </Typography.Title>
+              {curerntBill.id && (
+                <div className="flex">
+                  <Button
+                    size="large"
+                    type="text"
+                    icon={<PrinterFilled rev="" />}
+                    onClick={() => {
+                      dispatch(printBill({ orderId: curerntBill.id, returnItemList: [], discount: curerntBill.discount }));
+                    }}
+                  ></Button>
+                  <Button hidden size="large" danger type="text" icon={<DeleteFilled rev="" />} onClick={() => {}}></Button>
+                </div>
+              )}
             </div>
-            <div className="flex">
+            <div className="flex items-start gap-4" hidden={curerntBill.id === null}>
               <div
-                className={`relative flex items-center justify-center gap-2 py-2 pl-6 pr-4 text-sm font-semibold text-blue-700 duration-1000 bg-blue-100 border-2 border-blue-600 border-solid rounded-lg ${
-                  curerntBill.id ? 'cursor-pointer' : ''
-                } table-tag-badge`}
+                className={`relative flex items-center justify-center gap-2 py-1 pl-6 pr-4 text-sm font-semibold text-blue-700 duration-1000 bg-blue-100 border-2 border-blue-600 border-solid rounded-lg table-tag-badge`}
               >
                 <div className="absolute left-0 z-10 flex items-center justify-center p-1 text-blue-100 -translate-x-1/2 -translate-y-1/2 bg-blue-700 rounded-full aspect-square top-1/2">
                   {curerntBill.takeAway ? (
@@ -56,6 +69,14 @@ export const BillDetails = () => {
                     <>Takeaway</>
                   )}
                 </div>
+              </div>
+              <div
+                className={`relative flex items-center justify-center gap-2 py-1 pl-6 pr-4 text-sm font-semibold text-blue-700 duration-1000 bg-blue-100 border-2 border-blue-600 border-solid rounded-lg table-tag-badge`}
+              >
+                <div className="absolute left-0 z-10 flex items-center justify-center p-1 text-blue-100 -translate-x-1/2 -translate-y-1/2 bg-blue-700 rounded-full aspect-square top-1/2">
+                  <MdPerson size={16} />
+                </div>
+                <div className="flex items-center gap-2">{curerntBill.cashier}</div>
               </div>
             </div>
           </div>
@@ -83,20 +104,35 @@ export const BillDetails = () => {
                 className="flex flex-col items-center justify-center w-full h-full"
               >
                 <div className="flex items-center justify-center w-40 text-blue-600 bg-blue-100 rounded-full aspect-square">
-                  <MdOutlineRamenDining size={60} />
+                  <MdReceiptLong size={60} />
                 </div>
-                <Typography.Title level={4} className="mt-3 !mb-0">
-                  <Translate contentKey="order.empty.title" />
-                </Typography.Title>
-                <Typography.Text className="text-gray-500">
-                  <Translate contentKey="order.empty.subtitle" />
-                </Typography.Text>
+                <Typography.Text className="mt-4 text-gray-500">Choose a bill in table to view detail</Typography.Text>
               </motion.div>
             )}
           </div>
-          <div className="flex flex-col px-4 py-2 ml-2 mr-4 border-0 border-t border-solid border-t-slate-200">
+          <div className="flex flex-col px-4 py-6 mb-2 ml-2 mr-4 border-0 border-t border-solid rounded-lg bg-blue-50 border-t-slate-200">
             <div className="flex items-center justify-between ">
               <Typography.Text>
+                <Translate contentKey="order.charge.subtotal" />
+              </Typography.Text>
+              <Typography.Text className="font-semibold !m-0">
+                {curerntBill.id && <CurrencyFormat>{curerntBill.sumMoney}</CurrencyFormat>}
+              </Typography.Text>
+            </div>
+            <div className="flex items-center justify-between mb-4">
+              <Typography.Text>
+                <Translate contentKey="order.charge.discount" />
+              </Typography.Text>
+              <Typography.Text className="font-semibold !m-0">
+                {curerntBill.id && (
+                  <>
+                    - <CurrencyFormat>{curerntBill.discount}</CurrencyFormat>
+                  </>
+                )}
+              </Typography.Text>
+            </div>
+            <div className="flex items-center justify-between ">
+              <Typography.Text className="font-semibold">
                 <Translate contentKey="order.orderDetails.total" />
               </Typography.Text>
               <Typography.Title level={4} className="font-semibold !m-0">
@@ -115,11 +151,6 @@ export const BillDetails = () => {
 const OrderDetailCard = ({
   detail,
   index,
-  onAddNote,
-  handelAdjustQuantity,
-  handleDuplicateItem,
-  handleDeleteItem,
-  openNumbericKeyboard,
 }: {
   detail: IOrderDetail;
   index: number;
@@ -178,71 +209,17 @@ const OrderDetailCard = ({
           <Typography.Text className="w-64 font-semibold text" ellipsis={{ tooltip: detail.menuItem.name }}>
             {index + '. ' + detail.menuItem.name}
           </Typography.Text>
-          <div
-            onClick={() => {
-              if (detail.quantity === detail.unnotifiedQuantity) onAddNote();
-            }}
-            className={`flex items-center !p-0 py-1 !w-full !h-6 text-left !text-xs ${
-              detail.note ? '!text-blue-600' : detail.quantity === detail.unnotifiedQuantity ? 'text-gray-500' : 'text-gray-300'
-            } ${
-              detail.quantity === detail.unnotifiedQuantity
-                ? 'cursor-pointer hover:text-gray-600 hover:bg-gray-100 rounded-lg'
-                : 'cursor-default'
-            }`}
-          >
-            {detail.note
-              ? detail.note
-              : detail.quantity !== detail.unnotifiedQuantity
-              ? translate('order.addNote.empty')
-              : translate('order.addNote.title') + '...'}
-          </div>
         </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center text-blue-600 w-fit">
-            <Button
-              disabled={detail.quantity === 1}
-              onClick={() => handelAdjustQuantity({ detail, quantityAdjust: -1 })}
-              type="primary"
-              size="small"
-              className="!p-0 !w-6 !h-6 shadow-none flex justify-center items-center"
-              icon={<MinusOutlined rev={''} />}
-            />
-            <div className="min-w-[40px] flex gap-1.5 justify-center items-end cursor-pointer" onClick={openNumbericKeyboard}>
-              <Typography.Text
-                className={`!m-0 ${
-                  detail.unnotifiedQuantity > 0
-                    ? '!text-blue-700 bg-yellow-100 flex items-center justify-center w-[22px] rounded-full font-bold'
-                    : ''
-                }`}
-              >
-                {detail.quantity}
-              </Typography.Text>
+            <div className="min-w-[40px] flex gap-1.5 justify-center items-end cursor-pointer">
+              <Typography.Text className={`!m-0`}>{'x ' + detail.quantity}</Typography.Text>
             </div>
-            <Button
-              onClick={() => handelAdjustQuantity({ detail, quantityAdjust: 1 })}
-              type="primary"
-              size="small"
-              className="!p-0 !w-6 !h-6 shadow-none flex justify-center items-center"
-              icon={<PlusOutlined rev={''} />}
-            />
           </div>
           <span className="font-semibold">
             <CurrencyFormat>{detail.menuItem.sellPrice * detail.quantity}</CurrencyFormat>
           </span>
         </div>
-      </div>
-      <div className="flex flex-col justify-between h-full">
-        <Button
-          onClick={() => handleDeleteItem(detail)}
-          danger
-          className="!h-9 !w-9 rounded-lg shadow-none border-none aspect-square bg-red-100 !text-red-600 "
-          icon={<DeleteFilled rev={''} />}
-        />
-        <Button
-          onClick={() => handleDuplicateItem({ menuItem: { id: detail.menuItem.id }, quantity: 1 }, detail.orderId)}
-          className="!h-9 !w-9 rounded-lg shadow-none border-none aspect-square bg-blue-100 !text-blue-600"
-          icon={<PlusOutlined rev={''} />}
-        />
       </div>
     </motion.div>
   );
