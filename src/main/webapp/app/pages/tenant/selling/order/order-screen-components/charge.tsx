@@ -178,7 +178,10 @@ export const Charge = ({ isOpen, handleClose }: { isOpen: boolean; handleClose: 
                 type="primary"
                 className="w-40"
                 icon={<CreditCardOutlined rev="" />}
-                onClick={() => setIsOpenConfirmModal(true)}
+                onClick={() => {
+                  if (currentOrder.takeAway) onCheckout(true);
+                  else setIsOpenConfirmModal(true);
+                }}
               >
                 Charge
               </Button>
@@ -194,15 +197,27 @@ export const Charge = ({ isOpen, handleClose }: { isOpen: boolean; handleClose: 
         onOk={() => onCheckout(true)}
         onCancel={() => setIsOpenConfirmModal(false)}
         footer={[]}
-        closeIcon={<></>}
       >
-        <span className="text-[1rem]">Do you want to check out and free up tables?</span>
-        <div className="flex justify-end gap-2 mt-4">
-          <Button type="primary" onClick={() => onCheckout(true)}>
-            Yes
-          </Button>
-          <Button onClick={() => onCheckout(false)}>No, check out only</Button>
-        </div>
+        {currentOrder.orderDetailList.some(detail => detail.servedQuantity < detail.quantity) ? (
+          <>
+            <span className="text-[1rem] mt-4">This order is not served so you only charge without free up table?</span>
+            <div className="flex justify-end gap-2 mt-4">
+              <Button type="primary" onClick={() => onCheckout(true)}>
+                OK
+              </Button>
+            </div>
+          </>
+        ) : (
+          <>
+            <span className="text-[1rem] mt-4">Do you want to check out and free up tables?</span>
+            <div className="flex justify-end gap-2 mt-4">
+              <Button type="primary" onClick={() => onCheckout(true)}>
+                Yes
+              </Button>
+              <Button onClick={() => onCheckout(false)}>No, check out only</Button>
+            </div>
+          </>
+        )}
       </Modal>
     </>
   );
