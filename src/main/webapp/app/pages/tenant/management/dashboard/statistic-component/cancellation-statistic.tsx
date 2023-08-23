@@ -1,17 +1,27 @@
-import { DualAxes } from '@ant-design/plots';
 import { RightCircleFilled } from '@ant-design/icons';
+import { Line } from '@ant-design/plots';
 import { Card, Select } from 'antd';
 import { colors } from 'app/config/ant-design-theme';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
-import { IRevenueStatistic } from 'app/shared/model/revenue-statistic';
+import { ICancellationStatistic } from 'app/shared/model/canccellation-statistic';
+import { currencyFormat } from 'app/shared/util/currency-utils';
 import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
-import { getRevenueByTime } from '../dashboard.reduce';
-import { CurrencyFormat, currencyFormat } from 'app/shared/util/currency-utils';
+import { getCancellationStatistic } from '../dashboard.reduce';
 
-export const RevenueStatistic = () => {
+export const CancellationStatistic = () => {
   const dispatch = useAppDispatch();
-  const revenuaByTime: IRevenueStatistic = useAppSelector(state => state.statistic.revenueByTime);
+  const cancellationStatisticList: ICancellationStatistic[] = useAppSelector(state => state.statistic.cancellationStatistic);
+  const data = [];
+  cancellationStatisticList.map(c => {
+    data.push(
+      { date: c.date, value: c.customerUnsatisfiedQuantity, reason: 'Customer unsatisfied with items' },
+      { date: c.date, value: c.exchangeItemQuantity, reason: 'Customer changed their order' },
+      { date: c.date, value: c.longWaitingTimeQuantity, reason: 'Customer waited for a long time' },
+      { date: c.date, value: c.outOfStockQuantity, reason: 'Item is unavailable' },
+      { date: c.date, value: c.othersQuantity, reason: 'Others' }
+    );
+  });
 
   const { currencyUnit } = useAppSelector(state => state.restaurant.restaurant);
   const localeKey = currencyUnit === 'VND' ? 'vi-VN' : currencyUnit === 'USD' ? 'en-US' : '';
@@ -23,9 +33,10 @@ export const RevenueStatistic = () => {
   });
 
   const revenueConfig = {
-    data: [revenuaByTime.statisticDTOS, revenuaByTime.statisticDTOS],
+    data,
     xField: 'date',
-    yField: ['totalRevenue', 'totalOrders'],
+    yField: 'value',
+    seriesField: 'reason',
     meta: {
       totalRevenue: {
         alias: 'Revenue',
@@ -75,7 +86,7 @@ export const RevenueStatistic = () => {
   };
 
   useEffect(() => {
-    dispatch(getRevenueByTime(revenueChartTime));
+    dispatch(getCancellationStatistic(revenueChartTime));
   }, [revenueChartTime]);
 
   const onChangeTime = type => {
@@ -122,7 +133,7 @@ export const RevenueStatistic = () => {
           }`}</span>
           <span className="flex items-center gap-2 text-xl font-semibold text-green-600">
             <RightCircleFilled className="text-lg text-gray-300" rev="" />
-            <CurrencyFormat>{revenuaByTime.totalRevenue}</CurrencyFormat>
+            {}
           </span>
         </div>
         <Select className="w-32" value={revenueChartTime.type} onChange={value => onChangeTime(value)}>
@@ -135,10 +146,10 @@ export const RevenueStatistic = () => {
         </Select>
       </div>
       <div className="p-4">
-        <DualAxes {...revenueConfig} />
+        <Line {...revenueConfig} />
       </div>
     </Card>
   );
 };
 
-export default RevenueStatistic;
+export default CancellationStatistic;

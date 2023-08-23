@@ -6,25 +6,20 @@ import dayjs from 'dayjs';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { currencyFormat } from '../../../shared/util/currency-utils';
-import { getCheckoutUrl } from './restaurant.reducer';
+import { getCheckoutUrl, restaurantActions } from './restaurant.reducer';
 
 export const Subscription = () => {
   const dispatch = useAppDispatch();
   const username = useAppSelector(state => state.authentication.account.username);
   const restaurant: IRestaurant = useAppSelector(state => state.restaurant.restaurant);
+  const isShowSubsciptionModal = useAppSelector(state => state.restaurant.isShowSubsciptionModal);
   const updating = useAppSelector(state => state.restaurant.updating);
   const navigate = useNavigate();
 
   const [selectedPlan, setSelectedPlan] = useState('YEARLY');
 
   return (
-    <Modal
-      closable={false}
-      open={restaurant.planExpiry && dayjs(restaurant.planExpiry).isBefore(dayjs())}
-      centered
-      footer={[]}
-      className=" !w-auto !h-auto rounded-lg "
-    >
+    <Modal closable={false} open={isShowSubsciptionModal} centered footer={[]} className=" !w-auto !h-auto rounded-lg ">
       <div
         hidden={!updating}
         className="fixed transition-opacity duration-1000 bg-white bg-opacity-70 top-0 bottom-0 left-0 right-0 z-[5000]"
@@ -40,7 +35,7 @@ export const Subscription = () => {
         </div>
       </div>
       <div className="flex flex-col ">
-        <div className="p-8 flex bg-gradient-to-tl from-5% to-50% from-blue-600/50 to-blue-50  mx-auto flex-col items-center justify-center h-full">
+        <div className="p-8 flex rounded-lg bg-gradient-to-br from-5% to-50% from-blue-600/50 to-blue-50  mx-auto flex-col items-center justify-center h-full">
           <div className="m-6">
             <BrandIcon />
           </div>
@@ -137,10 +132,10 @@ export const Subscription = () => {
                 size="large"
                 className="w-60"
                 onClick={() => {
-                  navigate('/login');
+                  dispatch(restaurantActions.setIsShowSubsciptionModal(false));
                 }}
               >
-                Continue with 15 days trial
+                Continue with trial
               </Button>
             )}
           </div>

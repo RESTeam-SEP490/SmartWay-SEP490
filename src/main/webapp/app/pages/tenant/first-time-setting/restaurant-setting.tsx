@@ -4,8 +4,9 @@ import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { BrandIcon } from 'app/shared/layout/header/header-components';
 import React, { useEffect } from 'react';
 import { Translate, translate } from 'react-jhipster';
-import { updateRestaurantInfo } from '../restaurant-setting/restaurant.reducer';
+import { restaurantActions, updateRestaurantInfo } from '../restaurant-setting/restaurant.reducer';
 import { Navigate, useNavigate } from 'react-router-dom';
+import NavigateAfterLogin from 'app/modules/login/navigate-after-login';
 
 export const FirstTimeSetting = () => {
   const dispatch = useAppDispatch();
@@ -18,11 +19,15 @@ export const FirstTimeSetting = () => {
   useEffect(() => {
     form.setFieldsValue({ ...restaurant, name: restaurant.id, currencyUnit: 'VND' });
   }, [restaurant]);
+
   const onFinish = values => {
     dispatch(updateRestaurantInfo(values));
   };
-  if (Object.keys(restaurant).length > 0 && !restaurant.isNew) return <Navigate to="/subscription" />;
 
+  if (Object.keys(restaurant).length > 0 && !restaurant.isNew) {
+    dispatch(restaurantActions.setIsShowSubsciptionModal(true));
+    return <NavigateAfterLogin />;
+  }
   return (
     <>
       <div className="flex">
@@ -39,7 +44,7 @@ export const FirstTimeSetting = () => {
             {/* <Translate contentKey="register.title"></Translate> */}
           </Typography.Title>
           <Typography.Text className="text-gray-500">
-            <Translate contentKey="register.subtitle">Enter your credentials to access your Account</Translate>
+            <Translate contentKey="register.subtitle"></Translate>
           </Typography.Text>
           <Form
             requiredMark={false}

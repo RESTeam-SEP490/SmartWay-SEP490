@@ -80,8 +80,12 @@ export const checkOut = createAsyncThunk(
     dto: { orderId: string; isPayByCash: boolean; bankAccountId: string | null; discount: number; listItemsReturn: any },
     thunkAPI
   ) => {
+    const headers = {
+      'Content-Type': 'application/json',
+      Accept: 'application/pdf',
+    };
     const requestUrl = `${apiUrl}/check-out`;
-    const result = axios.post<ArrayBuffer>(requestUrl, dto);
+    const result = axios.post<ArrayBuffer>(requestUrl, dto, { responseType: 'arraybuffer', headers });
     return result;
   },
   { serializeError: serializeAxiosError }
@@ -206,6 +210,14 @@ export const OrderSlice = createSlice({
         state.updateSuccess = true;
         state.updating = false;
         notification.success({ message: translate('order.checkout.success') });
+        const pdfUrl = window.URL.createObjectURL(new Blob([action.payload.data], { type: 'application/pdf' }));
+        const iframe = document.createElement('iframe');
+        iframe.src = pdfUrl;
+        iframe.style.display = 'none';
+
+        document.body.appendChild(iframe);
+
+        iframe.contentWindow.print();
       })
       .addMatcher(isFulfilled(printBill), (state, action) => {
         state.updateSuccess = true;

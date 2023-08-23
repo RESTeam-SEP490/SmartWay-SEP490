@@ -10,6 +10,7 @@ import { MdReceiptLong } from 'react-icons/md';
 import { getSalesResult } from './dashboard.reduce';
 import RevenueStatistic from './statistic-component/revenue-statistic';
 import SellingStatistic from './statistic-component/sell-statistic';
+import CancellationStatistic from './statistic-component/cancellation-statistic';
 
 export const Dashboard = () => {
   const dispatch = useAppDispatch();
@@ -34,6 +35,7 @@ export const Dashboard = () => {
                     <CurrencyFormat>{statisticDTOS[1]?.totalRevenue}</CurrencyFormat>
                   </span>
                   <div
+                    hidden={statisticDTOS[0]?.totalRevenue === 0}
                     className={`font-semibold flex gap-1 ${
                       statisticDTOS[1]?.totalRevenue > statisticDTOS[0]?.totalRevenue
                         ? 'text-green-600'
@@ -47,7 +49,10 @@ export const Dashboard = () => {
                     ) : (
                       <ArrowUpOutlined rev="" />
                     )}
-                    {((statisticDTOS[1]?.totalRevenue - statisticDTOS[0]?.totalRevenue) / statisticDTOS[0]?.totalRevenue) * 100 + '%'}
+                    {(
+                      (Math.abs(statisticDTOS[1]?.totalRevenue - statisticDTOS[0]?.totalRevenue) / statisticDTOS[0]?.totalRevenue) *
+                      100
+                    ).toFixed(2) + '%'}
                   </div>
                 </div>
                 <span className="text-sm leading-none text-gray-400">
@@ -65,6 +70,7 @@ export const Dashboard = () => {
                     <CurrencyFormat>{statisticDTOS[1]?.totalOrders}</CurrencyFormat>
                   </span>
                   <div
+                    hidden={statisticDTOS[0]?.totalRevenue === 0}
                     className={`font-semibold flex gap-1 ${
                       statisticDTOS[1]?.totalOrders > statisticDTOS[0]?.totalOrders
                         ? 'text-green-600'
@@ -78,7 +84,10 @@ export const Dashboard = () => {
                     ) : (
                       <ArrowUpOutlined rev="" />
                     )}
-                    {((statisticDTOS[1]?.totalOrders - statisticDTOS[0]?.totalOrders) / statisticDTOS[0]?.totalOrders) * 100 + '%'}
+                    {(
+                      (Math.abs(statisticDTOS[1]?.totalOrders - statisticDTOS[0]?.totalOrders) / statisticDTOS[0]?.totalOrders) *
+                      100
+                    ).toFixed(2) + '%'}
                   </div>
                 </div>
                 <span className="text-sm leading-none text-gray-400">
@@ -91,6 +100,7 @@ export const Dashboard = () => {
 
         <RevenueStatistic />
         <SellingStatistic />
+        <CancellationStatistic />
       </div>
     </>
   );

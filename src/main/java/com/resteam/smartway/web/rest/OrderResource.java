@@ -38,12 +38,6 @@ public class OrderResource {
     private final KitchenWebsocket kitchenWebsocket;
     private final StatisticService statisticService;
 
-    @GetMapping("/daily-sales-bill")
-    public ResponseEntity<StatisticDTO> getDailySalesBill() {
-        StatisticDTO dailySalesStatistics = statisticService.calculateDailySalesBill();
-        return ResponseEntity.ok(dailySalesStatistics);
-    }
-
     @PostMapping
     public ResponseEntity<OrderDTO> createOrder(@Valid @RequestBody OrderCreationDTO orderDTO) {
         OrderDTO createdOrder = orderService.createOrder(orderDTO);
@@ -125,16 +119,27 @@ public class OrderResource {
     }
 
     @PostMapping("/check-out")
-    public ResponseEntity<OrderDTO> checkOut(@RequestBody PaymentDTO paymentDTO) {
+    public ResponseEntity<byte[]> checkOut(@RequestBody PaymentDTO paymentDTO) {
         OrderDTO orderDTO = orderService.checkOut(paymentDTO);
+        HttpHeaders headers = new HttpHeaders();
         if (paymentDTO.isFreeUpTable()) {
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("paid-order-id", paymentDTO.getOrderId().toString());
             orderWebsocket.sendMessageToHideOrder(paymentDTO.getOrderId());
-            return new ResponseEntity<>(null, headers, HttpStatus.OK);
         } else {
             orderWebsocket.sendMessageToChangedOrder(orderDTO);
-            return ResponseEntity.ok(orderDTO);
+        }
+        try {
+            byte[] pdfContent = orderService.generatePdfBillWithReturnItem(
+                new PrintBillDTO(paymentDTO.getOrderId(), List.of(), paymentDTO.getDiscount())
+            );
+
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("inline", "_order_" + paymentDTO.getOrderId() + ".pdf");
+
+            return new ResponseEntity<>(pdfContent, headers, HttpStatus.OK);
+        } catch (DocumentException e) {
+            // Handle exception appropriately
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

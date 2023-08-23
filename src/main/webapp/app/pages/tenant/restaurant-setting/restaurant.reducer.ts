@@ -3,12 +3,14 @@ import axios from 'axios';
 
 import { IRestaurant } from 'app/shared/model/restaurant.model';
 import { serializeAxiosError } from 'app/shared/reducers/reducer.utils';
+import restaurantReducer from '../management/restaurant/restaurant.reducer';
 
 const initialState = {
   loading: false,
   restaurant: {},
   updating: false,
   updateSuccess: false,
+  isShowSubsciptionModal: false,
 };
 
 const apiUrl = 'api/restaurant';
@@ -35,7 +37,7 @@ export const updateRestaurantInfo = createAsyncThunk(
 );
 
 export const getCheckoutUrl = createAsyncThunk(
-  'role/update_restaurant_info',
+  'role/get_checkout_url',
   async (planName: any) => {
     const result = await axios.post('api/subscriptions/create-checkout-session?planName=' + planName);
     return result;
@@ -43,7 +45,7 @@ export const getCheckoutUrl = createAsyncThunk(
   { serializeError: serializeAxiosError }
 );
 export const getPortalUrl = createAsyncThunk(
-  'role/update_restaurant_info',
+  'role/get_portal_url',
   async () => {
     const result = await axios.post('api/subscriptions/create-portal-session');
     return result;
@@ -56,7 +58,11 @@ export const getPortalUrl = createAsyncThunk(
 export const RestaurantSlice = createSlice({
   name: 'restaurant',
   initialState,
-  reducers: {},
+  reducers: {
+    setIsShowSubsciptionModal(state, action) {
+      state.isShowSubsciptionModal = action.payload;
+    },
+  },
   extraReducers(builder) {
     builder
       .addMatcher(isFulfilled(getRestaurantInfo), (state, action) => {
@@ -89,6 +95,8 @@ export const RestaurantSlice = createSlice({
       });
   },
 });
+
+export const restaurantActions = RestaurantSlice.actions;
 
 // Reducer
 export default RestaurantSlice.reducer;

@@ -6,7 +6,7 @@ import { IRestaurant } from 'app/shared/model/restaurant.model';
 import dayjs from 'dayjs';
 import React, { useEffect } from 'react';
 import { CheckBankAccountTenant } from '../check-bank-account-tenant/check-bank-account-tenant';
-import { getPortalUrl } from './restaurant.reducer';
+import { getPortalUrl, restaurantActions } from './restaurant.reducer';
 import { useNavigate } from 'react-router-dom';
 
 export const RestaurantSetting = () => {
@@ -45,7 +45,7 @@ export const RestaurantSetting = () => {
             ghost
             onClick={() => {
               if (restaurant.stripeSubscriptionId) dispatch(getPortalUrl());
-              else navigate('/subscription');
+              else dispatch(restaurantActions.setIsShowSubsciptionModal(true));
             }}
           >
             Subscription Portal
@@ -62,6 +62,9 @@ export const RestaurantSetting = () => {
                 <Input bordered={false} readOnly />
               </Form.Item>
               <Form.Item name={'phone'} className="!my-2" label={'Phone number'}>
+                <Input bordered={false} readOnly />
+              </Form.Item>
+              <Form.Item name={'address'} className="!my-2" label={'Address'}>
                 <Input bordered={false} readOnly />
               </Form.Item>
               <Form.Item name={'currencyUnit'} className="!my-2" label={'Currency'}>

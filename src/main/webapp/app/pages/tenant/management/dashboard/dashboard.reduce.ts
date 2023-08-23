@@ -1,8 +1,9 @@
-import { createAsyncThunk, createSlice, isFulfilled, isPending } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, isFulfilled, isPending, isRejected } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-import { IRevenueStatistic, defaultValue } from 'app/shared/model/revenue-statistic';
+import { ICancellationStatistic, defaultValue as defaultCancellationStatistic } from 'app/shared/model/canccellation-statistic';
 import { IItemSellingQuantity } from 'app/shared/model/item-selling-quantity';
+import { IRevenueStatistic, defaultValue } from 'app/shared/model/revenue-statistic';
 import dayjs from 'dayjs';
 
 const initialState = {
@@ -10,6 +11,7 @@ const initialState = {
   errorMessage: null,
   revenueByTime: defaultValue,
   salesResult: defaultValue,
+  cancellationStatistic: [],
   itemsSellingQuantity: [],
   totalItems: 0,
 };
@@ -34,6 +36,14 @@ export const getBestSeller = createAsyncThunk('statistic/get_best_seller', async
   const requestUrl = `${apiUrl}/best-sellers?startDay=${dto.startDate}&endDay=${dto.endDate}`;
   return axios.get<IItemSellingQuantity[]>(requestUrl);
 });
+
+export const getCancellationStatistic = createAsyncThunk(
+  'statistic/get_cancellation_statistic',
+  async (dto: { startDate: string; endDate: string }) => {
+    const requestUrl = `${apiUrl}/cancel-items?startDay=${dto.startDate}&endDay=${dto.endDate}`;
+    return axios.get<ICancellationStatistic[]>(requestUrl);
+  }
+);
 
 // slice
 
@@ -70,9 +80,21 @@ export const StatisticSlice = createSlice({
           itemsSellingQuantity: data,
         };
       })
-      .addMatcher(isPending(getRevenueByTime, getBestSeller), state => {
+      .addMatcher(isFulfilled(getCancellationStatistic), (state, action) => {
+        const { data } = action.payload;
+
+        return {
+          ...state,
+          loading: false,
+          cancellationStatistic: data,
+        };
+      })
+      .addMatcher(isPending(getRevenueByTime, getBestSeller, getCancellationStatistic), state => {
         state.errorMessage = null;
         state.loading = true;
+      })
+      .addMatcher(isRejected(getRevenueByTime, getBestSeller, getCancellationStatistic), state => {
+        state.loading = false;
       });
   },
 });

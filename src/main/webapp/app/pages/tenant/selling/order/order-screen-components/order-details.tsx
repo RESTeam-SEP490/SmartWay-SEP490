@@ -350,7 +350,7 @@ const OrderDetailCard = ({
       <div className="relative flex items-center justify-center h-full bg-blue-100 rounded-md !aspect-square">
         {detail.menuItem.imageUrl ? (
           <>
-            <Image preview={false} src={detail.menuItem.imageUrl} className="w-full h-full overflow-hidden none-draggable" />
+            <Image preview={false} src={detail.menuItem.imageUrl} className="w-full h-full overflow-hidden rounded-md none-draggable" />
           </>
         ) : (
           <>

@@ -31,11 +31,10 @@ public class StatisticServiceImpl implements StatisticService {
     @Override
     public StatisticDTO calculateDailySalesBill() {
         Instant currentDate = Instant.now();
-        orderRepository.findAll();
-        System.out.println(orderRepository.findAll());
+
         List<SwOrder> paidOrders = orderRepository.findAllByPaidTrueAndPayDateBetween(
-            currentDate.truncatedTo(ChronoUnit.DAYS),
-            currentDate.truncatedTo(ChronoUnit.DAYS).plus(1, ChronoUnit.DAYS)
+            currentDate.atZone(ZoneId.of("Asia/Ho_Chi_Minh")).truncatedTo(ChronoUnit.DAYS).toInstant(),
+            currentDate.atZone(ZoneId.of("Asia/Ho_Chi_Minh")).truncatedTo(ChronoUnit.DAYS).plus(1, ChronoUnit.DAYS).toInstant()
         );
 
         if (paidOrders == null) {

@@ -1,18 +1,20 @@
-import React from 'react';
-import { AuthenticatedAccountMenu, LocaleMenu } from 'app/shared/layout/menus';
+import { BlockOutlined, DeleteFilled, PrinterFilled, StarFilled } from '@ant-design/icons';
 import { Button, Image, Spin, Typography } from 'antd';
-import { useAppSelector } from 'app/config/store';
-import { IBill } from 'app/shared/model/bill.model';
-import { BlockOutlined, DeleteFilled, MinusOutlined, PlusOutlined, StarFilled } from '@ant-design/icons';
-import { MdOutlineFastfood, MdOutlineRamenDining, MdPerson, MdShoppingBag, MdTableRestaurant } from 'react-icons/md';
 import { alphabetCompare } from 'app/app.constant';
-import Scrollbars from 'react-custom-scrollbars-2';
-import { motion } from 'framer-motion';
-import { Translate, translate } from 'react-jhipster';
-import { CurrencyFormat } from 'app/shared/util/currency-utils';
+import { useAppDispatch, useAppSelector } from 'app/config/store';
+import { AuthenticatedAccountMenu, LocaleMenu } from 'app/shared/layout/menus';
+import { IBill } from 'app/shared/model/bill.model';
 import { IOrderDetail } from 'app/shared/model/order/order-detail.model';
+import { CurrencyFormat } from 'app/shared/util/currency-utils';
+import { motion } from 'framer-motion';
+import React from 'react';
+import Scrollbars from 'react-custom-scrollbars-2';
+import { MdOutlineFastfood, MdPerson, MdReceiptLong, MdShoppingBag, MdTableRestaurant } from 'react-icons/md';
+import { Translate, translate } from 'react-jhipster';
+import { printBill } from '../../order/order.reducer';
 
 export const BillDetails = () => {
+  const dispatch = useAppDispatch();
   const curerntBill: IBill = useAppSelector(state => state.bill.currentBill);
 
   return (
@@ -28,8 +30,21 @@ export const BillDetails = () => {
               <Typography.Title level={4} className="!mb-1">
                 {curerntBill.id ? '#' + curerntBill.code : translate('order.current.label')}
               </Typography.Title>
+              {curerntBill.id && (
+                <div className="flex">
+                  <Button
+                    size="large"
+                    type="text"
+                    icon={<PrinterFilled rev="" />}
+                    onClick={() => {
+                      dispatch(printBill({ orderId: curerntBill.id, returnItemList: [], discount: curerntBill.discount }));
+                    }}
+                  ></Button>
+                  <Button hidden size="large" danger type="text" icon={<DeleteFilled rev="" />} onClick={() => {}}></Button>
+                </div>
+              )}
             </div>
-            <div className="flex items-start gap-4">
+            <div className="flex items-start gap-4" hidden={curerntBill.id === null}>
               <div
                 className={`relative flex items-center justify-center gap-2 py-1 pl-6 pr-4 text-sm font-semibold text-blue-700 duration-1000 bg-blue-100 border-2 border-blue-600 border-solid rounded-lg table-tag-badge`}
               >
@@ -42,7 +57,7 @@ export const BillDetails = () => {
                     <MdTableRestaurant size={16} />
                   )}
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
                   {!curerntBill.takeAway && curerntBill.tableList.length > 0 ? (
                     <>
                       {[...curerntBill.tableList].sort(alphabetCompare)[0].name}
@@ -89,14 +104,9 @@ export const BillDetails = () => {
                 className="flex flex-col items-center justify-center w-full h-full"
               >
                 <div className="flex items-center justify-center w-40 text-blue-600 bg-blue-100 rounded-full aspect-square">
-                  <MdOutlineRamenDining size={60} />
+                  <MdReceiptLong size={60} />
                 </div>
-                <Typography.Title level={4} className="mt-3 !mb-0">
-                  <Translate contentKey="order.empty.title" />
-                </Typography.Title>
-                <Typography.Text className="text-gray-500">
-                  <Translate contentKey="order.empty.subtitle" />
-                </Typography.Text>
+                <Typography.Text className="mt-4 text-gray-500">Choose a bill in table to view detail</Typography.Text>
               </motion.div>
             )}
           </div>

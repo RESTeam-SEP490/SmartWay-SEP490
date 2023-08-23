@@ -199,8 +199,8 @@ public class OrderServiceImpl implements OrderService {
     @SneakyThrows
     public byte[] generatePdfBillWithReturnItem(PrintBillDTO printBillDTO) throws DocumentException {
         SwOrder order = orderRepository
-            .findByIdAndIsPaid(printBillDTO.getOrderId(), false)
-            .orElseThrow(() -> new BadRequestAlertException("Order was not found or Paid", ORDER, "not found or not existed"));
+            .findById(printBillDTO.getOrderId())
+            .orElseThrow(() -> new BadRequestAlertException("Order was not found", ORDER, "idnotfound"));
 
         List<OrderDetailDTO> listItemsReturn = printBillDTO.getReturnItemList();
         List<OrderDetail> orderDetailList = order.getOrderDetailList();
@@ -285,7 +285,7 @@ public class OrderServiceImpl implements OrderService {
 
         diningTableRepository.saveAll(tableList);
 
-        return orderMapper.toDto(savedOrder);
+        return sortOrderDetailsAndNotificationHistories(savedOrder);
     }
 
     @Override
@@ -687,11 +687,11 @@ public class OrderServiceImpl implements OrderService {
         restaurantName.setAlignment(Element.ALIGN_CENTER);
         document.add(restaurantName);
 
-        Paragraph address = new Paragraph("--address", titleFont);
+        Paragraph address = new Paragraph(restaurant.getAddress(), footerFont);
         address.setAlignment(Element.ALIGN_CENTER);
         document.add(address);
 
-        Paragraph phone = new Paragraph(restaurant.getPhone(), titleFont);
+        Paragraph phone = new Paragraph(restaurant.getPhone(), footerFont);
         phone.setAlignment(Element.ALIGN_CENTER);
         document.add(phone);
 
@@ -782,18 +782,6 @@ public class OrderServiceImpl implements OrderService {
 
         document.add(Chunk.NEWLINE);
         document.add(line);
-
-        String imageUrl = "https://static.vecteezy.com/system/resources/previews/002/557/391/original/qr-code-for-scanning-free-vector.jpg";
-        // Add an image from an online URL to the document
-        Image logo = Image.getInstance(new URL(imageUrl));
-        logo.scaleToFit(75f, 75f);
-        logo.setAlignment(Element.ALIGN_CENTER);
-        document.add(logo);
-
-        float spacingBeforeImage = 0f; // Adjust the spacing as needed (in points)
-        float spacingAfterImage = 0f; // Adjust the spacing as needed (in points)
-        logo.setSpacingBefore(spacingBeforeImage);
-        logo.setSpacingAfter(spacingAfterImage);
 
         Paragraph poweredBy = new Paragraph("Powered By SmartWay.website", footerFont);
         poweredBy.setAlignment(Element.ALIGN_CENTER);

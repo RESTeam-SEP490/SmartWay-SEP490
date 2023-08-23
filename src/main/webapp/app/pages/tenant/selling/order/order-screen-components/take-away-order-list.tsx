@@ -73,10 +73,10 @@ const OrderCard = ({ order, handleSelectTable }: { order: IOrder; handleSelectTa
       ) : (
         ''
       )}
-      {hasReadyToServeItem && (
+      {order.orderDetailList.every(o => o.servedQuantity === o.quantity) && (
         <span className="absolute flex w-6 h-6 -top-2 -right-2">
-          <span className="absolute inline-flex w-full h-full bg-yellow-500 rounded-full opacity-75 animate-ping"></span>
-          <span className="relative inline-flex items-center justify-center w-6 h-6 text-white bg-yellow-600 rounded-full">
+          <span className="absolute inline-flex w-full h-full bg-green-500 rounded-full opacity-75 animate-ping"></span>
+          <span className="relative inline-flex items-center justify-center w-6 h-6 text-white bg-green-600 rounded-full">
             <MdFastfood size={14} />
           </span>
         </span>
