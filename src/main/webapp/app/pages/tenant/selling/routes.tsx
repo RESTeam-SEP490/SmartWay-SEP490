@@ -9,9 +9,11 @@ import { Button, Menu } from 'antd';
 import { MdOutlineReceiptLong, MdOutlineRestaurantMenu, MdOutlineRoomService, MdOutlineTune } from 'react-icons/md';
 import Kitchen from './kitchen/kitchen';
 import { Bill } from './bill/bill';
+import { useAppSelector } from 'app/config/store';
 
 export default () => {
   const location = useLocation();
+  const username = useAppSelector(state => state.authentication.account.username);
 
   const [isCollapse, setIsCollapse] = useState(Storage.local.get('isCollapse', true));
 
@@ -20,6 +22,7 @@ export default () => {
     setIsCollapse(!isCollapse);
   };
 
+  // @ts-ignore
   return (
     <div className="h-screen bg-gray-100 grow">
       <div className="flex h-full">
@@ -41,18 +44,24 @@ export default () => {
               className="bg-blue-600 !text-white pt-4"
               inlineCollapsed={isCollapse}
             >
-              <Menu.Item icon={<MdOutlineRoomService size={24} />} key={'/pos/orders'}>
-                <Translate contentKey="menu.order.label" />
-                <Link to="/pos/orders" />
-              </Menu.Item>
-              <Menu.Item icon={<MdOutlineRestaurantMenu size={24} />} key={'/pos/kitchen'}>
-                <Translate contentKey="menu.kitchen.label" />
-                <Link to="/pos/kitchen" />
-              </Menu.Item>
-              <Menu.Item key="/pos/bills" icon={<MdOutlineReceiptLong size={24} />}>
-                <Translate contentKey="menu.bill.label" />
-                <Link to="/pos/bills" />
-              </Menu.Item>
+              {username !== 'kitchen1' && (
+                <Menu.Item icon={<MdOutlineRoomService size={24} />} key={'/pos/orders'}>
+                  <Translate contentKey="menu.order.label" />
+                  <Link to="/pos/orders" />
+                </Menu.Item>
+              )}
+              {username !== 'waiter1' && (
+                <Menu.Item icon={<MdOutlineRestaurantMenu size={24} />} key={'/pos/kitchen'}>
+                  <Translate contentKey="menu.kitchen.label" />
+                  <Link to="/pos/kitchen" />
+                </Menu.Item>
+              )}
+              {!['kitchen1', 'waiter1'].includes(username) && (
+                <Menu.Item key="/pos/bills" icon={<MdOutlineReceiptLong size={24} />}>
+                  <Translate contentKey="menu.bill.label" />
+                  <Link to="/pos/bills" />
+                </Menu.Item>
+              )}
             </Menu>
           </div>
           <div className="">
