@@ -106,7 +106,7 @@ public class StripeService {
     public void handleSubscription(StripeObject stripeObject, Event event) {
         // Handle the event
         Subscription subscription = null;
-        if (event.getType().equalsIgnoreCase("customer.subscription.updated")) {
+        if (event.getType().equalsIgnoreCase("customer.subscription.created")) {
             subscription = (Subscription) stripeObject;
 
             Long currentPeriodEndsInLong = subscription.getCurrentPeriodEnd();

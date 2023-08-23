@@ -126,7 +126,7 @@ export const CancellationStatistic = () => {
     <Card>
       <div className="flex justify-between">
         <div className="flex items-center gap-4">
-          <span className="text-lg font-semibold">{`REVENUE STATISTIC ${
+          <span className="text-lg font-semibold">{`ITEMS CANCELLATION STATISTIC ${
             revenueChartTime.type.includes('-')
               ? revenueChartTime.type.replace('-', ' ').toUpperCase()
               : 'THIS ' + revenueChartTime.type.toUpperCase()
