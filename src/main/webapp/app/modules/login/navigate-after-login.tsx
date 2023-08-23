@@ -9,6 +9,7 @@ export const NavigateAfterLogin = () => {
   const appType = useAppSelector(state => state.applicationProfile.appType);
   const restaurant: IRestaurant = useAppSelector(state => state.restaurant.restaurant);
   const authorities = useAppSelector(state => state.authentication.account.authorities);
+  const username = useAppSelector(state => state.authentication.account.username);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,6 +21,7 @@ export const NavigateAfterLogin = () => {
       else if (authorities.includes(AUTHORITIES.MENUITEM_VIEW)) path = '/managing/menu-items';
       else if (authorities.includes(AUTHORITIES.TABLE_VIEW)) path = '/managing/tables';
       else if (authorities.includes(AUTHORITIES.BILL_VIEW)) path = '/managing/bills';
+      if (username === 'kitchen1') path = '/pos/kitchen';
       else if (authorities.includes(AUTHORITIES.ORDER_WAITER)) path = '/pos/orders';
       navigate(path);
     }

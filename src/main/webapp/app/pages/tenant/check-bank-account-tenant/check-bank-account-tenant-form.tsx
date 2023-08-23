@@ -93,8 +93,8 @@ export const CheckBankAccountTenantForm = ({
       method: 'post',
       url: 'https://api.vietqr.io/v2/lookup',
       headers: {
-        'x-client-id': '0ccc4c53-c312-49ee-bdf8-f95b36c59f44',
-        'x-api-key': '79135d04-2ec8-4d0b-92b3-a07e047c3acf',
+        'x-client-id': '818abeaa-0b1f-4d3e-a734-d30a6b954677',
+        'x-api-key': '8529f880-f34e-4ec4-80e1-3ea0a49512fa',
         'Content-Type': 'application/json',
       },
       data: data,
