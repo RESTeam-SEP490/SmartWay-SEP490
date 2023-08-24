@@ -98,25 +98,6 @@ public class RestaurantServiceImpl implements RestaurantService {
         }
     }
 
-    //        for (Restaurant restaurant : restaurants) {
-    //            if (!"system@".equals(restaurant.getId())) {
-    //                Instant planExpiry = restaurant.getPlanExpiry();
-    //
-    //                if (planExpiry != null && today.plus(Duration.ofDays(5)).isBefore(planExpiry)) {
-    //                    User user = userRepository.findUserByRestaurantId(restaurant.getId());
-    //                    if (user != null && user.getRole().getName().equals("ADMIN")) {
-    //                        String mailTo = user.getEmail();
-    //                        emailService.sendMail(
-    //                            mailTo,
-    //                            "Your plan is expiring soon!",
-    //                            "Your plan will expire in 5 days. Please renew your plan."
-    //                        );
-    //                    }
-    //                }
-    //            }
-    //        }
-    //    }
-
     @Override
     public RestaurantDTO getRestaurantInfo() {
         Restaurant restaurant = restaurantRepository
