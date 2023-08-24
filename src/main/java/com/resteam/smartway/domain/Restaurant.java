@@ -55,6 +55,12 @@ public class Restaurant implements Serializable {
     @JoinColumn(name = "owner")
     private User owner;
 
+    @Column(name = "created_date")
+    private Instant createdDate;
+
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive = true;
+
     public Restaurant(String id) {
         this.id = id;
     }

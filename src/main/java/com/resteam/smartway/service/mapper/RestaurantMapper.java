@@ -6,4 +6,8 @@ import com.resteam.smartway.service.mapper.base.EntityMapper;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
-public interface RestaurantMapper extends EntityMapper<RestaurantDTO, Restaurant> {}
+public interface RestaurantMapper extends EntityMapper<RestaurantDTO, Restaurant> {
+    Restaurant toEntity(RestaurantDTO dto);
+
+    RestaurantDTO toDto(Restaurant entity);
+}
