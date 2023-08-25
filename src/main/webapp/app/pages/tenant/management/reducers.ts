@@ -12,9 +12,11 @@ import bankAccount from '../check-bank-account-tenant/check-bank-account-tenant.
 import restaurant from '../restaurant-setting/restaurant.reducer';
 import statistic from './dashboard/dashboard.reduce';
 import bill from '../selling/bill/bill.reducer';
+import restaurantWithAdmin from '../../system-admin/restaurant/restaurant.reducer';
 /* jhipster-needle-add-reducer-import - JHipster will add reducer here */
 
 const entitiesReducers = {
+  restaurantWithAdmin,
   restaurant,
   menuItem,
   menuItemCategory,

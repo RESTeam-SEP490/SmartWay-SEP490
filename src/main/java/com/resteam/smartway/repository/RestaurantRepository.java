@@ -13,8 +13,13 @@ import org.springframework.stereotype.Repository;
 @SuppressWarnings("unused")
 @Repository
 public interface RestaurantRepository extends JpaRepository<Restaurant, String> {
-    @Query("SELECT m from Restaurant m where (:search is null " + "or lower(m.name) like concat('%',:search, '%' ))")
-    Page<Restaurant> findWithFilterParams(@Param("search") String search, Pageable pageable);
+    @Query(
+        "SELECT m from Restaurant m where (:search is null " +
+        "or lower(m.name) like concat('%',:search, '%' )" +
+        "or lower(m.id) like concat('%', :search, '%' )" +
+        ") and (:isActive is null or m.isActive is :isActive)"
+    )
+    Page<Restaurant> findWithFilterParams(@Param("search") String search, @Param("isActive") Boolean isActive, Pageable pageable);
 
     Optional<Restaurant> findOneById(String name);
 
