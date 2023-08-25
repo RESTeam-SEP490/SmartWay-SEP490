@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { Translate, translate } from 'react-jhipster';
 
 import { CheckSquareFilled, DeleteFilled, EditFilled, LockFilled } from '@ant-design/icons';
-import { Badge, Button, Card, Descriptions, Form, Image, Input, InputNumber, Tabs, Typography } from 'antd';
-import { currencyFormatter, DEFAULT_FORM_ITEM_LAYOUT } from 'app/app.constant';
+import { Button, Descriptions } from 'antd';
 
 import { useAppDispatch } from 'app/config/store';
 import DiningTableDelete from './dining-table-dialog';

@@ -20,6 +20,7 @@ import { FirstTimeSetting } from './pages/tenant/first-time-setting/restaurant-s
 import Subscription from './pages/tenant/restaurant-setting/subscription';
 import { IRestaurant } from './shared/model/restaurant.model';
 import { useAppSelector } from './config/store';
+import { RestaurantWithAdmin } from 'app/pages/system-admin/restaurant/restaurant';
 
 const loading = (
   <div className="flex items-center justify-center grow">
@@ -133,6 +134,14 @@ export const AdminAppRoutes = () => {
           <PrivateRoute hasAnyAuthorities={[AUTHORITIES.SYSTEM_ADMIN]}>
             <Account />
           </PrivateRoute>
+        }
+      />
+      <Route
+        path="system-admin/restaurant"
+        element={
+          // <PrivateRoute hasAnyAuthorities={[AUTHORITIES.SYSTEM_ADMIN]}>
+          <RestaurantWithAdmin />
+          // </PrivateRoute>
         }
       />
       {/* <Route path="*" element={<PrivateRoute hasAnyAuthorities={[AUTHORITIES.SYSTEM_ADMIN]}><Admin /></PrivateRoute>} /> */}

@@ -27,8 +27,9 @@ export const getRestaurantInfo = createAsyncThunk(
 );
 
 export const updateRestaurantInfo = createAsyncThunk(
-  'role/update_restaurant_info',
+  'restaurant/update_restaurant_info',
   async (entity: any, thunkApi) => {
+    console.log('123');
     const result = await axios.put(apiUrl, entity);
     thunkApi.dispatch(getRestaurantInfo());
     return result;
