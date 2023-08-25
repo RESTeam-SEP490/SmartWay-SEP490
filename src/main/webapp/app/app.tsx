@@ -6,23 +6,18 @@ import '../output.css';
 
 import React, { useEffect } from 'react';
 import { BrowserRouter } from 'react-router-dom';
-import { toast, ToastContainer } from 'react-toastify';
 
-import { ConfigProvider, notification, App as AntApp } from 'antd';
+import { App as AntApp, ConfigProvider, notification } from 'antd';
 import { AUTHORITIES } from 'app/config/constants';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { hasAnyAuthority } from 'app/shared/auth/private-route';
-import ErrorBoundary from 'app/shared/error/error-boundary';
-import Header from 'app/shared/layout/header/header';
 import { getProfile } from 'app/shared/reducers/application-profile';
 import { getSession } from 'app/shared/reducers/authentication';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { theme } from './config/ant-design-theme';
-import { AdminAppRoutes, MainAppRoutes, TenantAppRoutes } from './routes';
-import { getAppUrl } from './shared/util/subdomain/helpers';
-import { getRestaurantInfo } from './pages/tenant/restaurant-setting/restaurant.reducer';
-import { TenantApp } from './pages/tenant/app';
 import MainApp from './pages/main/app';
+import { TenantApp } from './pages/tenant/app';
+import { getAppUrl } from './shared/util/subdomain/helpers';
 
 const baseHref = document.querySelector('base').getAttribute('href').replace(/\/$/, '');
 

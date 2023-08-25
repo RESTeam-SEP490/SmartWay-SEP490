@@ -38,7 +38,7 @@ public interface UserRepository extends BaseRepository<User> {
         "OR LOWER(u.fullName) LIKE CONCAT('%', :search, '%')" +
         "OR LOWER(u.username) LIKE CONCAT('%', :search, '%')) " +
         "AND (coalesce(:roleIdList) IS NULL OR u.role.id IN :roleIdList)" +
-        "AND u.role.restaurant.id NOT LIKE 'system@'" +
+        "AND u.role.name NOT LIKE 'RestaurantAdmin@'" +
         "AND (:isActive is null or u.isActive is :isActive)"
     )
     Page<User> findWithFilterParams(

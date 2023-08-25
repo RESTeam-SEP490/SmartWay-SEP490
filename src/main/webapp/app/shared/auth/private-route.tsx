@@ -1,9 +1,10 @@
 import React from 'react';
-import { RouteProps, useLocation, Navigate } from 'react-router-dom';
+import { RouteProps, useLocation, Navigate, Link } from 'react-router-dom';
 import { Translate } from 'react-jhipster';
 
 import { useAppSelector } from 'app/config/store';
 import ErrorBoundary from 'app/shared/error/error-boundary';
+import { Button, Result } from 'antd';
 
 interface IOwnProps extends RouteProps {
   hasAnyAuthorities?: string[];
@@ -31,10 +32,17 @@ export const PrivateRoute = ({ children, hasAnyAuthorities = [], ...rest }: IOwn
     }
 
     return (
-      <div className="insufficient-authority">
-        <div className="alert alert-danger">
-          <Translate contentKey="error.http.403">You are not authorized to access this page.</Translate>
-        </div>
+      <div className="fixed top-0 bottom-0 left-0 right-0 flex items-center justify-center bg-white">
+        <Result
+          status="403"
+          title="403"
+          subTitle="Sorry, you are not authorized to access this page."
+          extra={
+            <Link to={'/login'}>
+              <Button type="primary">Back Home</Button>
+            </Link>
+          }
+        />
       </div>
     );
   }

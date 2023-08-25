@@ -10,10 +10,19 @@ import { MdOutlineReceiptLong, MdOutlineRestaurantMenu, MdOutlineRoomService, Md
 import Kitchen from './kitchen/kitchen';
 import { Bill } from './bill/bill';
 import { useAppSelector } from 'app/config/store';
+import { hasAnyAuthority } from 'app/shared/auth/private-route';
+import { AUTHORITIES } from 'app/config/constants';
+import PageNotFound from 'app/shared/error/page-not-found';
 
 export default () => {
   const location = useLocation();
   const username = useAppSelector(state => state.authentication.account.username);
+
+  const { authorities } = useAppSelector(state => state.authentication.account);
+
+  const isHiddenWithAuthority = (requiredAuthorities: string[]) => {
+    return !hasAnyAuthority(authorities, requiredAuthorities) && !authorities.includes(AUTHORITIES.ADMIN);
+  };
 
   const [isCollapse, setIsCollapse] = useState(Storage.local.get('isCollapse', true));
 
@@ -22,7 +31,6 @@ export default () => {
     setIsCollapse(!isCollapse);
   };
 
-  // @ts-ignore
   return (
     <div className="h-screen bg-gray-100 grow">
       <div className="flex h-full">
@@ -44,24 +52,30 @@ export default () => {
               className="bg-blue-600 !text-white pt-4"
               inlineCollapsed={isCollapse}
             >
-              {username !== 'kitchen1' && (
-                <Menu.Item icon={<MdOutlineRoomService size={24} />} key={'/pos/orders'}>
-                  <Translate contentKey="menu.order.label" />
-                  <Link to="/pos/orders" />
-                </Menu.Item>
-              )}
-              {username !== 'waiter1' && (
-                <Menu.Item icon={<MdOutlineRestaurantMenu size={24} />} key={'/pos/kitchen'}>
-                  <Translate contentKey="menu.kitchen.label" />
-                  <Link to="/pos/kitchen" />
-                </Menu.Item>
-              )}
-              {!['kitchen1', 'waiter1'].includes(username) && (
-                <Menu.Item key="/pos/bills" icon={<MdOutlineReceiptLong size={24} />}>
-                  <Translate contentKey="menu.bill.label" />
-                  <Link to="/pos/bills" />
-                </Menu.Item>
-              )}
+              <Menu.Item
+                icon={<MdOutlineRoomService size={24} />}
+                key={'/pos/orders'}
+                hidden={isHiddenWithAuthority([AUTHORITIES.ORDER_ADD_AND_CANCEL])}
+              >
+                <Translate contentKey="menu.order.label" />
+                <Link to="/pos/orders" />
+              </Menu.Item>
+              <Menu.Item
+                icon={<MdOutlineRestaurantMenu size={24} />}
+                key={'/pos/kitchen'}
+                hidden={isHiddenWithAuthority([AUTHORITIES.KITCHEN_PREPARING_ITEM, AUTHORITIES.KITCHEN_RTS_ITEM])}
+              >
+                <Translate contentKey="menu.kitchen.label" />
+                <Link to="/pos/kitchen" />
+              </Menu.Item>
+              <Menu.Item
+                key="/pos/bills"
+                icon={<MdOutlineReceiptLong size={24} />}
+                hidden={isHiddenWithAuthority([AUTHORITIES.BILL_FULL_ACCESS, AUTHORITIES.BILL_VIEW_ONLY])}
+              >
+                <Translate contentKey="menu.bill.label" />
+                <Link to="/pos/bills" />
+              </Menu.Item>
             </Menu>
           </div>
           <div className="">
@@ -80,7 +94,7 @@ export default () => {
             <Route path="orders" element={<OrderScreen />} />
             <Route path="kitchen" element={<Kitchen />} />
             <Route path="bills" element={<Bill />} />
-            {/* <Route path="*" element={<PageNotFound />} /> */}
+            <Route path="*" element={<PageNotFound />} />
           </ErrorBoundaryRoutes>
         </div>
       </div>

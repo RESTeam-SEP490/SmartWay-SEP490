@@ -104,7 +104,6 @@ export default () => next => action => {
   } else if (error) {
     notification.error({ message: error.message || 'Unknown error!' });
   }
-  console.log(error, payload);
 
   return next(action);
 };

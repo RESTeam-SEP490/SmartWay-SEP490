@@ -12,7 +12,7 @@ public class PaymentDTO {
     private UUID orderId;
     private Double discount;
     private Boolean isPayByCash;
-    private UUID bankAccountId;
+    private UUID bankAccountInfoId;
     private boolean isFreeUpTable;
     private List<OrderDetailDTO> listReturnItems;
 }
