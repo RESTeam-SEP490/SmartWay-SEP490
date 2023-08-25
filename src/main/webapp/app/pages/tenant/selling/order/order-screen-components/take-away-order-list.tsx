@@ -73,14 +73,15 @@ const OrderCard = ({ order, handleSelectTable }: { order: IOrder; handleSelectTa
       ) : (
         ''
       )}
-      {order.orderDetailList.every(o => o.servedQuantity === o.quantity) && (
-        <span className="absolute flex w-6 h-6 -top-2 -right-2">
-          <span className="absolute inline-flex w-full h-full bg-green-500 rounded-full opacity-75 animate-ping"></span>
-          <span className="relative inline-flex items-center justify-center w-6 h-6 text-white bg-green-600 rounded-full">
-            <MdFastfood size={14} />
+      {order.orderDetailList.filter(detail => detail.quantity > 0).length > 0 &&
+        order.orderDetailList.every(o => o.servedQuantity === o.quantity) && (
+          <span className="absolute flex w-6 h-6 -top-2 -right-2">
+            <span className="absolute inline-flex w-full h-full bg-green-500 rounded-full opacity-75 animate-ping"></span>
+            <span className="relative inline-flex items-center justify-center w-6 h-6 text-white bg-green-600 rounded-full">
+              <MdFastfood size={14} />
+            </span>
           </span>
-        </span>
-      )}
+        )}
     </div>
   );
 };

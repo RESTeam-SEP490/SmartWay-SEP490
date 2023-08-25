@@ -45,10 +45,10 @@ export const TenantSlice = createSlice({
         state.loading = false;
         state.entity = action.payload.data;
       })
-      // .addMatcher(isPending(getTenant), state => {
-      //   state.updateSuccess = false;
-      //   state.loading = true;
-      // })
+      .addMatcher(isPending(getTenant), state => {
+        state.updateSuccess = false;
+        state.loading = true;
+      })
       .addMatcher(isFulfilled(updateTenant), (state, action) => {
         state.updating = false;
         state.loading = false;

@@ -21,7 +21,7 @@ export default () => {
             <Route
               path="menu-items"
               element={
-                <PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.MENUITEM_VIEW]}>
+                <PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.MENUITEM]}>
                   <MenuItem />
                 </PrivateRoute>
               }
@@ -29,7 +29,7 @@ export default () => {
             <Route
               path="staff"
               element={
-                <PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.STAFF_VIEW]}>
+                <PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.STAFF]}>
                   <Staff />
                 </PrivateRoute>
               }
@@ -37,7 +37,7 @@ export default () => {
             <Route
               path="roles"
               element={
-                <PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.STAFFROLE_VIEW]}>
+                <PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.STAFFROLE]}>
                   <Role />
                 </PrivateRoute>
               }
@@ -45,7 +45,7 @@ export default () => {
             <Route
               path="tables"
               element={
-                <PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.TABLE_VIEW]}>
+                <PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.TABLE]}>
                   <DiningTable />
                 </PrivateRoute>
               }
@@ -53,7 +53,7 @@ export default () => {
             <Route
               path="dashboard"
               element={
-                <PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.TABLE_VIEW]}>
+                <PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.DASHBOARD]}>
                   <Dashboard />
                 </PrivateRoute>
               }

@@ -6,7 +6,7 @@ import React, { useEffect } from 'react';
 import { Translate, translate } from 'react-jhipster';
 import { restaurantActions, updateRestaurantInfo } from '../restaurant-setting/restaurant.reducer';
 import { Navigate, useNavigate } from 'react-router-dom';
-import NavigateAfterLogin from 'app/modules/login/navigate-after-login';
+import NavigateAfterLogin from 'app/modules/login/navigate-by-authorities';
 
 export const FirstTimeSetting = () => {
   const dispatch = useAppDispatch();

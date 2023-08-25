@@ -95,7 +95,7 @@ public class KitchenWebsocket {
             kitchenService.getAllOrderItemInKitchen()
         );
 
-        sendAlertToOrders("has-served-item", readyToServeNotification, dto.getServedQuantity());
+        if (dto.getServedQuantity() > 0) sendAlertToOrders("has-served-item", readyToServeNotification, dto.getServedQuantity());
     }
 
     private void sendAlertToOrders(String destinationPath, ReadyToServeNotification readyToServeNotification, int adjustQuantity) {

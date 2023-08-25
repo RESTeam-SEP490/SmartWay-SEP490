@@ -81,20 +81,6 @@ export const OrderScreen = () => {
 
   return (
     <>
-      <div
-        hidden={!updating && !loading}
-        className="fixed transition-opacity duration-1000 bg-white bg-opacity-70 top-0 bottom-0 left-0 right-0 z-[5000]"
-      >
-        <div className="app-loading">
-          <div className="image-loading"></div>
-          <div className="lds-ellipsis">
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-          </div>
-        </div>
-      </div>
       <div className="flex">
         <div className="pt-2 pr-4 bg-blue-600 grow">
           <Tabs items={items} type="card" className="flex-none"></Tabs>

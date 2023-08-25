@@ -2,51 +2,21 @@ import './header.scss';
 
 import { DesktopOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
-import { AppType } from 'app/app.constant';
-import React from 'react';
-import { Translate } from 'react-jhipster';
+import { AUTHORITIES } from 'app/config/constants';
+import { useAppSelector } from 'app/config/store';
+import NavigateByAuthorities from 'app/modules/login/navigate-by-authorities';
+import { hasAnyAuthority } from 'app/shared/auth/private-route';
+import React, { useState } from 'react';
 import LoadingBar from 'react-redux-loading-bar';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { AccountMenu, AuthenticatedAccountMenu, LocaleMenu } from '../menus';
 import { Brand } from './header-components';
-
-export interface IHeaderProps {
-  isAuthenticated: boolean;
-  isAdmin: boolean;
-  ribbonEnv: string;
-  isInProduction: boolean;
-  isOpenAPIEnabled: boolean;
-  appType: AppType;
-}
-
-const Header = (props: IHeaderProps) => {
-  const renderDevRibbon = () =>
-    props.isInProduction === false ? (
-      <div className="ribbon dev">
-        <a href="">
-          <Translate contentKey={`global.ribbon.${props.ribbonEnv}`} />
-        </a>
-      </div>
-    ) : null;
-
-  return (
-    <>
-      {/* {props.appType === 'admin' && <AdminAppRoutes />} */}
-      {props.appType === 'main' && <MainAppHeader />}
-      {props.appType === 'tenant' && <TenantAppHeader />}
-    </>
-  );
-};
-
-export default Header;
 
 export const MainAppHeader = () => {
   const location = useLocation();
 
   return (
     <div className={location.pathname.includes('register') ? 'hidden' : location.pathname === '/' ? 'bg-gray-100' : ''}>
-      {/* {renderDevRibbon()} */}
-      <LoadingBar className="loading-bar" />
       <div className="flex items-center justify-between pt-4 pb-2 mx-auto transition-all duration-300 ease-linear lg:max-w-7xl">
         <Brand />
         <div className="flex items-center gap-10">
@@ -59,29 +29,35 @@ export const MainAppHeader = () => {
 };
 
 export const TenantAppHeader = () => {
-  const location = useLocation();
+  const { authorities } = useAppSelector(state => state.authentication.account);
+
+  const [isNavigate, setIsNavigate] = useState(false);
+
+  if (isNavigate) return <NavigateByAuthorities to="pos" />;
 
   return (
-    <div
-      className={
-        ['login', 'pos', 'account/reset/request', 'account/reset/finish', 'first-time-setting', 'subscription'].some(key =>
-          location.pathname.includes(key)
-        )
-          ? 'hidden'
-          : 'bg-white border-0 border-solid border-b border-slate-200'
-      }
-    >
+    <div className={'bg-white border-0 border-solid border-b border-slate-200'}>
       {/* {renderDevRibbon()} */}
       <LoadingBar className="loading-bar" />
       <div className="">
         <div className="flex items-center justify-between py-2 pl-4 pr-12">
           <Brand />
-          <div className="flex items-center gap-10">
-            <Link to={'/pos/orders'}>
-              <Button type="primary" icon={<DesktopOutlined rev={''} />}>
-                POS Screen
-              </Button>
-            </Link>
+          <div
+            className="flex items-center gap-10"
+            hidden={
+              !hasAnyAuthority(authorities, [
+                AUTHORITIES.BILL_FULL_ACCESS,
+                AUTHORITIES.BILL_VIEW_ONLY,
+                AUTHORITIES.KITCHEN_PREPARING_ITEM,
+                AUTHORITIES.KITCHEN_RTS_ITEM,
+                AUTHORITIES.ORDER_ADD_AND_CANCEL,
+                AUTHORITIES.ADMIN,
+              ])
+            }
+          >
+            <Button type="primary" icon={<DesktopOutlined rev={''} />} onClick={() => setIsNavigate(true)}>
+              POS Screen
+            </Button>
             <LocaleMenu />
             <AuthenticatedAccountMenu />
           </div>
