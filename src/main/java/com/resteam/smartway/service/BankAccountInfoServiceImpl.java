@@ -41,6 +41,10 @@ public class BankAccountInfoServiceImpl implements BankAccountInfoService {
             .ifPresent(m -> {
                 throw new BadRequestAlertException(applicationName, ENTITY_NAME, "existed");
             });
+        List<BankAccountInfo> bankAccountInfoList = bankAccountInfoRepository.findAll();
+        if (bankAccountInfoList.isEmpty()) {
+            bankAccountInfoDTO.setDefault(true);
+        }
         bankAccountInfoDTO.setActive(true);
         BankAccountInfo bankAccountInfo = bankAccountInfoMapper.toEntity(bankAccountInfoDTO);
         return bankAccountInfoMapper.toDto(bankAccountInfoRepository.save(bankAccountInfo));
