@@ -10,6 +10,9 @@ import com.resteam.smartway.service.mapper.RestaurantMapper;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -68,19 +71,27 @@ public class RestaurantServiceImpl implements RestaurantService {
     public void checkPlanExpiryAndSendEmails() {
         List<Restaurant> restaurants = restaurantRepository.findAll();
         Instant today = Instant.now();
+        LocalDate todayDate = today.atZone(ZoneId.systemDefault()).toLocalDate();
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
+        LocalDate expiryThreshold = todayDate.plusDays(5);
+        String formattedExpiryThreshold = expiryThreshold.format(dateFormatter);
         for (Restaurant restaurant : restaurants) {
             if (!"system@".equals(restaurant.getId())) {
                 Instant planExpiry = restaurant.getPlanExpiry();
-                if (planExpiry != null && today.plus(Duration.ofDays(5)).isBefore(planExpiry)) {
-                    User user = userRepository.findUserByRestaurantId(restaurant.getId());
-                    if (user != null && user.getRole().getName().equals("ADMIN")) {
-                        String mailTo = user.getEmail();
-                        emailService.sendMail(
-                            mailTo,
-                            "Your plan is expiring soon!",
-                            "Your plan will expire in 5 days. Please renew your plan."
-                        );
+                if (planExpiry != null) {
+                    LocalDate expiryDate = planExpiry.atZone(ZoneId.systemDefault()).toLocalDate();
+                    String formattedExpiry = expiryDate.format(dateFormatter);
+
+                    if (formattedExpiryThreshold.equals(formattedExpiry)) {
+                        User user = userRepository.findUserByRestaurantId(restaurant.getId());
+                        if (user != null && "ADMIN".equals(user.getRole().getName())) {
+                            String mailTo = user.getEmail();
+                            String subject = "Your plan is expiring soon!";
+                            String message = "Your plan will expire on " + formattedExpiry + ". Please renew your plan.";
+
+                            emailService.sendMail(mailTo, subject, message);
+                        }
                     }
                 }
             }
