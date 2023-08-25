@@ -62,7 +62,14 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public List<RoleDTO> getAllRoles(Pageable pageable) {
-        return roleMapper.toDto(roleRepository.findAll(pageable).toList());
+        return roleMapper.toDto(
+            roleRepository
+                .findAll(pageable)
+                .toList()
+                .stream()
+                .filter(r -> !r.getName().equals("RestaurantAdmin@"))
+                .collect(Collectors.toList())
+        );
     }
 
     @Override

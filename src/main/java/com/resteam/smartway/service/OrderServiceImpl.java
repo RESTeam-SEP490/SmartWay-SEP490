@@ -941,13 +941,13 @@ public class OrderServiceImpl implements OrderService {
 
         returnItem(new ReturnItemDTO(dto.getOrderId(), dto.getListReturnItems()));
         if (!dto.getIsPayByCash()) {
-            if (dto.getBankAccountId() == null) throw new BadRequestAlertException(
+            if (dto.getBankAccountInfoId() == null) throw new BadRequestAlertException(
                 "Bank account id cant not be null",
                 "bankAccountInfo",
                 "idnull"
             );
             BankAccountInfo bankAccountInfo = bankAccountInfoRepository
-                .findById(dto.getBankAccountId())
+                .findById(dto.getBankAccountInfoId())
                 .orElseThrow(() -> new BadRequestAlertException("Bank account information not found", "bankAccountInfo", "idnotfound"));
             order.setBankAccountInfo(bankAccountInfo);
         }

@@ -22,10 +22,16 @@ import { IRestaurant } from './shared/model/restaurant.model';
 import { useAppSelector } from './config/store';
 
 const loading = (
-  <div className="flex items-center justify-center grow">
-    <Spin tip="Loading" size="large">
-      <div className="content" />
-    </Spin>
+  <div className="fixed transition-opacity duration-1000 bg-white bg-opacity-70 top-0 bottom-0 left-0 right-0 z-[5000]">
+    <div className="app-loading">
+      <div className="image-loading"></div>
+      <div className="lds-ellipsis">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+    </div>
   </div>
 );
 
@@ -65,7 +71,7 @@ export const TenantAppRoutes = () => {
           </PrivateRoute>
         }
       />
-      {restaurant.isNew === false && (
+      {!restaurant.isNew ? (
         <>
           <Route
             path="restaurant-setting"
@@ -115,9 +121,11 @@ export const TenantAppRoutes = () => {
               </PrivateRoute>
             }
           ></Route>
+          <Route path="*" element={<PageNotFound />} />
         </>
+      ) : (
+        <Route path="*" element={<Navigate to={'/first-time-setting'} />} />
       )}
-      <Route path="*" element={restaurant.isNew === true ? <Navigate to={'/first-time-setting'} replace /> : <PageNotFound />} />
     </ErrorBoundaryRoutes>
   );
 };

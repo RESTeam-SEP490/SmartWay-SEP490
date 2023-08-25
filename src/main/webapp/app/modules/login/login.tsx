@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, Navigate, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Alert, Button, Checkbox, Form, Input, Typography } from 'antd';
@@ -8,11 +8,9 @@ import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { BrandIcon } from 'app/shared/layout/header/header-components';
 import { LocaleMenu } from 'app/shared/layout/menus';
 import { login } from 'app/shared/reducers/authentication';
-import { Translate, translate } from 'react-jhipster';
-import { hasAnyAuthority } from 'app/shared/auth/private-route';
-import { AUTHORITIES } from 'app/config/constants';
 import { getAppUrl } from 'app/shared/util/subdomain/helpers';
-import NavigateAfterLogin from './navigate-after-login';
+import { Translate, translate } from 'react-jhipster';
+import { NavigateByAuthorities } from './navigate-by-authorities';
 
 export const Login = () => {
   const dispatch = useAppDispatch();
@@ -28,7 +26,7 @@ export const Login = () => {
   };
 
   if (isAuthenticated) {
-    return <NavigateAfterLogin />;
+    return <NavigateByAuthorities />;
   }
 
   return (

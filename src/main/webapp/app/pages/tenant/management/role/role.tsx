@@ -1,5 +1,5 @@
 import { DeleteFilled, EditFilled, PlusOutlined, TeamOutlined } from '@ant-design/icons';
-import { Button, Card, Empty, Radio, Typography } from 'antd';
+import { Button, Card, Empty, Modal, Radio, Typography } from 'antd';
 import Tree, { DataNode } from 'antd/es/tree';
 import { AUTHORITIES } from 'app/config/constants';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
@@ -9,6 +9,7 @@ import { Translate, translate } from 'react-jhipster';
 import { RoleForm } from './role-form';
 import { getEntities } from './role.reducer';
 import RoleDelete from './role-delete';
+import { MdManageAccounts } from 'react-icons/md';
 
 export const Role = () => {
   const dispatch = useAppDispatch();
@@ -19,7 +20,13 @@ export const Role = () => {
   const [selectedRole, setSelectedRole] = useState<IRole>();
   const [isShowForm, setIsShowForm] = useState<boolean>(false);
   const [isShowDeleteConfirm, setIsShowDeleteConfirm] = useState<boolean>(false);
-  const [inFormRole, setInFormRole] = useState<IRole>();
+  const updateSuccess = useAppSelector(state => state.role.updateSuccess);
+
+  useEffect(() => {
+    if (updateSuccess) {
+      setIsShowForm(false);
+    }
+  }, [updateSuccess]);
 
   useEffect(() => {
     dispatch(getEntities({}));
@@ -37,169 +44,12 @@ export const Role = () => {
     setSelectedRole(nextSelectedRole);
   };
 
-  const treeData: DataNode[] = [
-    {
-      title: (
-        <Typography.Title level={5}>
-          <Translate contentKey="role.labels.role" />
-        </Typography.Title>
-      ),
-      key: 'role',
-      children: [
-        {
-          title: <Translate contentKey="role.subLabels.view" />,
-          key: AUTHORITIES.STAFFROLE_VIEW,
-        },
-        {
-          title: <Translate contentKey="role.subLabels.create" />,
-          key: AUTHORITIES.STAFFROLE_CREATE,
-        },
-        {
-          title: <Translate contentKey="role.subLabels.edit" />,
-          key: AUTHORITIES.STAFFROLE_EDIT,
-        },
-        {
-          title: <Translate contentKey="role.subLabels.delete" />,
-          key: AUTHORITIES.STAFFROLE_DELETE,
-        },
-      ],
-    },
-    {
-      title: (
-        <Typography.Title level={5}>
-          <Translate contentKey="role.labels.staff" />
-        </Typography.Title>
-      ),
-      key: 'staff',
-      children: [
-        {
-          title: <Translate contentKey="role.subLabels.view" />,
-          key: AUTHORITIES.STAFF_VIEW,
-        },
-        {
-          title: <Translate contentKey="role.subLabels.create" />,
-          key: AUTHORITIES.STAFF_CREATE,
-        },
-        {
-          title: <Translate contentKey="role.subLabels.edit" />,
-          key: AUTHORITIES.STAFF_EDIT,
-        },
-        {
-          title: <Translate contentKey="role.subLabels.delete" />,
-          key: AUTHORITIES.STAFF_DELETE,
-        },
-      ],
-    },
-    {
-      title: (
-        <Typography.Title level={5}>
-          <Translate contentKey="role.labels.menuitem" />
-        </Typography.Title>
-      ),
-      key: 'menuitem',
-      children: [
-        {
-          title: <Translate contentKey="role.subLabels.view" />,
-          key: AUTHORITIES.MENUITEM_VIEW,
-        },
-        {
-          title: <Translate contentKey="role.subLabels.create" />,
-          key: AUTHORITIES.MENUITEM_CREATE,
-        },
-        {
-          title: <Translate contentKey="role.subLabels.edit" />,
-          key: AUTHORITIES.MENUITEM_EDIT,
-        },
-        {
-          title: <Translate contentKey="role.subLabels.delete" />,
-          key: AUTHORITIES.MENUITEM_DELETE,
-        },
-      ],
-    },
-    {
-      title: (
-        <Typography.Title level={5}>
-          <Translate contentKey="role.labels.table" />
-        </Typography.Title>
-      ),
-      key: 'table',
-      children: [
-        {
-          title: <Translate contentKey="role.subLabels.view" />,
-          key: AUTHORITIES.TABLE_VIEW,
-        },
-        {
-          title: <Translate contentKey="role.subLabels.create" />,
-          key: AUTHORITIES.TABLE_CREATE,
-        },
-        {
-          title: <Translate contentKey="role.subLabels.edit" />,
-          key: AUTHORITIES.TABLE_EDIT,
-        },
-        {
-          title: <Translate contentKey="role.subLabels.delete" />,
-          key: AUTHORITIES.TABLE_DELETE,
-        },
-      ],
-    },
-    {
-      title: (
-        <Typography.Title level={5}>
-          <Translate contentKey="role.labels.order" />
-        </Typography.Title>
-      ),
-      key: 'order',
-      children: [
-        {
-          title: <Translate contentKey="role.subLabels.waiter" />,
-          key: AUTHORITIES.ORDER_WAITER,
-        },
-        {
-          title: <Translate contentKey="role.subLabels.payment" />,
-          key: AUTHORITIES.ORDER_PAYMENT,
-        },
-        {
-          title: <Translate contentKey="role.subLabels.discount" />,
-          key: AUTHORITIES.ORDER_DISCOUNT,
-        },
-      ],
-    },
-    {
-      title: (
-        <Typography.Title level={5}>
-          <Translate contentKey="role.labels.bill" />
-        </Typography.Title>
-      ),
-      key: 'bill',
-      children: [
-        {
-          title: <Translate contentKey="role.subLabels.view" />,
-          key: AUTHORITIES.BILL_VIEW,
-        },
-        {
-          title: <Translate contentKey="role.subLabels.edit" />,
-          key: AUTHORITIES.BILL_EDIT,
-        },
-        {
-          title: <Translate contentKey="role.subLabels.delete" />,
-          key: AUTHORITIES.BILL_DELETE,
-        },
-      ],
-    },
-  ];
-
   const handleAddNew = () => {
-    setInFormRole({});
-    setIsShowForm(true);
-  };
-
-  const handleEdit = () => {
-    setInFormRole(selectedRole);
     setIsShowForm(true);
   };
 
   return (
-    <div className="mx-auto max-w-6xl mt-4">
+    <div className="max-w-6xl mx-auto mt-4">
       <div className="flex items-center justify-between p-2">
         <Typography.Title level={3} className="!mb-0">
           <Translate contentKey="role.title" />
@@ -242,42 +92,40 @@ export const Role = () => {
               <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={translate('global.table.empty')} />
             ) : (
               <>
-                <div className="flex justify-between mb-8 pb-2 border-0 border-b border-solid border-slate-200">
-                  <div className="w-1/2 flex items-center gap-2">
-                    <div className="text-lg text-blue-600 ">
-                      <TeamOutlined rev={''} />
+                <div className="flex justify-between pb-2 mb-2 border-0 border-b border-solid border-slate-200">
+                  <div className="flex items-center w-1/2 gap-2">
+                    <div className="flex items-center text-blue-600">
+                      <MdManageAccounts size={24} />
                     </div>
                     <Typography.Title level={5} className="!mb-0 !text-blue-600">
                       {selectedRole?.name}
                     </Typography.Title>
                   </div>
                   <div className="flex gap-2">
-                    <Button type="primary" icon={<EditFilled rev={''} />} onClick={handleEdit}>
-                      <Translate contentKey="entity.action.edit" />
-                    </Button>
                     <Button danger type="primary" icon={<DeleteFilled rev={''} />} onClick={() => setIsShowDeleteConfirm(true)}>
                       <Translate contentKey="entity.action.delete" />
                     </Button>
                   </div>
                 </div>
-                <div className="grid grid-rows-2 grid-flow-col gap-4">
-                  {treeData.map(data => (
-                    <Tree
-                      key={data.key}
-                      checkable
-                      defaultExpandAll
-                      selectable={false}
-                      checkedKeys={selectedRole?.authorities}
-                      treeData={[data]}
-                    />
-                  ))}
-                </div>
+                <RoleForm role={selectedRole} handleCancel={() => setSelectedRole(selectedRole)} />
               </>
             )}
           </Card>
         </div>
       </div>
-      <RoleForm handleClose={() => setIsShowForm(false)} isOpen={isShowForm} role={inFormRole} />
+      <Modal
+        destroyOnClose
+        onCancel={() => setIsShowForm(false)}
+        centered
+        open={isShowForm}
+        width={1000}
+        title={
+          <Translate contentKey={'entity.label.addNew'} interpolate={{ entity: translate('global.menu.entities.role')?.toLowerCase() }} />
+        }
+        footer={[]}
+      >
+        <RoleForm role={{}} handleCancel={() => setIsShowForm(false)} />
+      </Modal>
       <RoleDelete role={selectedRole} handleClose={() => setIsShowDeleteConfirm(false)} isOpen={isShowDeleteConfirm} />
     </div>
   );

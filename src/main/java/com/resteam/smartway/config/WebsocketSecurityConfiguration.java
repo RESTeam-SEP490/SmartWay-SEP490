@@ -21,7 +21,12 @@ public class WebsocketSecurityConfiguration extends AbstractSecurityWebSocketMes
             // (i.e. cannot subscribe to /topic/messages/* to get messages sent to
             // /topic/messages-user<id>)
             .simpDestMatchers("/orders/**", "/kitchen/**")
-            .hasAnyAuthority(AuthoritiesConstants.ROLE_ADMIN, AuthoritiesConstants.ORDER_WAITER)
+            .hasAnyAuthority(
+                AuthoritiesConstants.ROLE_ADMIN,
+                AuthoritiesConstants.ORDER_ADD_AND_CANCEL,
+                AuthoritiesConstants.KITCHEN_RTS_ITEM,
+                AuthoritiesConstants.KITCHEN_PREPARING_ITEM
+            )
             .simpDestMatchers("/topic/**")
             .authenticated()
             // message types other than MESSAGE and SUBSCRIBE

@@ -143,7 +143,8 @@ public class UserServiceImpl implements UserService {
         RestaurantContext.setCurrentRestaurant(savedRestaurant);
         createRole(tenantRegistrationDTO.getLangKey());
 
-        Role role = roleRepository.findByNameAndRestaurant("ADMIN", new Restaurant("system@"));
+        Authority tenantAdminAuth = authorityRepository.findById(AuthoritiesConstants.ROLE_ADMIN).orElse(new Authority());
+        Role role = roleRepository.save(new Role("RestaurantAdmin@", List.of(tenantAdminAuth)));
 
         User newUser = new User();
         String encryptedPassword = passwordEncoder.encode(tenantRegistrationDTO.getPassword());
@@ -155,7 +156,7 @@ public class UserServiceImpl implements UserService {
         newUser.setRole(role);
         User savedUser = userRepository.save(newUser);
 
-        String customerId = stripeService.createStripeCustomer(savedRestaurant.getName(), savedUser.getEmail());
+        String customerId = stripeService.createStripeCustomer(savedRestaurant.getId() + ".smart-way.website", savedUser.getEmail());
         savedRestaurant.setOwner(savedUser);
         savedRestaurant.setStripeCustomerId(customerId);
         restaurantRepository.save(savedRestaurant);
@@ -171,7 +172,7 @@ public class UserServiceImpl implements UserService {
 
         Role waiter = new Role();
         waiter.setName(roleNames.get(0));
-        Authority authority = authorityRepository.findById(AuthoritiesConstants.ORDER_WAITER).orElseThrow();
+        Authority authority = authorityRepository.findById(AuthoritiesConstants.ORDER_ADD_AND_CANCEL).orElseThrow();
         Authority authorityUser = authorityRepository.findById(AuthoritiesConstants.ROLE_USER).orElseThrow();
         waiter.setAuthorities(List.of(authority, authorityUser));
 

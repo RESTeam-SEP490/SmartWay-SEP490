@@ -200,7 +200,7 @@ export const Charge = ({ isOpen, handleClose }: { isOpen: boolean; handleClose: 
       >
         {currentOrder.orderDetailList.some(detail => detail.servedQuantity < detail.quantity) ? (
           <>
-            <span className="text-[1rem] mt-4">This order is not served so you only charge without free up table?</span>
+            <span className="text-[1rem] mt-4">This order is not served, so you only charge without free up table.</span>
             <div className="flex justify-end gap-2 mt-4">
               <Button type="primary" onClick={() => onCheckout(true)}>
                 OK
