@@ -1,23 +1,47 @@
-import { ShopFilled } from '@ant-design/icons';
+import { EditOutlined, ShopFilled } from '@ant-design/icons';
 import { Button, Form, Input, Typography } from 'antd';
 import { DEFAULT_FORM_ITEM_LAYOUT } from 'app/app.constant';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { IRestaurant } from 'app/shared/model/restaurant.model';
 import dayjs from 'dayjs';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { CheckBankAccountTenant } from '../check-bank-account-tenant/check-bank-account-tenant';
-import { getPortalUrl, restaurantActions } from './restaurant.reducer';
+import { getPortalUrl, restaurantActions, updateRestaurantInfo } from './restaurant.reducer';
 import { useNavigate } from 'react-router-dom';
+import { translate } from 'react-jhipster';
 
 export const RestaurantSetting = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const restaurant: IRestaurant = useAppSelector(state => state.restaurant.restaurant);
   const [form] = Form.useForm();
+  const [isEditRestaurant, setIsEditRestaurant] = useState(false);
 
   useEffect(() => {
     form.setFieldsValue({ ...restaurant });
   }, [restaurant]);
+
+  const buttonIsActive = () => {
+    if (isEditRestaurant) {
+      setIsEditRestaurant(false);
+    } else {
+      setIsEditRestaurant(true);
+    }
+  };
+
+  const cancelUpdateRestaurantInfo = () => {
+    setIsEditRestaurant(false);
+    form.setFieldsValue({ ...restaurant });
+  };
+
+  const saveRestaurantInfo = values => {
+    const entity = {
+      ...restaurant,
+      ...values,
+    };
+    dispatch(updateRestaurantInfo(entity));
+    setIsEditRestaurant(false);
+  };
 
   return (
     <>
@@ -52,27 +76,73 @@ export const RestaurantSetting = () => {
           </Button>
         </div>
         <div className="mt-8 border-0 border-t border-solid border-slate-200"></div>
-        <div className="p-2">
-          <Typography.Title level={5} className="!text-blue-600">
-            Restaurant Information
-          </Typography.Title>
-          <div className="max-w-lg mt-4 ml-4">
-            <Form form={form} labelAlign="left" {...DEFAULT_FORM_ITEM_LAYOUT}>
-              <Form.Item name={'name'} className="!my-2" label={'Restaurant name'}>
-                <Input bordered={false} readOnly />
-              </Form.Item>
-              <Form.Item name={'phone'} className="!my-2" label={'Phone number'}>
-                <Input bordered={false} readOnly />
-              </Form.Item>
-              <Form.Item name={'address'} className="!my-2" label={'Address'}>
-                <Input bordered={false} readOnly />
-              </Form.Item>
-              <Form.Item name={'currencyUnit'} className="!my-2" label={'Currency'}>
-                <Input bordered={false} readOnly />
-              </Form.Item>
-            </Form>
+        <div className="p-2 ">
+          <div className="flex items-center justify-between gap-4">
+            <Typography.Title level={5} className="!text-blue-600">
+              Restaurant Information
+            </Typography.Title>
+            <Button shape="circle" type="primary" icon={<EditOutlined rev={''} />} onClick={buttonIsActive}></Button>
           </div>
-          <div className="mt-8 border-0 border-t border-solid border-slate-200"></div>
+          <div className="max-w-lg mt-4 ml-4">
+            {isEditRestaurant ? (
+              <>
+                <Form form={form} labelAlign="left" {...DEFAULT_FORM_ITEM_LAYOUT} onFinish={saveRestaurantInfo}>
+                  <Form.Item
+                    name={'name'}
+                    className="!my-2"
+                    label={'Restaurant name'}
+                    rules={[{ required: true, message: translate('entity.validation.required') }]}
+                  >
+                    <Input />
+                  </Form.Item>
+                  <Form.Item
+                    name={'phone'}
+                    className="!my-2"
+                    label={'Phone number'}
+                    rules={[{ required: true, message: translate('entity.validation.required') }]}
+                  >
+                    <Input />
+                  </Form.Item>
+                  <Form.Item
+                    name={'address'}
+                    className="!my-2"
+                    label={'Address'}
+                    rules={[{ required: true, message: translate('entity.validation.required') }]}
+                  >
+                    <Input />
+                  </Form.Item>
+                  <Form.Item name={'currencyUnit'} className="!my-2" label={'Currency'}>
+                    <Input bordered={false} readOnly />
+                  </Form.Item>
+                  <Button type="primary" className="float-right" htmlType="submit">
+                    {translate('entity.action.save')}
+                  </Button>
+                  <Button type="primary" ghost className="float-right mr-2" htmlType="button" onClick={cancelUpdateRestaurantInfo}>
+                    {translate('entity.action.cancel')}
+                  </Button>
+                </Form>
+                <div className="mt-12 border-0 border-t border-solid border-slate-200"></div>
+              </>
+            ) : (
+              <>
+                <Form form={form} labelAlign="left" {...DEFAULT_FORM_ITEM_LAYOUT}>
+                  <Form.Item name={'name'} className="!my-2" label={'Restaurant name'}>
+                    <Input bordered={false} readOnly />
+                  </Form.Item>
+                  <Form.Item name={'phone'} className="!my-2" label={'Phone number'}>
+                    <Input bordered={false} readOnly />
+                  </Form.Item>
+                  <Form.Item name={'address'} className="!my-2" label={'Address'}>
+                    <Input bordered={false} readOnly />
+                  </Form.Item>
+                  <Form.Item name={'currencyUnit'} className="!my-2" label={'Currency'}>
+                    <Input bordered={false} readOnly />
+                  </Form.Item>
+                </Form>
+                <div className="mt-8 border-0 border-t border-solid border-slate-200"></div>
+              </>
+            )}
+          </div>
           <div className="p-2">
             <CheckBankAccountTenant />
           </div>

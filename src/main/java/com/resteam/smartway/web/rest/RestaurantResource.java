@@ -1,6 +1,5 @@
 package com.resteam.smartway.web.rest;
 
-import com.resteam.smartway.repository.RestaurantRepository;
 import com.resteam.smartway.service.RestaurantService;
 import com.resteam.smartway.service.RestaurantServiceImpl;
 import com.resteam.smartway.service.dto.RestaurantDTO;
@@ -12,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import tech.jhipster.web.util.HeaderUtil;
 
 @Log4j2
 @RestController
@@ -35,8 +35,12 @@ public class RestaurantResource {
     }
 
     @PutMapping("/restaurant")
-    public ResponseEntity<RestaurantDTO> updateCurrentRestaurant(@Valid @RequestBody RestaurantDTO dto) {
-        return ResponseEntity.ok(restaurantService.updateRestaurantInformation(dto));
+    public ResponseEntity<RestaurantDTO> updateCurrentRestaurant(@Valid @RequestBody RestaurantDTO restaurantDTO) {
+        RestaurantDTO result = restaurantService.updateRestaurantInformation(restaurantDTO);
+        return ResponseEntity
+            .ok()
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+            .body(result);
     }
 
     @GetMapping("/manage-restaurants")
