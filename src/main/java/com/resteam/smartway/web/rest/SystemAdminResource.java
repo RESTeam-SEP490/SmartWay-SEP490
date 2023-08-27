@@ -28,7 +28,7 @@ public class SystemAdminResource {
     private String applicationName;
 
     private final String ENTITY_RESTAURANT = "restaurant";
-    private final String LINK_DASHBOARD = "https://stripe.com/docs/development";
+    private final String LINK_DASHBOARD = "https://dashboard.stripe.com/dashboard";
 
     @GetMapping("restaurant")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SYSTEM_ADMIN')")

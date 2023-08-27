@@ -6,6 +6,7 @@ import { useAppDispatch } from 'app/config/store';
 import { CheckSquareFilled, LockFilled } from '@ant-design/icons';
 import { IRestaurantWithAdmin } from 'app/shared/model/restaurant-with-admin.model';
 import RestaurantWithAdminActive from './restaurant-dialog';
+import dayjs from 'dayjs';
 
 export const RestaurantWithAdminDetail = ({
   restaurantWithAdmin,
@@ -45,7 +46,7 @@ export const RestaurantWithAdminDetail = ({
                 <Input bordered={false} value={restaurantWithAdmin.phone} readOnly={true} />
               </Form.Item>
               <Form.Item className="!mb-0" label={translate('restaurant.planExpiry')}>
-                <Input bordered={false} value={restaurantWithAdmin.planExpiry.toString()} />
+                <Input bordered={false} value={dayjs(restaurantWithAdmin.planExpiry).format('LL')} />
               </Form.Item>
             </Form>
           </div>

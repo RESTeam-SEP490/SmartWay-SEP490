@@ -3,7 +3,7 @@ export interface IRestaurantWithAdmin {
   name?: string | null;
   phone?: string | null;
   currencyUnit?: string | null;
-  planExpiry?: Date | null;
+  planExpiry?: string | null;
   langKey?: string | null;
   isActive?: boolean | null;
 }

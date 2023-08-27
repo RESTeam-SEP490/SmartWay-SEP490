@@ -9,6 +9,7 @@ import { BarsOutlined } from '@ant-design/icons';
 import { IRestaurantWithAdmin } from 'app/shared/model/restaurant-with-admin.model';
 import RestaurantWithAdminDialog from 'app/pages/system-admin/restaurant/restaurant-dialog';
 import RestaurantWithAdminDetail from 'app/pages/system-admin/restaurant/restaurant-detail';
+import dayjs, { Dayjs } from 'dayjs';
 
 export const RestaurantWithAdmin = () => {
   const dispatch = useAppDispatch();
@@ -41,16 +42,10 @@ export const RestaurantWithAdmin = () => {
       dataIndex: 'planExpiry',
       key: 'planExpiry',
       render: (text, record) => {
-        return format(new Date(text), 'dd-MM-yyyy');
+        return dayjs(text).format('LL');
       },
     },
     { title: <Translate contentKey="restaurant.langKey" />, dataIndex: 'langKey', key: 'langKey' },
-    {
-      title: <Translate contentKey="restaurant.isActive" />,
-      dataIndex: 'isActive',
-      key: 'isActive',
-      render: (i: boolean) => <Translate contentKey={i ? 'menuItem.status.trueValue' : 'menuItem.status.falseValue'} />,
-    },
   ];
 
   const [expendedRow, setExpendedRow] = useState();
