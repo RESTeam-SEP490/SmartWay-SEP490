@@ -53,11 +53,11 @@ export const RestaurantWithAdminDetail = ({
           <div className="flex justify-end gap-2 mt-4">
             {restaurantWithAdmin.isActive ? (
               <Button danger type="primary" icon={<LockFilled rev={''} />} onClick={handleUpdateIsActive}>
-                <Translate contentKey="menuItem.action.stopSell" />
+                <Translate contentKey="restaurant.action.stopSell" />
               </Button>
             ) : (
               <Button type="primary" icon={<CheckSquareFilled rev={''} />} onClick={handleUpdateIsActive}>
-                <Translate contentKey="menuItem.action.allowSell" />
+                <Translate contentKey="restaurant.action.allowSell" />
               </Button>
             )}
           </div>

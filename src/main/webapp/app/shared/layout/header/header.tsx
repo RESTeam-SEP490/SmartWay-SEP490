@@ -3,7 +3,7 @@ import './header.scss';
 import { DesktopOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 import { AUTHORITIES } from 'app/config/constants';
-import { useAppSelector } from 'app/config/store';
+import { useAppDispatch, useAppSelector } from 'app/config/store';
 import NavigateByAuthorities from 'app/modules/login/navigate-by-authorities';
 import { hasAnyAuthority } from 'app/shared/auth/private-route';
 import React, { useState } from 'react';
@@ -11,6 +11,8 @@ import LoadingBar from 'react-redux-loading-bar';
 import { useLocation } from 'react-router-dom';
 import { AccountMenu, AuthenticatedAccountMenu, LocaleMenu } from '../menus';
 import { Brand } from './header-components';
+import { MdOutlineDashboard } from 'react-icons/md';
+import { getDashboard } from 'app/pages/system-admin/restaurant/restaurant.reducer';
 
 export const MainAppHeader = () => {
   const location = useLocation();
@@ -22,6 +24,38 @@ export const MainAppHeader = () => {
         <div className="flex items-center gap-10">
           <LocaleMenu />
           <AccountMenu />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const AdminAppHeader = () => {
+  const { authorities } = useAppSelector(state => state.authentication.account);
+  const dispatch = useAppDispatch();
+
+  return (
+    <div className={'bg-white border-0 border-solid border-b border-slate-200'}>
+      {/* {renderDevRibbon()} */}
+      <LoadingBar className="loading-bar" />
+      <div className="">
+        <div className="flex items-center justify-between py-2 pl-4 pr-12">
+          <Brand />
+          <div className="flex items-center gap-10">
+            <Button
+              className="flex items-center justify-center"
+              size={'large'}
+              type="primary"
+              icon={<MdOutlineDashboard size={24} />}
+              onClick={() => {
+                dispatch(getDashboard());
+              }}
+            >
+              Dashboard
+            </Button>
+            <LocaleMenu />
+            <AuthenticatedAccountMenu />
+          </div>
         </div>
       </div>
     </div>

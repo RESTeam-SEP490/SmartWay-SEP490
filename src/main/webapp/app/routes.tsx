@@ -134,6 +134,7 @@ export const TenantAppRoutes = () => {
 export const AdminAppRoutes = () => {
   return (
     <ErrorBoundaryRoutes>
+      <Route index element={<Navigate to={'/login'} />} />
       <Route path="login" element={<Login />} />
       <Route path="logout" element={<Logout />} />
       <Route
@@ -147,12 +148,12 @@ export const AdminAppRoutes = () => {
       <Route
         path="system-admin/restaurant"
         element={
-          // <PrivateRoute hasAnyAuthorities={[AUTHORITIES.SYSTEM_ADMIN]}>
-          <RestaurantWithAdmin />
-          // </PrivateRoute>
+          <PrivateRoute hasAnyAuthorities={[AUTHORITIES.SYSTEM_ADMIN]}>
+            <RestaurantWithAdmin />
+          </PrivateRoute>
         }
       />
-      {/* <Route path="*" element={<PrivateRoute hasAnyAuthorities={[AUTHORITIES.SYSTEM_ADMIN]}><Admin /></PrivateRoute>} /> */}
+      <Route path="*" element={<PageNotFound />} />
     </ErrorBoundaryRoutes>
   );
 };

@@ -42,7 +42,7 @@ export const AuthenticatedAccountMenu = () => {
   ];
   return (
     <Dropdown
-      menu={authorities.includes(AUTHORITIES.ADMIN) ? { items } : { items: items.filter(i => i.key !== 'restaurant') }}
+      menu={authorities?.includes(AUTHORITIES.ADMIN) ? { items } : { items: items.filter(i => i.key !== 'restaurant') }}
       placement="bottomRight"
       className="!text-base"
     >

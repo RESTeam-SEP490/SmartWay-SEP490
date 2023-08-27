@@ -28,6 +28,8 @@ export const NavigateByAuthorities = ({ to }: { to?: 'pos' | 'managing' }) => {
           path = '/pos/kitchen';
         else if ([AUTHORITIES.BILL_FULL_ACCESS, AUTHORITIES.BILL_VIEW_ONLY].some(p => authorities.includes(p))) path = '/pos/bills';
       }
+    } else if (appType === 'admin') {
+      path = '/system-admin/restaurant';
     }
     navigate(path);
   }, [restaurant, authorities]);

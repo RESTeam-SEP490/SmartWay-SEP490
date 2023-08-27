@@ -43,6 +43,16 @@ export const getEntity = createAsyncThunk(
   { serializeError: serializeAxiosError }
 );
 
+export const getDashboard = createAsyncThunk(
+  'restaurantWithAdmin/get_dashboard',
+  async () => {
+    const requestUrl = `${apiUrl}/dashboard`;
+    console.log('123');
+    return axios.get<string>(requestUrl);
+  },
+  { serializeError: serializeAxiosError }
+);
+
 export const updateEntity = createAsyncThunk(
   'restaurantWithAdmin/update_entity',
   async (entity: IRestaurantWithAdmin, thunkAPI) => {
@@ -77,6 +87,10 @@ export const RestaurantWithAdminSlice = createEntitySlice({
         state.loading = false;
         state.entity = action.payload.data;
       })
+      .addCase(getDashboard.fulfilled, (state, action) => {
+        state.loading = false;
+        window.location.replace(action.payload.data);
+      })
       .addMatcher(isFulfilled(getEntities), (state, action) => {
         const { data } = action.payload;
         const count = action.payload.headers['x-total-count'];
@@ -94,7 +108,7 @@ export const RestaurantWithAdminSlice = createEntitySlice({
         state.updateSuccess = true;
         state.entity = {};
       })
-      .addMatcher(isPending(getEntities, getEntity), state => {
+      .addMatcher(isPending(getEntities, getEntity, getDashboard), state => {
         state.errorMessage = null;
         state.updateSuccess = false;
         state.loading = true;
