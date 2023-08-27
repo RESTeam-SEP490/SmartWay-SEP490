@@ -9,17 +9,16 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 
 @Log4j2
@@ -32,6 +31,10 @@ public class BillResource {
     private final OrderService orderService;
 
     private final StatisticService statisticService;
+    private final String BILL = "bill";
+
+    @Value("${jhipster.clientApp.name}")
+    private String applicationName;
 
     @GetMapping
     public ResponseEntity<List<BillDTO>> getAllBills(
@@ -55,5 +58,11 @@ public class BillResource {
     public ResponseEntity<StatisticDTO> getDailySalesBill() {
         StatisticDTO dailySalesStatistics = statisticService.calculateDailySalesBill();
         return ResponseEntity.ok(dailySalesStatistics);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteBill(@PathVariable(value = "id") final UUID id) {
+        orderService.deleteBill(id);
+        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, BILL, String.valueOf(id))).build();
     }
 }

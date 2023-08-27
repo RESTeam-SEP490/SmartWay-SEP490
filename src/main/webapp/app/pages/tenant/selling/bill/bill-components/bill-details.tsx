@@ -1,5 +1,5 @@
 import { BlockOutlined, DeleteFilled, PrinterFilled, StarFilled } from '@ant-design/icons';
-import { Button, Image, Spin, Typography } from 'antd';
+import { Button, Image, Modal, Spin, Typography } from 'antd';
 import { alphabetCompare } from 'app/app.constant';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { AuthenticatedAccountMenu, LocaleMenu } from 'app/shared/layout/menus';
@@ -7,144 +7,175 @@ import { IBill } from 'app/shared/model/bill.model';
 import { IOrderDetail } from 'app/shared/model/order/order-detail.model';
 import { CurrencyFormat } from 'app/shared/util/currency-utils';
 import { motion } from 'framer-motion';
-import React from 'react';
+import React, { useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { MdOutlineFastfood, MdPerson, MdReceiptLong, MdShoppingBag, MdTableRestaurant } from 'react-icons/md';
 import { Translate, translate } from 'react-jhipster';
 import { printBill } from '../../order/order.reducer';
+import { deleteEntity } from 'app/pages/tenant/selling/bill/bill.reducer';
 
 export const BillDetails = () => {
   const dispatch = useAppDispatch();
   const curerntBill: IBill = useAppSelector(state => state.bill.currentBill);
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const handleOpenPopup = () => {
+    setIsPopupVisible(true);
+  };
+
+  const handleCancelPopup = () => {
+    setIsPopupVisible(false);
+  };
+
+  const deleteBill = () => {
+    dispatch(deleteEntity(curerntBill.id));
+    setIsPopupVisible(false);
+  };
 
   return (
-    <div className="flex w-[500px]">
-      <div className="flex flex-col h-full">
-        <div className="flex items-center !text-white justify-end h-12 gap-4 mr-8">
-          <LocaleMenu />
-          <AuthenticatedAccountMenu />
+    <>
+      <Modal
+        open={isPopupVisible}
+        onCancel={handleCancelPopup}
+        centered={true}
+        footer={null}
+        title={<Translate contentKey="entity.label.confirm" />}
+      >
+        <Translate contentKey="order.action.delete.question" interpolate={{ code: curerntBill.code }} />
+        <div className="flex justify-end gap-2 mt-4">
+          <Button type="primary" icon={<DeleteFilled rev={''} />} htmlType="submit" onClick={deleteBill}>
+            <Translate contentKey="entity.action.delete"></Translate>
+          </Button>
         </div>
-        <div className="flex flex-col p-2 grow w-[500px] bg-white rounded-l-lg" key={curerntBill.id}>
-          <div className="px-4 pt-2 pb-4 ">
-            <div className="flex items-center justify-between h-10">
-              <Typography.Title level={4} className="!mb-1">
-                {curerntBill.id ? '#' + curerntBill.code : translate('order.current.label')}
-              </Typography.Title>
-              {curerntBill.id && (
-                <div className="flex">
-                  <Button
-                    size="large"
-                    type="text"
-                    icon={<PrinterFilled rev="" />}
-                    onClick={() => {
-                      dispatch(printBill({ orderId: curerntBill.id, returnItemList: [], discount: curerntBill.discount }));
-                    }}
-                  ></Button>
-                  <Button hidden size="large" danger type="text" icon={<DeleteFilled rev="" />} onClick={() => {}}></Button>
+      </Modal>
+
+      <div className="flex w-[500px]">
+        <div className="flex flex-col h-full">
+          <div className="flex items-center !text-white justify-end h-12 gap-4 mr-8">
+            <LocaleMenu />
+            <AuthenticatedAccountMenu />
+          </div>
+          <div className="flex flex-col p-2 grow w-[500px] bg-white rounded-l-lg" key={curerntBill.id}>
+            <div className="px-4 pt-2 pb-4 ">
+              <div className="flex items-center justify-between h-10">
+                <Typography.Title level={4} className="!mb-1">
+                  {curerntBill.id ? '#' + curerntBill.code : translate('order.current.label')}
+                </Typography.Title>
+                {curerntBill.id && (
+                  <div className="flex">
+                    <Button
+                      size="large"
+                      type="text"
+                      icon={<PrinterFilled rev="" />}
+                      onClick={() => {
+                        dispatch(printBill({ orderId: curerntBill.id, returnItemList: [], discount: curerntBill.discount }));
+                      }}
+                    ></Button>
+                    <Button size="large" danger type="text" icon={<DeleteFilled rev="" />} onClick={handleOpenPopup}></Button>
+                  </div>
+                )}
+              </div>
+              <div className="flex items-start gap-4" hidden={curerntBill.id === null}>
+                <div
+                  className={`relative flex items-center justify-center gap-2 py-1 pl-6 pr-4 text-sm font-semibold text-blue-700 duration-1000 bg-blue-100 border-2 border-blue-600 border-solid rounded-lg table-tag-badge`}
+                >
+                  <div className="absolute left-0 z-10 flex items-center justify-center p-1 text-blue-100 -translate-x-1/2 -translate-y-1/2 bg-blue-700 rounded-full aspect-square top-1/2">
+                    {curerntBill.takeAway ? (
+                      <MdShoppingBag size={16} />
+                    ) : curerntBill.tableList.length > 1 ? (
+                      <BlockOutlined rev="" />
+                    ) : (
+                      <MdTableRestaurant size={16} />
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {!curerntBill.takeAway && curerntBill.tableList.length > 0 ? (
+                      <>
+                        {[...curerntBill.tableList].sort(alphabetCompare)[0].name}
+                        <span className="font-normal text-gray-400">
+                          {curerntBill.tableList.length > 1 ? ` (+${curerntBill.tableList.length - 1})` : ''}
+                        </span>
+                      </>
+                    ) : (
+                      <>Takeaway</>
+                    )}
+                  </div>
                 </div>
+                <div
+                  className={`relative flex items-center justify-center gap-2 py-1 pl-6 pr-4 text-sm font-semibold text-blue-700 duration-1000 bg-blue-100 border-2 border-blue-600 border-solid rounded-lg table-tag-badge`}
+                >
+                  <div className="absolute left-0 z-10 flex items-center justify-center p-1 text-blue-100 -translate-x-1/2 -translate-y-1/2 bg-blue-700 rounded-full aspect-square top-1/2">
+                    <MdPerson size={16} />
+                  </div>
+                  <div className="flex items-center gap-2">{curerntBill.cashier}</div>
+                </div>
+              </div>
+            </div>
+            <div className="ml-2 mr-2 border-0 border-t border-solid border-slate-200"></div>
+            <div className="pl-3 pr-2 grow order-details">
+              {curerntBill.orderDetailList.length > 0 ? (
+                <Spin tip={'Loading...'} spinning={false} className="h-full grow">
+                  <Scrollbars className="w-full grow">
+                    <div className="flex flex-col-reverse gap-2 pt-2 pr-4">
+                      {curerntBill.orderDetailList
+                        .filter(detail => detail.quantity > 0)
+                        .map((detail, index) => (
+                          <OrderDetailCard key={detail.id} detail={detail} index={index + 1} />
+                        ))}
+                    </div>
+                  </Scrollbars>
+                </Spin>
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0, x: '-50%' }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3 }}
+                  exit={{ opacity: 0, x: '50%' }}
+                  layout
+                  className="flex flex-col items-center justify-center w-full h-full"
+                >
+                  <div className="flex items-center justify-center w-40 text-blue-600 bg-blue-100 rounded-full aspect-square">
+                    <MdReceiptLong size={60} />
+                  </div>
+                  <Typography.Text className="mt-4 text-gray-500">Choose a bill in table to view detail</Typography.Text>
+                </motion.div>
               )}
             </div>
-            <div className="flex items-start gap-4" hidden={curerntBill.id === null}>
-              <div
-                className={`relative flex items-center justify-center gap-2 py-1 pl-6 pr-4 text-sm font-semibold text-blue-700 duration-1000 bg-blue-100 border-2 border-blue-600 border-solid rounded-lg table-tag-badge`}
-              >
-                <div className="absolute left-0 z-10 flex items-center justify-center p-1 text-blue-100 -translate-x-1/2 -translate-y-1/2 bg-blue-700 rounded-full aspect-square top-1/2">
-                  {curerntBill.takeAway ? (
-                    <MdShoppingBag size={16} />
-                  ) : curerntBill.tableList.length > 1 ? (
-                    <BlockOutlined rev="" />
-                  ) : (
-                    <MdTableRestaurant size={16} />
-                  )}
-                </div>
-                <div className="flex items-center gap-2">
-                  {!curerntBill.takeAway && curerntBill.tableList.length > 0 ? (
+            <div className="flex flex-col px-4 py-6 mb-2 ml-2 mr-4 border-0 border-t border-solid rounded-lg bg-blue-50 border-t-slate-200">
+              <div className="flex items-center justify-between ">
+                <Typography.Text>
+                  <Translate contentKey="order.charge.subtotal" />
+                </Typography.Text>
+                <Typography.Text className="font-semibold !m-0">
+                  {curerntBill.id && <CurrencyFormat>{curerntBill.sumMoney}</CurrencyFormat>}
+                </Typography.Text>
+              </div>
+              <div className="flex items-center justify-between mb-4">
+                <Typography.Text>
+                  <Translate contentKey="order.charge.discount" />
+                </Typography.Text>
+                <Typography.Text className="font-semibold !m-0">
+                  {curerntBill.id && (
                     <>
-                      {[...curerntBill.tableList].sort(alphabetCompare)[0].name}
-                      <span className="font-normal text-gray-400">
-                        {curerntBill.tableList.length > 1 ? ` (+${curerntBill.tableList.length - 1})` : ''}
-                      </span>
+                      - <CurrencyFormat>{curerntBill.discount}</CurrencyFormat>
                     </>
-                  ) : (
-                    <>Takeaway</>
                   )}
-                </div>
+                </Typography.Text>
               </div>
-              <div
-                className={`relative flex items-center justify-center gap-2 py-1 pl-6 pr-4 text-sm font-semibold text-blue-700 duration-1000 bg-blue-100 border-2 border-blue-600 border-solid rounded-lg table-tag-badge`}
-              >
-                <div className="absolute left-0 z-10 flex items-center justify-center p-1 text-blue-100 -translate-x-1/2 -translate-y-1/2 bg-blue-700 rounded-full aspect-square top-1/2">
-                  <MdPerson size={16} />
-                </div>
-                <div className="flex items-center gap-2">{curerntBill.cashier}</div>
+              <div className="flex items-center justify-between ">
+                <Typography.Text className="font-semibold">
+                  <Translate contentKey="order.orderDetails.total" />
+                </Typography.Text>
+                <Typography.Title level={4} className="font-semibold !m-0">
+                  <CurrencyFormat>
+                    {curerntBill.orderDetailList.map(detail => detail.quantity * detail.menuItem.sellPrice).reduce((a, b) => a + b, 0)}
+                  </CurrencyFormat>
+                </Typography.Title>
               </div>
-            </div>
-          </div>
-          <div className="ml-2 mr-2 border-0 border-t border-solid border-slate-200"></div>
-          <div className="pl-3 pr-2 grow order-details">
-            {curerntBill.orderDetailList.length > 0 ? (
-              <Spin tip={'Loading...'} spinning={false} className="h-full grow">
-                <Scrollbars className="w-full grow">
-                  <div className="flex flex-col-reverse gap-2 pt-2 pr-4">
-                    {curerntBill.orderDetailList
-                      .filter(detail => detail.quantity > 0)
-                      .map((detail, index) => (
-                        <OrderDetailCard key={detail.id} detail={detail} index={index + 1} />
-                      ))}
-                  </div>
-                </Scrollbars>
-              </Spin>
-            ) : (
-              <motion.div
-                initial={{ opacity: 0, x: '-50%' }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.3 }}
-                exit={{ opacity: 0, x: '50%' }}
-                layout
-                className="flex flex-col items-center justify-center w-full h-full"
-              >
-                <div className="flex items-center justify-center w-40 text-blue-600 bg-blue-100 rounded-full aspect-square">
-                  <MdReceiptLong size={60} />
-                </div>
-                <Typography.Text className="mt-4 text-gray-500">Choose a bill in table to view detail</Typography.Text>
-              </motion.div>
-            )}
-          </div>
-          <div className="flex flex-col px-4 py-6 mb-2 ml-2 mr-4 border-0 border-t border-solid rounded-lg bg-blue-50 border-t-slate-200">
-            <div className="flex items-center justify-between ">
-              <Typography.Text>
-                <Translate contentKey="order.charge.subtotal" />
-              </Typography.Text>
-              <Typography.Text className="font-semibold !m-0">
-                {curerntBill.id && <CurrencyFormat>{curerntBill.sumMoney}</CurrencyFormat>}
-              </Typography.Text>
-            </div>
-            <div className="flex items-center justify-between mb-4">
-              <Typography.Text>
-                <Translate contentKey="order.charge.discount" />
-              </Typography.Text>
-              <Typography.Text className="font-semibold !m-0">
-                {curerntBill.id && (
-                  <>
-                    - <CurrencyFormat>{curerntBill.discount}</CurrencyFormat>
-                  </>
-                )}
-              </Typography.Text>
-            </div>
-            <div className="flex items-center justify-between ">
-              <Typography.Text className="font-semibold">
-                <Translate contentKey="order.orderDetails.total" />
-              </Typography.Text>
-              <Typography.Title level={4} className="font-semibold !m-0">
-                <CurrencyFormat>
-                  {curerntBill.orderDetailList.map(detail => detail.quantity * detail.menuItem.sellPrice).reduce((a, b) => a + b, 0)}
-                </CurrencyFormat>
-              </Typography.Title>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

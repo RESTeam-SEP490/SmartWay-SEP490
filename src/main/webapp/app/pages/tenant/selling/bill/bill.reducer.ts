@@ -3,9 +3,9 @@ import axios from 'axios';
 
 import { DEFAULT_PAGEABLE } from 'app/app.constant';
 import { defaultValue, IBill } from 'app/shared/model/bill.model';
-import { defaultValue as defaultStatistic } from 'app/shared/model/revenue-by-time';
-import { IRevenueByTime } from 'app/shared/model/revenue-by-time';
+import { defaultValue as defaultStatistic, IRevenueByTime } from 'app/shared/model/revenue-by-time';
 import getStore from 'app/config/store';
+import { serializeAxiosError } from 'app/shared/reducers/reducer.utils';
 
 const initialState = {
   loading: false,
@@ -31,6 +31,17 @@ export const getStatistic = createAsyncThunk('bills/get_statistic_today', async 
   return await axios.get<IRevenueByTime>(requestUrl);
 });
 
+export const deleteEntity = createAsyncThunk(
+  'bills/delete-entity',
+  async (id: string, thunkAPI) => {
+    const requestUrl = `${apiUrl}/${id}`;
+    const result = await axios.delete(requestUrl);
+    thunkAPI.dispatch(getEntities());
+    return result;
+  },
+  { serializeError: serializeAxiosError }
+);
+
 // slice
 
 export const BillSlice = createSlice({
@@ -51,7 +62,6 @@ export const BillSlice = createSlice({
   },
   extraReducers(builder) {
     builder
-
       .addCase(getEntities.fulfilled, (state, action) => {
         state.loading = false;
         state.billList = action.payload.data;
@@ -67,7 +77,12 @@ export const BillSlice = createSlice({
         state.loading = false;
         state.statistic = action.payload.data;
       })
-      .addMatcher(isPending(getEntities, getStatistic), (state, action) => {
+      .addCase(deleteEntity.fulfilled, (state, action) => {
+        const deletedId = action.payload.headers['x-smartwayapp-params'];
+        state.loading = false;
+        if (state.currentBill.id === deletedId) state.currentBill = defaultValue;
+      })
+      .addMatcher(isPending(getEntities, getStatistic, deleteEntity), (state, action) => {
         state.loading = true;
       });
   },

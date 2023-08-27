@@ -1358,4 +1358,19 @@ public class OrderServiceImpl implements OrderService {
             return orderMapper.toDto(order);
         }
     }
+
+    @Override
+    public void deleteBill(UUID id) {
+        if (id == null) {
+            throw new BadRequestAlertException("Invalid id", ORDER_DETAIL, "id null");
+        }
+        List<OrderDetail> orderDetailList = orderDetailRepository.findAllByOrder_Id(id);
+        if (orderDetailList.isEmpty()) {
+            throw new BadRequestAlertException("Invalid id", ORDER_DETAIL, "id not found");
+        }
+        for (OrderDetail od : orderDetailList) {
+            orderDetailRepository.deleteById(od.getId());
+        }
+        orderRepository.deleteById(id);
+    }
 }
