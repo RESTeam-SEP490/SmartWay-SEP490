@@ -6,11 +6,11 @@ import javax.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class NotifyServedDTO {
+public class ServeItemsDTO {
 
     @NotNull
-    private UUID readyToServeNotificationId;
+    private UUID orderDetailId;
 
-    @Min(0)
-    private int servedQuantity;
+    @Min(1)
+    private int serveQuantity;
 }

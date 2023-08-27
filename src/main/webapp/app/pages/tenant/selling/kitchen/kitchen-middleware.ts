@@ -125,8 +125,8 @@ export default store => next => action => {
   if (kitchenActions.notifyReadyToServe.match(action) && alreadyConnectedOnce) {
     send(KitchenEvent.NotifyReadyToServe, action.payload);
   }
-  if (kitchenActions.notifyServed.match(action) && alreadyConnectedOnce) {
-    send(KitchenEvent.NotifyServed, action.payload);
+  if (kitchenActions.hideRts.match(action) && alreadyConnectedOnce) {
+    send(KitchenEvent.HideRts, action.payload);
   }
 
   if (kitchenActions.disconnectStomp.match(action) && alreadyConnectedOnce) {

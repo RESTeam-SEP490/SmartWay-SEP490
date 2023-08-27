@@ -8,34 +8,49 @@ import {
   StarFilled,
 } from '@ant-design/icons';
 import { Button, ConfigProvider, Drawer, Image, Spin, Typography } from 'antd';
-import { alphabetCompare, currencyFormatter } from 'app/app.constant';
+import { alphabetCompare } from 'app/app.constant';
 import { colors } from 'app/config/ant-design-theme';
+import { AUTHORITIES } from 'app/config/constants';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { AuthenticatedAccountMenu, LocaleMenu } from 'app/shared/layout/menus';
 import { IItemAdditionNotification } from 'app/shared/model/order/item-addition-notfication.model';
 import { IOrderDetail } from 'app/shared/model/order/order-detail.model';
 import { IOrder } from 'app/shared/model/order/order.model';
+import { CurrencyFormat } from 'app/shared/util/currency-utils';
 import dayjs from 'dayjs';
 import { motion } from 'framer-motion';
 import React, { useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
-import { MdMonetizationOn, MdOutlineFastfood, MdOutlineRamenDining, MdRoomService, MdShoppingBag, MdTableRestaurant } from 'react-icons/md';
+import {
+  MdCheckCircle,
+  MdMonetizationOn,
+  MdOutlineFastfood,
+  MdOutlineRamenDining,
+  MdRoomService,
+  MdShoppingBag,
+  MdTableRestaurant,
+} from 'react-icons/md';
 import { Translate, translate } from 'react-jhipster';
-import { freeUpTable, orderActions } from '../order.reducer';
+import { changeIsRequireToCheckOut, freeUpTable, orderActions } from '../order.reducer';
 import { Charge } from './charge';
 import { AddNoteForm } from './modals/detail-note-modal';
 import { ItemCancellationModal } from './modals/item-cancellation-modal';
+import { ItemServeModal } from './modals/item-serve-modal';
 import { NumbericKeyboard } from './modals/numberic-keyboard';
-import { TablesOfOrderModal } from './modals/order-table-modal';
-import { CurrencyFormat } from 'app/shared/util/currency-utils';
 import OrderCancellationModal from './modals/order-cancellation-modal';
+import { TablesOfOrderModal } from './modals/order-table-modal';
 
 export const OrderDetails = () => {
   const dispatch = useAppDispatch();
 
   const loading = useAppSelector(state => state.order.loading);
   const currentOrder: IOrder = useAppSelector(state => state.order.currentOrder);
+  const { authorities } = useAppSelector(state => state.authentication.account);
   const isDisableNotifyButton = currentOrder?.orderDetailList.every((detail: IOrderDetail) => detail.unnotifiedQuantity === 0);
+  const btnKeyColor =
+    ![AUTHORITIES.ORDER_CHECKOUT, AUTHORITIES.ADMIN].some(p => authorities.includes(p)) && currentOrder.isRequireToCheckOut
+      ? 'red'
+      : 'green';
 
   const [isOpenNoteForm, setIsOpenNoteForm] = useState(false);
   const [isOpenNumbericKeyboard, setIsOpenNumbericKeyboard] = useState(false);
@@ -258,20 +273,17 @@ export const OrderDetails = () => {
             <ConfigProvider
               theme={{
                 token: {
-                  colorPrimary: colors.green[600],
-                  colorPrimaryHover: colors.green[500],
-                  colorPrimaryActive: colors.green[700],
+                  colorPrimary: colors[btnKeyColor][600],
+                  colorPrimaryHover: colors[btnKeyColor][500],
+                  colorPrimaryActive: colors[btnKeyColor][700],
                 },
               }}
             >
-              {!currentOrder?.paid ? (
+              {[AUTHORITIES.ORDER_CHECKOUT, AUTHORITIES.ADMIN].some(p => authorities.includes(p)) && !currentOrder?.paid ? (
                 <Button
                   disabled={
-                    currentOrder.orderDetailList.length === 0 ||
-                    currentOrder.orderDetailList.every(od => od.quantity === 0) ||
+                    currentOrder.orderDetailList.filter(detail => detail.quantity > 0).length === 0 ||
                     currentOrder.orderDetailList.some(od => od.unnotifiedQuantity > 0) ||
-                    (currentOrder.orderDetailList.filter(od => od.quantity > 0).some(od => od.servedQuantity < od.quantity) &&
-                      currentOrder.takeAway) ||
                     currentOrder.id === null
                   }
                   onClick={() => setIsOpenChargeModal(true)}
@@ -283,20 +295,67 @@ export const OrderDetails = () => {
                 >
                   <Translate contentKey="order.orderDetails.charge" />
                 </Button>
-              ) : (
+              ) : currentOrder?.paid ? (
                 <Button
                   onClick={() => {
                     dispatch(freeUpTable(currentOrder.id));
                   }}
-                  disabled={currentOrder.orderDetailList.filter(od => od.quantity > 0).some(od => od.servedQuantity < od.quantity)}
+                  disabled={
+                    (!currentOrder.takeAway &&
+                      currentOrder.orderDetailList.filter(od => od.quantity > 0).some(od => od.servedQuantity < od.quantity)) ||
+                    (currentOrder.takeAway &&
+                      currentOrder.orderDetailList
+                        .filter(detail => detail.readyToServeQuantity)
+                        .some(detail => detail.readyToServeQuantity < detail.quantity))
+                  }
                   size="large"
                   type="primary"
                   block
                   className="flex items-center justify-center grow"
-                  icon={<MdTableRestaurant size={20} />}
+                  icon={currentOrder.takeAway ? <MdCheckCircle size={20} /> : <MdTableRestaurant size={20} />}
                 >
-                  Free up table
+                  {currentOrder.takeAway ? 'Mark done' : 'Free up table'}
                 </Button>
+              ) : !currentOrder.takeAway ? (
+                currentOrder.isRequireToCheckOut ? (
+                  <Button
+                    disabled={
+                      currentOrder.orderDetailList.filter(detail => detail.quantity > 0).length === 0 ||
+                      currentOrder.orderDetailList.some(od => od.unnotifiedQuantity > 0) ||
+                      currentOrder.id === null
+                    }
+                    onClick={() => {
+                      dispatch(changeIsRequireToCheckOut({ orderId: currentOrder.id, requireCheckOut: false }));
+                    }}
+                    icon={<MdMonetizationOn size={20} />}
+                    size="large"
+                    type="primary"
+                    block
+                    className="flex items-center justify-center grow"
+                  >
+                    Cancel check out request
+                  </Button>
+                ) : (
+                  <Button
+                    disabled={
+                      currentOrder.orderDetailList.filter(detail => detail.quantity > 0).length === 0 ||
+                      currentOrder.orderDetailList.some(od => od.unnotifiedQuantity > 0) ||
+                      currentOrder.id === null
+                    }
+                    onClick={() => {
+                      dispatch(changeIsRequireToCheckOut({ orderId: currentOrder.id, requireCheckOut: true }));
+                    }}
+                    icon={<MdMonetizationOn size={20} />}
+                    size="large"
+                    type="primary"
+                    block
+                    className="flex items-center justify-center grow"
+                  >
+                    Request check out
+                  </Button>
+                )
+              ) : (
+                <></>
               )}
             </ConfigProvider>
             <Button
@@ -335,130 +394,148 @@ const OrderDetailCard = ({
   openNumbericKeyboard: any;
 }) => {
   const dispatch = useAppDispatch();
-  const isPaid = useAppSelector(state => state.order.currentOrder).paid;
+  const currentOrder: IOrder = useAppSelector(state => state.order.currentOrder);
+  const [isShowRTSModal, setIsShowRTSModal] = useState(false);
+
+  const handleShowRTSModal = () => {
+    if (detail.readyToServeQuantity > 0 && !currentOrder.takeAway) {
+      setIsShowRTSModal(true);
+    }
+  };
 
   return (
-    <motion.div
-      key={detail.id}
-      initial={{ opacity: 0, x: '-50%' }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.3 }}
-      exit={{ opacity: 0, x: '50%' }}
-      layout
-      className="relative flex items-center w-full h-24 p-2 text-blue-600 bg-white border !border-transparent border-solid rounded-lg hover:!border-blue-200 hover:shadow-md"
-    >
-      <div className="relative flex items-center justify-center h-full bg-blue-100 rounded-md !aspect-square">
-        {detail.menuItem.imageUrl ? (
-          <>
-            <Image preview={false} src={detail.menuItem.imageUrl} className="w-full h-full overflow-hidden rounded-md none-draggable" />
-          </>
-        ) : (
-          <>
-            <MdOutlineFastfood size={32} />
-          </>
-        )}
-        {detail.unnotifiedQuantity > 0 && (
-          <Button
-            size="small"
-            className={`absolute border-0 !p-0 right-1 bottom-1 ${
-              detail.priority ? 'text-yellow-600' : 'text-slate-300'
-            } hover:!text-yellow-500`}
-            icon={<StarFilled rev={''} />}
-            onClick={() => dispatch(orderActions.changePriority({ orderDetailId: detail.id, priority: !detail.priority }))}
-          />
-        )}
-        {detail.readyToServeQuantity > 0 && (
-          <span className="absolute flex w-5 h-5 -top-1 -right-1">
-            <span className="absolute inline-flex w-full h-full bg-yellow-500 rounded-full opacity-75 animate-ping"></span>
-            <span className="relative inline-flex items-center justify-center w-5 h-5 text-xs text-white bg-yellow-600 rounded-full">
-              {detail.readyToServeQuantity}
-            </span>
-          </span>
-        )}
-        {detail.servedQuantity > 0 && (
-          <div className="absolute bottom-0 left-0 flex items-center justify-center w-4 h-4 bg-green-600 rounded-es-lg detail-badge">
-            <span className="mb-1 ml-1 text-xs text-white">{detail.servedQuantity}</span>
-          </div>
-        )}
-      </div>
-
-      <div className="flex flex-col justify-between h-full px-4 grow">
-        <div className="">
-          <Typography.Text className="w-64 font-semibold text" ellipsis={{ tooltip: detail.menuItem.name }}>
-            {index + '. ' + detail.menuItem.name}
-          </Typography.Text>
-          <div
-            onClick={() => {
-              if (detail.quantity === detail.unnotifiedQuantity) onAddNote();
-            }}
-            className={`flex items-center !p-0 py-1 !w-full !h-6 text-left !text-xs ${
-              detail.note ? '!text-blue-600' : detail.quantity === detail.unnotifiedQuantity ? 'text-gray-500' : 'text-gray-300'
-            } ${
-              detail.quantity === detail.unnotifiedQuantity
-                ? 'cursor-pointer hover:text-gray-600 hover:bg-gray-100 rounded-lg'
-                : 'cursor-default'
-            }`}
-          >
-            {detail.note
-              ? detail.note
-              : detail.quantity !== detail.unnotifiedQuantity
-              ? translate('order.addNote.empty')
-              : translate('order.addNote.title') + '...'}
-          </div>
-        </div>
-        <div className="flex items-center justify-between">
-          {isPaid ? (
-            <div className="min-w-[40px] flex gap-1.5 justify-center items-end cursor-pointer">
-              <Typography.Text className={`!m-0`}>{'x ' + detail.quantity}</Typography.Text>
-            </div>
+    <>
+      <motion.div
+        key={detail.id}
+        initial={{ opacity: 0, x: '-50%' }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.3 }}
+        exit={{ opacity: 0, x: '50%' }}
+        layout
+        className="relative flex items-center w-full h-24 p-2 text-blue-600 bg-white border !border-transparent border-solid rounded-lg hover:!border-blue-200 hover:shadow-md"
+      >
+        <div
+          className={`relative flex items-center justify-center h-full bg-blue-100 rounded-md !aspect-square ${
+            detail.readyToServeQuantity > 0 && !currentOrder.takeAway ? 'cursor-pointer' : ''
+          }`}
+          onClick={handleShowRTSModal}
+        >
+          {detail.menuItem.imageUrl ? (
+            <>
+              <Image preview={false} src={detail.menuItem.imageUrl} className="w-full h-full overflow-hidden rounded-md none-draggable" />
+            </>
           ) : (
-            <div className="flex items-center text-blue-600 w-fit">
-              <Button
-                disabled={detail.quantity === 1}
-                onClick={() => handelAdjustQuantity({ detail, quantityAdjust: -1 })}
-                type="primary"
-                size="small"
-                className="!p-0 !w-6 !h-6 shadow-none flex justify-center items-center"
-                icon={<MinusOutlined rev={''} />}
-              />
-              <div className="min-w-[40px] flex gap-1.5 justify-center items-end cursor-pointer" onClick={openNumbericKeyboard}>
-                <Typography.Text
-                  className={`!m-0 ${
-                    detail.unnotifiedQuantity > 0
-                      ? '!text-blue-700 bg-yellow-100 flex items-center justify-center w-[22px] rounded-full font-bold'
-                      : ''
-                  }`}
-                >
-                  {detail.quantity}
-                </Typography.Text>
-              </div>
-              <Button
-                onClick={() => handelAdjustQuantity({ detail, quantityAdjust: 1 })}
-                type="primary"
-                size="small"
-                className="!p-0 !w-6 !h-6 shadow-none flex justify-center items-center"
-                icon={<PlusOutlined rev={''} />}
-              />
+            <>
+              <MdOutlineFastfood size={32} />
+            </>
+          )}
+          {detail.unnotifiedQuantity > 0 && (
+            <Button
+              size="small"
+              className={`absolute border-0 !p-0 right-1 bottom-1 ${
+                detail.priority ? 'text-yellow-600' : 'text-slate-300'
+              } hover:!text-yellow-500`}
+              icon={<StarFilled rev={''} />}
+              onClick={e => {
+                e.stopPropagation();
+                dispatch(orderActions.changePriority({ orderDetailId: detail.id, priority: !detail.priority }));
+              }}
+            />
+          )}
+          {detail.readyToServeQuantity > 0 && (
+            <span className="absolute flex w-5 h-5 -top-1 -right-1">
+              <span className="absolute inline-flex w-full h-full bg-yellow-500 rounded-full opacity-75 animate-ping"></span>
+              <span className="relative inline-flex items-center justify-center w-5 h-5 text-xs text-white bg-yellow-600 rounded-full">
+                {detail.readyToServeQuantity}
+              </span>
+            </span>
+          )}
+          {detail.servedQuantity > 0 && (
+            <div className="absolute bottom-0 left-0 flex items-center justify-center w-4 h-4 bg-green-600 rounded-es-lg detail-badge">
+              <span className="mb-1 ml-1 text-xs text-white">{detail.servedQuantity}</span>
             </div>
           )}
-          <span className="font-semibold">
-            <CurrencyFormat>{detail.menuItem.sellPrice * detail.quantity}</CurrencyFormat>
-          </span>
         </div>
-      </div>
-      <div className="flex flex-col justify-between h-full" hidden={isPaid}>
-        <Button
-          onClick={() => handleDeleteItem(detail)}
-          danger
-          className="!h-9 !w-9 rounded-lg shadow-none border-none aspect-square bg-red-100 !text-red-600 "
-          icon={<DeleteFilled rev={''} />}
-        />
-        <Button
-          onClick={() => handleDuplicateItem({ menuItem: { id: detail.menuItem.id }, quantity: 1 }, detail.orderId)}
-          className="!h-9 !w-9 rounded-lg shadow-none border-none aspect-square bg-blue-100 !text-blue-600"
-          icon={<PlusOutlined rev={''} />}
-        />
-      </div>
-    </motion.div>
+
+        <div className="flex flex-col justify-between h-full px-4 grow">
+          <div className="">
+            <Typography.Text className="w-64 font-semibold text" ellipsis={{ tooltip: detail.menuItem.name }}>
+              {index + '. ' + detail.menuItem.name}
+            </Typography.Text>
+            <div
+              onClick={() => {
+                if (detail.quantity === detail.unnotifiedQuantity) onAddNote();
+              }}
+              className={`flex items-center !p-0 py-1 !w-full !h-6 text-left !text-xs ${
+                detail.note ? '!text-blue-600' : detail.quantity === detail.unnotifiedQuantity ? 'text-gray-500' : 'text-gray-300'
+              } ${
+                detail.quantity === detail.unnotifiedQuantity
+                  ? 'cursor-pointer hover:text-gray-600 hover:bg-gray-100 rounded-lg'
+                  : 'cursor-default'
+              }`}
+            >
+              {detail.note
+                ? detail.note
+                : detail.quantity !== detail.unnotifiedQuantity
+                ? translate('order.addNote.empty')
+                : translate('order.addNote.title') + '...'}
+            </div>
+          </div>
+          <div className="flex items-center justify-between">
+            {currentOrder?.paid ? (
+              <div className="min-w-[40px] flex gap-1.5 justify-center items-end cursor-pointer">
+                <Typography.Text className={`!m-0`}>{'x ' + detail.quantity}</Typography.Text>
+              </div>
+            ) : (
+              <div className="flex items-center text-blue-600 w-fit">
+                <Button
+                  disabled={detail.quantity === 1}
+                  onClick={() => handelAdjustQuantity({ detail, quantityAdjust: -1 })}
+                  type="primary"
+                  size="small"
+                  className="!p-0 !w-6 !h-6 shadow-none flex justify-center items-center"
+                  icon={<MinusOutlined rev={''} />}
+                />
+                <div className="min-w-[40px] flex gap-1.5 justify-center items-end cursor-pointer" onClick={openNumbericKeyboard}>
+                  <Typography.Text
+                    className={`!m-0 ${
+                      detail.unnotifiedQuantity > 0
+                        ? '!text-blue-700 bg-yellow-100 flex items-center justify-center w-[22px] rounded-full font-bold'
+                        : ''
+                    }`}
+                  >
+                    {detail.quantity}
+                  </Typography.Text>
+                </div>
+                <Button
+                  onClick={() => handelAdjustQuantity({ detail, quantityAdjust: 1 })}
+                  type="primary"
+                  size="small"
+                  className="!p-0 !w-6 !h-6 shadow-none flex justify-center items-center"
+                  icon={<PlusOutlined rev={''} />}
+                />
+              </div>
+            )}
+            <span className="font-semibold">
+              <CurrencyFormat>{detail.menuItem.sellPrice * detail.quantity}</CurrencyFormat>
+            </span>
+          </div>
+        </div>
+        <div className="flex flex-col justify-between h-full" hidden={currentOrder?.paid}>
+          <Button
+            onClick={() => handleDeleteItem(detail)}
+            danger
+            className="!h-9 !w-9 rounded-lg shadow-none border-none aspect-square bg-red-100 !text-red-600 "
+            icon={<DeleteFilled rev={''} />}
+          />
+          <Button
+            onClick={() => handleDuplicateItem({ menuItem: { id: detail.menuItem.id }, quantity: 1 }, detail.orderId)}
+            className="!h-9 !w-9 rounded-lg shadow-none border-none aspect-square bg-blue-100 !text-blue-600"
+            icon={<PlusOutlined rev={''} />}
+          />
+        </div>
+      </motion.div>
+      <ItemServeModal isOpen={isShowRTSModal} detail={detail} handleClose={() => setIsShowRTSModal(false)} />
+    </>
   );
 };

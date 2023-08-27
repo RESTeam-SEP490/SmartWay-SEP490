@@ -29,7 +29,7 @@ export const ItemCancellationModal = ({ detail, isOpen, handleClose }: { detail:
   }, [updateSuccess]);
 
   useEffect(() => {
-    if (detail) setCancelQuantity(detail.quantity);
+    if (detail) setCancelQuantity(1);
   }, [detail]);
 
   const handleSubmit = values => {

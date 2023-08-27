@@ -1,20 +1,18 @@
 package com.resteam.smartway.web.rest;
 
 import com.itextpdf.text.DocumentException;
+import com.resteam.smartway.domain.order.notifications.ReadyToServeNotification;
 import com.resteam.smartway.service.OrderService;
 import com.resteam.smartway.service.PaymentDTO;
-import com.resteam.smartway.service.StatisticService;
-import com.resteam.smartway.service.StatisticServiceImpl;
 import com.resteam.smartway.service.dto.order.*;
 import com.resteam.smartway.service.dto.order.notification.CancellationDTO;
-import com.resteam.smartway.service.dto.statistic.StatisticDTO;
+import com.resteam.smartway.service.dto.order.notification.ServeItemsDTO;
 import com.resteam.smartway.web.websocket.KitchenWebsocket;
 import com.resteam.smartway.web.websocket.OrderWebsocket;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -31,12 +29,9 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class OrderResource {
 
-    private static final String ENTITY_NAME = "order";
-
     private final OrderService orderService;
     private final OrderWebsocket orderWebsocket;
     private final KitchenWebsocket kitchenWebsocket;
-    private final StatisticService statisticService;
 
     @PostMapping
     public ResponseEntity<OrderDTO> createOrder(@Valid @RequestBody OrderCreationDTO orderDTO) {
@@ -44,16 +39,20 @@ public class OrderResource {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
     }
 
-    @PostMapping("/take-away")
-    public ResponseEntity<OrderDTO> createTakeAwayOrder() {
-        OrderDTO createdOrder = orderService.createTakeAwayOrder();
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
-    }
-
     @GetMapping("/active-orders")
     public ResponseEntity<List<OrderDTO>> getAllActiveOrders() {
         List<OrderDTO> notPaidOrders = orderService.getAllActiveOrders();
         return ResponseEntity.ok(notPaidOrders);
+    }
+
+    @PutMapping("/serve-items")
+    public ResponseEntity<Void> notifyServed(@Valid @RequestBody ServeItemsDTO dto) {
+        ReadyToServeNotification readyToServeNotification = orderService.markServed(dto);
+        kitchenWebsocket.sendMessageToUpdateKitchenScreen();
+
+        kitchenWebsocket.sendAlertToOrders("has-served-item", readyToServeNotification, dto.getServeQuantity());
+
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/free-up-table")
@@ -178,5 +177,12 @@ public class OrderResource {
             updatedOrder != null && !updatedOrder.getKitchenNotificationHistoryList().isEmpty()
         ) kitchenWebsocket.sendCancelMessageToKitchenScreen(updatedOrder);
         return ResponseEntity.ok(updatedOrder);
+    }
+
+    @PutMapping("/change-is-require-check-out")
+    public ResponseEntity<Void> requireCheckOut(@RequestBody RequireCheckOutDTO dto) {
+        OrderDTO updatedOrder = orderService.changeRequireToCheckOut(dto);
+        orderWebsocket.sendMessageToChangedOrder(updatedOrder);
+        return ResponseEntity.ok().build();
     }
 }

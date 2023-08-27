@@ -1,6 +1,5 @@
 package com.resteam.smartway.service;
 
-import com.resteam.smartway.domain.order.OrderDetail;
 import com.resteam.smartway.domain.order.notifications.ItemAdditionNotification;
 import com.resteam.smartway.domain.order.notifications.ItemCancellationNotification;
 import com.resteam.smartway.domain.order.notifications.ReadyToServeNotification;
@@ -9,12 +8,12 @@ import com.resteam.smartway.repository.order.OrderDetailRepository;
 import com.resteam.smartway.repository.order.ReadyToServeNotificationRepository;
 import com.resteam.smartway.service.dto.order.KitchenItemsDTO;
 import com.resteam.smartway.service.dto.order.notification.NotifyReadyToServeDTO;
-import com.resteam.smartway.service.dto.order.notification.NotifyServedDTO;
 import com.resteam.smartway.service.mapper.order.notification.ItemAdditionNotificationMapper;
 import com.resteam.smartway.service.mapper.order.notification.ReadyToServeNotificationMapper;
 import com.resteam.smartway.web.rest.errors.BadRequestAlertException;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -30,7 +29,6 @@ public class KitchenServiceImpl implements KitchenService {
     private final ReadyToServeNotificationRepository readyToServeNotificationRepository;
     private final ItemAdditionNotificationMapper itemAdditionNotificationMapper;
     private final ReadyToServeNotificationMapper readyToServeNotificationMapper;
-    private final OrderDetailRepository orderDetailRepository;
 
     @Override
     public KitchenItemsDTO getAllOrderItemInKitchen() {
@@ -94,40 +92,13 @@ public class KitchenServiceImpl implements KitchenService {
     }
 
     @Override
-    public ReadyToServeNotification markServed(NotifyServedDTO dto) {
-        ReadyToServeNotification readyToServeNotification = readyToServeNotificationRepository
-            .findByIdAndIsCompleted(dto.getReadyToServeNotificationId(), false)
+    public void hideRTS(UUID rtsId) {
+        ReadyToServeNotification rts = readyToServeNotificationRepository
+            .findById(rtsId)
             .orElseThrow(() ->
-                new BadRequestAlertException(
-                    "Ready-to-serve notification was not found or already completed",
-                    "readyToServeNotification",
-                    "notfound"
-                )
+                new BadRequestAlertException("Ready-to-serve notification not found", "readyToServeNotification", "idnotfound")
             );
-        int notServedQuantity = readyToServeNotification.getQuantity() - readyToServeNotification.getServedQuantity();
-        for (ItemCancellationNotification icn : readyToServeNotification.getItemCancellationNotificationList()) {
-            notServedQuantity -= icn.getQuantity();
-        }
-        if (notServedQuantity < dto.getServedQuantity()) throw new BadRequestAlertException(
-            "Served quantity is more than ready-to-serve quantity",
-            "kitchenItems",
-            "quantityInvalid"
-        );
 
-        if (notServedQuantity == 0 && dto.getServedQuantity() == 0) {
-            readyToServeNotification.setCompleted(true);
-            return readyToServeNotificationRepository.save(readyToServeNotification);
-        }
-
-        OrderDetail orderDetail = readyToServeNotification.getItemAdditionNotification().getOrderDetail();
-        orderDetail.setServedQuantity(orderDetail.getServedQuantity() + dto.getServedQuantity());
-        orderDetailRepository.save(orderDetail);
-
-        readyToServeNotification.setServedQuantity(readyToServeNotification.getServedQuantity() + dto.getServedQuantity());
-        if (notServedQuantity == dto.getServedQuantity()) {
-            readyToServeNotification.setCompleted(true);
-        }
-
-        return readyToServeNotificationRepository.saveAndFlush(readyToServeNotification);
+        rts.setCompleted(true);
     }
 }

@@ -27,6 +27,7 @@ export const ReadyToServeItems = () => {
       rootList.filter(item => categoryFilter.some(categoryId => categoryId === item.itemAdditionNotification.menuItem.menuItemCategory.id))
     );
   }, [categoryFilter, kitchenItems]);
+
   useEffect(() => {
     const interval = setInterval(() => setNow(dayjs()), 1000);
     return () => clearInterval(interval);
@@ -130,7 +131,6 @@ export const ReadyToServeItems = () => {
                         },
                       }}
                     >
-                      {' '}
                       {[...item.itemCancellationNotificationList.map(icn => icn.quantity)].reduce<number>((prev, value) => {
                         return prev - value;
                       }, item.quantity - item.servedQuantity) === 0 ? (
@@ -140,38 +140,10 @@ export const ReadyToServeItems = () => {
                           ghost
                           className="!aspect-square !bg-red-100"
                           icon={<DeleteFilled rev="" />}
-                          onClick={() => dispatch(kitchenActions.notifyServed({ readyToServeNotificationId: item.id, servedQuantity: 0 }))}
+                          onClick={() => dispatch(kitchenActions.hideRts(item.id))}
                         />
                       ) : (
-                        <>
-                          <Button
-                            type="primary"
-                            ghost
-                            className="!w-12"
-                            icon={<RightOutlined rev="" />}
-                            onClick={() =>
-                              dispatch(kitchenActions.notifyServed({ readyToServeNotificationId: item.id, servedQuantity: 1 }))
-                            }
-                          />
-                          <Button
-                            type="primary"
-                            className="!w-12"
-                            icon={<DoubleRightOutlined rev="" />}
-                            onClick={() =>
-                              dispatch(
-                                kitchenActions.notifyServed({
-                                  readyToServeNotificationId: item.id,
-                                  servedQuantity: [...item.itemCancellationNotificationList.map(icn => icn.quantity)].reduce<number>(
-                                    (prev, value) => {
-                                      return prev - value;
-                                    },
-                                    item.quantity - item.servedQuantity
-                                  ),
-                                })
-                              )
-                            }
-                          />
-                        </>
+                        <></>
                       )}
                     </ConfigProvider>
                   </div>

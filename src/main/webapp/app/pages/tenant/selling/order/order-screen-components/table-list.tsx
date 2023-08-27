@@ -8,7 +8,7 @@ import { IOrder } from 'app/shared/model/order/order.model';
 import React, { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { GiWoodenChair } from 'react-icons/gi';
-import { MdFastfood } from 'react-icons/md';
+import { MdFastfood, MdNotificationsActive } from 'react-icons/md';
 import { Translate } from 'react-jhipster';
 import { orderActions } from '../order.reducer';
 
@@ -133,14 +133,16 @@ const TableCard = ({ table, handleSelectTable }: { table: IDiningTable; handleSe
         {': ' + (table.numberOfSeats ?? '--')}
       </Typography.Text>
 
-      {hasReadyToServeItem && (
-        <span className="absolute flex w-6 h-6 -top-2 -right-2">
-          <span className="absolute inline-flex w-full h-full bg-yellow-500 rounded-full opacity-75 animate-ping"></span>
-          <span className="relative inline-flex items-center justify-center w-6 h-6 text-white bg-yellow-600 rounded-full">
-            <MdFastfood size={14} />
+      <div className="absolute flex flex-col gap-2 -top-1 -right-3">
+        {hasReadyToServeItem && (
+          <span className="relative flex w-6 h-6">
+            <span className="absolute inline-flex w-full h-full bg-yellow-500 rounded-full opacity-75 animate-ping"></span>
+            <span className="relative inline-flex items-center justify-center w-6 h-6 text-white bg-yellow-600 rounded-full">
+              <MdFastfood size={14} />
+            </span>
           </span>
-        </span>
-      )}
+        )}
+      </div>
       {orderOfThisTable?.tableList.length > 1 && isSelected && (
         <>
           <div className="absolute h-2 translate-x-1/2 bg-blue-100 -top-1 right-1/2 w-9"></div>
@@ -148,7 +150,7 @@ const TableCard = ({ table, handleSelectTable }: { table: IDiningTable; handleSe
             className={`absolute top-0 flex items-center justify-center p-1 text-blue-100 translate-x-1/2 -translate-y-1/2 rounded-full aspect-square right-1/2 table-badge  ${
               status === 'billed' ? '!bg-green-700' : ''
             } 
-       ${status === 'occupied' ? '!bg-gray-700' : ''} `}
+            ${status === 'occupied' ? '!bg-gray-700' : ''} `}
           >
             <BlockOutlined rev="" className="text-lg" />
           </div>

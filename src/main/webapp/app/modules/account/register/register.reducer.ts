@@ -49,6 +49,7 @@ export const RegisterSlice = createSlice({
       }))
       .addCase(handleRegister.fulfilled, (state, action) => ({
         ...initialState,
+        loading: false,
         registrationSuccess: true,
 
         restaurantLink: action.payload.headers['location'],

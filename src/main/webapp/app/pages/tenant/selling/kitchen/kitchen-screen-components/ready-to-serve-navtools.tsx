@@ -19,7 +19,6 @@ export const RTSNavTool = () => {
   return (
     <>
       <div className="inline-flex gap-2">
-        <Button ghost shape="circle" icon={<PrinterFilled rev="" />}></Button>
         <Popover placement="bottomLeft" trigger={'click'} content={<CategorySelect />}>
           <div className="relative flex">
             <Button ghost shape="circle" icon={<FilterFilled rev="" />}></Button>

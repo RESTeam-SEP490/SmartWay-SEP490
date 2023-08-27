@@ -1,9 +1,11 @@
 package com.resteam.smartway.service;
 
 import com.itextpdf.text.DocumentException;
+import com.resteam.smartway.domain.order.notifications.ReadyToServeNotification;
 import com.resteam.smartway.service.dto.BillDTO;
 import com.resteam.smartway.service.dto.order.*;
 import com.resteam.smartway.service.dto.order.notification.CancellationDTO;
+import com.resteam.smartway.service.dto.order.notification.ServeItemsDTO;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -32,6 +34,8 @@ public interface OrderService {
 
     OrderDTO setOrderIsCompleted(UUID orderId);
 
+    ReadyToServeNotification markServed(ServeItemsDTO dto);
+
     OrderDTO deleteOrderDetail(UUID orderDetailId);
 
     OrderDTO addNoteToOrderDetail(DetailAddNoteDTO dto);
@@ -52,6 +56,8 @@ public interface OrderService {
 
     @SneakyThrows
     OrderDTO checkOut(PaymentDTO dto);
+
+    OrderDTO changeRequireToCheckOut(RequireCheckOutDTO dto);
 
     byte[] generatePdfOrderForNotificationKitchen(List<UUID> ids) throws DocumentException;
 

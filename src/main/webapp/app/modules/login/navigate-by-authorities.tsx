@@ -21,7 +21,8 @@ export const NavigateByAuthorities = ({ to }: { to?: 'pos' | 'managing' }) => {
         else if (authorities.includes(AUTHORITIES.STAFF)) path = '/managing/staff';
         else if (authorities.includes(AUTHORITIES.MENUITEM)) path = '/managing/menu-items';
         else if (authorities.includes(AUTHORITIES.TABLE)) path = '/managing/tables';
-      } else if (to === 'pos' || (!to && path === '')) {
+      }
+      if (to === 'pos' || (!to && path === '')) {
         if (authorities.some(p => [AUTHORITIES.ORDER_ADD_AND_CANCEL, AUTHORITIES.ADMIN].includes(p))) path = '/pos/orders';
         else if ([AUTHORITIES.KITCHEN_PREPARING_ITEM, AUTHORITIES.KITCHEN_RTS_ITEM].some(p => authorities.includes(p)))
           path = '/pos/kitchen';

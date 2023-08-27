@@ -7,6 +7,7 @@ export interface IOrder {
   code?: string | null;
   paid?: boolean | null;
   takeAway?: boolean | null;
+  isRequireToCheckOut?: boolean | null;
   createdDate?: string;
   tableList?: IDiningTable[];
   orderDetailList?: IOrderDetail[];

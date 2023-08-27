@@ -31,6 +31,7 @@ import com.resteam.smartway.service.dto.BillDTO;
 import com.resteam.smartway.service.dto.DiningTableDTO;
 import com.resteam.smartway.service.dto.order.*;
 import com.resteam.smartway.service.dto.order.notification.CancellationDTO;
+import com.resteam.smartway.service.dto.order.notification.ServeItemsDTO;
 import com.resteam.smartway.service.mapper.DiningTableMapper;
 import com.resteam.smartway.service.mapper.MenuItemMapper;
 import com.resteam.smartway.service.mapper.order.OrderDetailMapper;
@@ -81,6 +82,7 @@ public class OrderServiceImpl implements OrderService {
     private final MenuItemMapper menuItemMapper;
     private final S3Service s3Service;
     private final DiningTableMapper diningTableMapper;
+    private final ReadyToServeNotificationRepository readyToServeNotificationRepository;
 
     private static final String ORDER = "order";
     private static final String TABLE = "table";
@@ -475,6 +477,54 @@ public class OrderServiceImpl implements OrderService {
     public OrderDTO findById(UUID id) {
         SwOrder order = orderRepository.findById(id).orElseThrow(() -> new BadRequestAlertException("Invalid ID", ORDER, "idnotfound"));
         return sortOrderDetailsAndNotificationHistories(order);
+    }
+
+    @Override
+    public ReadyToServeNotification markServed(ServeItemsDTO dto) {
+        List<ReadyToServeNotification> readyToServeNotificationList = readyToServeNotificationRepository.findByOrderDetailIdAndIsCompleted(
+            dto.getOrderDetailId(),
+            false
+        );
+
+        OrderDetail orderDetail = orderDetailRepository
+            .findById(dto.getOrderDetailId())
+            .orElseThrow(() -> new BadRequestAlertException("Order detail was not found", ORDER_DETAIL, "idnotfound"));
+        orderDetail.setServedQuantity(orderDetail.getServedQuantity() + dto.getServeQuantity());
+        orderDetailRepository.save(orderDetail);
+
+        List<ReadyToServeNotification> toUpdateRts = new ArrayList<>();
+        int toServeQuantity = dto.getServeQuantity();
+
+        for (ReadyToServeNotification rts : readyToServeNotificationList) {
+            int unservedQuantity = rts.getQuantity() - rts.getServedQuantity();
+            for (ItemCancellationNotification icn : rts.getItemCancellationNotificationList()) {
+                unservedQuantity -= icn.getQuantity();
+            }
+
+            if (unservedQuantity <= toServeQuantity) {
+                rts.setCompleted(true);
+                toServeQuantity = dto.getServeQuantity() - unservedQuantity;
+            } else {
+                rts.setServedQuantity(rts.getServedQuantity() + toServeQuantity);
+                toServeQuantity = 0;
+            }
+            toUpdateRts.add(rts);
+
+            if (toServeQuantity == 0) break;
+        }
+
+        if (toServeQuantity != 0) throw new BadRequestAlertException(
+            "Served quantity is more than ready-to-serve quantity",
+            "kitchenItems",
+            "quantityInvalid"
+        );
+
+        //        if (notServedQuantity == 0 &&dto.getServeQuantity()() == 0) {
+        //            readyToServeNotification.setCompleted(true);
+        //            return readyToServeNotificationRepository.save(readyToServeNotification);
+        //        }
+        readyToServeNotificationRepository.saveAllAndFlush(toUpdateRts);
+        return readyToServeNotificationList.get(0);
     }
 
     @Override
@@ -980,7 +1030,24 @@ public class OrderServiceImpl implements OrderService {
                 .collect(Collectors.toList());
             diningTableRepository.saveAll(tableList);
         }
+
+        if (order.isTakeAway()) {
+            List<ReadyToServeNotification> rtsList = readyToServeNotificationRepository.findByOrderId(order.getId());
+            rtsList = rtsList.stream().peek(rts -> rts.setCompleted(true)).collect(Collectors.toList());
+            readyToServeNotificationRepository.saveAll(rtsList);
+        }
+
         return orderMapper.toDto(orderRepository.save(order));
+    }
+
+    @Override
+    public OrderDTO changeRequireToCheckOut(RequireCheckOutDTO dto) {
+        SwOrder order = orderRepository
+            .findByIdAndIsPaid(dto.getOrderId(), false)
+            .orElseThrow(() -> new BadRequestAlertException("Order was not found or paid", ORDER, "paidOrder"));
+        order.setIsRequireToCheckOut(dto.isRequireCheckOut());
+        SwOrder savedOrder = orderRepository.saveAndFlush(order);
+        return sortOrderDetailsAndNotificationHistories(savedOrder);
     }
 
     @Override

@@ -179,8 +179,7 @@ export const Charge = ({ isOpen, handleClose }: { isOpen: boolean; handleClose: 
                 className="w-40"
                 icon={<CreditCardOutlined rev="" />}
                 onClick={() => {
-                  if (currentOrder.takeAway) onCheckout(true);
-                  else setIsOpenConfirmModal(true);
+                  setIsOpenConfirmModal(true);
                 }}
               >
                 Charge
@@ -198,18 +197,39 @@ export const Charge = ({ isOpen, handleClose }: { isOpen: boolean; handleClose: 
         onCancel={() => setIsOpenConfirmModal(false)}
         footer={[]}
       >
-        {currentOrder.orderDetailList.some(detail => detail.servedQuantity < detail.quantity) ? (
+        {!currentOrder.takeAway ? (
+          currentOrder.orderDetailList.some(detail => detail.servedQuantity < detail.quantity) ? (
+            <>
+              <span className="text-[1rem] mt-4">This order is not served, so you only charge without free up table.</span>
+              <div className="flex justify-end gap-2 mt-4">
+                <Button type="primary" onClick={() => onCheckout(false)}>
+                  OK
+                </Button>
+              </div>
+            </>
+          ) : (
+            <>
+              <span className="text-[1rem] mt-4">Do you want to check out and free up tables?</span>
+              <div className="flex justify-end gap-2 mt-4">
+                <Button type="primary" onClick={() => onCheckout(true)}>
+                  Yes
+                </Button>
+                <Button onClick={() => onCheckout(false)}>No, check out only</Button>
+              </div>
+            </>
+          )
+        ) : currentOrder.orderDetailList.some(detail => detail.readyToServeQuantity < detail.quantity) ? (
           <>
-            <span className="text-[1rem] mt-4">This order is not served, so you only charge without free up table.</span>
+            <span className="text-[1rem] mt-4">This order is not served, so you only charge without mark this order is done.</span>
             <div className="flex justify-end gap-2 mt-4">
-              <Button type="primary" onClick={() => onCheckout(true)}>
+              <Button type="primary" onClick={() => onCheckout(false)}>
                 OK
               </Button>
             </div>
           </>
         ) : (
           <>
-            <span className="text-[1rem] mt-4">Do you want to check out and free up tables?</span>
+            <span className="text-[1rem] mt-4">Do you want to check out and mark order is done?</span>
             <div className="flex justify-end gap-2 mt-4">
               <Button type="primary" onClick={() => onCheckout(true)}>
                 Yes

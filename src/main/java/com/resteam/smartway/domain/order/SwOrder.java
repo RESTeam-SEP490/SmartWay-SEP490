@@ -77,4 +77,7 @@ public class SwOrder extends AbstractBaseAuditingEntity<UUID> {
 
     @Column(name = "cashier")
     private String cashier;
+
+    @Column(name = "is_require_to_check_out")
+    private Boolean isRequireToCheckOut;
 }
