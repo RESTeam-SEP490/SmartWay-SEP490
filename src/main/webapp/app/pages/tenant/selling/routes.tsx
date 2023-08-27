@@ -102,7 +102,7 @@ export default () => {
             <Route
               path="kitchen"
               element={
-                <PrivateRoute hasAnyAuthorities={[AUTHORITIES.BILL_FULL_ACCESS, AUTHORITIES.BILL_VIEW_ONLY, AUTHORITIES.ADMIN]}>
+                <PrivateRoute hasAnyAuthorities={[AUTHORITIES.KITCHEN_PREPARING_ITEM, AUTHORITIES.KITCHEN_RTS_ITEM, AUTHORITIES.ADMIN]}>
                   <Kitchen />
                 </PrivateRoute>
               }
@@ -110,7 +110,7 @@ export default () => {
             <Route
               path="bills"
               element={
-                <PrivateRoute hasAnyAuthorities={[AUTHORITIES.KITCHEN_PREPARING_ITEM, AUTHORITIES.KITCHEN_RTS_ITEM, AUTHORITIES.ADMIN]}>
+                <PrivateRoute hasAnyAuthorities={[AUTHORITIES.BILL_FULL_ACCESS, AUTHORITIES.BILL_VIEW_ONLY, AUTHORITIES.ADMIN]}>
                   <Bill />
                 </PrivateRoute>
               }

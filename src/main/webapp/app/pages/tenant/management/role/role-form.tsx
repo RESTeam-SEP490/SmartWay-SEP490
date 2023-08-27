@@ -244,7 +244,7 @@ export const RoleForm = ({ role, handleCancel }: { role: IRole; handleCancel: an
             </div>
             <Select
               className="!w-28"
-              defaultValue={
+              value={
                 authorities.includes(AUTHORITIES.BILL_VIEW_ONLY)
                   ? 'view_only'
                   : authorities.includes(AUTHORITIES.BILL_FULL_ACCESS)
