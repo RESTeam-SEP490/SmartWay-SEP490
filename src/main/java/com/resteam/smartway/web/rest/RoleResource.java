@@ -13,6 +13,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import tech.jhipster.web.util.HeaderUtil;
@@ -31,6 +32,7 @@ public class RoleResource {
     private final RoleService roleService;
 
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_STAFF')")
     public ResponseEntity<RoleDTO> createRole(@Valid @RequestBody RoleDTO roleDTO) {
         if (roleDTO.getId() != null) {
             throw new BadRequestAlertException("A new entity cannot already have an ID", ENTITY_NAME, "id_exist");
@@ -43,11 +45,13 @@ public class RoleResource {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_STAFF')")
     public ResponseEntity<List<RoleDTO>> getAllRoles(Pageable pageable) {
         return ResponseEntity.ok(roleService.getAllRoles(pageable));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_STAFF')")
     public ResponseEntity<RoleDTO> updateRole(@PathVariable(value = "id") final String id, @Valid @RequestBody RoleDTO roleDTO) {
         if (roleDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -64,6 +68,7 @@ public class RoleResource {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_STAFF')")
     public ResponseEntity<Void> deleteRole(@PathVariable(value = "id") String id) {
         roleService.deleteRole(UUID.fromString(id));
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id)).build();

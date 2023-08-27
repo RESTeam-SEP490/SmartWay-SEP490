@@ -20,6 +20,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,6 +56,7 @@ public class MenuItemResource {
     private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_MENUITEM')")
     public ResponseEntity<List<MenuItemDTO>> loadMenuItemWithSearch(
         Pageable pageable,
         @RequestParam(value = "search", required = false) String searchText,
@@ -66,6 +69,7 @@ public class MenuItemResource {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_MENUITEM')")
     public ResponseEntity<MenuItemDTO> createMenuItem(
         @Valid @RequestPart MenuItemDTO menuItemDTO,
         @RequestPart(required = false) MultipartFile imageSource
@@ -81,6 +85,7 @@ public class MenuItemResource {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_MENUITEM')")
     public ResponseEntity<MenuItemDTO> updateRestaurant(
         @PathVariable(value = "id") final String id,
         @Valid @RequestPart MenuItemDTO menuItemDTO,
@@ -101,6 +106,7 @@ public class MenuItemResource {
     }
 
     @PutMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_MENUITEM')")
     public ResponseEntity<MenuItemDTO> updateRestaurant(@Valid @RequestBody IsActiveUpdateDTO isActiveUpdateDTO) {
         menuItemService.updateIsActiveMenuItems(isActiveUpdateDTO);
         return ResponseEntity
@@ -110,6 +116,7 @@ public class MenuItemResource {
     }
 
     @DeleteMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_MENUITEM')")
     public ResponseEntity<Void> deleteRestaurants(@RequestParam(value = "ids") final List<String> ids) {
         menuItemService.deleteMenuItem(ids);
         return ResponseEntity
@@ -119,6 +126,7 @@ public class MenuItemResource {
     }
 
     @GetMapping("/download-template")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_MENUITEM')")
     public ResponseEntity<InputStreamResource> downloadExcel() {
         ByteArrayInputStream stream = templateService.downloadExcelTemplate(PATH_TEMPLATE_EXCEL_MENU_ITEM, 2);
         HttpHeaders headers = new HttpHeaders();
@@ -127,6 +135,7 @@ public class MenuItemResource {
     }
 
     @PostMapping("/import-menu-item")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_MENUITEM')")
     public ResponseEntity<?> uploadMenuItemList(@RequestParam("file") MultipartFile file) throws IOException {
         if (templateService.checkTypeFile(file)) {
             Map<String, String> errorMap = menuItemService.importMenuItems(file.getInputStream());

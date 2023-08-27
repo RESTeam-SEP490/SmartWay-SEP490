@@ -19,6 +19,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,6 +57,7 @@ public class StaffResource {
     private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_STAFF')")
     public ResponseEntity<List<StaffDTO>> getAllStaffWithSearch(
         Pageable pageable,
         @RequestParam(value = "search", required = false) String searchText,
@@ -71,6 +73,7 @@ public class StaffResource {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_STAFF')")
     public ResponseEntity<StaffDTO> createStaff(@Valid @RequestBody StaffDTO staffDTO) {
         if (staffDTO.getId() != null) {
             throw new BadRequestAlertException("A new entity cannot already have an ID", ENTITY_NAME, "id_exist");
@@ -83,6 +86,7 @@ public class StaffResource {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_STAFF')")
     public ResponseEntity<StaffDTO> updateStaff(@PathVariable(value = "id") final String id, @Valid @RequestBody StaffDTO staffDTO) {
         if (staffDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "id null");
@@ -99,6 +103,7 @@ public class StaffResource {
     }
 
     @PutMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_STAFF')")
     public ResponseEntity<StaffDTO> updateIsActiveStaff(@Valid @RequestBody IsActiveUpdateDTO isActiveUpdateDTO) {
         userService.updateIsActiveStaff(isActiveUpdateDTO);
         return ResponseEntity
@@ -108,6 +113,7 @@ public class StaffResource {
     }
 
     @DeleteMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_STAFF')")
     public ResponseEntity<Void> deleteStaffs(@RequestParam(value = "ids") final List<String> ids) {
         userService.deleteStaff(ids);
         return ResponseEntity
@@ -117,6 +123,7 @@ public class StaffResource {
     }
 
     @GetMapping("/download-template")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_STAFF')")
     public ResponseEntity<InputStreamResource> downloadExcel() {
         ByteArrayInputStream stream = templateService.downloadExcelTemplate(PATH_TEMPLATE_EXCEL_STAFF, 1);
         HttpHeaders headers = new HttpHeaders();
@@ -125,6 +132,7 @@ public class StaffResource {
     }
 
     @PostMapping("/import-staff")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_STAFF')")
     public ResponseEntity<?> uploadStaffList(@RequestParam("file") MultipartFile file) throws IOException {
         if (templateService.checkTypeFile(file)) {
             Map<String, String> errorMap = userService.importStaff(file.getInputStream());
