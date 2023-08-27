@@ -33,7 +33,7 @@ public class ZoneResource {
     private final ZoneService zoneService;
 
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_TABLE')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_TABLE', 'PERMISSION_ORDER_ADD_AND_CANCEL')")
     public ResponseEntity<List<ZoneDTO>> loadZones() {
         List<ZoneDTO> zoneList = zoneService.loadAllZones();
         return ResponseEntity.ok(zoneList);

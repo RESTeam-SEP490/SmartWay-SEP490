@@ -61,7 +61,7 @@ public class DiningTableResource {
     private final String CONTENT_KEY_UPLOAD_TABLE = "diningTable.upload";
 
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_TABLE')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_TABLE', 'PERMISSION_ORDER_ADD_AND_CANCEL')")
     public ResponseEntity<List<DiningTableDTO>> loadDiningTableWithSearch(
         Pageable pageable,
         @RequestParam(value = "search", required = false) String searchText,

@@ -35,7 +35,7 @@ public class MenuItemCategoryResource {
     private final MenuItemCategoryService menuItemCategoryService;
 
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_MENUITEM')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_MENUITEM', 'PERMISSION_ORDER_ADD_AND_CANCEL')")
     public ResponseEntity<List<MenuItemCategoryDTO>> loadMenuItemCategories() {
         List<MenuItemCategoryDTO> menuItemCategoryList = menuItemCategoryService.loadAllMenuItemCategories();
         return ResponseEntity.ok(menuItemCategoryList);
