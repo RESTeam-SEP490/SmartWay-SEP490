@@ -639,7 +639,14 @@ public class OrderServiceImpl implements OrderService {
 
         if (ids.size() == 0 && !order.isTakeAway()) {
             order.setTakeAway(true);
+            order
+                .getTableList()
+                .forEach(t -> {
+                    t.setIsFree(true);
+                    diningTableRepository.save(t);
+                });
             order.setTableList(newTableList);
+
             SwOrder savedOrder = orderRepository.save(order);
             return sortOrderDetailsAndNotificationHistories(savedOrder);
         }
@@ -1398,6 +1405,12 @@ public class OrderServiceImpl implements OrderService {
             .findById(dto.getOrderId())
             .orElseThrow(() -> new BadRequestAlertException("Invalid ID", ORDER, "idnotfound"));
 
+        order
+            .getTableList()
+            .forEach(table -> {
+                table.setIsFree(true);
+                diningTableRepository.save(table);
+            });
         if (order.getOrderDetailList().size() == 0) {
             orderRepository.delete(order);
             return null;
@@ -1414,12 +1427,7 @@ public class OrderServiceImpl implements OrderService {
                 });
 
             order.setStatus(OrderStatus.CANCELLED);
-            order
-                .getTableList()
-                .forEach(table -> {
-                    table.setIsFree(true);
-                    diningTableRepository.save(table);
-                });
+
             orderRepository.saveAndFlush(order);
 
             return orderMapper.toDto(order);
