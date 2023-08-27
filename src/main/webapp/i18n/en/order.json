@@ -24,6 +24,9 @@
         "price": "Total price"
       }
     },
+    "action": {
+      "delete.question": "Are you sure to delete Bill Code <b>{{ code }}</b> ?"
+    },
 
     "tableList": {
       "status": {
@@ -64,5 +67,11 @@
       }
     },
     "checkout.success": "Check out successfully!"
+  },
+
+  "smartWayApp": {
+    "bill": {
+      "deleted": "Delete bill successfully"
+    }
   }
 }

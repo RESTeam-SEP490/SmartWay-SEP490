@@ -24,7 +24,9 @@
         "price": "Tổng tiền"
       }
     },
-
+    "action": {
+      "delete.question": "Bạn có muốn xóa mã hóa đơn <b>{{ code }}</b> không?"
+    },
     "tableList": {
       "status": {
         "available": "Trống",
@@ -61,6 +63,11 @@
         "quantity": "Số lượng huỷ",
         "totalQ": "Trong tổng",
         "reason": "Lí do"
+      }
+    },
+    "smartWayApp": {
+      "bill": {
+        "deleted": "Bạn đã xóa hóa đơn thành công"
       }
     }
   }

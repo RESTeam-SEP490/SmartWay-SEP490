@@ -6,6 +6,7 @@ import com.resteam.smartway.domain.order.SwOrder;
 import com.resteam.smartway.security.multitenancy.repository.BaseRepository;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -15,4 +16,6 @@ public interface OrderDetailRepository extends BaseRepository<OrderDetail> {
 
     @Query("SELECT s FROM SwOrder s")
     List<OrderDetail> findByIsCookedFalseOrderByCreatedDate();
+
+    List<OrderDetail> findAllByOrder_Id(UUID id);
 }

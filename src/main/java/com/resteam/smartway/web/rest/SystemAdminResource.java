@@ -28,6 +28,7 @@ public class SystemAdminResource {
     private String applicationName;
 
     private final String ENTITY_RESTAURANT = "restaurant";
+    private final String LINK_DASHBOARD = "https://stripe.com/docs/development";
 
     @GetMapping("restaurant")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SYSTEM_ADMIN')")
@@ -52,5 +53,11 @@ public class SystemAdminResource {
             .ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_RESTAURANT, isActiveUpdateDTO.getIds().toString()))
             .build();
+    }
+
+    @GetMapping("/dashboard")
+    @PreAuthorize("hasRole('ROLE_SYSTEM_ADMIN')")
+    public ResponseEntity<String> dashboardSystemAdmin() {
+        return ResponseEntity.status(HttpStatus.OK).body(LINK_DASHBOARD);
     }
 }

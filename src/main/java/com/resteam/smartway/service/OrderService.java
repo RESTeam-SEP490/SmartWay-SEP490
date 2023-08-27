@@ -62,4 +62,6 @@ public interface OrderService {
     byte[] generatePdfOrderForNotificationKitchen(List<UUID> ids) throws DocumentException;
 
     OrderDTO cancelOrder(OrderCancellationDTO dto);
+
+    void deleteBill(UUID id);
 }
