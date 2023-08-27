@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
@@ -27,6 +28,7 @@ public class SystemAdminResource {
     private String applicationName;
 
     private final String ENTITY_RESTAURANT = "restaurant";
+    private final String LINK_DASHBOARD = "https://stripe.com/docs/development";
 
     @GetMapping("restaurant")
     public ResponseEntity<List<RestaurantDTO>> loadDiningTableWithSearch(
@@ -49,5 +51,11 @@ public class SystemAdminResource {
             .ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_RESTAURANT, isActiveUpdateDTO.getIds().toString()))
             .build();
+    }
+
+    @GetMapping("/dashboard")
+    @PreAuthorize("hasRole('ROLE_SYSTEM_ADMIN')")
+    public ResponseEntity<String> dashboardSystemAdmin() {
+        return ResponseEntity.status(HttpStatus.OK).body(LINK_DASHBOARD);
     }
 }
