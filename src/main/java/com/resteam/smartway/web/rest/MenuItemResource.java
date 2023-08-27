@@ -56,7 +56,7 @@ public class MenuItemResource {
     private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_MENUITEM')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_MENUITEM', 'PERMISSION_ORDER_ADD_AND_CANCEL')")
     public ResponseEntity<List<MenuItemDTO>> loadMenuItemWithSearch(
         Pageable pageable,
         @RequestParam(value = "search", required = false) String searchText,

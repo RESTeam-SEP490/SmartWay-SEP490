@@ -19,6 +19,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,18 +35,21 @@ public class OrderResource {
     private final KitchenWebsocket kitchenWebsocket;
 
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_ORDER_ADD_AND_CANCEL')")
     public ResponseEntity<OrderDTO> createOrder(@Valid @RequestBody OrderCreationDTO orderDTO) {
         OrderDTO createdOrder = orderService.createOrder(orderDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
     }
 
     @GetMapping("/active-orders")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_ORDER_ADD_AND_CANCEL')")
     public ResponseEntity<List<OrderDTO>> getAllActiveOrders() {
         List<OrderDTO> notPaidOrders = orderService.getAllActiveOrders();
         return ResponseEntity.ok(notPaidOrders);
     }
 
     @PutMapping("/serve-items")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_ORDER_ADD_AND_CANCEL')")
     public ResponseEntity<Void> notifyServed(@Valid @RequestBody ServeItemsDTO dto) {
         ReadyToServeNotification readyToServeNotification = orderService.markServed(dto);
         kitchenWebsocket.sendMessageToUpdateKitchenScreen();
@@ -56,6 +60,7 @@ public class OrderResource {
     }
 
     @PutMapping("/free-up-table")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_ORDER_ADD_AND_CANCEL')")
     public ResponseEntity<OrderDTO> setOrderIsCompleted(@RequestParam UUID orderId) {
         OrderDTO completedOrder = orderService.setOrderIsCompleted(orderId);
         orderWebsocket.sendMessageToHideOrder(orderId);
@@ -63,6 +68,7 @@ public class OrderResource {
     }
 
     @PutMapping("/add-note")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_ORDER_ADD_AND_CANCEL')")
     public ResponseEntity<OrderDTO> addNoteToOrderDetail(@Valid @RequestBody DetailAddNoteDTO dto) {
         OrderDTO orderDTO = orderService.addNoteToOrderDetail(dto);
         orderWebsocket.sendMessageToChangedOrder(orderDTO);
@@ -70,6 +76,7 @@ public class OrderResource {
     }
 
     @PutMapping("/{orderId}/group-tables")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_ORDER_ADD_AND_CANCEL')")
     public ResponseEntity<OrderDTO> groupOrders(@PathVariable UUID orderId, @RequestBody List<String> tableIds) {
         OrderDTO groupedOrderDTO = orderService.groupTables(orderId, tableIds);
         orderWebsocket.sendMessageToChangedOrder(groupedOrderDTO);
@@ -77,12 +84,14 @@ public class OrderResource {
     }
 
     @PostMapping("/{orderId}/ungroup-tables")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_ORDER_ADD_AND_CANCEL')")
     public ResponseEntity<Void> ungroupTables(@PathVariable UUID orderId, @RequestBody List<String> tableIds) {
         orderService.ungroupTables(orderId, tableIds);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{orderId}/change-priority")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_ORDER_ADD_AND_CANCEL')")
     public ResponseEntity<OrderDTO> changePriority(@PathVariable UUID orderId, @RequestBody OrderDetailPriorityDTO orderDetailPriorityDTO) {
         orderDetailPriorityDTO.setOrderId(orderId);
         OrderDTO updatedOrder = orderService.changePriority(orderDetailPriorityDTO);
@@ -90,6 +99,7 @@ public class OrderResource {
     }
 
     @PostMapping("/{orderId}/split-order")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_ORDER_ADD_AND_CANCEL')")
     public ResponseEntity<OrderDTO> splitOrder(@PathVariable UUID orderId, @RequestBody SplitOrderDTO splitOrderDTO) {
         OrderDTO orderDTO = orderService.findById(orderId);
         OrderDTO newOrderDTO = orderService.splitOrder(
@@ -101,6 +111,7 @@ public class OrderResource {
     }
 
     @PostMapping("/print-bill")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_ORDER_ADD_AND_CANCEL')")
     public ResponseEntity<byte[]> exportPdfForOrder(@RequestBody PrintBillDTO printBillDTO) {
         try {
             byte[] pdfContent = orderService.generatePdfBillWithReturnItem(printBillDTO);
@@ -118,6 +129,7 @@ public class OrderResource {
     }
 
     @PostMapping("/check-out")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_ORDER_CHECKOUT', 'PERMISSION_ORDER_DISCOUNT')")
     public ResponseEntity<byte[]> checkOut(@RequestBody PaymentDTO paymentDTO) {
         OrderDTO orderDTO = orderService.checkOut(paymentDTO);
         HttpHeaders headers = new HttpHeaders();
@@ -143,6 +155,7 @@ public class OrderResource {
     }
 
     @GetMapping("/export-notificationKitchen")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_ORDER_ADD_AND_CANCEL')")
     public ResponseEntity<byte[]> exportPdfForNotificationKitchen(@RequestBody Map<String, List<UUID>> request) {
         List<UUID> ids = request.get("ids");
         try {
@@ -161,6 +174,7 @@ public class OrderResource {
     }
 
     @PutMapping("/cancel-order-detail")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_ORDER_ADD_AND_CANCEL')")
     public ResponseEntity<OrderDTO> cancelOrderDetail(@RequestBody CancellationDTO dto) {
         OrderDTO updatedOrder = orderService.cancelOrderDetail(dto);
         orderWebsocket.sendMessageToChangedOrder(updatedOrder);
@@ -170,6 +184,7 @@ public class OrderResource {
     }
 
     @PutMapping("/cancel-order")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_ORDER_ADD_AND_CANCEL')")
     public ResponseEntity<OrderDTO> cancelOrder(@RequestBody OrderCancellationDTO dto) {
         OrderDTO updatedOrder = orderService.cancelOrder(dto);
         orderWebsocket.sendMessageToHideOrder(dto.getOrderId());
@@ -180,6 +195,7 @@ public class OrderResource {
     }
 
     @PutMapping("/change-is-require-check-out")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_ORDER_ADD_AND_CANCEL')")
     public ResponseEntity<Void> requireCheckOut(@RequestBody RequireCheckOutDTO dto) {
         OrderDTO updatedOrder = orderService.changeRequireToCheckOut(dto);
         orderWebsocket.sendMessageToChangedOrder(updatedOrder);
