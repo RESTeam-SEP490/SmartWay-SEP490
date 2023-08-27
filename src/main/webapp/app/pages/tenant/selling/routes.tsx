@@ -10,7 +10,7 @@ import { MdOutlineReceiptLong, MdOutlineRestaurantMenu, MdOutlineRoomService, Md
 import Kitchen from './kitchen/kitchen';
 import { Bill } from './bill/bill';
 import { useAppSelector } from 'app/config/store';
-import { hasAnyAuthority } from 'app/shared/auth/private-route';
+import PrivateRoute, { hasAnyAuthority } from 'app/shared/auth/private-route';
 import { AUTHORITIES } from 'app/config/constants';
 import PageNotFound from 'app/shared/error/page-not-found';
 
@@ -91,9 +91,30 @@ export default () => {
         </div>{' '}
         <div className="bg-blue-600 grow">
           <ErrorBoundaryRoutes>
-            <Route path="orders" element={<OrderScreen />} />
-            <Route path="kitchen" element={<Kitchen />} />
-            <Route path="bills" element={<Bill />} />
+            <Route
+              path="orders"
+              element={
+                <PrivateRoute hasAnyAuthorities={[AUTHORITIES.ORDER_ADD_AND_CANCEL, AUTHORITIES.ADMIN]}>
+                  <OrderScreen />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="kitchen"
+              element={
+                <PrivateRoute hasAnyAuthorities={[AUTHORITIES.BILL_FULL_ACCESS, AUTHORITIES.BILL_VIEW_ONLY, AUTHORITIES.ADMIN]}>
+                  <Kitchen />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="bills"
+              element={
+                <PrivateRoute hasAnyAuthorities={[AUTHORITIES.KITCHEN_PREPARING_ITEM, AUTHORITIES.KITCHEN_RTS_ITEM, AUTHORITIES.ADMIN]}>
+                  <Bill />
+                </PrivateRoute>
+              }
+            />
             <Route path="*" element={<PageNotFound />} />
           </ErrorBoundaryRoutes>
         </div>

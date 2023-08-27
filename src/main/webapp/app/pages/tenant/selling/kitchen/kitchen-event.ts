@@ -3,7 +3,7 @@ enum KitchenEvent {
   ReceiveNewItem = 'receive-new-items',
   UpdateItems = 'update-items',
   NotifyReadyToServe = 'notify-ready-to-serve',
-  NotifyServed = 'notify-served',
+  HideRts = 'hide-rts',
   NotifyOutOfStock = 'notify-out-of-stock',
   ReceiveOrderCancellation = 'receive-order-cancellation',
 }

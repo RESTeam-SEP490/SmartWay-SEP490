@@ -3,6 +3,7 @@ import React from 'react';
 import { colors } from 'app/config/ant-design-theme';
 import { CheckCircleFilled, ClockCircleFilled, ClockCircleOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import { MdNotificationsActive, MdOutlineReceiptLong } from 'react-icons/md';
 
 type Status = 'available' | 'occupied' | 'billed' | 'selected';
 
@@ -38,11 +39,22 @@ export default function TableIcon({ size = 66, status = 'available', order }: { 
         <div
           className={`absolute top-1/2 left-1/2 -translate-x-[50%] -translate-y-[50%] flex gap-2 py-1 px-1.5 rounded-lg 
           ${status === 'billed' ? 'bg-green-100 text-green-600' : ''} 
-          ${status === 'occupied' ? 'bg-gray-100 text-gray-600' : ''}`}
+          ${status === 'occupied' ? 'bg-gray-200 text-gray-600' : ''}`}
           // ${isSelected ? 'bg-white text-blue-700' : 'bg-gray-100 text-gray-600'}
           // `}
         >
-          {status === 'billed' ? <CheckCircleFilled className="text-base" rev="" /> : <ClockCircleOutlined className="text-base" rev="" />}
+          {status === 'billed' ? (
+            <CheckCircleFilled className="text-base" rev="" />
+          ) : order?.isRequireToCheckOut ? (
+            <span className="relative flex w-6 h-6">
+              <span className="absolute inline-flex w-full h-full bg-green-500 rounded-full opacity-75 animate-ping"></span>
+              <span className="relative inline-flex items-center justify-center w-6 h-6 text-white bg-green-600 rounded-full">
+                <MdOutlineReceiptLong size={14} />
+              </span>
+            </span>
+          ) : (
+            <ClockCircleOutlined className="text-base p-1" rev="" />
+          )}
           {dayjs(order.createdDate).format('HH:mm')}
         </div>
       ) : (

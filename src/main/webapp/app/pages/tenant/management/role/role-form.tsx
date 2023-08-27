@@ -228,26 +228,12 @@ export const RoleForm = ({ role, handleCancel }: { role: IRole; handleCancel: an
             </div>
             <Select
               className="!w-48"
-              value={
-                [AUTHORITIES.KITCHEN_PREPARING_ITEM, AUTHORITIES.KITCHEN_RTS_ITEM].every(p => authorities.includes(p))
-                  ? true
-                  : authorities.includes(AUTHORITIES.KITCHEN_PREPARING_ITEM)
-                  ? 'pi_only'
-                  : authorities.includes(AUTHORITIES.KITCHEN_RTS_ITEM)
-                  ? 'rts_only'
-                  : false
-              }
+              value={[AUTHORITIES.KITCHEN_PREPARING_ITEM, AUTHORITIES.KITCHEN_RTS_ITEM].every(p => authorities.includes(p))}
               onSelect={value => {
-                if (typeof value === 'string') {
-                  const isAddPiOnly = value === 'pi_only';
-                  onChangeRolePermissions(AUTHORITIES.KITCHEN_PREPARING_ITEM, isAddPiOnly);
-                  onChangeRolePermissions(AUTHORITIES.KITCHEN_RTS_ITEM, !isAddPiOnly);
-                } else onChangeRolePermissions([AUTHORITIES.KITCHEN_PREPARING_ITEM, AUTHORITIES.KITCHEN_RTS_ITEM], value);
+                onChangeRolePermissions([AUTHORITIES.KITCHEN_PREPARING_ITEM, AUTHORITIES.KITCHEN_RTS_ITEM], value);
               }}
             >
               <Select.Option value={false}>No access</Select.Option>
-              <Select.Option value={'pi_only'}>Preparing items only</Select.Option>
-              <Select.Option value={'rts_only'}>Ready-to-serve only</Select.Option>
               <Select.Option value={true}>Full access</Select.Option>
             </Select>
           </div>
@@ -258,7 +244,13 @@ export const RoleForm = ({ role, handleCancel }: { role: IRole; handleCancel: an
             </div>
             <Select
               className="!w-28"
-              defaultValue={false}
+              defaultValue={
+                authorities.includes(AUTHORITIES.BILL_VIEW_ONLY)
+                  ? 'view_only'
+                  : authorities.includes(AUTHORITIES.BILL_FULL_ACCESS)
+                  ? true
+                  : false
+              }
               onSelect={value => {
                 if (typeof value === 'string') {
                   onChangeRolePermissions(AUTHORITIES.BILL_VIEW_ONLY, true);

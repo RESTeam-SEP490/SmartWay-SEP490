@@ -1,5 +1,6 @@
 import { DownOutlined, FileTextOutlined, LogoutOutlined, ShopOutlined, UserOutlined } from '@ant-design/icons';
 import { Avatar, Button, Dropdown, MenuProps } from 'antd';
+import { AUTHORITIES } from 'app/config/constants';
 import { useAppSelector } from 'app/config/store';
 import { RedirectLoginModal } from 'app/modules/login/redirect-login-modal';
 import React, { useState } from 'react';
@@ -8,6 +9,7 @@ import { Link, useNavigate } from 'react-router-dom';
 
 export const AuthenticatedAccountMenu = () => {
   const username = useAppSelector(state => state.authentication.account.username);
+  const { authorities } = useAppSelector(state => state.authentication.account);
 
   const items: MenuProps['items'] = [
     {
@@ -39,7 +41,11 @@ export const AuthenticatedAccountMenu = () => {
     },
   ];
   return (
-    <Dropdown menu={{ items }} placement="bottomRight" className="!text-base">
+    <Dropdown
+      menu={authorities.includes(AUTHORITIES.ADMIN) ? { items } : { items: items.filter(i => i.key !== 'restaurant') }}
+      placement="bottomRight"
+      className="!text-base"
+    >
       <div className="flex items-center p-2 text-base cursor-pointer">
         <span className="mr-4 ">{username}</span>
         <Avatar shape="square" size="default" className="!bg-blue-600" icon={<UserOutlined rev={UserOutlined} />} />

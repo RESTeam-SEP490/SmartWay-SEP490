@@ -18,6 +18,7 @@ public class OrderDTO {
     private Instant createdDate;
     private boolean isTakeAway;
     private boolean isCompleted;
+    private Boolean isRequireToCheckOut;
 
     @NotEmpty
     private List<DiningTableDTO> tableList;
