@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,6 +35,7 @@ public class BillResource {
     private final StatisticService statisticService;
 
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_BILL_FULLACCESS')")
     public ResponseEntity<List<BillDTO>> getAllBills(
         @RequestParam(required = false) Instant startDay,
         @RequestParam(required = false) Instant endDay,
@@ -52,6 +54,7 @@ public class BillResource {
     }
 
     @GetMapping("/daily-sales-bill")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_BILL_FULLACCESS', 'PERMISSION_BILL_VIEWONLY')")
     public ResponseEntity<StatisticDTO> getDailySalesBill() {
         StatisticDTO dailySalesStatistics = statisticService.calculateDailySalesBill();
         return ResponseEntity.ok(dailySalesStatistics);
