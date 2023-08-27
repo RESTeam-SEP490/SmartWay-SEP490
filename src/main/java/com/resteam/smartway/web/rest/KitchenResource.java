@@ -23,7 +23,7 @@ public class KitchenResource {
     private final KitchenService kitchenService;
 
     @GetMapping("/active-items")
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_KITCHEN_PREPARING_ITEM')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_KITCHEN_PREPARING_ITEM', 'PERMISSION_KITCHEN_RTS_ITEM')")
     @RestaurantRestricted
     public ResponseEntity<KitchenItemsDTO> getAllUncompletedOrder() {
         return ResponseEntity.ok(kitchenService.getAllOrderItemInKitchen());
