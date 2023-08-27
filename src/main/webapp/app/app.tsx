@@ -18,6 +18,7 @@ import { theme } from './config/ant-design-theme';
 import MainApp from './pages/main/app';
 import { TenantApp } from './pages/tenant/app';
 import { getAppUrl } from './shared/util/subdomain/helpers';
+import AdminApp from 'app/pages/system-admin/app';
 
 const baseHref = document.querySelector('base').getAttribute('href').replace(/\/$/, '');
 
@@ -47,7 +48,7 @@ export const App = () => {
       <Scrollbars className="!w-screen !h-screen">
         <ConfigProvider theme={theme}>
           <AntApp>
-            {/* {appType === 'admin' && <AdminAppRoutes />} */}
+            {appType === 'admin' && <AdminApp />}
             {appType === 'main' && <MainApp />}
             {appType === 'tenant' && <TenantApp />}
           </AntApp>
