@@ -11,6 +11,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,12 +28,14 @@ public class StatisticResource {
     private final StatisticService statisticService;
 
     @GetMapping("/daily-sales")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_DASHBOARD')")
     public ResponseEntity<StatisticDTO> getDailySalesStatistics() {
         StatisticDTO dailySalesStatistics = statisticService.calculateDailySalesStatistics();
         return ResponseEntity.ok(dailySalesStatistics);
     }
 
     @GetMapping("/revenue-by-time")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_DASHBOARD')")
     public StatisticDateRangeDTO calculateStatistics(@RequestParam Instant startDay, @RequestParam Instant endDay) {
         long daysBetween = Duration.between(startDay, endDay).toDays();
 
@@ -44,6 +47,7 @@ public class StatisticResource {
     }
 
     @GetMapping("/cancel-items")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_DASHBOARD')")
     public ResponseEntity<List<StatisticsCancellationDTO>> calculateCancelItems(
         @RequestParam Instant startDay,
         @RequestParam Instant endDay
@@ -53,6 +57,7 @@ public class StatisticResource {
     }
 
     @GetMapping("/best-sellers")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_DASHBOARD')")
     public ResponseEntity<List<TopSellingItemsDTO>> getTopSellingItems(@RequestParam Instant startDay, @RequestParam Instant endDay) {
         List<TopSellingItemsDTO> topSellingItems = statisticService.calculateTopSellingItemsStatistics(startDay, endDay);
         return ResponseEntity.ok(topSellingItems);

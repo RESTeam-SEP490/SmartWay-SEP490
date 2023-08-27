@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import tech.jhipster.web.util.HeaderUtil;
@@ -35,6 +37,7 @@ public class RestaurantResource {
     }
 
     @PutMapping("/restaurant")
+    @PostAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public ResponseEntity<RestaurantDTO> updateCurrentRestaurant(@Valid @RequestBody RestaurantDTO restaurantDTO) {
         RestaurantDTO result = restaurantService.updateRestaurantInformation(restaurantDTO);
         return ResponseEntity
@@ -44,12 +47,14 @@ public class RestaurantResource {
     }
 
     @GetMapping("/manage-restaurants")
+    @PreAuthorize("hasAnyAuthority('ROLE_SYSTEM_ADMIN')")
     public ResponseEntity<List<RestaurantDTO>> getListRestaurants() {
         List<RestaurantDTO> restaurantDTOs = restaurantService.getAllRestaurantDTOs();
         return ResponseEntity.ok(restaurantDTOs);
     }
 
     @GetMapping("/check-plan-expiry")
+    @PostAuthorize("hasAnyAuthority('ROLE_SYSTEM_ADMIN')")
     public ResponseEntity<String> checkPlanExpiryAndSendEmailsNow() {
         restaurantServiceImpl.checkPlanExpiryAndSendEmails();
         return ResponseEntity.ok("Email check and sending triggered.");

@@ -35,14 +35,14 @@ public class MenuItemCategoryResource {
     private final MenuItemCategoryService menuItemCategoryService;
 
     @GetMapping
-    //    @PostAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_MENUITEM_VIEW')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_MENUITEM')")
     public ResponseEntity<List<MenuItemCategoryDTO>> loadMenuItemCategories() {
         List<MenuItemCategoryDTO> menuItemCategoryList = menuItemCategoryService.loadAllMenuItemCategories();
         return ResponseEntity.ok(menuItemCategoryList);
     }
 
     @PostMapping
-    //    @PostAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_MENUITEM_CREATE')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_MENUITEM')")
     public ResponseEntity<MenuItemCategoryDTO> createMenuItemCategory(@Valid @RequestBody MenuItemCategoryDTO menuItemCategoryDTO) {
         if (menuItemCategoryDTO.getId() != null) {
             throw new BadRequestAlertException("A new entity cannot already have an ID", ENTITY_NAME, "id_exist");
@@ -55,7 +55,7 @@ public class MenuItemCategoryResource {
     }
 
     @PutMapping("/{id}")
-    //    @PostAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_MENUITEM_UPDATE')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_MENUITEM')")
     public ResponseEntity<MenuItemCategoryDTO> updateCategory(
         @PathVariable(value = "id", required = false) final String id,
         @Valid @RequestBody MenuItemCategoryDTO menuItemCategoryDTO
@@ -75,7 +75,7 @@ public class MenuItemCategoryResource {
     }
 
     @DeleteMapping("/{id}")
-    //    @PostAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_MENUITEM_DELETE')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_MENUITEM')")
     public ResponseEntity<Void> deleteCategory(@PathVariable("id") String id) {
         if (id == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");

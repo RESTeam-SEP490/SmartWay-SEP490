@@ -46,7 +46,7 @@ export const KitchenSlice = createSlice({
     notifyReadyToServe(state, action: PayloadAction<{ itemAdditionNotificationId: string; readyToServeQuantity: number }>) {
       return;
     },
-    notifyServed(state, action: PayloadAction<{ readyToServeNotificationId: string; servedQuantity: number }>) {
+    hideRts(state, action: PayloadAction<string>) {
       return;
     },
     disconnectStomp(state) {

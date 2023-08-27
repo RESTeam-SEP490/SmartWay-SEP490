@@ -44,6 +44,16 @@ export const addNote = createAsyncThunk(
   { serializeError: serializeAxiosError }
 );
 
+export const serveItems = createAsyncThunk(
+  'orders/serve_item',
+  async (detailAddnoteDto: { orderDetailId: string; serveQuantity: number }) => {
+    const requestUrl = `${apiUrl}/serve-items`;
+    const result = axios.put(requestUrl, detailAddnoteDto);
+    return result;
+  },
+  { serializeError: serializeAxiosError }
+);
+
 export const groupTables = createAsyncThunk(
   'orders/group_tables',
   async (dto: { orderId: string; tableList: string[] }, thunkAPI) => {
@@ -96,6 +106,16 @@ export const freeUpTable = createAsyncThunk(
   async (orderId: string, thunkAPI) => {
     const requestUrl = `${apiUrl}/free-up-table?orderId=${orderId}`;
     const result = axios.put<ArrayBuffer>(requestUrl);
+    return result;
+  },
+  { serializeError: serializeAxiosError }
+);
+
+export const changeIsRequireToCheckOut = createAsyncThunk(
+  'orders/change_is_require_to_check_out',
+  async (dto: { orderId: string; requireCheckOut: boolean }, thunkAPI) => {
+    const requestUrl = `${apiUrl}/change-is-require-check-out`;
+    const result = axios.put(requestUrl, dto);
     return result;
   },
   { serializeError: serializeAxiosError }
@@ -231,17 +251,46 @@ export const OrderSlice = createSlice({
 
         iframe.contentWindow.print();
       })
-      .addMatcher(isPending(addNote, groupTables, cancelOrderDetail, cancelOrder, checkOut, printBill, freeUpTable), (state, action) => {
-        state.updateSuccess = false;
-        state.updating = true;
-      })
-      .addMatcher(isFulfilled(addNote, groupTables, cancelOrderDetail, cancelOrder, freeUpTable), (state, action) => {
-        state.updateSuccess = true;
-        state.updating = false;
-      })
-      .addMatcher(isRejected(addNote, groupTables, getEntities, printBill, cancelOrder, cancelOrderDetail, checkOut), (state, action) => {
-        state.updating = false;
-      });
+      .addMatcher(
+        isPending(
+          addNote,
+          groupTables,
+          cancelOrderDetail,
+          cancelOrder,
+          checkOut,
+          printBill,
+          freeUpTable,
+          serveItems,
+          changeIsRequireToCheckOut
+        ),
+        (state, action) => {
+          state.updateSuccess = false;
+          state.updating = true;
+        }
+      )
+      .addMatcher(
+        isFulfilled(addNote, groupTables, cancelOrderDetail, cancelOrder, freeUpTable, serveItems, changeIsRequireToCheckOut),
+        (state, action) => {
+          state.updateSuccess = true;
+          state.updating = false;
+        }
+      )
+      .addMatcher(
+        isRejected(
+          addNote,
+          groupTables,
+          getEntities,
+          printBill,
+          cancelOrder,
+          cancelOrderDetail,
+          checkOut,
+          serveItems,
+          changeIsRequireToCheckOut
+        ),
+        (state, action) => {
+          state.updating = false;
+        }
+      );
   },
 });
 export const orderActions = OrderSlice.actions;

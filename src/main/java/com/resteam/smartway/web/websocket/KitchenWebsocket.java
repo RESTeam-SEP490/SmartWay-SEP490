@@ -1,22 +1,19 @@
 package com.resteam.smartway.web.websocket;
 
 import com.resteam.smartway.domain.order.OrderDetail;
-import com.resteam.smartway.domain.order.SwOrder;
-import com.resteam.smartway.domain.order.notifications.KitchenNotificationHistory;
 import com.resteam.smartway.domain.order.notifications.ReadyToServeNotification;
 import com.resteam.smartway.repository.order.KitchenNotificationHistoryRepository;
 import com.resteam.smartway.security.CustomUserDetails;
 import com.resteam.smartway.security.multitenancy.context.RestaurantContext;
 import com.resteam.smartway.service.KitchenService;
 import com.resteam.smartway.service.OrderService;
-import com.resteam.smartway.service.dto.order.KitchenItemsDTO;
 import com.resteam.smartway.service.dto.order.OrderDTO;
 import com.resteam.smartway.service.dto.order.notification.NotifyReadyToServeDTO;
-import com.resteam.smartway.service.dto.order.notification.NotifyServedDTO;
-import com.resteam.smartway.service.mapper.order.notification.ReadyToServeNotificationMapper;
+import com.resteam.smartway.service.dto.order.notification.ServeItemsDTO;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -52,10 +49,7 @@ public class KitchenWebsocket {
     ) {
         setRestaurantContext(principal);
         ReadyToServeNotification readyToServeNotification = kitchenService.markReadyToServe(dto);
-        simpMessagingTemplate.convertAndSend(
-            String.format(RECEIVE_DESTINATION_FORMAT, restaurantId),
-            kitchenService.getAllOrderItemInKitchen()
-        );
+        sendMessageToUpdateKitchenScreen();
 
         if (readyToServeNotification != null) {
             int adjustQuantity =
@@ -86,19 +80,14 @@ public class KitchenWebsocket {
             });
     }
 
-    @MessageMapping("/notify-served")
-    public void notifyServed(@Valid @Payload NotifyServedDTO dto, @DestinationVariable String restaurantId, Principal principal) {
+    @MessageMapping("/hide-rts")
+    public void notifyServed(@Valid @Payload UUID rtsId, Principal principal) {
         setRestaurantContext(principal);
-        ReadyToServeNotification readyToServeNotification = kitchenService.markServed(dto);
-        simpMessagingTemplate.convertAndSend(
-            String.format(RECEIVE_DESTINATION_FORMAT, restaurantId),
-            kitchenService.getAllOrderItemInKitchen()
-        );
-
-        if (dto.getServedQuantity() > 0) sendAlertToOrders("has-served-item", readyToServeNotification, dto.getServedQuantity());
+        kitchenService.hideRTS(rtsId);
+        sendMessageToUpdateKitchenScreen();
     }
 
-    private void sendAlertToOrders(String destinationPath, ReadyToServeNotification readyToServeNotification, int adjustQuantity) {
+    public void sendAlertToOrders(String destinationPath, ReadyToServeNotification readyToServeNotification, int adjustQuantity) {
         OrderDetail orderDetail = readyToServeNotification.getItemAdditionNotification().getOrderDetail();
         String itemInfo = String.format(
             "%s - %s - %s",
@@ -114,6 +103,13 @@ public class KitchenWebsocket {
             String.format("/orders/%s/%s", RestaurantContext.getCurrentRestaurant().getId(), destinationPath),
             orderService.findById(readyToServeNotification.getItemAdditionNotification().getOrderDetail().getOrder().getId()),
             headers
+        );
+    }
+
+    public void sendMessageToUpdateKitchenScreen() {
+        simpMessagingTemplate.convertAndSend(
+            String.format(RECEIVE_DESTINATION_FORMAT, RestaurantContext.getCurrentRestaurant().getId()),
+            kitchenService.getAllOrderItemInKitchen()
         );
     }
 

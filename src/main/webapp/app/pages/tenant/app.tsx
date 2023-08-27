@@ -60,6 +60,7 @@ export const LoadingOverlay = () => {
   const updating7 = useAppSelector(state => state.restaurant.updating);
   const loading8 = useAppSelector(state => state.tenant.loading);
   const updating8 = useAppSelector(state => state.tenant.updating);
+  const loading9 = useAppSelector(state => state.register.loading);
 
   const isShow =
     loading1 ||
@@ -76,7 +77,9 @@ export const LoadingOverlay = () => {
     updating7 ||
     loading7 ||
     updating8 ||
-    loading8;
+    loading8 ||
+    loading9;
+
   return (
     <div hidden={!isShow} className="fixed transition-opacity duration-1000 bg-white bg-opacity-70 top-0 bottom-0 left-0 right-0 z-[5000]">
       <div className="app-loading">

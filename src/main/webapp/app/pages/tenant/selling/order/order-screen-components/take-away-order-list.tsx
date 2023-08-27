@@ -1,4 +1,4 @@
-import { ClockCircleOutlined, PlusCircleFilled, ShoppingFilled } from '@ant-design/icons';
+import { CheckCircleFilled, ClockCircleOutlined, PlusCircleFilled, ShoppingFilled } from '@ant-design/icons';
 import { Typography } from 'antd';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { IOrder } from 'app/shared/model/order/order.model';
@@ -52,7 +52,6 @@ export const TakeAwayOrderList = () => {
 };
 
 const OrderCard = ({ order, handleSelectTable }: { order: IOrder; handleSelectTable?: any }) => {
-  const hasReadyToServeItem = order?.orderDetailList.some(detail => detail.readyToServeQuantity > 0);
   const currentOrder: IOrder = useAppSelector(state => state.order.currentOrder);
   const isSelected = currentOrder.id === order.id;
 
@@ -60,21 +59,27 @@ const OrderCard = ({ order, handleSelectTable }: { order: IOrder; handleSelectTa
     <div
       onClick={handleSelectTable}
       className={`relative flex flex-col items-center shadow-sm bg-white w-36 h-48 p-2 rounded-lg cursor-pointer hover:shadow-md border-2 border-solid ${
-        isSelected ? 'border-blue-700 !bg-blue-100' : 'border-transparent'
+        isSelected && order.paid ? 'border-green-700 !bg-green-100' : isSelected ? 'border-gray-700 bg-gray-100' : 'border-transparent'
       }`}
     >
-      <Typography.Text className={`pb-3 !mt-2 font-semibold ${isSelected ? '!text-blue-700' : ''}`}>{'#' + order.code}</Typography.Text>
-      <MdShoppingBag className={`text-4xl ${isSelected ? 'text-blue-700' : 'text-gray-400'}`} size={80} />
+      <Typography.Text
+        className={`pb-3 !mt-2 font-semibold ${isSelected && order.paid ? '!text-green-600' : isSelected ? '!text-gray-600' : ''}`}
+      >
+        {'#' + order.code}
+      </Typography.Text>
+      <MdShoppingBag className={`text-4xl ${order.paid ? 'text-green-600' : 'text-gray-400'}`} size={80} />
       {order ? (
-        <div className={`flex gap-2 mt-2 px-3 py-1 rounded-full ${isSelected ? 'bg-white text-blue-700' : 'bg-gray-100 text-gray-600'}`}>
-          <ClockCircleOutlined rev="" />
+        <div
+          className={`flex gap-2 mt-2 px-3 py-1 rounded-full ${order.paid ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-600'}`}
+        >
+          {order.paid ? <CheckCircleFilled className="text-base" rev="" /> : <ClockCircleOutlined rev="" />}
           {dayjs(order.createdDate).format('HH:mm')}
         </div>
       ) : (
         ''
       )}
       {order.orderDetailList.filter(detail => detail.quantity > 0).length > 0 &&
-        order.orderDetailList.every(o => o.servedQuantity === o.quantity) && (
+        order.orderDetailList.filter(detail => detail.quantity > 0).every(o => o.readyToServeQuantity === o.quantity) && (
           <span className="absolute flex w-6 h-6 -top-2 -right-2">
             <span className="absolute inline-flex w-full h-full bg-green-500 rounded-full opacity-75 animate-ping"></span>
             <span className="relative inline-flex items-center justify-center w-6 h-6 text-white bg-green-600 rounded-full">

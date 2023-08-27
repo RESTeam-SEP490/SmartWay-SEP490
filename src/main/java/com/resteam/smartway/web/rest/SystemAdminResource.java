@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
@@ -29,6 +30,7 @@ public class SystemAdminResource {
     private final String ENTITY_RESTAURANT = "restaurant";
 
     @GetMapping("restaurant")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SYSTEM_ADMIN')")
     public ResponseEntity<List<RestaurantDTO>> loadDiningTableWithSearch(
         Pageable pageable,
         @RequestParam(value = "search", required = false) String searchText,
@@ -43,6 +45,7 @@ public class SystemAdminResource {
     }
 
     @PutMapping("/restaurant")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SYSTEM_ADMIN')")
     public ResponseEntity<RestaurantDTO> updateIsActiveRestaurant(@RequestBody IsActiveUpdateDTO isActiveUpdateDTO) {
         restaurantService.updateIsActiveRestaurant(isActiveUpdateDTO);
         return ResponseEntity

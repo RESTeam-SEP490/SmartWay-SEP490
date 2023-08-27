@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import tech.jhipster.web.util.HeaderUtil;
@@ -31,12 +33,14 @@ public class ZoneResource {
     private final ZoneService zoneService;
 
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_TABLE')")
     public ResponseEntity<List<ZoneDTO>> loadZones() {
         List<ZoneDTO> zoneList = zoneService.loadAllZones();
         return ResponseEntity.ok(zoneList);
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_TABLE')")
     public ResponseEntity<ZoneDTO> createZone(@Valid @RequestBody ZoneDTO zoneDTO) {
         if (zoneDTO.getId() != null) {
             throw new BadRequestAlertException("A new entity cannot already have an ID", ENTITY_NAME, "id_exist");
@@ -49,6 +53,7 @@ public class ZoneResource {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_TABLE')")
     public ResponseEntity<ZoneDTO> updateRestaurant(
         @PathVariable(value = "id", required = false) final String id,
         @Valid @RequestBody ZoneDTO zoneDTO
@@ -68,6 +73,7 @@ public class ZoneResource {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'PERMISSION_TABLE')")
     public ResponseEntity<Void> deleteRestaurant(@PathVariable String id) {
         zoneService.deleteZone(UUID.fromString(id));
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id)).build();
